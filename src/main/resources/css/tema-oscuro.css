@@ -851,3 +851,45 @@
 .dialog-scroll > .viewport {
     -fx-background-color: transparent;
 }
+
+/* ---------- Productos y servicios (Fase 4) ---------- */
+
+.table-view .table-row-cell .table-cell.col-numero,
+.table-view .column-header.col-numero .label {
+    -fx-alignment: center-right;
+}
+
+.table-view .table-row-cell .table-cell.margen-negativo,
+.label.margen-negativo {
+    -fx-text-fill: #f87171;
+}
+
+.table-view .table-row-cell .table-cell.margen-bajo,
+.label.margen-bajo {
+    -fx-text-fill: #fbbf24;
+}
+
+.table-view .table-row-cell .table-cell.margen-ok,
+.label.margen-ok {
+    -fx-text-fill: #4ade80;
+}
+
+.table-view .table-row-cell:archivado .table-cell {
+    -fx-opacity: 0.5;
+}
+
+.text-area {
+    -fx-background-color: #0e1729;
+    -fx-background-radius: 8;
+    -fx-border-color: -ba-borde;
+    -fx-border-radius: 8;
+}
+
+.text-area .content {
+    -fx-background-color: #0e1729;
+    -fx-background-radius: 8;
+}
+
+.text-area:focused {
+    -fx-border-color: -ba-acento;
+}

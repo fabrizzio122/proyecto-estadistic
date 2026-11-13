@@ -100,6 +100,30 @@ public final class Dialogos {
         return dialogo.showAndWait().filter(aceptar::equals).isPresent();
     }
 
+    /** Ventana de solo lectura con un contenido cualquiera (tabla, detalle...) y botón "Cerrar". */
+    public static void informacion(Window propietario, String titulo, String descripcion, Node contenido) {
+        Dialog<ButtonType> dialogo = new Dialog<>();
+        if (propietario != null) {
+            dialogo.initOwner(propietario);
+        }
+        dialogo.setTitle(titulo);
+        dialogo.setHeaderText(titulo);
+        dialogo.getDialogPane().getButtonTypes().setAll(new ButtonType("Cerrar", ButtonBar.ButtonData.CANCEL_CLOSE));
+
+        VBox cuerpo = new VBox(14);
+        if (descripcion != null && !descripcion.isBlank()) {
+            Label texto = new Label(descripcion);
+            texto.getStyleClass().add("muted");
+            texto.setWrapText(true);
+            cuerpo.getChildren().add(texto);
+        }
+        cuerpo.getChildren().add(contenido);
+        cuerpo.setPrefWidth(640);
+        dialogo.getDialogPane().setContent(cuerpo);
+        Estilos.aplicar(dialogo.getDialogPane());
+        dialogo.showAndWait();
+    }
+
     private static void preparar(Alert alerta, Window propietario, String titulo) {
         if (propietario != null) {
             alerta.initOwner(propietario);

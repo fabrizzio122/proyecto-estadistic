@@ -23,7 +23,7 @@ public enum Modulo {
             Permiso.EMPRESAS_VER, "/fxml/empresas-view.fxml"),
     PRODUCTOS(Seccion.GESTION, "Productos y servicios",
             "Catálogo con costos, precios y márgenes", "fth-package", 4,
-            Permiso.PRODUCTOS_VER, null),
+            Permiso.PRODUCTOS_VER, "/fxml/productos-view.fxml"),
     VENTAS_COMPRAS(Seccion.GESTION, "Ventas y compras",
             "Registro de las operaciones comerciales", "fth-shopping-cart", 5,
             Permiso.OPERACIONES_VER, null),

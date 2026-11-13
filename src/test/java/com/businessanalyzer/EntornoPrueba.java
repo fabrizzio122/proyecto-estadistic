@@ -2,7 +2,15 @@ package com.businessanalyzer;
 
 import com.businessanalyzer.config.Database;
 import com.businessanalyzer.config.Migrador;
+import com.businessanalyzer.model.DatosEmpresa;
 import com.businessanalyzer.model.DatosUsuario;
+import com.businessanalyzer.model.Empresa;
+import com.businessanalyzer.model.Moneda;
+import com.businessanalyzer.model.Sector;
+import com.businessanalyzer.model.TamanoEmpresa;
+import com.businessanalyzer.repository.CategoriaRepository;
+import com.businessanalyzer.repository.ProductoRepository;
+import com.businessanalyzer.service.CatalogoService;
 import com.businessanalyzer.model.Rol;
 import com.businessanalyzer.model.Usuario;
 import com.businessanalyzer.repository.ConfiguracionRepository;
@@ -45,6 +53,7 @@ public final class EntornoPrueba {
     public final UsuarioService usuarioService;
     public final ConfiguracionService configuracion;
     public final EmpresaService empresaService;
+    public final CatalogoService catalogo;
 
     public EntornoPrueba(Path carpeta) {
         this(carpeta, new PasswordHasher(1_000));
@@ -59,6 +68,15 @@ public final class EntornoPrueba {
         this.configuracion = new ConfiguracionService(new ConfiguracionRepository(database));
         this.empresaService = new EmpresaService(database, new EmpresaRepository(), usuarios, configuracion,
                 sesion, reloj);
+        this.catalogo = new CatalogoService(database, new ProductoRepository(), new CategoriaRepository(),
+                empresaService, sesion, reloj);
+    }
+
+    /** Crea una empresa con datos mínimos (requiere sesión con permiso) y la deja activa. */
+    public Empresa crearEmpresaActiva(String razonSocial) {
+        Empresa empresa = empresaService.crear(new DatosEmpresa(razonSocial, null, null, Sector.COMERCIO,
+                TamanoEmpresa.MICRO, Moneda.PEN, 1, null, null, null, null));
+        return empresaService.seleccionarEmpresaActiva(empresa.id());
     }
 
     /** Crea un usuario con el rol indicado (requiere sesión de administrador). Contraseña: Temporal123. */
