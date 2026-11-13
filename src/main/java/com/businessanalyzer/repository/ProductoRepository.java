@@ -28,7 +28,11 @@ public class ProductoRepository {
     private static final String CONSULTA = """
             SELECT p.id, p.empresa_id, p.categoria_id, c.nombre AS categoria_nombre, p.tipo, p.codigo,
                    p.nombre, p.descripcion, p.unidad, p.costo_unitario, p.precio_venta, p.activo,
-                   p.creado_en, p.actualizado_en
+                   p.creado_en, p.actualizado_en,
+                   (SELECT COALESCE(SUM(CASE o.tipo WHEN 'COMPRA' THEN ol.cantidad ELSE -ol.cantidad END), 0)
+                    FROM operacion_linea ol
+                    JOIN operacion o ON o.id = ol.operacion_id
+                    WHERE ol.producto_id = p.id AND o.estado = 'REGISTRADA') AS stock
             FROM producto p
             LEFT JOIN categoria c ON c.id = p.categoria_id""";
 
@@ -124,6 +128,17 @@ public class ProductoRepository {
         }
     }
 
+    /** Nuevo costo unitario (por ejemplo, el precio pagado en la última compra). */
+    public void actualizarCosto(Connection c, long id, BigDecimal costo, LocalDateTime ahora) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement(
+                "UPDATE producto SET costo_unitario = ?, actualizado_en = ? WHERE id = ?")) {
+            ps.setLong(1, Montos.aEntero(costo));
+            ps.setString(2, Fechas.aTexto(ahora));
+            ps.setLong(3, id);
+            exigirUnaFila(ps.executeUpdate());
+        }
+    }
+
     // ------------------------------------------------------------------ historial de precios
 
     public void registrarPrecio(Connection c, long productoId, BigDecimal costo, BigDecimal precio,
@@ -183,18 +198,20 @@ public class ProductoRepository {
             while (rs.next()) {
                 long categoriaId = rs.getLong("categoria_id");
                 boolean sinCategoria = rs.wasNull();
+                TipoItem tipo = TipoItem.valueOf(rs.getString("tipo"));
                 productos.add(new Producto(
                         rs.getLong("id"),
                         rs.getLong("empresa_id"),
                         sinCategoria ? null : categoriaId,
                         rs.getString("categoria_nombre"),
-                        TipoItem.valueOf(rs.getString("tipo")),
+                        tipo,
                         rs.getString("codigo"),
                         rs.getString("nombre"),
                         rs.getString("descripcion"),
                         UnidadMedida.valueOf(rs.getString("unidad")),
                         Montos.desdeEntero(rs.getLong("costo_unitario")),
                         Montos.desdeEntero(rs.getLong("precio_venta")),
+                        tipo == TipoItem.PRODUCTO ? Montos.desdeEntero(rs.getLong("stock")) : null,
                         rs.getInt("activo") == 1,
                         Fechas.desdeTexto(rs.getString("creado_en")),
                         Fechas.desdeTexto(rs.getString("actualizado_en"))));

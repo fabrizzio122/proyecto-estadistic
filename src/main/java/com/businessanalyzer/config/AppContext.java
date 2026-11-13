@@ -3,6 +3,7 @@ package com.businessanalyzer.config;
 import com.businessanalyzer.repository.CategoriaRepository;
 import com.businessanalyzer.repository.ConfiguracionRepository;
 import com.businessanalyzer.repository.EmpresaRepository;
+import com.businessanalyzer.repository.OperacionRepository;
 import com.businessanalyzer.repository.ProductoRepository;
 import com.businessanalyzer.repository.RegistroAccesoRepository;
 import com.businessanalyzer.repository.RolRepository;
@@ -13,6 +14,7 @@ import com.businessanalyzer.service.AutenticacionService;
 import com.businessanalyzer.service.CatalogoService;
 import com.businessanalyzer.service.ConfiguracionService;
 import com.businessanalyzer.service.EmpresaService;
+import com.businessanalyzer.service.OperacionService;
 import com.businessanalyzer.service.UsuarioService;
 
 import java.io.IOException;
@@ -36,6 +38,7 @@ public final class AppContext {
     private final UsuarioService usuarioService;
     private final EmpresaService empresaService;
     private final CatalogoService catalogoService;
+    private final OperacionService operacionService;
 
     private AppContext(AppConfig config, Database database, int versionEsquema) {
         this.config = config;
@@ -55,8 +58,11 @@ public final class AppContext {
                 registroAccesoRepository, hasher, sesion, reloj);
         this.empresaService = new EmpresaService(database, new EmpresaRepository(), usuarioRepository,
                 configuracionService, sesion, reloj);
-        this.catalogoService = new CatalogoService(database, new ProductoRepository(), new CategoriaRepository(),
+        ProductoRepository productoRepository = new ProductoRepository();
+        this.catalogoService = new CatalogoService(database, productoRepository, new CategoriaRepository(),
                 empresaService, sesion, reloj);
+        this.operacionService = new OperacionService(database, new OperacionRepository(), productoRepository,
+                empresaService, configuracionService, sesion, reloj);
     }
 
     /** Prepara las carpetas, migra la base de datos y crea los servicios. */
@@ -101,5 +107,9 @@ public final class AppContext {
 
     public CatalogoService catalogo() {
         return catalogoService;
+    }
+
+    public OperacionService operaciones() {
+        return operacionService;
     }
 }

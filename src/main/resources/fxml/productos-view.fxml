@@ -51,10 +51,11 @@
             <TableView fx:id="tabla" VBox.vgrow="ALWAYS">
                 <columns>
                     <TableColumn fx:id="colCodigo" text="Código" prefWidth="80"/>
-                    <TableColumn fx:id="colNombre" text="Nombre" prefWidth="210"/>
+                    <TableColumn fx:id="colNombre" text="Nombre" prefWidth="195"/>
                     <TableColumn fx:id="colTipo" text="Tipo" prefWidth="80"/>
                     <TableColumn fx:id="colCategoria" text="Categoría" prefWidth="120"/>
-                    <TableColumn fx:id="colUnidad" text="Unidad" prefWidth="60"/>
+                    <TableColumn fx:id="colUnidad" text="Unidad" prefWidth="75"/>
+                    <TableColumn fx:id="colStock" text="Stock" prefWidth="70" styleClass="col-numero"/>
                     <TableColumn fx:id="colCosto" text="Costo" prefWidth="95" styleClass="col-numero"/>
                     <TableColumn fx:id="colPrecio" text="Precio" prefWidth="95" styleClass="col-numero"/>
                     <TableColumn fx:id="colMargen" text="Margen" prefWidth="95" styleClass="col-numero"/>
@@ -65,7 +66,7 @@
                 </columnResizePolicy>
             </TableView>
             <Label fx:id="lblNota" styleClass="hint" wrapText="true"
-                   text="Precios sin impuestos. Margen % = (precio − costo) ÷ precio. En rojo: se vende por debajo del costo; en ámbar: margen menor al 20 %."/>
+                   text="Precios sin impuestos. Margen % = (precio − costo) ÷ precio. En rojo: se vende por debajo del costo; en ámbar: margen menor al 20 %. Stock = compras − ventas registradas."/>
         </VBox>
     </Tab>
 

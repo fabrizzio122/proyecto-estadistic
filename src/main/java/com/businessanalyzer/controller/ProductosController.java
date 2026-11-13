@@ -85,6 +85,7 @@ public class ProductosController implements VistaModulo {
     @FXML private TableColumn<Producto, String> colTipo;
     @FXML private TableColumn<Producto, String> colCategoria;
     @FXML private TableColumn<Producto, String> colUnidad;
+    @FXML private TableColumn<Producto, BigDecimal> colStock;
     @FXML private TableColumn<Producto, BigDecimal> colCosto;
     @FXML private TableColumn<Producto, BigDecimal> colPrecio;
     @FXML private TableColumn<Producto, BigDecimal> colMargen;
@@ -360,6 +361,23 @@ public class ProductosController implements VistaModulo {
         colTipo.setCellValueFactory(c -> texto(c.getValue().tipo().descripcion()));
         colCategoria.setCellValueFactory(c -> texto(Objects.requireNonNullElse(c.getValue().categoriaNombre(), "")));
         colUnidad.setCellValueFactory(c -> texto(c.getValue().unidad().abreviatura()));
+        colStock.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().stock()));
+        colStock.setComparator(Comparator.nullsFirst(Comparator.naturalOrder()));
+        colStock.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(BigDecimal stock, boolean vacio) {
+                super.updateItem(stock, vacio);
+                getStyleClass().remove("margen-negativo");
+                if (vacio) {
+                    setText(null);
+                    return;
+                }
+                setText(stock == null ? "—" : Montos.cantidad(stock));
+                if (stock != null && stock.signum() < 0) {
+                    getStyleClass().add("margen-negativo");
+                }
+            }
+        });
 
         colCosto.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().costoUnitario()));
         colPrecio.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().precioVenta()));

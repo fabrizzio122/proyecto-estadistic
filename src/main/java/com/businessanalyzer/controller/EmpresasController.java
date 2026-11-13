@@ -42,8 +42,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 import javafx.util.StringConverter;
 
+import com.businessanalyzer.ui.CamposFecha;
+
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -386,21 +387,7 @@ public class EmpresasController implements VistaModulo {
                     return null;
                 }
             });
-            dpInicio.setPromptText("dd/mm/aaaa");
-            dpInicio.setConverter(new StringConverter<>() {
-                private final DateTimeFormatter mostrar = DateTimeFormatter.ofPattern("dd/MM/uuuu");
-                private final DateTimeFormatter leer = DateTimeFormatter.ofPattern("d/M/uuuu");
-
-                @Override
-                public String toString(LocalDate fecha) {
-                    return fecha == null ? "" : fecha.format(mostrar);
-                }
-
-                @Override
-                public LocalDate fromString(String texto) {
-                    return texto == null || texto.isBlank() ? null : LocalDate.parse(texto.strip(), leer);
-                }
-            });
+            CamposFecha.configurar(dpInicio);
             txtRuc.setPromptText("Ej.: 20601234567");
 
             if (e == null) {
@@ -438,20 +425,10 @@ public class EmpresasController implements VistaModulo {
         }
 
         DatosEmpresa datos() {
-            // Si el usuario escribió la fecha sin confirmarla con Enter, se intenta interpretar.
-            if (dpInicio.getEditor().getText() != null && !dpInicio.getEditor().getText().isBlank()) {
-                try {
-                    dpInicio.setValue(dpInicio.getConverter().fromString(dpInicio.getEditor().getText()));
-                } catch (RuntimeException formatoInvalido) {
-                    throw new com.businessanalyzer.exception.ValidacionException(
-                            "La fecha de inicio de operaciones no es válida. Usa el formato dd/mm/aaaa.");
-                }
-            } else {
-                dpInicio.setValue(null);
-            }
+            LocalDate inicio = CamposFecha.leer(dpInicio, "inicio de operaciones");
             return new DatosEmpresa(txtRazon.getText(), txtNombre.getText(), txtRuc.getText(),
                     cmbSector.getValue(), cmbTamano.getValue(), cmbMoneda.getValue(), cmbMes.getValue(),
-                    dpInicio.getValue(), txtDireccion.getText(), txtTelefono.getText(), txtEmail.getText());
+                    inicio, txtDireccion.getText(), txtTelefono.getText(), txtEmail.getText());
         }
     }
 }

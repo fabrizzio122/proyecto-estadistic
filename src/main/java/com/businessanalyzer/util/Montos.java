@@ -64,6 +64,11 @@ public final class Montos {
         return formato("#,##0.00##").format(valor);
     }
 
+    /** Cantidades: sin decimales innecesarios ({@code 3}, {@code 2.5}, {@code 1,200}). */
+    public static String cantidad(BigDecimal valor) {
+        return valor == null ? "—" : formato("#,##0.####").format(valor);
+    }
+
     /** {@code S/ 1,234.50}; los negativos se muestran como {@code -S/ 5.00}. */
     public static String formatear(BigDecimal valor, Moneda moneda) {
         if (valor == null) {

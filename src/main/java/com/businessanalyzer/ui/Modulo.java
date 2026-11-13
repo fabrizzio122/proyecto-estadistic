@@ -26,7 +26,7 @@ public enum Modulo {
             Permiso.PRODUCTOS_VER, "/fxml/productos-view.fxml"),
     VENTAS_COMPRAS(Seccion.GESTION, "Ventas y compras",
             "Registro de las operaciones comerciales", "fth-shopping-cart", 5,
-            Permiso.OPERACIONES_VER, null),
+            Permiso.OPERACIONES_VER, "/fxml/operaciones-view.fxml"),
     FINANZAS(Seccion.GESTION, "Gestión financiera",
             "Ingresos, gastos y costos fijos y variables", "fth-dollar-sign", 6,
             Permiso.FINANZAS_VER, null),

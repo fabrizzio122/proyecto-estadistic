@@ -56,6 +56,12 @@ public final class Dialogos {
      */
     public static boolean formulario(Window propietario, String titulo, String descripcion,
                                      Node contenido, String textoAceptar, Runnable accion) {
+        return formulario(propietario, titulo, descripcion, contenido, textoAceptar, 480, accion);
+    }
+
+    /** Igual que el anterior, indicando el ancho del formulario en píxeles. */
+    public static boolean formulario(Window propietario, String titulo, String descripcion,
+                                     Node contenido, String textoAceptar, double ancho, Runnable accion) {
         Dialog<ButtonType> dialogo = new Dialog<>();
         if (propietario != null) {
             dialogo.initOwner(propietario);
@@ -81,7 +87,7 @@ public final class Dialogos {
             cuerpo.getChildren().add(texto);
         }
         cuerpo.getChildren().addAll(contenido, error);
-        cuerpo.setPrefWidth(480);
+        cuerpo.setPrefWidth(ancho);
         dialogo.getDialogPane().setContent(cuerpo);
         Estilos.aplicar(dialogo.getDialogPane());
 

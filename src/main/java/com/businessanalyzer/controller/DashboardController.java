@@ -5,6 +5,10 @@ import com.businessanalyzer.config.AppContext;
 import com.businessanalyzer.model.Empresa;
 import com.businessanalyzer.model.Permiso;
 import com.businessanalyzer.util.Fechas;
+import com.businessanalyzer.util.Montos;
+import com.businessanalyzer.analytics.ResumenOperaciones;
+import com.businessanalyzer.ui.Errores;
+import java.time.LocalDate;
 import org.kordamp.ikonli.javafx.FontIcon;
 import com.businessanalyzer.ui.Dialogos;
 import com.businessanalyzer.ui.Modulo;
@@ -44,6 +48,8 @@ public class DashboardController implements VistaModulo {
     @FXML private Label lblJava;
     @FXML private Label lblJavaFx;
 
+    private final TarjetaIndicador kpiVentasMes = new TarjetaIndicador("Ventas del mes", "fth-shopping-bag");
+
     public DashboardController(AppContext contexto) {
         this.contexto = contexto;
     }
@@ -51,8 +57,8 @@ public class DashboardController implements VistaModulo {
     @FXML
     private void initialize() {
         String detalle = "Disponible desde la Fase " + Modulo.ANALISIS_FINANCIERO.fase();
+        indicadores.getChildren().add(kpiVentasMes);
         Stream.of(
-                new TarjetaIndicador("Ventas del mes", "fth-shopping-bag"),
                 new TarjetaIndicador("Utilidad neta", "fth-dollar-sign"),
                 new TarjetaIndicador("Margen neto", "fth-percent"),
                 new TarjetaIndicador("Punto de equilibrio", "fth-target")
@@ -88,6 +94,24 @@ public class DashboardController implements VistaModulo {
             lblBannerDetalle.setText(contexto.sesion().tienePermiso(Permiso.EMPRESAS_GESTIONAR)
                     ? "Registra tu primera empresa en el módulo Empresas o elige una en el selector de la barra superior."
                     : "Pide a un administrador que te asigne una empresa para empezar a trabajar.");
+        }
+        actualizarVentasDelMes(empresa.orElse(null));
+    }
+
+    /** Ventas netas (sin impuestos ni anuladas) del mes en curso. */
+    private void actualizarVentasDelMes(Empresa empresa) {
+        if (empresa == null || !contexto.sesion().tienePermiso(Permiso.OPERACIONES_VER)) {
+            kpiVentasMes.actualizar(TarjetaIndicador.SIN_VALOR, "Requiere una empresa activa");
+            return;
+        }
+        try {
+            LocalDate hoy = LocalDate.now();
+            ResumenOperaciones r = contexto.operaciones().resumen(hoy.withDayOfMonth(1), hoy);
+            kpiVentasMes.actualizar(Montos.formatear(r.ventasNetas(), empresa.moneda()),
+                    r.cantidadVentas() + (r.cantidadVentas() == 1 ? " venta" : " ventas")
+                            + " · margen bruto " + Montos.porcentaje(r.margenBrutoSobreVentas()));
+        } catch (RuntimeException e) {
+            kpiVentasMes.actualizar(TarjetaIndicador.SIN_VALOR, Errores.mensaje(e));
         }
     }
 
