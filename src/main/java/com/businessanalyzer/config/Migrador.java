@@ -31,7 +31,8 @@ public final class Migrador {
     static final List<Migracion> MIGRACIONES = List.of(
             new Migracion(1, "Esquema base", "/db/migration/V1__esquema_base.sql"),
             new Migracion(2, "Usuarios, roles y permisos", "/db/migration/V2__usuarios_roles_permisos.sql"),
-            new Migracion(3, "Empresas", "/db/migration/V3__empresas.sql")
+            new Migracion(3, "Empresas", "/db/migration/V3__empresas.sql"),
+            new Migracion(4, "Productos y servicios", "/db/migration/V4__productos_servicios.sql")
     );
 
     private static final Logger log = LoggerFactory.getLogger(Migrador.class);

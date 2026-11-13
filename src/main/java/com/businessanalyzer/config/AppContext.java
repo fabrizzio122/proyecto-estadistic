@@ -1,13 +1,16 @@
 package com.businessanalyzer.config;
 
+import com.businessanalyzer.repository.CategoriaRepository;
 import com.businessanalyzer.repository.ConfiguracionRepository;
 import com.businessanalyzer.repository.EmpresaRepository;
+import com.businessanalyzer.repository.ProductoRepository;
 import com.businessanalyzer.repository.RegistroAccesoRepository;
 import com.businessanalyzer.repository.RolRepository;
 import com.businessanalyzer.repository.UsuarioRepository;
 import com.businessanalyzer.seguridad.PasswordHasher;
 import com.businessanalyzer.seguridad.Sesion;
 import com.businessanalyzer.service.AutenticacionService;
+import com.businessanalyzer.service.CatalogoService;
 import com.businessanalyzer.service.ConfiguracionService;
 import com.businessanalyzer.service.EmpresaService;
 import com.businessanalyzer.service.UsuarioService;
@@ -32,6 +35,7 @@ public final class AppContext {
     private final AutenticacionService autenticacionService;
     private final UsuarioService usuarioService;
     private final EmpresaService empresaService;
+    private final CatalogoService catalogoService;
 
     private AppContext(AppConfig config, Database database, int versionEsquema) {
         this.config = config;
@@ -51,6 +55,8 @@ public final class AppContext {
                 registroAccesoRepository, hasher, sesion, reloj);
         this.empresaService = new EmpresaService(database, new EmpresaRepository(), usuarioRepository,
                 configuracionService, sesion, reloj);
+        this.catalogoService = new CatalogoService(database, new ProductoRepository(), new CategoriaRepository(),
+                empresaService, sesion, reloj);
     }
 
     /** Prepara las carpetas, migra la base de datos y crea los servicios. */
@@ -91,5 +97,9 @@ public final class AppContext {
 
     public EmpresaService empresas() {
         return empresaService;
+    }
+
+    public CatalogoService catalogo() {
+        return catalogoService;
     }
 }

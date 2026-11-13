@@ -156,6 +156,20 @@ public class EmpresaService {
     }
 
     /**
+     * Empresa sobre la que se registran los datos de negocio. Vuelve a comprobar en la base de
+     * datos que el usuario sigue teniendo acceso y que la empresa no fue archivada.
+     */
+    public Empresa empresaDeTrabajo() {
+        Empresa activa = sesion.empresaActivaRequerida();
+        Empresa actual = database.conConexion(c -> exigirAcceso(c, activa.id()));
+        if (!actual.activa()) {
+            throw new ValidacionException("La empresa \"" + actual.nombreVisible()
+                    + "\" fue archivada. Elige otra en la barra superior.");
+        }
+        return actual;
+    }
+
+    /**
      * Al iniciar sesión: vuelve a abrir la última empresa usada. Si ya no está disponible,
      * elige la primera empresa activa a la que el usuario tiene acceso.
      */
