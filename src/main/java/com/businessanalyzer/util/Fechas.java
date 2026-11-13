@@ -1,6 +1,10 @@
 package com.businessanalyzer.util;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
@@ -12,6 +16,8 @@ public final class Fechas {
 
     private static final DateTimeFormatter ISO = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
     private static final DateTimeFormatter PANTALLA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final DateTimeFormatter FECHA_PANTALLA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final Locale ESPANOL = Locale.forLanguageTag("es");
 
     private Fechas() {
     }
@@ -26,5 +32,24 @@ public final class Fechas {
 
     public static String paraMostrar(LocalDateTime fecha) {
         return fecha == null ? "—" : fecha.format(PANTALLA);
+    }
+
+    /** Fecha sin hora en formato ISO ({@code 2026-11-13}). */
+    public static String fechaATexto(LocalDate fecha) {
+        return fecha == null ? null : fecha.format(DateTimeFormatter.ISO_LOCAL_DATE);
+    }
+
+    public static LocalDate fechaDesdeTexto(String texto) {
+        return texto == null || texto.isBlank() ? null : LocalDate.parse(texto, DateTimeFormatter.ISO_LOCAL_DATE);
+    }
+
+    public static String paraMostrar(LocalDate fecha) {
+        return fecha == null ? "—" : fecha.format(FECHA_PANTALLA);
+    }
+
+    /** Nombre del mes en español con mayúscula inicial (1 = Enero). */
+    public static String nombreMes(int mes) {
+        String nombre = Month.of(mes).getDisplayName(TextStyle.FULL, ESPANOL);
+        return Character.toUpperCase(nombre.charAt(0)) + nombre.substring(1);
     }
 }

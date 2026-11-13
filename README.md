@@ -36,7 +36,7 @@ com.businessanalyzer
 ├── controller    controladores de las vistas FXML (sin SQL ni cálculos)
 ├── service       lógica de negocio y validaciones
 ├── repository    acceso a datos con SQL parametrizado
-├── model         entidades: Usuario, Rol, Permiso...
+├── model         entidades: Usuario, Rol, Permiso, Empresa...
 ├── seguridad     hash de contraseñas (PBKDF2), política de contraseñas y sesión
 ├── analytics     motores financiero, estadístico y predictivo (desde la Fase 7)
 ├── exception     errores de datos y de validación
@@ -51,7 +51,7 @@ automáticamente al iniciar y dentro de una transacción.
 
 1. Base: estructura, SQLite y migraciones, ventana principal y tema oscuro ✅
 2. Usuarios, roles, permisos e inicio de sesión ✅
-3. Empresas
+3. Empresas, acceso por empresa y empresa activa ✅
 4. Productos y servicios
 5. Ventas y compras
 6. Gestión financiera
@@ -70,3 +70,9 @@ automáticamente al iniciar y dentro de una transacción.
 - **Bloqueo:** 5 intentos fallidos bloquean la cuenta durante 15 minutos.
 - **Roles:** Administrador, Gerente, Analista y Operador. Los permisos se comprueban en los servicios, no solo en la interfaz.
 - **Registro de accesos:** inicios de sesión, fallos, bloqueos y cambios en las cuentas quedan auditados.
+
+## Empresas
+
+- Cada usuario trabaja sobre una **empresa activa**, que elige en el selector de la barra superior. El sistema recuerda la última que usó.
+- Los **administradores** ven todas las empresas. El resto de usuarios ve solo las que tiene asignadas (desde *Acciones → Usuarios con acceso*). Quien registra una empresa queda asignado a ella.
+- Las empresas no se eliminan: se **archivan** para conservar su historial y se pueden reactivar.

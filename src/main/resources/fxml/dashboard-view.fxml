@@ -7,12 +7,22 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.businessanalyzer.controller.DashboardController"
             fitToWidth="true" styleClass="page-scroll">
 
     <VBox spacing="20" styleClass="page">
+
+        <!-- Empresa activa (o aviso si no hay ninguna) -->
+        <HBox fx:id="bannerEmpresa" styleClass="banner" spacing="14" alignment="CENTER_LEFT">
+            <FontIcon fx:id="iconoBanner" styleClass="banner-icon"/>
+            <VBox spacing="2">
+                <Label fx:id="lblBannerTitulo" styleClass="step-title"/>
+                <Label fx:id="lblBannerDetalle" styleClass="muted" wrapText="true"/>
+            </VBox>
+        </HBox>
 
         <!-- Tarjetas de indicadores (se crean en DashboardController) -->
         <HBox fx:id="indicadores" spacing="16"/>

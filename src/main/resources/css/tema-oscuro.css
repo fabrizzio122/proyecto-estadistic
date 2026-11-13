@@ -716,3 +716,138 @@
 .progress-indicator {
     -fx-progress-color: -ba-acento;
 }
+
+/* ---------- Empresas (Fase 3) ---------- */
+
+.company-selector {
+    -fx-background-color: -ba-acento-suave;
+    -fx-background-radius: 999;
+    -fx-border-color: #155e8a;
+    -fx-border-radius: 999;
+    -fx-padding: 4 12;
+}
+
+.company-selector > .label {
+    -fx-text-fill: -ba-acento;
+    -fx-font-weight: bold;
+}
+
+.company-selector:vacio {
+    -fx-background-color: #3a2a0c;
+    -fx-border-color: #92400e;
+}
+
+.company-selector:vacio > .label,
+.company-selector:vacio .ikonli-font-icon {
+    -fx-text-fill: #fbbf24;
+    -fx-icon-color: #fbbf24;
+}
+
+.radio-menu-item:checked > .left-container > .radio {
+    -fx-background-color: -ba-acento;
+}
+
+.banner {
+    -fx-background-color: -ba-tarjeta;
+    -fx-background-radius: 12;
+    -fx-border-color: -ba-borde;
+    -fx-border-radius: 12;
+    -fx-padding: 14 20;
+}
+
+.banner-icon {
+    -fx-icon-color: -ba-acento;
+    -fx-icon-size: 22;
+}
+
+.banner.banner-aviso {
+    -fx-background-color: #2a2110;
+    -fx-border-color: #92400e;
+}
+
+.banner.banner-aviso .banner-icon {
+    -fx-icon-color: #fbbf24;
+}
+
+.badge-actual {
+    -fx-background-color: -ba-acento-suave;
+    -fx-text-fill: -ba-acento;
+}
+
+.check-box > .label {
+    -fx-text-fill: -ba-texto;
+}
+
+.check-box > .box {
+    -fx-background-color: #0e1729;
+    -fx-background-radius: 4;
+    -fx-border-color: -ba-borde;
+    -fx-border-radius: 4;
+}
+
+.check-box:selected > .box {
+    -fx-background-color: -ba-acento-fuerte;
+    -fx-border-color: -ba-acento-fuerte;
+}
+
+.check-box:selected > .box > .mark {
+    -fx-background-color: white;
+}
+
+.date-picker {
+    -fx-background-color: transparent;
+}
+
+.date-picker > .text-field {
+    -fx-background-radius: 8 0 0 8;
+    -fx-border-radius: 8 0 0 8;
+}
+
+.date-picker > .arrow-button {
+    -fx-background-color: #1b2742;
+    -fx-background-radius: 0 8 8 0;
+    -fx-border-color: -ba-borde;
+    -fx-border-radius: 0 8 8 0;
+}
+
+.date-picker > .arrow-button > .arrow {
+    -fx-background-color: -ba-texto-sec;
+}
+
+.date-picker-popup {
+    -fx-background-color: #18243d;
+    -fx-border-color: -ba-borde;
+}
+
+.date-picker-popup > .month-year-pane {
+    -fx-background-color: #111a2e;
+}
+
+.date-picker-popup .label,
+.date-picker-popup .day-cell,
+.date-picker-popup .day-name-cell {
+    -fx-text-fill: -ba-texto;
+}
+
+.date-picker-popup .day-cell {
+    -fx-background-color: #18243d;
+}
+
+.date-picker-popup .day-cell:hover,
+.date-picker-popup .selected {
+    -fx-background-color: -ba-acento-suave;
+}
+
+.date-picker-popup .today {
+    -fx-border-color: -ba-acento;
+}
+
+.date-picker-popup .previous-month,
+.date-picker-popup .next-month {
+    -fx-text-fill: -ba-texto-tenue;
+}
+
+.dialog-scroll,
+.dialog-scroll > .viewport {
+    -fx-background-color: transparent;
+}

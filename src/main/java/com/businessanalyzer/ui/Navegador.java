@@ -39,6 +39,18 @@ public final class Navegador {
         }
     }
 
+    /**
+     * Tras cambiar la empresa activa: descarta las vistas en memoria (se recargarán con los
+     * datos de la nueva empresa cuando se abran) y refresca la que está a la vista.
+     */
+    public void alCambiarEmpresa(Modulo visible) {
+        cargadas.keySet().removeIf(modulo -> modulo != visible);
+        VistaCargada vista = cargadas.get(visible);
+        if (vista != null && vista.controlador() instanceof VistaModulo vm) {
+            vm.alMostrar();
+        }
+    }
+
     private VistaCargada cargar(Modulo modulo) throws IOException {
         FXMLLoader loader = Vistas.cargador(modulo.vista(), contexto);
         Parent raiz = loader.load();
