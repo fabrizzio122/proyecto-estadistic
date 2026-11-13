@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<!-- Ventana principal: menu lateral | barra superior + contenido + barra de estado.
+     La capa superior del StackPane aloja las notificaciones flotantes. -->
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.businessanalyzer.controller.MainController"
+           styleClass="app-root">
+
+    <BorderPane>
+        <left>
+            <VBox styleClass="sidebar" prefWidth="250" minWidth="250">
+                <HBox styleClass="brand">
+                    <FontIcon iconLiteral="fth-bar-chart-2" styleClass="brand-icon"/>
+                    <VBox>
+                        <Label text="Business Analyzer" styleClass="brand-title"/>
+                        <Label text="Desktop 1.0" styleClass="brand-subtitle"/>
+                    </VBox>
+                </HBox>
+                <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="sidebar-scroll"
+                            VBox.vgrow="ALWAYS">
+                    <VBox fx:id="menu" styleClass="sidebar-menu"/>
+                </ScrollPane>
+            </VBox>
+        </left>
+
+        <center>
+            <VBox>
+                <HBox styleClass="topbar">
+                    <VBox spacing="2">
+                        <Label fx:id="tituloModulo" styleClass="topbar-title"/>
+                        <Label fx:id="descripcionModulo" styleClass="topbar-subtitle"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label text="Sin empresa seleccionada" styleClass="chip">
+                        <graphic>
+                            <FontIcon iconLiteral="fth-briefcase"/>
+                        </graphic>
+                    </Label>
+                </HBox>
+
+                <StackPane fx:id="contenido" styleClass="content" VBox.vgrow="ALWAYS"/>
+
+                <HBox styleClass="statusbar">
+                    <Label fx:id="estadoBaseDatos"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="estadoVersion"/>
+                </HBox>
+            </VBox>
+        </center>
+    </BorderPane>
+
+    <VBox fx:id="notificaciones" styleClass="toast-container" pickOnBounds="false"
+          StackPane.alignment="TOP_RIGHT" maxWidth="420" maxHeight="-Infinity"/>
+</StackPane>
