@@ -65,6 +65,6 @@ class MargenesTest {
 
     private static Producto item(TipoItem tipo, String costo, String precio, boolean activo) {
         return new Producto(1, 1, null, null, tipo, "X", "Ítem", null, UnidadMedida.UNIDAD,
-                new BigDecimal(costo), new BigDecimal(precio), activo, null, null);
+                new BigDecimal(costo), new BigDecimal(precio), null, activo, null, null);
     }
 }

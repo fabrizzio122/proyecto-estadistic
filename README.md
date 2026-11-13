@@ -54,7 +54,7 @@ automáticamente al iniciar y dentro de una transacción.
 2. Usuarios, roles, permisos e inicio de sesión ✅
 3. Empresas, acceso por empresa y empresa activa ✅
 4. Productos y servicios: catálogo, categorías, márgenes e historial de precios ✅
-5. Ventas y compras
+5. Ventas y compras: operaciones con detalle, impuestos, stock y anulación ✅
 6. Gestión financiera
 7. Análisis financiero
 8. Análisis estadístico
@@ -83,3 +83,12 @@ automáticamente al iniciar y dentro de una transacción.
 - En Java se usa siempre `BigDecimal`, nunca `double`.
 - En SQLite se guardan como enteros en diezmilésimas (4 decimales): `12.50` se guarda como `125000`. Así los montos son exactos y se pueden sumar directamente en SQL.
 - Los precios del catálogo se registran sin impuestos.
+
+## Ventas, compras y stock
+
+- Cada venta o compra se guarda en **una sola transacción**: cabecera, líneas y, en compras, la actualización de costos. O se guarda todo o nada.
+- **Numeración** automática por empresa: V-000001 para ventas y C-000001 para compras.
+- **Stock** = compras − ventas registradas. Se calcula; no se guarda aparte, así nunca se desincroniza.
+- Cada venta guarda el **costo del producto en ese momento**, así el margen histórico no cambia aunque el costo cambie después.
+- Si una venta supera el stock, el sistema **avisa y pide confirmación** (el stock puede quedar negativo).
+- Las operaciones no se borran: se **anulan** con un motivo y dejan de contar en el stock y los totales.

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
  *
  * @param costoUnitario costo de adquirir o producir una unidad (costo variable unitario)
  * @param precioVenta   precio de venta de una unidad, sin impuestos
+ * @param stock         unidades disponibles (compras − ventas registradas); {@code null} en servicios
  */
 public record Producto(
         long id,
@@ -23,6 +24,7 @@ public record Producto(
         UnidadMedida unidad,
         BigDecimal costoUnitario,
         BigDecimal precioVenta,
+        BigDecimal stock,
         boolean activo,
         LocalDateTime creadoEn,
         LocalDateTime actualizadoEn) {
