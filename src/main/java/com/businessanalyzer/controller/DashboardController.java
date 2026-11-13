@@ -77,8 +77,11 @@ public class DashboardController implements VistaModulo {
         titulo.getStyleClass().add("step-title");
         Label descripcion = new Label(modulo.descripcion());
         descripcion.getStyleClass().add("muted");
-        Label fase = new Label("Fase " + modulo.fase());
+        Label fase = new Label(modulo.disponible() ? "Disponible" : "Fase " + modulo.fase());
         fase.getStyleClass().add("chip");
+        if (modulo.disponible()) {
+            fase.getStyleClass().add("chip-ok");
+        }
 
         VBox textos = new VBox(2, titulo, descripcion);
         HBox.setHgrow(textos, javafx.scene.layout.Priority.ALWAYS);

@@ -3,13 +3,10 @@ package com.businessanalyzer;
 import com.businessanalyzer.config.AppConfig;
 import com.businessanalyzer.config.AppContext;
 import com.businessanalyzer.ui.Dialogos;
-import com.businessanalyzer.ui.Estilos;
 import com.businessanalyzer.ui.Notificador;
-import com.businessanalyzer.ui.Vistas;
+import com.businessanalyzer.ui.Ventana;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +15,8 @@ import org.slf4j.LoggerFactory;
  * Ciclo de vida de la aplicacion JavaFX.
  * <ul>
  *     <li>{@link #init()} corre fuera del hilo grafico: prepara carpetas y migra la base de datos.</li>
- *     <li>{@link #start(Stage)} construye la ventana principal.</li>
+ *     <li>{@link #start(Stage)} abre la ventana en la pantalla de acceso.</li>
+ *     <li>{@link #stop()} registra el cierre de sesion al salir.</li>
  * </ul>
  */
 public class BusinessAnalyzerApp extends Application {
@@ -58,20 +56,24 @@ public class BusinessAnalyzerApp extends Application {
         });
 
         try {
-            Parent raiz = Vistas.cargador(Vistas.PRINCIPAL, contexto).load();
-            Scene escena = new Scene(raiz, 1280, 800);
-            Estilos.aplicar(escena);
-
+            Ventana ventana = new Ventana(stage, contexto);
+            ventana.mostrarAcceso();
             stage.setTitle(NOMBRE + " " + VERSION);
             stage.setMinWidth(1024);
             stage.setMinHeight(680);
-            stage.setScene(escena);
             stage.show();
         } catch (Exception e) {
             log.error("No se pudo construir la ventana principal", e);
             Dialogos.error(null, "No se pudo iniciar " + NOMBRE,
                     "No se pudo cargar la ventana principal.", e);
             Platform.exit();
+        }
+    }
+
+    @Override
+    public void stop() {
+        if (contexto != null) {
+            contexto.autenticacion().cerrarSesion();
         }
     }
 }

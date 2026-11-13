@@ -18,6 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MigradorTest {
 
+    private static final int ULTIMA_VERSION =
+            Migrador.MIGRACIONES.get(Migrador.MIGRACIONES.size() - 1).version();
+
     @TempDir
     Path carpeta;
 
@@ -32,8 +35,9 @@ class MigradorTest {
     void aplicaElEsquemaBaseEnUnaBaseNueva() {
         int version = new Migrador(database).migrar();
 
-        assertEquals(1, version);
+        assertEquals(ULTIMA_VERSION, version);
         assertTrue(existeTabla("configuracion"));
+        assertTrue(existeTabla("usuario"));
         assertEquals("oscuro", valorConfiguracion("app.tema"));
     }
 
@@ -42,8 +46,8 @@ class MigradorTest {
         new Migrador(database).migrar();
         int version = new Migrador(database).migrar();
 
-        assertEquals(1, version);
-        assertEquals(1, contarFilas("schema_version"));
+        assertEquals(ULTIMA_VERSION, version);
+        assertEquals(Migrador.MIGRACIONES.size(), contarFilas("schema_version"));
         assertEquals(1, contarFilas("configuracion"));
     }
 
@@ -51,11 +55,11 @@ class MigradorTest {
     void unaMigracionFallidaSeRevierteCompleta() {
         new Migrador(database).migrar();
         List<Migracion> conFallo = new ArrayList<>(Migrador.MIGRACIONES);
-        conFallo.add(new Migracion(2, "Script con error", "/db/test/V2__con_error.sql"));
+        conFallo.add(new Migracion(ULTIMA_VERSION + 1, "Script con error", "/db/test/V99__con_error.sql"));
 
         assertThrows(DataAccessException.class, () -> new Migrador(database, conFallo).migrar());
 
-        assertEquals(1, new Migrador(database).versionActual());
+        assertEquals(ULTIMA_VERSION, new Migrador(database).versionActual());
         assertFalse(existeTabla("tabla_parcial"), "La primera sentencia del script fallido no debe quedar aplicada");
     }
 
