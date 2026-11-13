@@ -1,0 +1,392 @@
+/*
+ * Business Analyzer - tema oscuro.
+ * Paleta: azul oscuro (fondos), gris (bordes y textos secundarios),
+ * blanco (texto principal) y azul celeste (acento).
+ * Los colores se definen una sola vez como variables en .root.
+ */
+
+.root {
+    /* Paleta propia */
+    -ba-fondo: #0b1220;
+    -ba-lateral: #0a1020;
+    -ba-tarjeta: #141e34;
+    -ba-tarjeta-hover: #1a2742;
+    -ba-borde: #22304d;
+    -ba-texto: #e6ebf5;
+    -ba-texto-sec: #8d9bb5;
+    -ba-texto-tenue: #64748b;
+    -ba-acento: #38bdf8;
+    -ba-acento-fuerte: #0284c7;
+    -ba-acento-suave: #0c2a45;
+    -ba-exito: #22c55e;
+    -ba-advertencia: #f59e0b;
+    -ba-error: #ef4444;
+
+    /* Base de Modena: hace que los controles estandar se vean oscuros */
+    -fx-base: #1b2742;
+    -fx-background: -ba-fondo;
+    -fx-control-inner-background: #111a2e;
+    -fx-accent: -ba-acento-fuerte;
+    -fx-focus-color: -ba-acento;
+    -fx-faint-focus-color: #38bdf822;
+    -fx-default-button: -ba-acento-fuerte;
+
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-size: 13px;
+}
+
+.app-root {
+    -fx-background-color: -ba-fondo;
+}
+
+/* ---------- Menu lateral ---------- */
+
+.sidebar {
+    -fx-background-color: -ba-lateral;
+    -fx-border-color: -ba-borde;
+    -fx-border-width: 0 1 0 0;
+}
+
+.brand {
+    -fx-padding: 22 20 18 20;
+    -fx-spacing: 12;
+    -fx-alignment: center-left;
+}
+
+.brand-icon {
+    -fx-icon-color: -ba-acento;
+    -fx-icon-size: 28;
+}
+
+.brand-title {
+    -fx-text-fill: -ba-texto;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.brand-subtitle {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-font-size: 11px;
+}
+
+.sidebar-scroll,
+.sidebar-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.sidebar-menu {
+    -fx-padding: 0 12 16 12;
+    -fx-spacing: 2;
+}
+
+.sidebar-section {
+    -fx-text-fill: -ba-texto-tenue;
+    -fx-font-size: 10.5px;
+    -fx-font-weight: bold;
+    -fx-padding: 14 10 6 10;
+}
+
+.sidebar-item {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-text-fill: #b4c0d6;
+    -fx-padding: 9 12;
+    -fx-graphic-text-gap: 12;
+    -fx-cursor: hand;
+}
+
+.sidebar-item .ikonli-font-icon {
+    -fx-icon-color: #7d8db0;
+    -fx-icon-size: 16;
+}
+
+.sidebar-item:hover {
+    -fx-background-color: -ba-tarjeta;
+    -fx-text-fill: -ba-texto;
+}
+
+.sidebar-item:selected {
+    -fx-background-color: -ba-acento-suave;
+    -fx-text-fill: -ba-acento;
+}
+
+.sidebar-item:selected .ikonli-font-icon {
+    -fx-icon-color: -ba-acento;
+}
+
+/* ---------- Barra superior y de estado ---------- */
+
+.topbar {
+    -fx-background-color: -ba-fondo;
+    -fx-padding: 20 28 16 28;
+    -fx-alignment: center-left;
+    -fx-border-color: -ba-borde;
+    -fx-border-width: 0 0 1 0;
+}
+
+.topbar-title {
+    -fx-text-fill: -ba-texto;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.topbar-subtitle {
+    -fx-text-fill: -ba-texto-sec;
+}
+
+.content {
+    -fx-background-color: -ba-fondo;
+}
+
+.statusbar {
+    -fx-background-color: -ba-lateral;
+    -fx-padding: 6 16;
+    -fx-border-color: -ba-borde;
+    -fx-border-width: 1 0 0 0;
+}
+
+.statusbar .label {
+    -fx-text-fill: -ba-texto-tenue;
+    -fx-font-size: 11px;
+}
+
+/* ---------- Paginas y tarjetas ---------- */
+
+.page-scroll,
+.page-scroll > .viewport {
+    -fx-background-color: -ba-fondo;
+}
+
+.page {
+    -fx-padding: 24 28;
+    -fx-background-color: -ba-fondo;
+}
+
+.card,
+.kpi-card,
+.empty-state {
+    -fx-background-color: -ba-tarjeta;
+    -fx-background-radius: 12;
+    -fx-border-color: -ba-borde;
+    -fx-border-radius: 12;
+    -fx-padding: 20;
+}
+
+.card-title {
+    -fx-text-fill: -ba-texto;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.muted {
+    -fx-text-fill: -ba-texto-sec;
+}
+
+.chip {
+    -fx-background-color: -ba-tarjeta;
+    -fx-background-radius: 999;
+    -fx-border-color: -ba-borde;
+    -fx-border-radius: 999;
+    -fx-padding: 5 12;
+    -fx-text-fill: -ba-texto-sec;
+    -fx-font-size: 12px;
+    -fx-graphic-text-gap: 8;
+}
+
+.chip .ikonli-font-icon {
+    -fx-icon-color: -ba-texto-sec;
+    -fx-icon-size: 13;
+}
+
+/* Indicadores (KPI) */
+.kpi-card {
+    -fx-padding: 18 20;
+    -fx-min-width: 180;
+}
+
+.kpi-card:hover {
+    -fx-background-color: -ba-tarjeta-hover;
+}
+
+.kpi-title {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-font-size: 12px;
+}
+
+.kpi-icon {
+    -fx-icon-color: -ba-acento;
+    -fx-icon-size: 18;
+}
+
+.kpi-value {
+    -fx-text-fill: -ba-texto;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.kpi-detail {
+    -fx-text-fill: -ba-texto-tenue;
+    -fx-font-size: 11.5px;
+}
+
+/* Primeros pasos */
+.step-number {
+    -fx-background-color: -ba-acento-suave;
+    -fx-background-radius: 999;
+    -fx-text-fill: -ba-acento;
+    -fx-font-weight: bold;
+    -fx-min-width: 28;
+    -fx-min-height: 28;
+    -fx-alignment: center;
+}
+
+.step-title {
+    -fx-text-fill: -ba-texto;
+    -fx-font-weight: bold;
+}
+
+/* Estado del sistema */
+.info-key {
+    -fx-text-fill: -ba-texto-sec;
+}
+
+.info-value {
+    -fx-text-fill: -ba-texto;
+}
+
+/* Modulo en construccion */
+.empty-state {
+    -fx-padding: 40;
+}
+
+.empty-icon {
+    -fx-icon-color: -ba-acento;
+    -fx-icon-size: 48;
+}
+
+.empty-title {
+    -fx-text-fill: -ba-texto;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.empty-text {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-text-alignment: center;
+}
+
+/* ---------- Botones ---------- */
+
+.button {
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 8 16;
+    -fx-cursor: hand;
+}
+
+.button-primary {
+    -fx-background-color: -ba-acento-fuerte;
+    -fx-text-fill: white;
+}
+
+.button-primary:hover {
+    -fx-background-color: #0ea5e9;
+}
+
+.button-secondary {
+    -fx-background-color: #1b2742;
+    -fx-text-fill: -ba-texto;
+    -fx-border-color: -ba-borde;
+}
+
+.button-secondary:hover {
+    -fx-background-color: #22304f;
+}
+
+/* ---------- Notificaciones ---------- */
+
+.toast-container {
+    -fx-padding: 16;
+    -fx-spacing: 10;
+    -fx-alignment: top-right;
+}
+
+.toast {
+    -fx-background-color: #18243d;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-padding: 12 16;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 18, 0, 0, 4);
+    -fx-cursor: hand;
+}
+
+.toast .label {
+    -fx-text-fill: -ba-texto;
+}
+
+.toast .ikonli-font-icon {
+    -fx-icon-size: 18;
+}
+
+.toast-exito { -fx-border-color: -ba-exito; }
+.toast-exito .ikonli-font-icon { -fx-icon-color: -ba-exito; }
+.toast-info { -fx-border-color: -ba-acento; }
+.toast-info .ikonli-font-icon { -fx-icon-color: -ba-acento; }
+.toast-advertencia { -fx-border-color: -ba-advertencia; }
+.toast-advertencia .ikonli-font-icon { -fx-icon-color: -ba-advertencia; }
+.toast-error { -fx-border-color: -ba-error; }
+.toast-error .ikonli-font-icon { -fx-icon-color: -ba-error; }
+
+/* ---------- Dialogos ---------- */
+
+.dialog-pane {
+    -fx-background-color: -ba-tarjeta;
+}
+
+.dialog-pane > .header-panel {
+    -fx-background-color: -ba-lateral;
+    -fx-border-color: -ba-borde;
+    -fx-border-width: 0 0 1 0;
+}
+
+.dialog-pane > .header-panel .label {
+    -fx-text-fill: -ba-texto;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.dialog-pane > .content.label {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-padding: 16 20;
+}
+
+/* ---------- Tooltips y barras de desplazamiento ---------- */
+
+.tooltip {
+    -fx-background-color: #1b2742;
+    -fx-text-fill: -ba-texto;
+    -fx-background-radius: 6;
+    -fx-font-size: 12px;
+}
+
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #2a3a5c;
+    -fx-background-radius: 6;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-padding: 0;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
+}

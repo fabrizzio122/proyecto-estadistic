@@ -1,0 +1,116 @@
+package com.businessanalyzer.ui;
+
+import java.util.Arrays;
+import java.util.Optional;
+
+/**
+ * Modulos del sistema tal como aparecen en el menu lateral (en este orden).
+ * <p>
+ * Un modulo sin vista propia muestra una pantalla "en construccion" que indica la fase en
+ * la que se implementa. Al construir un modulo basta con asignarle su archivo FXML aqui.
+ */
+public enum Modulo {
+
+    DASHBOARD(Seccion.GENERAL, "Dashboard",
+            "Resumen de los indicadores clave del negocio", "fth-grid", 1, "/fxml/dashboard-view.fxml"),
+
+    EMPRESAS(Seccion.GESTION, "Empresas",
+            "Registro de las empresas y negocios a analizar", "fth-briefcase", 3, null),
+    PRODUCTOS(Seccion.GESTION, "Productos y servicios",
+            "Catálogo con costos, precios y márgenes", "fth-package", 4, null),
+    VENTAS_COMPRAS(Seccion.GESTION, "Ventas y compras",
+            "Registro de las operaciones comerciales", "fth-shopping-cart", 5, null),
+    FINANZAS(Seccion.GESTION, "Gestión financiera",
+            "Ingresos, gastos y costos fijos y variables", "fth-dollar-sign", 6, null),
+
+    ANALISIS_FINANCIERO(Seccion.ANALISIS, "Análisis financiero",
+            "Estado de resultados, márgenes, ratios y punto de equilibrio", "fth-pie-chart", 7, null),
+    ESTADISTICA(Seccion.ANALISIS, "Análisis estadístico",
+            "Tendencias, estacionalidad, dispersión y análisis ABC", "fth-bar-chart-2", 8, null),
+    PREDICCIONES(Seccion.ANALISIS, "Predicciones",
+            "Proyección de ventas y resultados de los próximos meses", "fth-trending-up", 9, null),
+    ESCENARIOS(Seccion.ANALISIS, "Simulación de escenarios",
+            "Qué pasaría si cambian los precios, costos o volúmenes", "fth-sliders", 10, null),
+    DIAGNOSTICO(Seccion.ANALISIS, "Diagnóstico empresarial",
+            "Semáforo de riesgos y recomendaciones", "fth-activity", 11, null),
+    INFORMES(Seccion.ANALISIS, "Informes y reportes",
+            "Reportes en PDF y exportación a Excel", "fth-file-text", 12, null),
+
+    USUARIOS(Seccion.SISTEMA, "Usuarios y permisos",
+            "Cuentas, roles y control de acceso", "fth-users", 2, null),
+    CONFIGURACION(Seccion.SISTEMA, "Configuración",
+            "Preferencias y copias de seguridad", "fth-settings", 13, null);
+
+    /** Grupos del menu lateral. */
+    public enum Seccion {
+        GENERAL("General"),
+        GESTION("Gestión"),
+        ANALISIS("Análisis"),
+        SISTEMA("Sistema");
+
+        private final String titulo;
+
+        Seccion(String titulo) {
+            this.titulo = titulo;
+        }
+
+        public String titulo() {
+            return titulo;
+        }
+    }
+
+    public static final String VISTA_PENDIENTE = "/fxml/modulo-pendiente-view.fxml";
+
+    private final Seccion seccion;
+    private final String titulo;
+    private final String descripcion;
+    private final String icono;
+    private final int fase;
+    private final String fxml;
+
+    Modulo(Seccion seccion, String titulo, String descripcion, String icono, int fase, String fxml) {
+        this.seccion = seccion;
+        this.titulo = titulo;
+        this.descripcion = descripcion;
+        this.icono = icono;
+        this.fase = fase;
+        this.fxml = fxml;
+    }
+
+    public Seccion seccion() {
+        return seccion;
+    }
+
+    public String titulo() {
+        return titulo;
+    }
+
+    public String descripcion() {
+        return descripcion;
+    }
+
+    /** Codigo del icono Feather (Ikonli), por ejemplo {@code fth-grid}. */
+    public String icono() {
+        return icono;
+    }
+
+    /** Fase del proyecto en la que se implementa el modulo. */
+    public int fase() {
+        return fase;
+    }
+
+    public boolean disponible() {
+        return fxml != null;
+    }
+
+    /** Ruta FXML a mostrar: la propia o la de "en construccion". */
+    public String vista() {
+        return disponible() ? fxml : VISTA_PENDIENTE;
+    }
+
+    public static Optional<Modulo> desdeNombre(String nombre) {
+        return Arrays.stream(values())
+                .filter(m -> m.name().equals(nombre))
+                .findFirst();
+    }
+}
