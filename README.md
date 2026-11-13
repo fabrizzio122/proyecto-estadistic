@@ -55,7 +55,7 @@ automáticamente al iniciar y dentro de una transacción.
 3. Empresas, acceso por empresa y empresa activa ✅
 4. Productos y servicios: catálogo, categorías, márgenes e historial de precios ✅
 5. Ventas y compras: operaciones con detalle, impuestos, stock y anulación ✅
-6. Gestión financiera
+6. Gestión financiera: ingresos y gastos, costos fijos y variables ✅
 7. Análisis financiero
 8. Análisis estadístico
 9. Predicciones
@@ -92,3 +92,11 @@ automáticamente al iniciar y dentro de una transacción.
 - Cada venta guarda el **costo del producto en ese momento**, así el margen histórico no cambia aunque el costo cambie después.
 - Si una venta supera el stock, el sistema **avisa y pide confirmación** (el stock puede quedar negativo).
 - Las operaciones no se borran: se **anulan** con un motivo y dejan de contar en el stock y los totales.
+
+## Gestión financiera
+
+- Ingresos y gastos que **no** son ventas ni compras de mercadería: alquiler, sueldos, servicios, publicidad, intereses, etc.
+- Cada gasto es **fijo** (no cambia con las ventas) o **variable** (sube o baja con ellas). La categoría lo sugiere y el usuario puede cambiarlo. Es la base del punto de equilibrio.
+- Cada categoría pertenece a un **grupo** del estado de resultados: gasto operativo, gasto financiero, impuesto a la renta, ingreso financiero u otro ingreso.
+- **Copiar gastos fijos del mes anterior** los repite en el mes actual sin duplicarlos.
+- Se aceptan fechas hasta el fin del mes en curso, para registrar por adelantado la planilla y el alquiler.

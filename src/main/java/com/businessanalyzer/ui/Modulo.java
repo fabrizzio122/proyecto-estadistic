@@ -29,7 +29,7 @@ public enum Modulo {
             Permiso.OPERACIONES_VER, "/fxml/operaciones-view.fxml"),
     FINANZAS(Seccion.GESTION, "Gestión financiera",
             "Ingresos, gastos y costos fijos y variables", "fth-dollar-sign", 6,
-            Permiso.FINANZAS_VER, null),
+            Permiso.FINANZAS_VER, "/fxml/finanzas-view.fxml"),
 
     ANALISIS_FINANCIERO(Seccion.ANALISIS, "Análisis financiero",
             "Estado de resultados, márgenes, ratios y punto de equilibrio", "fth-pie-chart", 7,
