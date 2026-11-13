@@ -1,9 +1,17 @@
 package com.businessanalyzer.config;
 
 import com.businessanalyzer.repository.ConfiguracionRepository;
+import com.businessanalyzer.repository.RegistroAccesoRepository;
+import com.businessanalyzer.repository.RolRepository;
+import com.businessanalyzer.repository.UsuarioRepository;
+import com.businessanalyzer.seguridad.PasswordHasher;
+import com.businessanalyzer.seguridad.Sesion;
+import com.businessanalyzer.service.AutenticacionService;
 import com.businessanalyzer.service.ConfiguracionService;
+import com.businessanalyzer.service.UsuarioService;
 
 import java.io.IOException;
+import java.time.Clock;
 
 /**
  * Contenedor de las dependencias compartidas de la aplicacion (inyeccion manual,
@@ -17,13 +25,27 @@ public final class AppContext {
     private final AppConfig config;
     private final Database database;
     private final int versionEsquema;
+    private final Sesion sesion = new Sesion();
     private final ConfiguracionService configuracionService;
+    private final AutenticacionService autenticacionService;
+    private final UsuarioService usuarioService;
 
     private AppContext(AppConfig config, Database database, int versionEsquema) {
         this.config = config;
         this.database = database;
         this.versionEsquema = versionEsquema;
+
+        Clock reloj = Clock.systemDefaultZone();
+        PasswordHasher hasher = new PasswordHasher();
+        RolRepository rolRepository = new RolRepository();
+        UsuarioRepository usuarioRepository = new UsuarioRepository(rolRepository);
+        RegistroAccesoRepository registroAccesoRepository = new RegistroAccesoRepository();
+
         this.configuracionService = new ConfiguracionService(new ConfiguracionRepository(database));
+        this.autenticacionService = new AutenticacionService(database, usuarioRepository, rolRepository,
+                registroAccesoRepository, hasher, sesion, reloj);
+        this.usuarioService = new UsuarioService(database, usuarioRepository, rolRepository,
+                registroAccesoRepository, hasher, sesion, reloj);
     }
 
     /** Prepara las carpetas, migra la base de datos y crea los servicios. */
@@ -46,7 +68,19 @@ public final class AppContext {
         return versionEsquema;
     }
 
+    public Sesion sesion() {
+        return sesion;
+    }
+
     public ConfiguracionService configuracion() {
         return configuracionService;
+    }
+
+    public AutenticacionService autenticacion() {
+        return autenticacionService;
+    }
+
+    public UsuarioService usuarios() {
+        return usuarioService;
     }
 }

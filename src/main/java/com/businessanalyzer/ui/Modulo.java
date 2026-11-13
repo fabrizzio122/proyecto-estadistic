@@ -1,5 +1,7 @@
 package com.businessanalyzer.ui;
 
+import com.businessanalyzer.model.Permiso;
+
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -8,38 +10,52 @@ import java.util.Optional;
  * <p>
  * Un modulo sin vista propia muestra una pantalla "en construccion" que indica la fase en
  * la que se implementa. Al construir un modulo basta con asignarle su archivo FXML aqui.
+ * Cada modulo solo aparece en el menu si el usuario tiene el permiso indicado.
  */
 public enum Modulo {
 
     DASHBOARD(Seccion.GENERAL, "Dashboard",
-            "Resumen de los indicadores clave del negocio", "fth-grid", 1, "/fxml/dashboard-view.fxml"),
+            "Resumen de los indicadores clave del negocio", "fth-grid", 1,
+            Permiso.DASHBOARD_VER, "/fxml/dashboard-view.fxml"),
 
     EMPRESAS(Seccion.GESTION, "Empresas",
-            "Registro de las empresas y negocios a analizar", "fth-briefcase", 3, null),
+            "Registro de las empresas y negocios a analizar", "fth-briefcase", 3,
+            Permiso.EMPRESAS_VER, null),
     PRODUCTOS(Seccion.GESTION, "Productos y servicios",
-            "Catálogo con costos, precios y márgenes", "fth-package", 4, null),
+            "Catálogo con costos, precios y márgenes", "fth-package", 4,
+            Permiso.PRODUCTOS_VER, null),
     VENTAS_COMPRAS(Seccion.GESTION, "Ventas y compras",
-            "Registro de las operaciones comerciales", "fth-shopping-cart", 5, null),
+            "Registro de las operaciones comerciales", "fth-shopping-cart", 5,
+            Permiso.OPERACIONES_VER, null),
     FINANZAS(Seccion.GESTION, "Gestión financiera",
-            "Ingresos, gastos y costos fijos y variables", "fth-dollar-sign", 6, null),
+            "Ingresos, gastos y costos fijos y variables", "fth-dollar-sign", 6,
+            Permiso.FINANZAS_VER, null),
 
     ANALISIS_FINANCIERO(Seccion.ANALISIS, "Análisis financiero",
-            "Estado de resultados, márgenes, ratios y punto de equilibrio", "fth-pie-chart", 7, null),
+            "Estado de resultados, márgenes, ratios y punto de equilibrio", "fth-pie-chart", 7,
+            Permiso.ANALISIS_VER, null),
     ESTADISTICA(Seccion.ANALISIS, "Análisis estadístico",
-            "Tendencias, estacionalidad, dispersión y análisis ABC", "fth-bar-chart-2", 8, null),
+            "Tendencias, estacionalidad, dispersión y análisis ABC", "fth-bar-chart-2", 8,
+            Permiso.ANALISIS_VER, null),
     PREDICCIONES(Seccion.ANALISIS, "Predicciones",
-            "Proyección de ventas y resultados de los próximos meses", "fth-trending-up", 9, null),
+            "Proyección de ventas y resultados de los próximos meses", "fth-trending-up", 9,
+            Permiso.ANALISIS_VER, null),
     ESCENARIOS(Seccion.ANALISIS, "Simulación de escenarios",
-            "Qué pasaría si cambian los precios, costos o volúmenes", "fth-sliders", 10, null),
+            "Qué pasaría si cambian los precios, costos o volúmenes", "fth-sliders", 10,
+            Permiso.ANALISIS_VER, null),
     DIAGNOSTICO(Seccion.ANALISIS, "Diagnóstico empresarial",
-            "Semáforo de riesgos y recomendaciones", "fth-activity", 11, null),
+            "Semáforo de riesgos y recomendaciones", "fth-activity", 11,
+            Permiso.ANALISIS_VER, null),
     INFORMES(Seccion.ANALISIS, "Informes y reportes",
-            "Reportes en PDF y exportación a Excel", "fth-file-text", 12, null),
+            "Reportes en PDF y exportación a Excel", "fth-file-text", 12,
+            Permiso.INFORMES_GENERAR, null),
 
     USUARIOS(Seccion.SISTEMA, "Usuarios y permisos",
-            "Cuentas, roles y control de acceso", "fth-users", 2, null),
+            "Cuentas, roles y control de acceso", "fth-users", 2,
+            Permiso.USUARIOS_GESTIONAR, "/fxml/usuarios-view.fxml"),
     CONFIGURACION(Seccion.SISTEMA, "Configuración",
-            "Preferencias y copias de seguridad", "fth-settings", 13, null);
+            "Preferencias y copias de seguridad", "fth-settings", 13,
+            Permiso.CONFIGURACION_GESTIONAR, null);
 
     /** Grupos del menu lateral. */
     public enum Seccion {
@@ -66,14 +82,17 @@ public enum Modulo {
     private final String descripcion;
     private final String icono;
     private final int fase;
+    private final Permiso permiso;
     private final String fxml;
 
-    Modulo(Seccion seccion, String titulo, String descripcion, String icono, int fase, String fxml) {
+    Modulo(Seccion seccion, String titulo, String descripcion, String icono, int fase,
+           Permiso permiso, String fxml) {
         this.seccion = seccion;
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.icono = icono;
         this.fase = fase;
+        this.permiso = permiso;
         this.fxml = fxml;
     }
 
@@ -97,6 +116,11 @@ public enum Modulo {
     /** Fase del proyecto en la que se implementa el modulo. */
     public int fase() {
         return fase;
+    }
+
+    /** Permiso necesario para ver el modulo. */
+    public Permiso permiso() {
+        return permiso;
     }
 
     public boolean disponible() {

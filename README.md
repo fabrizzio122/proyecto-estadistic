@@ -36,7 +36,8 @@ com.businessanalyzer
 ├── controller    controladores de las vistas FXML (sin SQL ni cálculos)
 ├── service       lógica de negocio y validaciones
 ├── repository    acceso a datos con SQL parametrizado
-├── model         entidades (desde la Fase 2)
+├── model         entidades: Usuario, Rol, Permiso...
+├── seguridad     hash de contraseñas (PBKDF2), política de contraseñas y sesión
 ├── analytics     motores financiero, estadístico y predictivo (desde la Fase 7)
 ├── exception     errores de datos y de validación
 └── ui            navegación, notificaciones, diálogos y componentes visuales
@@ -49,7 +50,7 @@ automáticamente al iniciar y dentro de una transacción.
 ## Fases
 
 1. Base: estructura, SQLite y migraciones, ventana principal y tema oscuro ✅
-2. Usuarios, roles y permisos
+2. Usuarios, roles, permisos e inicio de sesión ✅
 3. Empresas
 4. Productos y servicios
 5. Ventas y compras
@@ -61,3 +62,11 @@ automáticamente al iniciar y dentro de una transacción.
 11. Diagnóstico empresarial
 12. Informes (PDF y Excel)
 13. Configuración, copias de seguridad e instalador
+
+## Seguridad
+
+- **Primer arranque:** el sistema pide crear la cuenta de administrador.
+- **Contraseñas:** se guardan con PBKDF2-HMAC-SHA256 (600.000 iteraciones y sal aleatoria). Nunca se guardan en texto plano.
+- **Bloqueo:** 5 intentos fallidos bloquean la cuenta durante 15 minutos.
+- **Roles:** Administrador, Gerente, Analista y Operador. Los permisos se comprueban en los servicios, no solo en la interfaz.
+- **Registro de accesos:** inicios de sesión, fallos, bloqueos y cambios en las cuentas quedan auditados.
