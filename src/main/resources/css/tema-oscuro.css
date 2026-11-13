@@ -969,3 +969,22 @@
 .date-picker > .text-field:focused {
     -fx-border-color: -ba-acento;
 }
+
+/* ---------- Gestión financiera (Fase 6) ---------- */
+
+.progress-bar {
+    -fx-indeterminate-bar-length: 60;
+}
+
+.progress-bar > .track {
+    -fx-background-color: #0e1729;
+    -fx-background-radius: 4;
+    -fx-background-insets: 0;
+}
+
+.progress-bar > .bar {
+    -fx-background-color: -ba-acento;
+    -fx-background-radius: 4;
+    -fx-background-insets: 0;
+    -fx-padding: 4;
+}

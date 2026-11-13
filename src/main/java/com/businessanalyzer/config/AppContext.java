@@ -3,6 +3,8 @@ package com.businessanalyzer.config;
 import com.businessanalyzer.repository.CategoriaRepository;
 import com.businessanalyzer.repository.ConfiguracionRepository;
 import com.businessanalyzer.repository.EmpresaRepository;
+import com.businessanalyzer.repository.MovimientoRepository;
+import com.businessanalyzer.service.FinanzasService;
 import com.businessanalyzer.repository.OperacionRepository;
 import com.businessanalyzer.repository.ProductoRepository;
 import com.businessanalyzer.repository.RegistroAccesoRepository;
@@ -39,6 +41,7 @@ public final class AppContext {
     private final EmpresaService empresaService;
     private final CatalogoService catalogoService;
     private final OperacionService operacionService;
+    private final FinanzasService finanzasService;
 
     private AppContext(AppConfig config, Database database, int versionEsquema) {
         this.config = config;
@@ -63,6 +66,7 @@ public final class AppContext {
                 empresaService, sesion, reloj);
         this.operacionService = new OperacionService(database, new OperacionRepository(), productoRepository,
                 empresaService, configuracionService, sesion, reloj);
+        this.finanzasService = new FinanzasService(database, new MovimientoRepository(), empresaService, sesion, reloj);
     }
 
     /** Prepara las carpetas, migra la base de datos y crea los servicios. */
@@ -111,5 +115,9 @@ public final class AppContext {
 
     public OperacionService operaciones() {
         return operacionService;
+    }
+
+    public FinanzasService finanzas() {
+        return finanzasService;
     }
 }

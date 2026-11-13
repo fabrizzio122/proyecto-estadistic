@@ -29,6 +29,7 @@ public class TarjetaIndicador extends VBox {
         valor.getStyleClass().add("kpi-value");
         detalle.getStyleClass().add("kpi-detail");
         detalle.setWrapText(true);
+        detalle.setMinHeight(Region.USE_PREF_SIZE);
 
         getStyleClass().add("kpi-card");
         getChildren().addAll(cabecera, valor, detalle);
