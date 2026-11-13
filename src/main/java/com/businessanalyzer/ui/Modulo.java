@@ -20,7 +20,7 @@ public enum Modulo {
 
     EMPRESAS(Seccion.GESTION, "Empresas",
             "Registro de las empresas y negocios a analizar", "fth-briefcase", 3,
-            Permiso.EMPRESAS_VER, null),
+            Permiso.EMPRESAS_VER, "/fxml/empresas-view.fxml"),
     PRODUCTOS(Seccion.GESTION, "Productos y servicios",
             "Catálogo con costos, precios y márgenes", "fth-package", 4,
             Permiso.PRODUCTOS_VER, null),

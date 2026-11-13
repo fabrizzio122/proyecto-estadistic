@@ -5,12 +5,16 @@ import com.businessanalyzer.config.Migrador;
 import com.businessanalyzer.model.DatosUsuario;
 import com.businessanalyzer.model.Rol;
 import com.businessanalyzer.model.Usuario;
+import com.businessanalyzer.repository.ConfiguracionRepository;
+import com.businessanalyzer.repository.EmpresaRepository;
 import com.businessanalyzer.repository.RegistroAccesoRepository;
 import com.businessanalyzer.repository.RolRepository;
 import com.businessanalyzer.repository.UsuarioRepository;
 import com.businessanalyzer.seguridad.PasswordHasher;
 import com.businessanalyzer.seguridad.Sesion;
 import com.businessanalyzer.service.AutenticacionService;
+import com.businessanalyzer.service.ConfiguracionService;
+import com.businessanalyzer.service.EmpresaService;
 import com.businessanalyzer.service.UsuarioService;
 
 import java.nio.file.Path;
@@ -39,6 +43,8 @@ public final class EntornoPrueba {
     public final PasswordHasher hasher;
     public final AutenticacionService autenticacion;
     public final UsuarioService usuarioService;
+    public final ConfiguracionService configuracion;
+    public final EmpresaService empresaService;
 
     public EntornoPrueba(Path carpeta) {
         this(carpeta, new PasswordHasher(1_000));
@@ -50,6 +56,21 @@ public final class EntornoPrueba {
         this.hasher = hasher;
         this.autenticacion = new AutenticacionService(database, usuarios, roles, registro, hasher, sesion, reloj);
         this.usuarioService = new UsuarioService(database, usuarios, roles, registro, hasher, sesion, reloj);
+        this.configuracion = new ConfiguracionService(new ConfiguracionRepository(database));
+        this.empresaService = new EmpresaService(database, new EmpresaRepository(), usuarios, configuracion,
+                sesion, reloj);
+    }
+
+    /** Crea un usuario con el rol indicado (requiere sesión de administrador). Contraseña: Temporal123. */
+    public Usuario crearUsuario(String nombreUsuario, String codigoRol) {
+        return usuarioService.crear(new DatosUsuario(nombreUsuario, "Usuario " + nombreUsuario, null,
+                idRol(codigoRol)), "Temporal123", "Temporal123");
+    }
+
+    /** Cierra la sesión actual y entra con otro usuario. */
+    public Usuario entrarComo(String nombreUsuario, String password) {
+        autenticacion.cerrarSesion();
+        return autenticacion.iniciarSesion(nombreUsuario, password);
     }
 
     /** Crea el administrador inicial "admin" e inicia sesión con él. */

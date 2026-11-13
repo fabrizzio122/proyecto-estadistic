@@ -1,6 +1,7 @@
 package com.businessanalyzer.config;
 
 import com.businessanalyzer.repository.ConfiguracionRepository;
+import com.businessanalyzer.repository.EmpresaRepository;
 import com.businessanalyzer.repository.RegistroAccesoRepository;
 import com.businessanalyzer.repository.RolRepository;
 import com.businessanalyzer.repository.UsuarioRepository;
@@ -8,6 +9,7 @@ import com.businessanalyzer.seguridad.PasswordHasher;
 import com.businessanalyzer.seguridad.Sesion;
 import com.businessanalyzer.service.AutenticacionService;
 import com.businessanalyzer.service.ConfiguracionService;
+import com.businessanalyzer.service.EmpresaService;
 import com.businessanalyzer.service.UsuarioService;
 
 import java.io.IOException;
@@ -29,6 +31,7 @@ public final class AppContext {
     private final ConfiguracionService configuracionService;
     private final AutenticacionService autenticacionService;
     private final UsuarioService usuarioService;
+    private final EmpresaService empresaService;
 
     private AppContext(AppConfig config, Database database, int versionEsquema) {
         this.config = config;
@@ -46,6 +49,8 @@ public final class AppContext {
                 registroAccesoRepository, hasher, sesion, reloj);
         this.usuarioService = new UsuarioService(database, usuarioRepository, rolRepository,
                 registroAccesoRepository, hasher, sesion, reloj);
+        this.empresaService = new EmpresaService(database, new EmpresaRepository(), usuarioRepository,
+                configuracionService, sesion, reloj);
     }
 
     /** Prepara las carpetas, migra la base de datos y crea los servicios. */
@@ -82,5 +87,9 @@ public final class AppContext {
 
     public UsuarioService usuarios() {
         return usuarioService;
+    }
+
+    public EmpresaService empresas() {
+        return empresaService;
     }
 }

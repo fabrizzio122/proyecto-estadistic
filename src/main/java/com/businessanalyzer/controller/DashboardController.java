@@ -2,6 +2,10 @@ package com.businessanalyzer.controller;
 
 import com.businessanalyzer.BusinessAnalyzerApp;
 import com.businessanalyzer.config.AppContext;
+import com.businessanalyzer.model.Empresa;
+import com.businessanalyzer.model.Permiso;
+import com.businessanalyzer.util.Fechas;
+import org.kordamp.ikonli.javafx.FontIcon;
 import com.businessanalyzer.ui.Dialogos;
 import com.businessanalyzer.ui.Modulo;
 import com.businessanalyzer.ui.Notificador;
@@ -16,6 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -27,6 +32,10 @@ public class DashboardController implements VistaModulo {
 
     private final AppContext contexto;
 
+    @FXML private HBox bannerEmpresa;
+    @FXML private FontIcon iconoBanner;
+    @FXML private Label lblBannerTitulo;
+    @FXML private Label lblBannerDetalle;
     @FXML private HBox indicadores;
     @FXML private VBox pasos;
     @FXML private Label lblVersion;
@@ -59,6 +68,27 @@ public class DashboardController implements VistaModulo {
         lblBaseDatos.setText(contexto.config().archivoBaseDatos().toString());
         lblJava.setText(System.getProperty("java.version"));
         lblJavaFx.setText(System.getProperty("javafx.runtime.version", "desconocida"));
+    }
+
+    @Override
+    public void alMostrar() {
+        Optional<Empresa> empresa = contexto.sesion().empresaActiva();
+        bannerEmpresa.getStyleClass().remove("banner-aviso");
+        if (empresa.isPresent()) {
+            Empresa e = empresa.get();
+            iconoBanner.setIconLiteral("fth-briefcase");
+            lblBannerTitulo.setText(e.nombreVisible());
+            lblBannerDetalle.setText(e.sector().descripcion() + "   ·   " + e.tamano().descripcion()
+                    + "   ·   " + e.moneda().nombre() + " (" + e.moneda().simbolo() + ")"
+                    + "   ·   Ejercicio fiscal desde " + Fechas.nombreMes(e.mesInicioEjercicio()));
+        } else {
+            bannerEmpresa.getStyleClass().add("banner-aviso");
+            iconoBanner.setIconLiteral("fth-alert-circle");
+            lblBannerTitulo.setText("No hay una empresa activa");
+            lblBannerDetalle.setText(contexto.sesion().tienePermiso(Permiso.EMPRESAS_GESTIONAR)
+                    ? "Registra tu primera empresa en el módulo Empresas o elige una en el selector de la barra superior."
+                    : "Pide a un administrador que te asigne una empresa para empezar a trabajar.");
+        }
     }
 
     private void construirPrimerosPasos() {

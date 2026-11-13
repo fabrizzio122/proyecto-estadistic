@@ -38,11 +38,11 @@
                     <Label fx:id="descripcionModulo" styleClass="topbar-subtitle"/>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Label text="Sin empresa seleccionada" styleClass="chip">
+                <MenuButton fx:id="selectorEmpresa" styleClass="company-selector" text="Sin empresa seleccionada">
                     <graphic>
                         <FontIcon iconLiteral="fth-briefcase"/>
                     </graphic>
-                </Label>
+                </MenuButton>
                 <MenuButton fx:id="menuUsuario" styleClass="user-menu">
                     <graphic>
                         <FontIcon iconLiteral="fth-user"/>
