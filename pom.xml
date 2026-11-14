@@ -17,9 +17,10 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <main.class>com.businessanalyzer.Launcher</main.class>
 
-        <!-- Versiones de dependencias. Commons Math, Apache POI y JasperReports se
-             agregan en la fase que las utiliza. -->
+        <!-- Versiones de dependencias. Apache POI y JasperReports se agregan en la
+             fase que las utiliza. -->
         <javafx.version>21.0.4</javafx.version>
+        <commons-math.version>3.6.1</commons-math.version>
         <jfreechart.version>1.5.5</jfreechart.version>
         <jfreechart-fx.version>2.0.1</jfreechart-fx.version>
         <sqlite.version>3.45.3.0</sqlite.version>
@@ -64,6 +65,13 @@
             <groupId>org.jfree</groupId>
             <artifactId>org.jfree.chart.fx</artifactId>
             <version>${jfreechart-fx.version}</version>
+        </dependency>
+
+        <!-- Estadística (Fase 8): descriptiva, regresión y correlación -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>${commons-math.version}</version>
         </dependency>
 
         <!-- Base de datos local: driver JDBC de SQLite -->

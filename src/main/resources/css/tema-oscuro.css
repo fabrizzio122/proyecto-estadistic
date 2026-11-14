@@ -1029,3 +1029,27 @@
     -fx-text-fill: -ba-texto;
     -fx-font-size: 12.5px;
 }
+
+/* ---------- Análisis estadístico (Fase 8) ---------- */
+
+.badge-clase-a, .chip-clase-a {
+    -fx-background-color: -ba-acento-suave;
+    -fx-text-fill: -ba-acento;
+}
+
+.badge-clase-b, .chip-clase-b {
+    -fx-background-color: #3a2a0c;
+    -fx-text-fill: #fbbf24;
+}
+
+.badge-clase-c, .chip-clase-c {
+    -fx-background-color: #1f2737;
+    -fx-text-fill: #94a3b8;
+}
+
+.celda-correlacion {
+    -fx-text-fill: -ba-texto;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-background-color: #111a2e;
+}

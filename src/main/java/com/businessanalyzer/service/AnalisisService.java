@@ -10,7 +10,6 @@ import com.businessanalyzer.analytics.ResumenFinanciero;
 import com.businessanalyzer.analytics.ResumenOperaciones;
 import com.businessanalyzer.config.Database;
 import com.businessanalyzer.model.Empresa;
-import com.businessanalyzer.model.MovimientoFinanciero;
 import com.businessanalyzer.model.Permiso;
 import com.businessanalyzer.repository.MovimientoRepository;
 import com.businessanalyzer.repository.OperacionRepository;
@@ -22,8 +21,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Análisis financiero de la empresa activa: combina las ventas y compras (Fase 5) con los
@@ -92,19 +89,9 @@ public class AnalisisService {
     /** Estado de resultados de cada uno de los últimos meses, terminando en {@code ultimo}. */
     private List<ResultadoMensual> evolucion(Connection c, long empresaId, YearMonth ultimo) throws SQLException {
         YearMonth primero = ultimo.minusMonths(MESES_EVOLUCION - 1L);
-        LocalDate desde = primero.atDay(1);
-        LocalDate hasta = ultimo.atEndOfMonth();
-
-        Map<YearMonth, ResumenOperaciones> opsPorMes = operaciones.resumenMensual(c, empresaId, desde, hasta);
-        Map<YearMonth, List<MovimientoFinanciero>> movsPorMes = movimientos.listar(c, empresaId, desde, hasta, false)
-                .stream().collect(Collectors.groupingBy(m -> YearMonth.from(m.fecha())));
-
         List<ResultadoMensual> meses = new ArrayList<>();
-        for (YearMonth mes = primero; !mes.isAfter(ultimo); mes = mes.plusMonths(1)) {
-            EstadoResultados estado = EstadoResultados.de(
-                    opsPorMes.getOrDefault(mes, ResumenOperaciones.VACIO),
-                    ResumenFinanciero.de(movsPorMes.getOrDefault(mes, List.of())));
-            meses.add(new ResultadoMensual(mes, estado));
+        for (ConsultaMensual.Mes mes : ConsultaMensual.porMes(c, operaciones, movimientos, empresaId, primero, ultimo)) {
+            meses.add(new ResultadoMensual(mes.mes(), EstadoResultados.de(mes.operaciones(), mes.finanzas())));
         }
         return meses;
     }

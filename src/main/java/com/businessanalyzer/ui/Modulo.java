@@ -36,7 +36,7 @@ public enum Modulo {
             Permiso.ANALISIS_VER, "/fxml/analisis-financiero-view.fxml"),
     ESTADISTICA(Seccion.ANALISIS, "Análisis estadístico",
             "Tendencias, estacionalidad, dispersión y análisis ABC", "fth-bar-chart-2", 8,
-            Permiso.ANALISIS_VER, null),
+            Permiso.ANALISIS_VER, "/fxml/estadistica-view.fxml"),
     PREDICCIONES(Seccion.ANALISIS, "Predicciones",
             "Proyección de ventas y resultados de los próximos meses", "fth-trending-up", 9,
             Permiso.ANALISIS_VER, null),
