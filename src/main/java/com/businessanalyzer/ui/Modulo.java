@@ -39,7 +39,7 @@ public enum Modulo {
             Permiso.ANALISIS_VER, "/fxml/estadistica-view.fxml"),
     PREDICCIONES(Seccion.ANALISIS, "Predicciones",
             "Proyección de ventas y resultados de los próximos meses", "fth-trending-up", 9,
-            Permiso.ANALISIS_VER, null),
+            Permiso.ANALISIS_VER, "/fxml/predicciones-view.fxml"),
     ESCENARIOS(Seccion.ANALISIS, "Simulación de escenarios",
             "Qué pasaría si cambian los precios, costos o volúmenes", "fth-sliders", 10,
             Permiso.ANALISIS_VER, null),

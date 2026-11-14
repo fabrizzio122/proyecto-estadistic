@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.businessanalyzer.controller.PrediccionesController"
+      spacing="14" styleClass="page">
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Proyectar" styleClass="form-label"/>
+        <ComboBox fx:id="cmbHorizonte" prefWidth="160"/>
+        <ProgressIndicator fx:id="progreso" prefWidth="22" prefHeight="22" visible="false"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="lblHistoria" styleClass="muted"/>
+    </HBox>
+
+    <HBox fx:id="indicadores" spacing="16"/>
+
+    <!-- El contenido de cada pestaña se arma en el controlador (misma estructura para ambas series) -->
+    <TabPane fx:id="pestanas" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
+        <Tab fx:id="tabVentas" text="Ventas netas"/>
+        <Tab fx:id="tabUtilidad" text="Utilidad neta"/>
+        <Tab fx:id="tabMetodos" text="Cómo se calcula"/>
+    </TabPane>
+</VBox>

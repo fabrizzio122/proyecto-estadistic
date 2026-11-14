@@ -8,6 +8,7 @@ import com.businessanalyzer.analytics.estadistica.AnalisisEstadistico;
 import com.businessanalyzer.analytics.estadistica.EstacionalidadSemanal;
 import com.businessanalyzer.analytics.estadistica.Histograma;
 import com.businessanalyzer.analytics.estadistica.Tendencia;
+import com.businessanalyzer.analytics.prediccion.Pronostico;
 import com.businessanalyzer.model.Moneda;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.Axis;
@@ -294,6 +295,56 @@ public final class Graficos {
         JFreeChart grafico = aplicarTema(new JFreeChart(null, FUENTE, plot, false));
         estiloPlot(ejePorcentaje);
         return grafico;
+    }
+
+    // ------------------------------------------------------------------ predicciones (Fase 9)
+
+    /**
+     * Historia (línea continua), pronóstico (discontinua) y su rango al 95 % (punteado).
+     * Se muestran como máximo los últimos {@code mesesHistoria} meses de historia.
+     */
+    public static JFreeChart pronostico(List<YearMonth> meses, double[] historia, Pronostico pronostico,
+                                        int mesesHistoria, Moneda moneda) {
+        DefaultCategoryDataset datos = new DefaultCategoryDataset();
+        int desde = Math.max(0, meses.size() - mesesHistoria);
+        for (int i = desde; i < meses.size(); i++) {
+            String mes = etiquetaMesConAnio(meses.get(i));
+            datos.addValue(historia[i], "Historia", mes);
+            boolean ultimo = i == meses.size() - 1;
+            datos.addValue(ultimo ? historia[i] : null, "Pronóstico", mes);
+            datos.addValue(ultimo ? historia[i] : null, "Rango inferior", mes);
+            datos.addValue(ultimo ? historia[i] : null, "Rango superior", mes);
+        }
+        YearMonth siguiente = meses.isEmpty() ? YearMonth.now() : meses.get(meses.size() - 1).plusMonths(1);
+        for (Pronostico.Punto punto : pronostico.puntos()) {
+            String mes = etiquetaMesConAnio(siguiente.plusMonths(punto.h() - 1L));
+            datos.addValue(null, "Historia", mes);
+            datos.addValue(punto.valor(), "Pronóstico", mes);
+            datos.addValue(punto.inferior(), "Rango inferior", mes);
+            datos.addValue(punto.superior(), "Rango superior", mes);
+        }
+
+        LineAndShapeRenderer lineas = new LineAndShapeRenderer(true, true);
+        lineas.setSeriesPaint(0, AZUL);
+        lineas.setSeriesStroke(0, LINEA_GRUESA);
+        lineas.setSeriesPaint(1, AMBAR);
+        lineas.setSeriesStroke(1, new BasicStroke(2.5f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f,
+                new float[]{8f, 6f}, 0f));
+        for (int serie = 2; serie <= 3; serie++) {
+            lineas.setSeriesPaint(serie, TEXTO);
+            lineas.setSeriesStroke(serie, LINEA_PUNTEADA);
+            lineas.setSeriesShapesVisible(serie, false);
+        }
+        CategoryAxis ejeMeses = new CategoryAxis();
+        ejeMeses.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryPlot plot = new CategoryPlot(datos, ejeMeses, ejeMonto(moneda), lineas);
+        plot.addRangeMarker(new ValueMarker(0, GRILLA, new BasicStroke(1f)));
+        return aplicarTema(new JFreeChart(null, FUENTE, plot, true));
+    }
+
+    private static String etiquetaMesConAnio(YearMonth mes) {
+        return mes.getMonth().getDisplayName(TextStyle.SHORT, ESPANOL).replace(".", "") + " "
+                + String.valueOf(mes.getYear()).substring(2);
     }
 
     private static BarRenderer barrasSimples(Color color) {
