@@ -1,5 +1,6 @@
 package com.businessanalyzer.informes;
 
+import com.businessanalyzer.config.VersionApp;
 import com.businessanalyzer.exception.InformeException;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -44,13 +45,14 @@ public final class GeneradorPdf {
             parametros.put("TITULO", encabezado.titulo());
             parametros.put("SUBTITULO", encabezado.subtitulo());
             parametros.put("GENERADO", encabezado.generado());
+            parametros.put("APLICACION", VersionApp.PRODUCTO);
             JasperPrint impresion = JasperFillManager.fillReport(plantilla(), parametros,
                     new JRMapCollectionDataSource(contenido.bloques()));
 
             SimplePdfExporterConfiguration configuracion = new SimplePdfExporterConfiguration();
             configuracion.setMetadataTitle(encabezado.titulo() + " - " + encabezado.empresa());
             configuracion.setMetadataAuthor("Business Analyzer Desktop");
-            configuracion.setMetadataCreator("Business Analyzer Desktop 1.0");
+            configuracion.setMetadataCreator(VersionApp.PRODUCTO + " (" + VersionApp.NUMERO + ")");
             configuracion.setMetadataSubject(encabezado.subtitulo());
 
             Path temporal = destino.resolveSibling(destino.getFileName() + ".tmp");

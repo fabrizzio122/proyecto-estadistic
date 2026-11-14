@@ -62,6 +62,7 @@
     <parameter name="TITULO" class="java.lang.String"/>
     <parameter name="SUBTITULO" class="java.lang.String"/>
     <parameter name="GENERADO" class="java.lang.String"/>
+    <parameter name="APLICACION" class="java.lang.String"/>
 
     <field name="tipo" class="java.lang.String"/>
     <field name="concepto" class="java.lang.String"/>
@@ -413,7 +414,7 @@
             <textField isBlankWhenNull="true">
                 <reportElement style="Tenue" x="0" y="8" width="400" height="12"/>
                 <textElement><font size="7"/></textElement>
-                <textFieldExpression><![CDATA["Business Analyzer Desktop 1.0  ·  " + $P{GENERADO}]]></textFieldExpression>
+                <textFieldExpression><![CDATA[$P{APLICACION} + "  ·  " + $P{GENERADO}]]></textFieldExpression>
             </textField>
             <textField>
                 <reportElement style="Tenue" x="400" y="8" width="95" height="12"/>

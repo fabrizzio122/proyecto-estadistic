@@ -202,3 +202,21 @@ Genera en `target\instalador`:
 Los datos no se guardan dentro de la carpeta de la aplicación, sino en `%USERPROFILE%\BusinessAnalyzer`, así que reinstalar o actualizar no los borra.
 
 > El script ejecuta `mvn clean`: cierra la aplicación si la estás ejecutando desde IntelliJ antes de empaquetar.
+
+## Publicar una versión nueva
+
+La versión se define **solo** en `pom.xml` (`<version>x.y.z</version>`). La leen la aplicación (título, menú lateral, Configuración → Sistema), el pie de los informes PDF y `empaquetar.ps1`.
+
+Numeración: `1.0.1` para correcciones, `1.1.0` para funciones nuevas compatibles y `2.0.0` para cambios grandes.
+
+1. Cambia `<version>` en `pom.xml`, por ejemplo a `1.0.1`.
+2. Si el cambio modifica la base de datos, agrega una migración `V9__descripcion.sql` y regístrala en `Migrador`. Nunca modifiques una migración ya publicada.
+3. Ejecuta `.\empaquetar.ps1`: corre las pruebas y genera `Business Analyzer-1.0.1.exe` y el `.zip` portable.
+4. Haz commit, crea la etiqueta (`git tag -a v1.0.1 -m "..."`) y súbela con `git push --follow-tags`.
+5. Publica la release:
+
+   ```
+   gh release create v1.0.1 "target/instalador/Business Analyzer-1.0.1.exe" target/instalador/BusinessAnalyzer-1.0.1-portable.zip --title "Business Analyzer Desktop 1.0.1" --notes "Cambios: ..."
+   ```
+
+El instalador nuevo actualiza la versión instalada (identificador de actualización fijo) y conserva los datos de `%USERPROFILE%\BusinessAnalyzer`. Al abrirla, las migraciones pendientes se aplican solas.
