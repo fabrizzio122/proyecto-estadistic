@@ -45,7 +45,7 @@ public enum Modulo {
             Permiso.ANALISIS_VER, "/fxml/simulacion-view.fxml"),
     DIAGNOSTICO(Seccion.ANALISIS, "Diagnóstico empresarial",
             "Semáforo de riesgos y recomendaciones", "fth-activity", 11,
-            Permiso.ANALISIS_VER, null),
+            Permiso.ANALISIS_VER, "/fxml/diagnostico-view.fxml"),
     INFORMES(Seccion.ANALISIS, "Informes y reportes",
             "Reportes en PDF y exportación a Excel", "fth-file-text", 12,
             Permiso.INFORMES_GENERAR, null),

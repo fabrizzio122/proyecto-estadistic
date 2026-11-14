@@ -60,7 +60,7 @@ automáticamente al iniciar y dentro de una transacción.
 8. Análisis estadístico: descriptiva, tendencia, estacionalidad, ABC y correlaciones ✅
 9. Predicciones: proyección de ventas y utilidad con selección automática del método ✅
 10. Simulación de escenarios: qué pasaría si…, sensibilidad, metas y comparación ✅
-11. Diagnóstico empresarial
+11. Diagnóstico empresarial: puntaje de salud, semáforo de 12 indicadores y recomendaciones ✅
 12. Informes (PDF y Excel)
 13. Configuración, copias de seguridad e instalador
 
@@ -140,3 +140,19 @@ Se calcula con **Apache Commons Math**:
 - **Sensibilidad:** gráfico de tornado con el efecto de mover cada variable ±10 % en la utilidad neta.
 - **Meta de utilidad:** cuánto subir precios, o cuánto más vender, para ganar un monto mensual.
 - **Escenarios guardados por empresa** (migración V7) y su comparación lado a lado.
+
+## Diagnóstico empresarial
+
+- **Período:** evalúa los últimos 3 meses completos frente a los 3 anteriores y usa hasta 24 meses de historia.
+- **Indicadores:** 12, con semáforo (verde, amarillo o rojo), agrupados en 4 áreas:
+  - **Rentabilidad:** margen neto, margen bruto y meses con pérdida.
+  - **Solidez:** margen de seguridad, peso de los costos fijos y carga financiera.
+  - **Crecimiento:** ventas frente al trimestre anterior, tendencia de 12 meses y proyección a 3 meses.
+  - **Riesgo comercial:** regularidad de las ventas, dependencia del producto principal y productos vendidos con pérdida.
+- **Umbrales:** los de margen neto y margen bruto dependen del sector de la empresa.
+- **Puntaje de salud (0–100):** verde = 100, amarillo = 50 y rojo = 0, promediados según el peso de cada indicador.
+  - **Niveles:** Saludable (≥ 75), Estable con alertas (≥ 55), En riesgo (≥ 35) y Crítico.
+  - **Límite:** si un indicador clave (peso 3) está en rojo, la calificación no puede ser mejor que «En riesgo».
+- **Recomendaciones:** concretas y ordenadas por urgencia, con cifras calculadas: cuánto subir precios, cuánto vender o cuánto recortar costos fijos.
+- **Fortalezas:** los indicadores en verde.
+- **Empresa de demostración:** el botón «Empresa de demostración» del módulo Empresas crea «Bodega Demo» con 12 meses de datos ficticios para probar los análisis.

@@ -1096,3 +1096,87 @@
 .list-view .placeholder .label {
     -fx-text-fill: -ba-texto-tenue;
 }
+
+/* ---------- Diagnóstico empresarial (Fase 11) ---------- */
+
+.puntaje-salud {
+    -fx-font-size: 44px;
+    -fx-font-weight: bold;
+}
+
+.nivel-salud,
+.diagnostico-prioridad {
+    -fx-background-radius: 999;
+    -fx-padding: 4 12;
+    -fx-font-weight: bold;
+}
+
+.diagnostico-prioridad {
+    -fx-font-size: 11px;
+    -fx-padding: 2 9;
+}
+
+.nivel-salud.semaforo-verde, .diagnostico-prioridad.semaforo-verde { -fx-background-color: rgba(34, 197, 94, 0.15); }
+.nivel-salud.semaforo-amarillo, .diagnostico-prioridad.semaforo-amarillo { -fx-background-color: rgba(245, 158, 11, 0.15); }
+.nivel-salud.semaforo-rojo, .diagnostico-prioridad.semaforo-rojo { -fx-background-color: rgba(239, 68, 68, 0.15); }
+.nivel-salud.semaforo-sin-datos { -fx-background-color: rgba(100, 116, 139, 0.2); }
+
+.label.semaforo-verde { -fx-text-fill: -ba-exito; }
+.label.semaforo-amarillo { -fx-text-fill: -ba-advertencia; }
+.label.semaforo-rojo { -fx-text-fill: -ba-error; }
+.label.semaforo-sin-datos { -fx-text-fill: -ba-texto-tenue; }
+
+.punto-semaforo.semaforo-verde { -fx-fill: -ba-exito; }
+.punto-semaforo.semaforo-amarillo { -fx-fill: -ba-advertencia; }
+.punto-semaforo.semaforo-rojo { -fx-fill: -ba-error; }
+.punto-semaforo.semaforo-sin-datos { -fx-fill: #334155; }
+
+.barra-salud {
+    -fx-pref-height: 8px;
+}
+
+.barra-salud .track {
+    -fx-background-color: #0e1729;
+    -fx-background-radius: 4;
+    -fx-background-insets: 0;
+}
+
+.barra-salud .bar {
+    -fx-background-radius: 4;
+    -fx-background-insets: 0;
+    -fx-padding: 4;
+}
+
+.barra-salud.semaforo-verde .bar { -fx-background-color: -ba-exito; }
+.barra-salud.semaforo-amarillo .bar { -fx-background-color: -ba-advertencia; }
+.barra-salud.semaforo-rojo .bar { -fx-background-color: -ba-error; }
+
+.diagnostico-seccion {
+    -fx-text-fill: -ba-texto-tenue;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 10 0 4 0;
+}
+
+.diagnostico-fila {
+    -fx-padding: 8 10;
+    -fx-background-radius: 8;
+}
+
+.diagnostico-fila:hover {
+    -fx-background-color: -ba-tarjeta-hover;
+}
+
+.diagnostico-valor {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.diagnostico-estado {
+    -fx-font-size: 11px;
+}
+
+.icono-fortaleza {
+    -fx-icon-color: -ba-exito;
+    -fx-icon-size: 15;
+}
