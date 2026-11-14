@@ -58,7 +58,7 @@ automáticamente al iniciar y dentro de una transacción.
 6. Gestión financiera: ingresos y gastos, costos fijos y variables ✅
 7. Análisis financiero: estado de resultados, márgenes, punto de equilibrio y rentabilidad ✅
 8. Análisis estadístico: descriptiva, tendencia, estacionalidad, ABC y correlaciones ✅
-9. Predicciones
+9. Predicciones: proyección de ventas y utilidad con selección automática del método ✅
 10. Simulación de escenarios
 11. Diagnóstico empresarial
 12. Informes (PDF y Excel)
@@ -121,3 +121,12 @@ Se calcula con **Apache Commons Math**:
 - **Análisis ABC (Pareto)**: A = primer 80 % de las ventas, B = hasta 95 %, C = resto.
 - **Correlaciones de Pearson** entre ventas, margen bruto %, gastos operativos, publicidad y utilidad neta (mensuales), con su valor p.
 - Cada pestaña incluye una **interpretación en lenguaje sencillo**.
+
+## Predicciones
+
+- Proyecta las **ventas netas** y la **utilidad neta** de los próximos 3, 6 o 12 meses.
+- Compara tres métodos: **tendencia lineal**, **promedio móvil de 3 meses** y **suavizado exponencial de Holt** (α y β se ajustan automáticamente).
+- **Validación histórica:** cada método pronostica cada mes pasado usando solo los meses anteriores. Se elige el de menor error medio.
+- **Rango probable al 95 %:** pronóstico ± 1.96 × error histórico × √(meses de distancia).
+- **Confiabilidad** alta, media o baja según el error típico (menos de 10 %, hasta 25 %, más).
+- Usa solo meses completos (hasta 24) y necesita al menos 4. Holt-Winters con estacionalidad anual requiere 24 meses de historia y aún no se incluye.
