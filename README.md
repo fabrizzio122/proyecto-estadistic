@@ -57,7 +57,7 @@ automáticamente al iniciar y dentro de una transacción.
 5. Ventas y compras: operaciones con detalle, impuestos, stock y anulación ✅
 6. Gestión financiera: ingresos y gastos, costos fijos y variables ✅
 7. Análisis financiero: estado de resultados, márgenes, punto de equilibrio y rentabilidad ✅
-8. Análisis estadístico
+8. Análisis estadístico: descriptiva, tendencia, estacionalidad, ABC y correlaciones ✅
 9. Predicciones
 10. Simulación de escenarios
 11. Diagnóstico empresarial
@@ -110,3 +110,14 @@ automáticamente al iniciar y dentro de una transacción.
 - **Evolución de los últimos 12 meses** y una **lectura rápida** en lenguaje sencillo.
 - Gráficos con **JFreeChart**. Con clic derecho sobre un gráfico se puede guardarlo como imagen.
 - Los ratios de liquidez y endeudamiento necesitan datos de balance (activos y pasivos), que el sistema aún no registra.
+
+## Análisis estadístico
+
+Se calcula con **Apache Commons Math**:
+
+- **Descriptiva** del monto por venta y de las ventas diarias: media, mediana, desviación estándar, coeficiente de variación, cuartiles y asimetría. Incluye un histograma de frecuencias (regla de Sturges).
+- **Tendencia**: regresión lineal de las ventas mensuales con pendiente, crecimiento mensual, R² y valor p. Solo se considera tendencia real si p < 0.05. Se usan solo meses completos: el mes en curso se excluye.
+- **Días de la semana**: venta promedio e índice estacional de cada día (se cuentan los días sin ventas).
+- **Análisis ABC (Pareto)**: A = primer 80 % de las ventas, B = hasta 95 %, C = resto.
+- **Correlaciones de Pearson** entre ventas, margen bruto %, gastos operativos, publicidad y utilidad neta (mensuales), con su valor p.
+- Cada pestaña incluye una **interpretación en lenguaje sencillo**.

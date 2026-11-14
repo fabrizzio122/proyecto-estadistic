@@ -3,6 +3,11 @@ package com.businessanalyzer.ui;
 import com.businessanalyzer.analytics.AnalisisFinanciero.ResultadoMensual;
 import com.businessanalyzer.analytics.PuntoEquilibrio;
 import com.businessanalyzer.analytics.RentabilidadProducto;
+import com.businessanalyzer.analytics.estadistica.AnalisisAbc;
+import com.businessanalyzer.analytics.estadistica.AnalisisEstadistico;
+import com.businessanalyzer.analytics.estadistica.EstacionalidadSemanal;
+import com.businessanalyzer.analytics.estadistica.Histograma;
+import com.businessanalyzer.analytics.estadistica.Tendencia;
 import com.businessanalyzer.model.Moneda;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.Axis;
@@ -168,6 +173,136 @@ public final class Graficos {
         CategoryPlot plot = new CategoryPlot(datos, ejeProductos, ejeMonto(moneda), barras);
         plot.setOrientation(PlotOrientation.HORIZONTAL);
         return aplicarTema(new JFreeChart(null, FUENTE, plot, false));
+    }
+
+    // ------------------------------------------------------------------ estadística (Fase 8)
+
+    /** Frecuencia de ventas por rango de monto. */
+    public static JFreeChart histograma(Histograma histograma, Moneda moneda) {
+        DefaultCategoryDataset datos = new DefaultCategoryDataset();
+        DecimalFormat entero = new DecimalFormat("#,##0", DecimalFormatSymbols.getInstance(Locale.US));
+        for (Histograma.Clase clase : histograma.clases()) {
+            datos.addValue(clase.frecuencia(), "Ventas",
+                    entero.format(clase.desde()) + "–" + entero.format(clase.hasta()));
+        }
+        BarRenderer barras = barrasSimples(AZUL);
+        barras.setItemMargin(0);
+        CategoryAxis ejeRangos = new CategoryAxis("Monto de la venta (" + moneda.simbolo() + ")");
+        ejeRangos.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        ejeRangos.setCategoryMargin(0.05);
+        NumberAxis ejeFrecuencia = new NumberAxis("Cantidad de ventas");
+        ejeFrecuencia.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        return aplicarTema(new JFreeChart(null, FUENTE, new CategoryPlot(datos, ejeRangos, ejeFrecuencia, barras), false));
+    }
+
+    /** Ventas mensuales en barras y la recta de tendencia (regresión lineal). */
+    public static JFreeChart tendencia(List<AnalisisEstadistico.PuntoMensual> serie, Tendencia tendencia, Moneda moneda) {
+        DefaultCategoryDataset ventas = new DefaultCategoryDataset();
+        DefaultCategoryDataset recta = new DefaultCategoryDataset();
+        for (int t = 0; t < serie.size(); t++) {
+            String mes = etiquetaMes(serie.get(t).mes());
+            ventas.addValue(serie.get(t).ventas(), "Ventas netas", mes);
+            if (!Double.isNaN(tendencia.pendiente())) {
+                recta.addValue(tendencia.valorAjustado(t), "Tendencia", mes);
+            }
+        }
+        CategoryAxis ejeMeses = new CategoryAxis();
+        ejeMeses.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryPlot plot = new CategoryPlot(ventas, ejeMeses, ejeMonto(moneda), barrasSimples(AZUL));
+        LineAndShapeRenderer linea = new LineAndShapeRenderer(true, false);
+        linea.setSeriesPaint(0, AMBAR);
+        linea.setSeriesStroke(0, LINEA_GRUESA);
+        plot.setDataset(1, recta);
+        plot.setRenderer(1, linea);
+        plot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+        return aplicarTema(new JFreeChart(null, FUENTE, plot, true));
+    }
+
+    /** Venta promedio por día de la semana; el mejor día en verde. */
+    public static JFreeChart diasDeLaSemana(EstacionalidadSemanal estacionalidad, Moneda moneda) {
+        DefaultCategoryDataset datos = new DefaultCategoryDataset();
+        java.time.DayOfWeek mejor = estacionalidad.mejorDia();
+        for (java.time.DayOfWeek dia : java.time.DayOfWeek.values()) {
+            Double promedio = estacionalidad.promedioPorDia().get(dia);
+            datos.addValue(promedio == null ? 0 : promedio, "Venta promedio",
+                    dia.getDisplayName(TextStyle.SHORT, ESPANOL).replace(".", ""));
+        }
+        int indiceMejor = mejor == null ? -1 : mejor.getValue() - 1;
+        BarRenderer barras = new BarRenderer() {
+            @Override
+            public Paint getItemPaint(int fila, int columna) {
+                return columna == indiceMejor ? VERDE : AZUL;
+            }
+        };
+        barras.setBarPainter(new StandardBarPainter());
+        barras.setShadowVisible(false);
+        barras.setMaximumBarWidth(0.1);
+        CategoryPlot plot = new CategoryPlot(datos, new CategoryAxis(), ejeMonto(moneda), barras);
+        if (!Double.isNaN(estacionalidad.promedioGeneral())) {
+            ValueMarker promedio = new ValueMarker(estacionalidad.promedioGeneral(), AMBAR, LINEA_PUNTEADA);
+            promedio.setLabel("Promedio diario");
+            promedio.setLabelPaint(AMBAR);
+            promedio.setLabelFont(FUENTE);
+            promedio.setLabelAnchor(RectangleAnchor.TOP_RIGHT);
+            promedio.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
+            plot.addRangeMarker(promedio);
+        }
+        return aplicarTema(new JFreeChart(null, FUENTE, plot, false));
+    }
+
+    /** Diagrama de Pareto: ventas por producto (color según clase ABC) y porcentaje acumulado. */
+    public static JFreeChart pareto(AnalisisAbc abc, int maximo, Moneda moneda) {
+        DefaultCategoryDataset ventas = new DefaultCategoryDataset();
+        DefaultCategoryDataset acumulado = new DefaultCategoryDataset();
+        List<AnalisisAbc.Item> items = abc.items().stream().limit(maximo).toList();
+        for (AnalisisAbc.Item item : items) {
+            String nombre = abreviar(item.producto().nombre(), 14);
+            ventas.addValue(item.producto().ventas(), "Ventas", nombre);
+            acumulado.addValue(item.acumulado().movePointRight(2), "% acumulado", nombre);
+        }
+        BarRenderer barras = new BarRenderer() {
+            @Override
+            public Paint getItemPaint(int fila, int columna) {
+                return switch (items.get(columna).clase()) {
+                    case A -> AZUL;
+                    case B -> AMBAR;
+                    case C -> TEXTO;
+                };
+            }
+        };
+        barras.setBarPainter(new StandardBarPainter());
+        barras.setShadowVisible(false);
+        barras.setItemMargin(0);
+
+        CategoryAxis ejeProductos = new CategoryAxis();
+        ejeProductos.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryPlot plot = new CategoryPlot(ventas, ejeProductos, ejeMonto(moneda), barras);
+
+        NumberAxis ejePorcentaje = new NumberAxis("% acumulado");
+        ejePorcentaje.setRange(0, 105);
+        ejePorcentaje.setNumberFormatOverride(new DecimalFormat("0'%'"));
+        plot.setRangeAxis(1, ejePorcentaje);
+        plot.setDataset(1, acumulado);
+        plot.mapDatasetToRangeAxis(1, 1);
+        LineAndShapeRenderer linea = new LineAndShapeRenderer(true, true);
+        linea.setSeriesPaint(0, VERDE);
+        linea.setSeriesStroke(0, LINEA_GRUESA);
+        plot.setRenderer(1, linea);
+        plot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+        ValueMarker ochenta = new ValueMarker(80, VERDE, LINEA_PUNTEADA);
+        plot.addRangeMarker(1, ochenta, org.jfree.chart.ui.Layer.FOREGROUND);
+        JFreeChart grafico = aplicarTema(new JFreeChart(null, FUENTE, plot, false));
+        estiloPlot(ejePorcentaje);
+        return grafico;
+    }
+
+    private static BarRenderer barrasSimples(Color color) {
+        BarRenderer barras = new BarRenderer();
+        barras.setBarPainter(new StandardBarPainter());
+        barras.setShadowVisible(false);
+        barras.setSeriesPaint(0, color);
+        barras.setMaximumBarWidth(0.08);
+        return barras;
     }
 
     // ------------------------------------------------------------------ estilo
