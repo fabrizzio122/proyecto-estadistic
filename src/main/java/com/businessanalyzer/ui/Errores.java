@@ -24,6 +24,10 @@ public final class Errores {
                 || error instanceof AccesoDenegadoException) {
             return error.getMessage();
         }
+        if (error instanceof com.businessanalyzer.exception.InformeException) {
+            log.error("Error al generar un informe", error);
+            return error.getMessage();
+        }
         if (error instanceof DataAccessException) {
             log.error("Error de base de datos", error);
             return "No se pudo completar la operación en la base de datos. El detalle quedó registrado en el log.";

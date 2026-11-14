@@ -126,8 +126,7 @@ public final class MotorDiagnostico {
             Area fuerte = porArea.entrySet().stream().max(Map.Entry.comparingByValue()).orElseThrow().getKey();
             Area debil = porArea.entrySet().stream().min(Map.Entry.comparingByValue()).orElseThrow().getKey();
             if (porArea.get(fuerte) > porArea.get(debil)) {
-                resumen.add("Su punto más fuerte es la " + fuerte.descripcion().toLowerCase() + " y el más débil, "
-                        + (debil == Area.CRECIMIENTO ? "el " : "la ") + debil.descripcion().toLowerCase() + ".");
+                resumen.add("Su punto más fuerte es " + fuerte.conArticulo() + " y el más débil, " + debil.conArticulo() + ".");
             }
         }
         parcial.recomendaciones().stream().findFirst().ifPresentOrElse(

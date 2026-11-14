@@ -156,3 +156,17 @@ Se calcula con **Apache Commons Math**:
 - **Recomendaciones:** concretas y ordenadas por urgencia, con cifras calculadas: cuánto subir precios, cuánto vender o cuánto recortar costos fijos.
 - **Fortalezas:** los indicadores en verde.
 - **Empresa de demostración:** el botón «Empresa de demostración» del módulo Empresas crea «Bodega Demo» con 12 meses de datos ficticios para probar los análisis.
+
+## Informes y reportes
+
+- **Informes en PDF** (JasperReports 6.21, fuentes DejaVu incrustadas para que las tildes y los símbolos se vean en cualquier equipo):
+  - **Informe ejecutivo:** indicadores clave, resumen, estado de resultados comparado, evolución mensual (gráfico), punto de equilibrio, productos más rentables y diagnóstico con su semáforo y recomendaciones.
+  - **Estado de resultados:** estado comparado con el período anterior, márgenes, punto de equilibrio y resultado de cada mes.
+  - **Rentabilidad por producto:** gráfico y detalle de ventas, margen y margen % de cada producto.
+- **Libro de Excel** (Apache POI) con seis hojas: Resumen, Evolución mensual, Productos, Ventas, Compras, e Ingresos y gastos.
+  - Montos, fechas y porcentajes se guardan como números con formato.
+  - Cada hoja tiene filtros automáticos, encabezados inmovilizados y totales con fórmulas (`SUMIF`/`SUMIFS`) que excluyen lo anulado.
+- **Plantilla única:** `src/main/resources/informes/informe.jrxml`. Cada informe es una lista de bloques (`ContenidoInforme`), así todos comparten el mismo diseño.
+- **Archivos seguros:** se escriben primero en un temporal; si el destino está abierto en otro programa, se avisa sin dejar el archivo a medias.
+- **Historial** de informes generados por empresa (migración V8), con «Abrir» y «Mostrar en la carpeta».
+- **Permiso:** `INFORMES_GENERAR` (Administrador, Gerente y Analista).
