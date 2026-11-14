@@ -62,7 +62,7 @@ automáticamente al iniciar y dentro de una transacción.
 10. Simulación de escenarios: qué pasaría si…, sensibilidad, metas y comparación ✅
 11. Diagnóstico empresarial: puntaje de salud, semáforo de 12 indicadores y recomendaciones ✅
 12. Informes (PDF y Excel): JasperReports y Apache POI ✅
-13. Configuración, copias de seguridad e instalador
+13. Configuración, copias de seguridad e instalador ✅
 
 ## Seguridad
 
@@ -170,3 +170,35 @@ Se calcula con **Apache Commons Math**:
 - **Archivos seguros:** se escriben primero en un temporal; si el destino está abierto en otro programa, se avisa sin dejar el archivo a medias.
 - **Historial** de informes generados por empresa (migración V8), con «Abrir» y «Mostrar en la carpeta».
 - **Permiso:** `INFORMES_GENERAR` (Administrador, Gerente y Analista).
+
+## Configuración y copias de seguridad
+
+- **Copias de seguridad** con `VACUUM INTO`: una copia consistente y compacta, aunque la aplicación esté en uso. Cada copia se verifica (`PRAGMA quick_check`) al crearla.
+- **Copia automática** al iniciar la aplicación, como máximo una vez al día. Solo se conservan las últimas N automáticas (10 por defecto); las manuales nunca se borran solas.
+- **Carpeta de copias configurable**, por ejemplo una memoria USB o una carpeta sincronizada con la nube. La predeterminada es `%USERPROFILE%\BusinessAnalyzer\copias`.
+- **Restauración segura en dos pasos:**
+  1. Se valida la copia: que sea SQLite, esté íntegra, sea de Business Analyzer y no venga de una versión más nueva.
+  2. Se guarda una copia del estado actual y la restauración se aplica al reiniciar, antes de abrir la base de datos. Si la copia es de una versión anterior, el migrador la actualiza.
+- **Pestaña Sistema:** versión de la aplicación, del esquema, de Java y de JavaFX; rutas y tamaño de la base de datos; verificación de integridad; acceso a la carpeta de datos y a los registros.
+- **Permiso:** `CONFIGURACION_GESTIONAR` (solo Administrador).
+
+## Instalación para usuarios finales
+
+El script `empaquetar.ps1` usa `jpackage` del JDK 17 para empaquetar la aplicación con su propio Java, así que el usuario no necesita instalar nada:
+
+```powershell
+.\empaquetar.ps1              # compila, prueba y empaqueta
+.\empaquetar.ps1 -SinPruebas  # más rápido
+```
+
+Genera en `target\instalador`:
+
+| Resultado | Descripción |
+|---|---|
+| `Business Analyzer\Business Analyzer.exe` | Aplicación lista para usar (unos 160 MB, con Java incluido) |
+| `BusinessAnalyzer-1.0.0-portable.zip` | La misma carpeta comprimida, para copiarla a otro equipo y descomprimirla |
+| `Business Analyzer-1.0.0.exe` | Instalador con acceso directo y menú Inicio; se instala por usuario, sin permisos de administrador. Requiere [WiX Toolset 3.14](https://wixtoolset.org/docs/wix3/) en el PATH |
+
+Los datos no se guardan dentro de la carpeta de la aplicación, sino en `%USERPROFILE%\BusinessAnalyzer`, así que reinstalar o actualizar no los borra.
+
+> El script ejecuta `mvn clean`: cierra la aplicación si la estás ejecutando desde IntelliJ antes de empaquetar.

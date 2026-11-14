@@ -12,6 +12,7 @@ import com.businessanalyzer.service.SimulacionService;
 import com.businessanalyzer.service.DatosDemoService;
 import com.businessanalyzer.service.DiagnosticoService;
 import com.businessanalyzer.service.InformeService;
+import com.businessanalyzer.service.CopiaSeguridadService;
 import com.businessanalyzer.repository.InformeRepository;
 import com.businessanalyzer.repository.EscenarioRepository;
 import com.businessanalyzer.repository.OperacionRepository;
@@ -58,9 +59,12 @@ public final class AppContext {
     private final DatosDemoService datosDemoService;
     private final DiagnosticoService diagnosticoService;
     private final InformeService informeService;
+    private final CopiaSeguridadService copiaSeguridadService;
+    private final boolean restauracionAplicada;
 
-    private AppContext(AppConfig config, Database database, int versionEsquema) {
+    private AppContext(AppConfig config, Database database, int versionEsquema, boolean restauracionAplicada) {
         this.config = config;
+        this.restauracionAplicada = restauracionAplicada;
         this.database = database;
         this.versionEsquema = versionEsquema;
 
@@ -95,6 +99,8 @@ public final class AppContext {
                 new EscenarioRepository(), empresaService, sesion, reloj);
         this.diagnosticoService = new DiagnosticoService(database, operacionRepository, movimientoRepository,
                 empresaService, sesion, reloj);
+        this.copiaSeguridadService = new CopiaSeguridadService(database, config.directorioDatos().resolve("copias"),
+                configuracionService, sesion, reloj);
         this.informeService = new InformeService(database, new InformeRepository(), analisisService,
                 diagnosticoService, operacionService, finanzasService, empresaService, sesion, reloj);
         this.datosDemoService = new DatosDemoService(empresaService, catalogoService, operacionService,
@@ -104,9 +110,10 @@ public final class AppContext {
     /** Prepara las carpetas, migra la base de datos y crea los servicios. */
     public static AppContext crear(AppConfig config) throws IOException {
         config.prepararDirectorios();
+        boolean restaurada = RestauracionPendiente.aplicar(config.archivoBaseDatos());
         Database database = new Database(config.archivoBaseDatos());
         int version = new Migrador(database).migrar();
-        return new AppContext(config, database, version);
+        return new AppContext(config, database, version, restaurada);
     }
 
     public AppConfig config() {
@@ -167,6 +174,15 @@ public final class AppContext {
 
     public DiagnosticoService diagnostico() {
         return diagnosticoService;
+    }
+
+    public CopiaSeguridadService copias() {
+        return copiaSeguridadService;
+    }
+
+    /** Al iniciar se aplicó una copia de seguridad restaurada desde Configuración. */
+    public boolean restauracionAplicada() {
+        return restauracionAplicada;
     }
 
     public InformeService informes() {

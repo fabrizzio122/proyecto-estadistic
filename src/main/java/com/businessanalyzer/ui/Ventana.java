@@ -45,6 +45,16 @@ public final class Ventana {
         return stage;
     }
 
+    /** Icono de la aplicación en la barra de título y en la barra de tareas. */
+    public static void aplicarIcono(Stage stage) {
+        for (int tamano : new int[]{16, 32, 48, 256}) {
+            var recurso = Ventana.class.getResource("/icono/icono-" + tamano + ".png");
+            if (recurso != null) {
+                stage.getIcons().add(new javafx.scene.image.Image(recurso.toExternalForm()));
+            }
+        }
+    }
+
     /** Muestra la creación del primer administrador o, si ya hay usuarios, el inicio de sesión. */
     public void mostrarAcceso() {
         mostrar(contexto.autenticacion().requiereConfiguracionInicial()

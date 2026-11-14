@@ -55,7 +55,7 @@ public enum Modulo {
             Permiso.USUARIOS_GESTIONAR, "/fxml/usuarios-view.fxml"),
     CONFIGURACION(Seccion.SISTEMA, "Configuración",
             "Preferencias y copias de seguridad", "fth-settings", 13,
-            Permiso.CONFIGURACION_GESTIONAR, null);
+            Permiso.CONFIGURACION_GESTIONAR, "/fxml/configuracion-view.fxml");
 
     /** Grupos del menu lateral. */
     public enum Seccion {
