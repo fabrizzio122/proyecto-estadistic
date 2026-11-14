@@ -123,8 +123,10 @@ public final class Dialogos {
             texto.setWrapText(true);
             cuerpo.getChildren().add(texto);
         }
-        cuerpo.getChildren().add(contenido);
-        cuerpo.setPrefWidth(640);
+        if (contenido != null) {
+            cuerpo.getChildren().add(contenido);
+        }
+        cuerpo.setPrefWidth(contenido == null ? 460 : 640);
         dialogo.getDialogPane().setContent(cuerpo);
         Estilos.aplicar(dialogo.getDialogPane());
         dialogo.showAndWait();

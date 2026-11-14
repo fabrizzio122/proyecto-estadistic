@@ -35,6 +35,7 @@ public class BusinessAnalyzerApp extends Application {
             contexto = AppContext.crear(AppConfig.desdeSistema());
             log.info("{} {} iniciado. Base de datos: {}", NOMBRE, VERSION,
                     contexto.config().archivoBaseDatos());
+            contexto.copias().crearAutomaticaSiCorresponde();
         } catch (Exception e) {
             log.error("No se pudo inicializar la aplicacion", e);
             errorInicio = e;
@@ -59,9 +60,15 @@ public class BusinessAnalyzerApp extends Application {
             Ventana ventana = new Ventana(stage, contexto);
             ventana.mostrarAcceso();
             stage.setTitle(NOMBRE + " " + VERSION);
+            Ventana.aplicarIcono(stage);
             stage.setMinWidth(1024);
             stage.setMinHeight(680);
             stage.show();
+            if (contexto.restauracionAplicada()) {
+                Dialogos.informacion(stage, "Copia de seguridad restaurada",
+                        "La base de datos se reemplazó por la copia elegida. La copia del estado anterior quedó "
+                                + "guardada en la carpeta de copias de seguridad.", null);
+            }
         } catch (Exception e) {
             log.error("No se pudo construir la ventana principal", e);
             Dialogos.error(null, "No se pudo iniciar " + NOMBRE,

@@ -41,6 +41,11 @@ public final class Migrador {
 
     private static final Logger log = LoggerFactory.getLogger(Migrador.class);
 
+    /** Versión de esquema que espera esta versión de la aplicación. */
+    public static int ultimaVersion() {
+        return MIGRACIONES.get(MIGRACIONES.size() - 1).version();
+    }
+
     private final Database database;
     private final List<Migracion> migraciones;
 
