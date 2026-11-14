@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
+<?import com.businessanalyzer.config.VersionApp?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
@@ -20,7 +21,9 @@
                 <FontIcon iconLiteral="fth-bar-chart-2" styleClass="brand-icon"/>
                 <VBox>
                     <Label text="Business Analyzer" styleClass="brand-title"/>
-                    <Label text="Desktop 1.0" styleClass="brand-subtitle"/>
+                    <Label styleClass="brand-subtitle">
+                    <text><VersionApp fx:constant="SUBTITULO"/></text>
+                </Label>
                 </VBox>
             </HBox>
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="sidebar-scroll"

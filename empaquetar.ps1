@@ -5,11 +5,13 @@
       .\empaquetar.ps1               compila, ejecuta las pruebas y empaqueta
       .\empaquetar.ps1 -SinPruebas   empaqueta sin ejecutar las pruebas
 
-  Resultado en target\instalador:
+  Resultado en target\instalador (x.y.z = version del pom.xml):
       Business Analyzer\                       aplicacion lista para usar (incluye su propio Java)
-      BusinessAnalyzer-1.0.0-portable.zip      la misma carpeta comprimida, para copiar a otro equipo
-      Business Analyzer-1.0.0.exe              instalador con acceso directo y menu Inicio
-                                               (solo si WiX Toolset 3 esta instalado)
+      BusinessAnalyzer-x.y.z-portable.zip      la misma carpeta comprimida, para copiar a otro equipo
+      Business Analyzer-x.y.z.exe              instalador con acceso directo y menu Inicio
+                                               (solo si WiX Toolset 3 esta disponible)
+
+  Para publicar una version nueva basta con cambiar <version> en pom.xml.
 
   Nota: el archivo no lleva tildes a proposito; Windows PowerShell 5.1 lee mal los scripts UTF-8 sin BOM.
 #>
@@ -17,8 +19,15 @@ param([switch]$SinPruebas)
 
 $ErrorActionPreference = 'Stop'
 $raiz = $PSScriptRoot
-$version = '1.0.0'
 $nombre = 'Business Analyzer'
+
+# La version se define SOLO en pom.xml (<version>x.y.z</version>).
+$pom = [xml](Get-Content -Raw -Encoding UTF8 (Join-Path $raiz 'pom.xml'))
+$version = $pom.project.version
+if ($version -notmatch '^\d+\.\d+\.\d+$') {
+    throw "La version del pom.xml ('$version') debe tener el formato x.y.z (por ejemplo 1.0.1) para jpackage."
+}
+Write-Host "Version: $version"
 # Identificador fijo: permite que una version nueva del instalador actualice la anterior.
 $uuidActualizacion = '6f1d3c2a-8b4e-4f7a-9c5d-2e8a7b1f0c43'
 
