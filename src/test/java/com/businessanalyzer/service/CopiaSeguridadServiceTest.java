@@ -90,6 +90,26 @@ class CopiaSeguridadServiceTest {
     }
 
     @Test
+    void restaurarUnaCopiaAutomaticaNoGeneraOtraElMismoDia() throws Exception {
+        CopiaSeguridad automatica = servicio.crearAutomaticaSiCorresponde().orElseThrow();
+        servicio.programarRestauracion(automatica.archivo());
+
+        // Reinicio: se aplica la copia y la aplicación arranca de nuevo con los datos restaurados.
+        RestauracionPendiente.aplicar(entorno.database.archivo());
+        Database reabierta = new Database(entorno.database.archivo());
+        new Migrador(reabierta).migrar();
+        ConfiguracionService configuracionRestaurada = new ConfiguracionService(
+                new com.businessanalyzer.repository.ConfiguracionRepository(reabierta));
+        CopiaSeguridadService despuesDeRestaurar = new CopiaSeguridadService(reabierta, carpetaCopias,
+                configuracionRestaurada, entorno.sesion, entorno.reloj);
+
+        assertTrue(despuesDeRestaurar.crearAutomaticaSiCorresponde().isEmpty(),
+                "La copia ya registra la fecha de la última automática");
+        entorno.reloj.avanzar(Duration.ofDays(1));
+        assertTrue(despuesDeRestaurar.crearAutomaticaSiCorresponde().isPresent(), "Al día siguiente sí se crea");
+    }
+
+    @Test
     void laCopiaAutomaticaSePuedeDesactivar() {
         servicio.configurarAutomatica(false, 5);
 

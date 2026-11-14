@@ -147,8 +147,16 @@ public class CopiaSeguridadService {
             if (!ultima.isBlank() && LocalDateTime.parse(ultima).plus(INTERVALO_AUTOMATICA).isAfter(ahora)) {
                 return Optional.empty();
             }
-            CopiaSeguridad copia = crear(Tipo.AUTOMATICA);
+            // La fecha se registra ANTES de copiar para que la propia copia la incluya: así, si más tarde
+            // se restaura esta copia, el inicio siguiente no crea otra automática el mismo día.
             configuracion.guardar(CLAVE_ULTIMA_AUTOMATICA, ahora.withNano(0).toString());
+            CopiaSeguridad copia;
+            try {
+                copia = crear(Tipo.AUTOMATICA);
+            } catch (RuntimeException e) {
+                configuracion.guardar(CLAVE_ULTIMA_AUTOMATICA, ultima); // se reintentará en el próximo inicio
+                throw e;
+            }
             aplicarRetencion();
             return Optional.of(copia);
         } catch (RuntimeException e) {
