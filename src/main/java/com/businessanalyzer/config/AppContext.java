@@ -10,6 +10,7 @@ import com.businessanalyzer.service.EstadisticaService;
 import com.businessanalyzer.service.PrediccionService;
 import com.businessanalyzer.service.SimulacionService;
 import com.businessanalyzer.service.DatosDemoService;
+import com.businessanalyzer.service.DiagnosticoService;
 import com.businessanalyzer.repository.EscenarioRepository;
 import com.businessanalyzer.repository.OperacionRepository;
 import com.businessanalyzer.repository.ProductoRepository;
@@ -53,6 +54,7 @@ public final class AppContext {
     private final PrediccionService prediccionService;
     private final SimulacionService simulacionService;
     private final DatosDemoService datosDemoService;
+    private final DiagnosticoService diagnosticoService;
 
     private AppContext(AppConfig config, Database database, int versionEsquema) {
         this.config = config;
@@ -88,6 +90,8 @@ public final class AppContext {
                 empresaService, sesion, reloj);
         this.simulacionService = new SimulacionService(database, operacionRepository, movimientoRepository,
                 new EscenarioRepository(), empresaService, sesion, reloj);
+        this.diagnosticoService = new DiagnosticoService(database, operacionRepository, movimientoRepository,
+                empresaService, sesion, reloj);
         this.datosDemoService = new DatosDemoService(empresaService, catalogoService, operacionService,
                 finanzasService, sesion, reloj);
     }
@@ -154,6 +158,10 @@ public final class AppContext {
 
     public PrediccionService predicciones() {
         return prediccionService;
+    }
+
+    public DiagnosticoService diagnostico() {
+        return diagnosticoService;
     }
 
     public DatosDemoService datosDemo() {
