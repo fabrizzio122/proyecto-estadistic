@@ -36,6 +36,10 @@
                 <MenuItem fx:id="itemAccesos" text="Usuarios con acceso…" onAction="#gestionarAccesos"/>
             </items>
         </MenuButton>
+        <Button fx:id="btnDemo" text="Empresa de demostración" styleClass="button-secondary" minWidth="-Infinity"
+                onAction="#crearDemo">
+            <graphic><FontIcon iconLiteral="fth-play-circle"/></graphic>
+        </Button>
         <Button fx:id="btnNueva" text="Nueva empresa" styleClass="button-primary" minWidth="-Infinity"
                 onAction="#nueva">
             <graphic><FontIcon iconLiteral="fth-plus"/></graphic>

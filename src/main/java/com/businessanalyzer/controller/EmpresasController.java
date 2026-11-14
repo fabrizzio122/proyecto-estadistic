@@ -72,6 +72,7 @@ public class EmpresasController implements VistaModulo {
     @FXML private Button btnUsar;
     @FXML private Button btnEditar;
     @FXML private Button btnNueva;
+    @FXML private Button btnDemo;
     @FXML private MenuButton menuAcciones;
     @FXML private MenuItem itemEstado;
     @FXML private MenuItem itemAccesos;
@@ -86,6 +87,9 @@ public class EmpresasController implements VistaModulo {
         boolean gestiona = contexto.sesion().tienePermiso(Permiso.EMPRESAS_GESTIONAR);
         boolean administraUsuarios = contexto.sesion().tienePermiso(Permiso.USUARIOS_GESTIONAR);
         mostrar(btnNueva, gestiona);
+        mostrar(btnDemo, gestiona && contexto.sesion().tienePermiso(Permiso.OPERACIONES_GESTIONAR)
+                && contexto.sesion().tienePermiso(Permiso.FINANZAS_GESTIONAR)
+                && contexto.sesion().tienePermiso(Permiso.PRODUCTOS_GESTIONAR));
         mostrar(btnEditar, gestiona);
         mostrar(menuAcciones, gestiona || administraUsuarios);
         itemEstado.setVisible(gestiona);
@@ -172,6 +176,30 @@ public class EmpresasController implements VistaModulo {
         cargar();
         seleccionar(creada[0].id());
         Notificador.exito(mensaje);
+    }
+
+    @FXML
+    private void crearDemo() {
+        if (!Dialogos.confirmar(ventana(), "Empresa de demostración",
+                "Se creará \"" + com.businessanalyzer.service.DatosDemoService.NOMBRE_DEMO + "\" con productos, "
+                        + "compras, ventas, gastos e ingresos ficticios de los últimos 12 meses, y quedará como "
+                        + "empresa activa. Tus otras empresas no se modifican.\n\n¿Continuar?")) {
+            return;
+        }
+        javafx.scene.Cursor cursor = tabla.getScene().getCursor();
+        tabla.getScene().setCursor(javafx.scene.Cursor.WAIT);
+        try {
+            Empresa demo = contexto.datosDemo().crearEmpresaDemo();
+            cargar();
+            seleccionar(demo.id());
+            Notificador.exito("Empresa \"" + demo.nombreVisible() + "\" creada con 12 meses de datos. "
+                    + "Ya puedes recorrer los módulos de análisis.");
+        } catch (RuntimeException e) {
+            cargar();
+            Notificador.error(Errores.mensaje(e));
+        } finally {
+            tabla.getScene().setCursor(cursor);
+        }
     }
 
     @FXML
