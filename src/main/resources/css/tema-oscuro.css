@@ -988,3 +988,44 @@
     -fx-background-insets: 0;
     -fx-padding: 4;
 }
+
+/* ---------- Análisis financiero (Fase 7) ---------- */
+
+/* Pestañas dentro de una página (sin la sangría de las pestañas de módulo) */
+.tabs-internas > .tab-header-area {
+    -fx-padding: 0;
+}
+
+.tabs-internas > .tab-content-area {
+    -fx-background-color: -ba-fondo;
+}
+
+.tab-contenido {
+    -fx-padding: 14 0 0 0;
+}
+
+.tabla-compacta .table-row-cell {
+    -fx-cell-size: 32;
+}
+
+.table-view .table-row-cell:subtotal .table-cell {
+    -fx-font-weight: bold;
+}
+
+.table-view .table-row-cell:subtotal {
+    -fx-background-color: #172440;
+}
+
+.table-view .table-row-cell:resultado {
+    -fx-background-color: -ba-acento-suave;
+}
+
+.table-view .table-row-cell:resultado .table-cell {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.lectura {
+    -fx-text-fill: -ba-texto;
+    -fx-font-size: 12.5px;
+}

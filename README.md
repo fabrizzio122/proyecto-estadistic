@@ -56,7 +56,7 @@ automáticamente al iniciar y dentro de una transacción.
 4. Productos y servicios: catálogo, categorías, márgenes e historial de precios ✅
 5. Ventas y compras: operaciones con detalle, impuestos, stock y anulación ✅
 6. Gestión financiera: ingresos y gastos, costos fijos y variables ✅
-7. Análisis financiero
+7. Análisis financiero: estado de resultados, márgenes, punto de equilibrio y rentabilidad ✅
 8. Análisis estadístico
 9. Predicciones
 10. Simulación de escenarios
@@ -100,3 +100,13 @@ automáticamente al iniciar y dentro de una transacción.
 - Cada categoría pertenece a un **grupo** del estado de resultados: gasto operativo, gasto financiero, impuesto a la renta, ingreso financiero u otro ingreso.
 - **Copiar gastos fijos del mes anterior** los repite en el mes actual sin duplicarlos.
 - Se aceptan fechas hasta el fin del mes en curso, para registrar por adelantado la planilla y el alquiler.
+
+## Análisis financiero
+
+- **Estado de resultados** del período elegido (ventas − costo de ventas − gastos operativos ± resultados financieros − impuesto a la renta), con el % sobre las ventas y la comparación con el período anterior equivalente.
+- **Márgenes** bruto, operativo y neto, con su variación en puntos porcentuales.
+- **Punto de equilibrio** en ventas: costos fijos ÷ razón de contribución. Incluye el margen de seguridad y un gráfico de ingresos frente a costos.
+- **Rentabilidad por producto**: unidades, ventas, margen y aporte al margen total. Usa el costo vigente en cada venta.
+- **Evolución de los últimos 12 meses** y una **lectura rápida** en lenguaje sencillo.
+- Gráficos con **JFreeChart**. Con clic derecho sobre un gráfico se puede guardarlo como imagen.
+- Los ratios de liquidez y endeudamiento necesitan datos de balance (activos y pasivos), que el sistema aún no registra.
