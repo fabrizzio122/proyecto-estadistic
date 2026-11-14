@@ -93,6 +93,21 @@ Write-Host "Aplicacion portable: $(Join-Path $salida $nombre)"
 Write-Host "Comprimida:          $zip"
 
 # --- 4. Instalador .exe (requiere WiX Toolset 3.x) -------------------------------------------
+# WiX se busca en el PATH, en la variable WIX (instalacion clasica) o en %USERPROFILE%\tools\wix314
+# (binarios oficiales descomprimidos, sin instalar).
+if (-not (Get-Command candle.exe -ErrorAction SilentlyContinue)) {
+    $candidatas = @("$env:USERPROFILE\tools\wix314")
+    if ($env:WIX) {
+        $candidatas += (Join-Path $env:WIX 'bin')
+    }
+    foreach ($carpetaWix in $candidatas) {
+        if (Test-Path (Join-Path $carpetaWix 'candle.exe')) {
+            $env:PATH = "$carpetaWix;$env:PATH"
+            Write-Host "WiX: $carpetaWix"
+            break
+        }
+    }
+}
 if (Get-Command candle.exe -ErrorAction SilentlyContinue) {
     Write-Host 'Creando el instalador .exe...'
     & $jpackage --type exe @comunes `
@@ -107,6 +122,7 @@ if (Get-Command candle.exe -ErrorAction SilentlyContinue) {
 } else {
     Write-Host ''
     Write-Host 'WiX Toolset 3 no esta instalado: se omitio el instalador .exe.'
-    Write-Host 'Para generarlo instala WiX 3.14 (https://wixtoolset.org/docs/wix3/), agrega su carpeta bin'
-    Write-Host 'al PATH y vuelve a ejecutar este script. La aplicacion portable ya funciona sin instalar nada.'
+    Write-Host 'Para generarlo descomprime wix314-binaries.zip (https://github.com/wixtoolset/wix3/releases)'
+    Write-Host 'en %USERPROFILE%\tools\wix314 y vuelve a ejecutar este script.'
+    Write-Host 'La aplicacion portable ya funciona sin instalar nada.'
 }
