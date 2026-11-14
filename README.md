@@ -197,7 +197,7 @@ Genera en `target\instalador`:
 |---|---|
 | `Business Analyzer\Business Analyzer.exe` | Aplicación lista para usar (unos 160 MB, con Java incluido) |
 | `BusinessAnalyzer-1.0.0-portable.zip` | La misma carpeta comprimida, para copiarla a otro equipo y descomprimirla |
-| `Business Analyzer-1.0.0.exe` | Instalador con acceso directo y menú Inicio; se instala por usuario, sin permisos de administrador. Requiere [WiX Toolset 3.14](https://wixtoolset.org/docs/wix3/) en el PATH |
+| `Business Analyzer-1.0.0.exe` | Instalador con acceso directo y menú Inicio; se instala por usuario, sin permisos de administrador. Requiere WiX Toolset 3.14: basta con descomprimir `wix314-binaries.zip` (de [sus releases](https://github.com/wixtoolset/wix3/releases)) en `%USERPROFILE%	oolswix314`; el script lo encuentra solo |
 
 Los datos no se guardan dentro de la carpeta de la aplicación, sino en `%USERPROFILE%\BusinessAnalyzer`, así que reinstalar o actualizar no los borra.
 
