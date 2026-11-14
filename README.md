@@ -61,7 +61,7 @@ automáticamente al iniciar y dentro de una transacción.
 9. Predicciones: proyección de ventas y utilidad con selección automática del método ✅
 10. Simulación de escenarios: qué pasaría si…, sensibilidad, metas y comparación ✅
 11. Diagnóstico empresarial: puntaje de salud, semáforo de 12 indicadores y recomendaciones ✅
-12. Informes (PDF y Excel)
+12. Informes (PDF y Excel): JasperReports y Apache POI ✅
 13. Configuración, copias de seguridad e instalador
 
 ## Seguridad
