@@ -59,7 +59,7 @@ automáticamente al iniciar y dentro de una transacción.
 7. Análisis financiero: estado de resultados, márgenes, punto de equilibrio y rentabilidad ✅
 8. Análisis estadístico: descriptiva, tendencia, estacionalidad, ABC y correlaciones ✅
 9. Predicciones: proyección de ventas y utilidad con selección automática del método ✅
-10. Simulación de escenarios
+10. Simulación de escenarios: qué pasaría si…, sensibilidad, metas y comparación ✅
 11. Diagnóstico empresarial
 12. Informes (PDF y Excel)
 13. Configuración, copias de seguridad e instalador
@@ -130,3 +130,13 @@ Se calcula con **Apache Commons Math**:
 - **Rango probable al 95 %:** pronóstico ± 1.96 × error histórico × √(meses de distancia).
 - **Confiabilidad** alta, media o baja según el error típico (menos de 10 %, hasta 25 %, más).
 - Usa solo meses completos (hasta 24) y necesita al menos 4. Holt-Winters con estacionalidad anual requiere 24 meses de historia y aún no se incluye.
+
+## Simulación de escenarios
+
+- **Base:** resultados reales del último mes completo o el promedio mensual de los últimos 3 o 6 meses, separados en ventas, costo de ventas, gastos variables, costos fijos y otros ingresos.
+- **Supuestos:** cambios % en precio, unidades vendidas, costo de los productos, gastos variables y costos fijos, más un costo fijo adicional y la tasa de impuesto a la renta.
+- **Resultados:** se recalculan al instante (estado de resultados, margen neto, punto de equilibrio y margen de seguridad) frente a la base.
+- **Escenarios predefinidos:** pesimista, optimista, subir precios 5 % y recortar fijos 10 %.
+- **Sensibilidad:** gráfico de tornado con el efecto de mover cada variable ±10 % en la utilidad neta.
+- **Meta de utilidad:** cuánto subir precios, o cuánto más vender, para ganar un monto mensual.
+- **Escenarios guardados por empresa** (migración V7) y su comparación lado a lado.

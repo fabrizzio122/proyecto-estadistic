@@ -1053,3 +1053,46 @@
     -fx-background-radius: 6;
     -fx-background-color: #111a2e;
 }
+
+/* ---------- Simulación de escenarios (Fase 10) ---------- */
+
+.slider .track {
+    -fx-background-color: #0e1729;
+    -fx-background-radius: 4;
+    -fx-padding: 3;
+}
+
+.slider .thumb {
+    -fx-background-color: -ba-acento;
+    -fx-background-radius: 999;
+    -fx-padding: 7;
+}
+
+.slider:focused .thumb {
+    -fx-effect: dropshadow(gaussian, rgba(56, 189, 248, 0.5), 8, 0, 0, 0);
+}
+
+.list-view {
+    -fx-background-color: #0e1729;
+    -fx-background-radius: 8;
+    -fx-border-color: -ba-borde;
+    -fx-border-radius: 8;
+}
+
+.list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 8 10;
+}
+
+.list-view .list-cell:filled:hover {
+    -fx-background-color: -ba-tarjeta-hover;
+}
+
+.list-view .list-cell:filled:selected {
+    -fx-background-color: -ba-acento-suave;
+    -fx-text-fill: -ba-acento;
+}
+
+.list-view .placeholder .label {
+    -fx-text-fill: -ba-texto-tenue;
+}

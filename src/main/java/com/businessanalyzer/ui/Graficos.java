@@ -9,6 +9,8 @@ import com.businessanalyzer.analytics.estadistica.EstacionalidadSemanal;
 import com.businessanalyzer.analytics.estadistica.Histograma;
 import com.businessanalyzer.analytics.estadistica.Tendencia;
 import com.businessanalyzer.analytics.prediccion.Pronostico;
+import com.businessanalyzer.analytics.simulacion.ResultadoEscenario;
+import com.businessanalyzer.analytics.simulacion.Simulador;
 import com.businessanalyzer.model.Moneda;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.Axis;
@@ -339,6 +341,58 @@ public final class Graficos {
         ejeMeses.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
         CategoryPlot plot = new CategoryPlot(datos, ejeMeses, ejeMonto(moneda), lineas);
         plot.addRangeMarker(new ValueMarker(0, GRILLA, new BasicStroke(1f)));
+        return aplicarTema(new JFreeChart(null, FUENTE, plot, true));
+    }
+
+    // ------------------------------------------------------------------ simulación (Fase 10)
+
+    /** Ventas, costos totales y utilidad neta de varios escenarios, agrupados. */
+    public static JFreeChart comparacionEscenarios(List<String> nombres, List<ResultadoEscenario> resultados,
+                                                   Moneda moneda) {
+        DefaultCategoryDataset datos = new DefaultCategoryDataset();
+        for (int i = 0; i < nombres.size(); i++) {
+            ResultadoEscenario r = resultados.get(i);
+            String serie = abreviar(nombres.get(i), 22);
+            datos.addValue(r.ventas(), serie, "Ventas");
+            datos.addValue(r.costosTotales(), serie, "Costos totales");
+            datos.addValue(r.utilidadNeta(), serie, "Utilidad neta");
+        }
+        BarRenderer barras = new BarRenderer();
+        barras.setBarPainter(new StandardBarPainter());
+        barras.setShadowVisible(false);
+        barras.setItemMargin(0.05);
+        Color[] colores = {TEXTO, AZUL, AMBAR, VERDE, new Color(0xa7, 0x8b, 0xfa), ROJO};
+        for (int i = 0; i < nombres.size(); i++) {
+            barras.setSeriesPaint(i, colores[i % colores.length]);
+        }
+        CategoryPlot plot = new CategoryPlot(datos, new CategoryAxis(), ejeMonto(moneda), barras);
+        plot.addRangeMarker(new ValueMarker(0, GRILLA, new BasicStroke(1f)));
+        return aplicarTema(new JFreeChart(null, FUENTE, plot, true));
+    }
+
+    /**
+     * Gráfico de tornado: cuánto cambia la utilidad neta si cada variable baja o sube.
+     * Las variables con barras más largas son las que más pesan.
+     */
+    public static JFreeChart tornado(List<Simulador.Sensibilidad> sensibilidades, String variacion, Moneda moneda) {
+        DefaultCategoryDataset datos = new DefaultCategoryDataset();
+        for (Simulador.Sensibilidad s : sensibilidades) {
+            String variable = s.variable().descripcion();
+            datos.addValue(s.utilidadSiBaja().subtract(s.utilidadEscenario()), "Si baja " + variacion, variable);
+            datos.addValue(s.utilidadSiSube().subtract(s.utilidadEscenario()), "Si sube " + variacion, variable);
+        }
+        org.jfree.chart.renderer.category.StackedBarRenderer barras = new org.jfree.chart.renderer.category.StackedBarRenderer();
+        barras.setBarPainter(new StandardBarPainter());
+        barras.setShadowVisible(false);
+        barras.setSeriesPaint(0, AMBAR);
+        barras.setSeriesPaint(1, AZUL);
+        barras.setMaximumBarWidth(0.12);
+        NumberAxis eje = ejeMonto(moneda);
+        eje.setLabel("Cambio en la utilidad neta mensual");
+        CategoryPlot plot = new CategoryPlot(datos, new CategoryAxis(), eje, barras);
+        plot.setOrientation(PlotOrientation.HORIZONTAL);
+        plot.addRangeMarker(new ValueMarker(0, TEXTO, new BasicStroke(1.5f)));
+        ((CategoryAxis) plot.getDomainAxis()).setMaximumCategoryLabelWidthRatio(0.35f);
         return aplicarTema(new JFreeChart(null, FUENTE, plot, true));
     }
 

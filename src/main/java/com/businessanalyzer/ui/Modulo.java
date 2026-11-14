@@ -42,7 +42,7 @@ public enum Modulo {
             Permiso.ANALISIS_VER, "/fxml/predicciones-view.fxml"),
     ESCENARIOS(Seccion.ANALISIS, "Simulación de escenarios",
             "Qué pasaría si cambian los precios, costos o volúmenes", "fth-sliders", 10,
-            Permiso.ANALISIS_VER, null),
+            Permiso.ANALISIS_VER, "/fxml/simulacion-view.fxml"),
     DIAGNOSTICO(Seccion.ANALISIS, "Diagnóstico empresarial",
             "Semáforo de riesgos y recomendaciones", "fth-activity", 11,
             Permiso.ANALISIS_VER, null),
