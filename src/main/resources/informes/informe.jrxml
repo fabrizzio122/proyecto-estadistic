@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Plantilla única de los informes PDF de Business Analyzer (JasperReports 6).
+  El contenido llega como una lista de bloques (ver ContenidoInforme.java); cada banda de
+  detalle dibuja un tipo de bloque y solo se imprime cuando el campo "tipo" coincide.
+  Página A4 vertical: 595 x 842 puntos, área útil de 515 puntos de ancho.
+-->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="informe" pageWidth="595" pageHeight="842" columnWidth="515"
+              leftMargin="40" rightMargin="40" topMargin="36" bottomMargin="30"
+              whenNoDataType="AllSectionsNoDetail" isFloatColumnFooter="true">
+
+    <style name="Base" isDefault="true" fontName="DejaVu Sans" fontSize="9" forecolor="#1E293B"/>
+    <style name="Tenue" fontName="DejaVu Sans" fontSize="8" forecolor="#64748B"/>
+
+    <style name="PuntoSemaforo" mode="Opaque" backcolor="#CBD5E1" forecolor="#CBD5E1">
+        <conditionalStyle>
+            <conditionExpression><![CDATA["VERDE".equals($F{estado})]]></conditionExpression>
+            <style backcolor="#16A34A" forecolor="#16A34A"/>
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression><![CDATA["AMARILLO".equals($F{estado})]]></conditionExpression>
+            <style backcolor="#D97706" forecolor="#D97706"/>
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression><![CDATA["ROJO".equals($F{estado})]]></conditionExpression>
+            <style backcolor="#DC2626" forecolor="#DC2626"/>
+        </conditionalStyle>
+    </style>
+
+    <style name="TextoSemaforo" fontName="DejaVu Sans" forecolor="#64748B">
+        <conditionalStyle>
+            <conditionExpression><![CDATA["VERDE".equals($F{estado})]]></conditionExpression>
+            <style forecolor="#15803D"/>
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression><![CDATA["AMARILLO".equals($F{estado})]]></conditionExpression>
+            <style forecolor="#B45309"/>
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression><![CDATA["ROJO".equals($F{estado})]]></conditionExpression>
+            <style forecolor="#B91C1C"/>
+        </conditionalStyle>
+    </style>
+
+    <style name="EtiquetaSemaforo" mode="Opaque" fontName="DejaVu Sans" fontSize="7" isBold="true"
+           backcolor="#F1F5F9" forecolor="#475569">
+        <conditionalStyle>
+            <conditionExpression><![CDATA["AMARILLO".equals($F{estado})]]></conditionExpression>
+            <style backcolor="#FEF3C7" forecolor="#92400E"/>
+        </conditionalStyle>
+        <conditionalStyle>
+            <conditionExpression><![CDATA["ROJO".equals($F{estado})]]></conditionExpression>
+            <style backcolor="#FEE2E2" forecolor="#991B1B"/>
+        </conditionalStyle>
+    </style>
+
+    <parameter name="EMPRESA" class="java.lang.String"/>
+    <parameter name="DETALLE_EMPRESA" class="java.lang.String"/>
+    <parameter name="TITULO" class="java.lang.String"/>
+    <parameter name="SUBTITULO" class="java.lang.String"/>
+    <parameter name="GENERADO" class="java.lang.String"/>
+
+    <field name="tipo" class="java.lang.String"/>
+    <field name="concepto" class="java.lang.String"/>
+    <field name="c1" class="java.lang.String"/>
+    <field name="c2" class="java.lang.String"/>
+    <field name="c3" class="java.lang.String"/>
+    <field name="c4" class="java.lang.String"/>
+    <field name="k1" class="java.lang.String"/>
+    <field name="k2" class="java.lang.String"/>
+    <field name="k3" class="java.lang.String"/>
+    <field name="k4" class="java.lang.String"/>
+    <field name="estado" class="java.lang.String"/>
+    <field name="detalle" class="java.lang.String"/>
+    <field name="imagen" class="java.awt.Image"/>
+
+    <title>
+        <band height="92" splitType="Prevent">
+            <rectangle>
+                <reportElement x="0" y="2" width="4" height="74" forecolor="#0284C7" backcolor="#0284C7"/>
+            </rectangle>
+            <textField textAdjust="ScaleFont">
+                <reportElement x="14" y="0" width="370" height="24"/>
+                <textElement><font size="17" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$P{EMPRESA}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement style="Tenue" x="14" y="25" width="370" height="13"/>
+                <textFieldExpression><![CDATA[$P{DETALLE_EMPRESA}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="14" y="42" width="370" height="18" forecolor="#0284C7"/>
+                <textElement><font size="12" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$P{TITULO}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="14" y="61" width="370" height="15" forecolor="#475569"/>
+                <textFieldExpression><![CDATA[$P{SUBTITULO}]]></textFieldExpression>
+            </textField>
+            <staticText>
+                <reportElement x="385" y="0" width="130" height="14" forecolor="#0284C7"/>
+                <textElement textAlignment="Right"><font size="9" isBold="true"/></textElement>
+                <text><![CDATA[Business Analyzer]]></text>
+            </staticText>
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+                <reportElement style="Tenue" x="300" y="16" width="215" height="12"/>
+                <textElement textAlignment="Right"><font size="7"/></textElement>
+                <textFieldExpression><![CDATA[$P{GENERADO}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="84" width="515" height="1"/>
+                <graphicElement><pen lineWidth="0.75" lineColor="#CBD5E1"/></graphicElement>
+            </line>
+        </band>
+    </title>
+
+    <pageHeader>
+        <band height="22">
+            <printWhenExpression><![CDATA[$V{PAGE_NUMBER} > 1]]></printWhenExpression>
+            <textField>
+                <reportElement style="Tenue" x="0" y="0" width="515" height="14"/>
+                <textFieldExpression><![CDATA[$P{EMPRESA} + "  ·  " + $P{TITULO} + ($P{SUBTITULO} == null ? "" : "  ·  " + $P{SUBTITULO})]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="16" width="515" height="1"/>
+                <graphicElement><pen lineWidth="0.75" lineColor="#E2E8F0"/></graphicElement>
+            </line>
+        </band>
+    </pageHeader>
+
+    <detail>
+        <!-- SECCION -->
+        <band height="34" splitType="Prevent">
+            <printWhenExpression><![CDATA["SECCION".equals($F{tipo})]]></printWhenExpression>
+            <textField>
+                <reportElement x="0" y="12" width="515" height="19" forecolor="#0C4A6E"/>
+                <box><bottomPen lineWidth="1.2" lineColor="#38BDF8"/></box>
+                <textElement verticalAlignment="Middle"><font size="12" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{concepto}]]></textFieldExpression>
+            </textField>
+        </band>
+
+        <!-- ENCABEZADO de tabla -->
+        <band height="22" splitType="Prevent">
+            <printWhenExpression><![CDATA["ENCABEZADO".equals($F{tipo})]]></printWhenExpression>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" x="0" y="4" width="195" height="18" forecolor="#475569" backcolor="#EEF2F7"/>
+                <box leftPadding="5"/>
+                <textElement verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{concepto}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" x="195" y="4" width="80" height="18" forecolor="#475569" backcolor="#EEF2F7"/>
+                <box rightPadding="5"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{c1}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" x="275" y="4" width="80" height="18" forecolor="#475569" backcolor="#EEF2F7"/>
+                <box rightPadding="5"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{c2}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" x="355" y="4" width="80" height="18" forecolor="#475569" backcolor="#EEF2F7"/>
+                <box rightPadding="5"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{c3}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" x="435" y="4" width="80" height="18" forecolor="#475569" backcolor="#EEF2F7"/>
+                <box rightPadding="5"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{c4}]]></textFieldExpression>
+            </textField>
+        </band>
+
+        <!-- FILA de tabla -->
+        <band height="17">
+            <printWhenExpression><![CDATA["FILA".equals($F{tipo})]]></printWhenExpression>
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="195" height="17"/>
+                <box topPadding="3" leftPadding="5" bottomPadding="3"><bottomPen lineWidth="0.5" lineColor="#E2E8F0"/></box>
+                <textElement verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{concepto}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="195" y="0" width="80" height="17"/>
+                <box rightPadding="5"><bottomPen lineWidth="0.5" lineColor="#E2E8F0"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{c1}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="275" y="0" width="80" height="17"/>
+                <box rightPadding="5"><bottomPen lineWidth="0.5" lineColor="#E2E8F0"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{c2}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="355" y="0" width="80" height="17"/>
+                <box rightPadding="5"><bottomPen lineWidth="0.5" lineColor="#E2E8F0"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{c3}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="435" y="0" width="80" height="17"/>
+                <box rightPadding="5"><bottomPen lineWidth="0.5" lineColor="#E2E8F0"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{c4}]]></textFieldExpression>
+            </textField>
+        </band>
+
+        <!-- TOTAL (fila resaltada) -->
+        <band height="19">
+            <printWhenExpression><![CDATA["TOTAL".equals($F{tipo})]]></printWhenExpression>
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+                <reportElement mode="Opaque" stretchType="RelativeToTallestObject" x="0" y="0" width="195" height="19" backcolor="#F1F5F9"/>
+                <box topPadding="3" leftPadding="5" bottomPadding="3"><bottomPen lineWidth="0.5" lineColor="#CBD5E1"/></box>
+                <textElement verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{concepto}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" stretchType="RelativeToTallestObject" x="195" y="0" width="80" height="19" backcolor="#F1F5F9"/>
+                <box rightPadding="5"><bottomPen lineWidth="0.5" lineColor="#CBD5E1"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{c1}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" stretchType="RelativeToTallestObject" x="275" y="0" width="80" height="19" backcolor="#F1F5F9"/>
+                <box rightPadding="5"><bottomPen lineWidth="0.5" lineColor="#CBD5E1"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{c2}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" stretchType="RelativeToTallestObject" x="355" y="0" width="80" height="19" backcolor="#F1F5F9"/>
+                <box rightPadding="5"><bottomPen lineWidth="0.5" lineColor="#CBD5E1"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{c3}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement mode="Opaque" stretchType="RelativeToTallestObject" x="435" y="0" width="80" height="19" backcolor="#F1F5F9"/>
+                <box rightPadding="5"><bottomPen lineWidth="0.5" lineColor="#CBD5E1"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle"><font isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{c4}]]></textFieldExpression>
+            </textField>
+        </band>
+
+        <!-- TEXTO -->
+        <band height="16">
+            <printWhenExpression><![CDATA["TEXTO".equals($F{tipo})]]></printWhenExpression>
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+                <reportElement x="0" y="2" width="515" height="13"/>
+                <textElement><paragraph lineSpacing="Proportional" lineSpacingSize="1.15"/></textElement>
+                <textFieldExpression><![CDATA["•  " + $F{concepto}]]></textFieldExpression>
+            </textField>
+        </band>
+
+        <!-- NOTA -->
+        <band height="14">
+            <printWhenExpression><![CDATA["NOTA".equals($F{tipo})]]></printWhenExpression>
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+                <reportElement style="Tenue" x="0" y="3" width="515" height="11"/>
+                <textElement><font size="7" isItalic="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{concepto}]]></textFieldExpression>
+            </textField>
+        </band>
+
+        <!-- INDICADORES (hasta 4 tarjetas) -->
+        <band height="58" splitType="Prevent">
+            <printWhenExpression><![CDATA["INDICADORES".equals($F{tipo})]]></printWhenExpression>
+            <frame>
+                <reportElement mode="Opaque" x="0" y="8" width="122" height="46" backcolor="#F8FAFC">
+                    <printWhenExpression><![CDATA[$F{k1} != null]]></printWhenExpression>
+                </reportElement>
+                <box><pen lineWidth="0.75" lineColor="#CBD5E1"/></box>
+                <textField isBlankWhenNull="true">
+                    <reportElement style="Tenue" x="8" y="5" width="108" height="12"/>
+                    <textElement><font size="7"/></textElement>
+                    <textFieldExpression><![CDATA[$F{k1}]]></textFieldExpression>
+                </textField>
+                <textField textAdjust="ScaleFont" isBlankWhenNull="true">
+                    <reportElement x="8" y="19" width="108" height="20" forecolor="#0F172A"/>
+                    <textElement><font size="12" isBold="true"/></textElement>
+                    <textFieldExpression><![CDATA[$F{c1}]]></textFieldExpression>
+                </textField>
+            </frame>
+            <frame>
+                <reportElement mode="Opaque" x="131" y="8" width="122" height="46" backcolor="#F8FAFC">
+                    <printWhenExpression><![CDATA[$F{k2} != null]]></printWhenExpression>
+                </reportElement>
+                <box><pen lineWidth="0.75" lineColor="#CBD5E1"/></box>
+                <textField isBlankWhenNull="true">
+                    <reportElement style="Tenue" x="8" y="5" width="108" height="12"/>
+                    <textElement><font size="7"/></textElement>
+                    <textFieldExpression><![CDATA[$F{k2}]]></textFieldExpression>
+                </textField>
+                <textField textAdjust="ScaleFont" isBlankWhenNull="true">
+                    <reportElement x="8" y="19" width="108" height="20" forecolor="#0F172A"/>
+                    <textElement><font size="12" isBold="true"/></textElement>
+                    <textFieldExpression><![CDATA[$F{c2}]]></textFieldExpression>
+                </textField>
+            </frame>
+            <frame>
+                <reportElement mode="Opaque" x="262" y="8" width="122" height="46" backcolor="#F8FAFC">
+                    <printWhenExpression><![CDATA[$F{k3} != null]]></printWhenExpression>
+                </reportElement>
+                <box><pen lineWidth="0.75" lineColor="#CBD5E1"/></box>
+                <textField isBlankWhenNull="true">
+                    <reportElement style="Tenue" x="8" y="5" width="108" height="12"/>
+                    <textElement><font size="7"/></textElement>
+                    <textFieldExpression><![CDATA[$F{k3}]]></textFieldExpression>
+                </textField>
+                <textField textAdjust="ScaleFont" isBlankWhenNull="true">
+                    <reportElement x="8" y="19" width="108" height="20" forecolor="#0F172A"/>
+                    <textElement><font size="12" isBold="true"/></textElement>
+                    <textFieldExpression><![CDATA[$F{c3}]]></textFieldExpression>
+                </textField>
+            </frame>
+            <frame>
+                <reportElement mode="Opaque" x="393" y="8" width="122" height="46" backcolor="#F8FAFC">
+                    <printWhenExpression><![CDATA[$F{k4} != null]]></printWhenExpression>
+                </reportElement>
+                <box><pen lineWidth="0.75" lineColor="#CBD5E1"/></box>
+                <textField isBlankWhenNull="true">
+                    <reportElement style="Tenue" x="8" y="5" width="108" height="12"/>
+                    <textElement><font size="7"/></textElement>
+                    <textFieldExpression><![CDATA[$F{k4}]]></textFieldExpression>
+                </textField>
+                <textField textAdjust="ScaleFont" isBlankWhenNull="true">
+                    <reportElement x="8" y="19" width="108" height="20" forecolor="#0F172A"/>
+                    <textElement><font size="12" isBold="true"/></textElement>
+                    <textFieldExpression><![CDATA[$F{c4}]]></textFieldExpression>
+                </textField>
+            </frame>
+        </band>
+
+        <!-- SEMAFORO (indicador del diagnóstico) -->
+        <band height="33">
+            <printWhenExpression><![CDATA["SEMAFORO".equals($F{tipo})]]></printWhenExpression>
+            <ellipse>
+                <reportElement style="PuntoSemaforo" x="3" y="6" width="8" height="8"/>
+                <graphicElement><pen lineWidth="0.0"/></graphicElement>
+            </ellipse>
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+                <reportElement x="18" y="3" width="330" height="14"/>
+                <textElement><font isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{concepto}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement style="TextoSemaforo" x="350" y="3" width="100" height="14"/>
+                <textElement textAlignment="Right"><font size="9" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{c1}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement style="TextoSemaforo" x="455" y="3" width="60" height="14"/>
+                <textElement textAlignment="Right"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{c2}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+                <reportElement style="Tenue" positionType="Float" x="18" y="17" width="497" height="12"/>
+                <textFieldExpression><![CDATA[$F{detalle}]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement positionType="Float" x="0" y="32" width="515" height="1"/>
+                <graphicElement><pen lineWidth="0.75" lineColor="#E2E8F0"/></graphicElement>
+            </line>
+        </band>
+
+        <!-- RECOMENDACION -->
+        <band height="36">
+            <printWhenExpression><![CDATA["RECOMENDACION".equals($F{tipo})]]></printWhenExpression>
+            <textField isBlankWhenNull="true">
+                <reportElement style="EtiquetaSemaforo" x="0" y="4" width="56" height="13"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{c1}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+                <reportElement x="64" y="3" width="451" height="15"/>
+                <textElement><font isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$F{concepto}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+                <reportElement positionType="Float" x="64" y="19" width="451" height="13" forecolor="#334155"/>
+                <textElement><paragraph lineSpacing="Proportional" lineSpacingSize="1.1"/></textElement>
+                <textFieldExpression><![CDATA[$F{detalle}]]></textFieldExpression>
+            </textField>
+        </band>
+
+        <!-- GRAFICO -->
+        <band height="232" splitType="Prevent">
+            <printWhenExpression><![CDATA["GRAFICO".equals($F{tipo})]]></printWhenExpression>
+            <image scaleImage="RetainShape" hAlign="Center" vAlign="Middle">
+                <reportElement x="0" y="6" width="515" height="222"/>
+                <imageExpression><![CDATA[$F{imagen}]]></imageExpression>
+            </image>
+        </band>
+
+        <!-- ESPACIO -->
+        <band height="8">
+            <printWhenExpression><![CDATA["ESPACIO".equals($F{tipo})]]></printWhenExpression>
+        </band>
+    </detail>
+
+    <pageFooter>
+        <band height="22">
+            <line>
+                <reportElement x="0" y="4" width="515" height="1"/>
+                <graphicElement><pen lineWidth="0.75" lineColor="#E2E8F0"/></graphicElement>
+            </line>
+            <textField isBlankWhenNull="true">
+                <reportElement style="Tenue" x="0" y="8" width="400" height="12"/>
+                <textElement><font size="7"/></textElement>
+                <textFieldExpression><![CDATA["Business Analyzer Desktop 1.0  ·  " + $P{GENERADO}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement style="Tenue" x="400" y="8" width="95" height="12"/>
+                <textElement textAlignment="Right"><font size="7"/></textElement>
+                <textFieldExpression><![CDATA["Página " + $V{PAGE_NUMBER} + " de"]]></textFieldExpression>
+            </textField>
+            <textField evaluationTime="Report">
+                <reportElement style="Tenue" x="495" y="8" width="20" height="12"/>
+                <textElement><font size="7"/></textElement>
+                <textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+</jasperReport>

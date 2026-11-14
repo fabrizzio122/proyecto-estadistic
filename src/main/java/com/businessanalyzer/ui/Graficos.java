@@ -344,6 +344,53 @@ public final class Graficos {
         return aplicarTema(new JFreeChart(null, FUENTE, plot, true));
     }
 
+    // ------------------------------------------------------------------ impresión (Fase 12)
+
+    /**
+     * Imagen del gráfico con fondo blanco para incluirla en un informe PDF. Se dibuja al doble de
+     * resolución para que se vea nítida al imprimir.
+     */
+    public static java.awt.image.BufferedImage imagenParaImpresion(JFreeChart grafico, int ancho, int alto) {
+        Color fondo = Color.WHITE;
+        Color texto = new Color(0x47, 0x55, 0x69);
+        Color grilla = new Color(0xe2, 0xe8, 0xf0);
+        Color azulImpresion = new Color(0x02, 0x84, 0xc7);
+        grafico.setBackgroundPaint(fondo);
+        if (grafico.getLegend() != null) {
+            grafico.getLegend().setBackgroundPaint(fondo);
+            grafico.getLegend().setItemPaint(texto);
+        }
+        if (grafico.getPlot() instanceof CategoryPlot plot) {
+            plot.setBackgroundPaint(fondo);
+            plot.setRangeGridlinePaint(grilla);
+            colorEjes(texto, grilla, plot.getDomainAxis(), plot.getRangeAxis());
+            for (int r = 0; r < plot.getRendererCount(); r++) {
+                if (plot.getRenderer(r) != null && plot.getDataset(r) != null) {
+                    for (int s = 0; s < plot.getDataset(r).getRowCount(); s++) {
+                        if (AZUL.equals(plot.getRenderer(r).getSeriesPaint(s))) {
+                            plot.getRenderer(r).setSeriesPaint(s, azulImpresion);
+                        }
+                    }
+                }
+            }
+        } else if (grafico.getPlot() instanceof XYPlot plot) {
+            plot.setBackgroundPaint(fondo);
+            plot.setRangeGridlinePaint(grilla);
+            plot.setDomainGridlinePaint(grilla);
+            colorEjes(texto, grilla, plot.getDomainAxis(), plot.getRangeAxis());
+        }
+        return grafico.createBufferedImage(ancho * 2, alto * 2, ancho, alto, null);
+    }
+
+    private static void colorEjes(Color texto, Color linea, Axis... ejes) {
+        for (Axis eje : ejes) {
+            eje.setLabelPaint(texto);
+            eje.setTickLabelPaint(texto);
+            eje.setAxisLinePaint(linea);
+            eje.setTickMarkPaint(linea);
+        }
+    }
+
     // ------------------------------------------------------------------ simulación (Fase 10)
 
     /** Ventas, costos totales y utilidad neta de varios escenarios, agrupados. */

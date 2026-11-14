@@ -48,7 +48,7 @@ public enum Modulo {
             Permiso.ANALISIS_VER, "/fxml/diagnostico-view.fxml"),
     INFORMES(Seccion.ANALISIS, "Informes y reportes",
             "Reportes en PDF y exportación a Excel", "fth-file-text", 12,
-            Permiso.INFORMES_GENERAR, null),
+            Permiso.INFORMES_GENERAR, "/fxml/informes-view.fxml"),
 
     USUARIOS(Seccion.SISTEMA, "Usuarios y permisos",
             "Cuentas, roles y control de acceso", "fth-users", 2,

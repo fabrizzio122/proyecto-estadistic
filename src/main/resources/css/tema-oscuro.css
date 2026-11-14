@@ -1180,3 +1180,47 @@
     -fx-icon-color: -ba-exito;
     -fx-icon-size: 15;
 }
+
+/* ---------- Informes (Fase 12) ---------- */
+
+.tarjeta-informe {
+    -fx-background-color: -ba-tarjeta;
+    -fx-background-radius: 12;
+    -fx-border-color: -ba-borde;
+    -fx-border-radius: 12;
+    -fx-border-width: 1.5;
+    -fx-padding: 14 15;
+    -fx-alignment: top-left;
+    -fx-cursor: hand;
+}
+
+.tarjeta-informe:hover {
+    -fx-background-color: -ba-tarjeta-hover;
+}
+
+.tarjeta-informe:selected {
+    -fx-background-color: -ba-acento-suave;
+    -fx-border-color: -ba-acento;
+}
+
+.tarjeta-informe-icono {
+    -fx-icon-color: -ba-acento;
+    -fx-icon-size: 22;
+}
+
+.chip-pdf {
+    -fx-background-color: rgba(239, 68, 68, 0.15);
+    -fx-text-fill: #fca5a5;
+}
+
+.chip-excel {
+    -fx-background-color: rgba(34, 197, 94, 0.15);
+    -fx-text-fill: #86efac;
+}
+
+.chip-pdf, .chip-excel {
+    -fx-border-color: transparent;
+    -fx-padding: 2 9;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
