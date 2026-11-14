@@ -8,7 +8,11 @@ import com.businessanalyzer.util.Fechas;
 import com.businessanalyzer.util.Montos;
 import com.businessanalyzer.analytics.ResumenOperaciones;
 import com.businessanalyzer.ui.Errores;
-import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
+import com.businessanalyzer.analytics.EstadoResultados;
+import com.businessanalyzer.analytics.PuntoEquilibrio;
+import com.businessanalyzer.service.AnalisisService;
 import org.kordamp.ikonli.javafx.FontIcon;
 import com.businessanalyzer.ui.Dialogos;
 import com.businessanalyzer.ui.Modulo;
@@ -49,6 +53,9 @@ public class DashboardController implements VistaModulo {
     @FXML private Label lblJavaFx;
 
     private final TarjetaIndicador kpiVentasMes = new TarjetaIndicador("Ventas del mes", "fth-shopping-bag");
+    private final TarjetaIndicador kpiUtilidad = new TarjetaIndicador("Utilidad neta del mes", "fth-dollar-sign");
+    private final TarjetaIndicador kpiMargenNeto = new TarjetaIndicador("Margen neto", "fth-percent");
+    private final TarjetaIndicador kpiEquilibrio = new TarjetaIndicador("Punto de equilibrio", "fth-target");
 
     public DashboardController(AppContext contexto) {
         this.contexto = contexto;
@@ -56,16 +63,7 @@ public class DashboardController implements VistaModulo {
 
     @FXML
     private void initialize() {
-        String detalle = "Disponible desde la Fase " + Modulo.ANALISIS_FINANCIERO.fase();
-        indicadores.getChildren().add(kpiVentasMes);
-        Stream.of(
-                new TarjetaIndicador("Utilidad neta", "fth-dollar-sign"),
-                new TarjetaIndicador("Margen neto", "fth-percent"),
-                new TarjetaIndicador("Punto de equilibrio", "fth-target")
-        ).forEach(tarjeta -> {
-            tarjeta.actualizar(TarjetaIndicador.SIN_VALOR, detalle);
-            indicadores.getChildren().add(tarjeta);
-        });
+        indicadores.getChildren().addAll(kpiVentasMes, kpiUtilidad, kpiMargenNeto, kpiEquilibrio);
 
         construirPrimerosPasos();
 
@@ -96,6 +94,40 @@ public class DashboardController implements VistaModulo {
                     : "Pide a un administrador que te asigne una empresa para empezar a trabajar.");
         }
         actualizarVentasDelMes(empresa.orElse(null));
+        actualizarResultadoDelMes(empresa.orElse(null));
+    }
+
+    /** Utilidad neta, margen neto y punto de equilibrio del mes en curso (Fase 7). */
+    private void actualizarResultadoDelMes(Empresa empresa) {
+        List<TarjetaIndicador> tarjetas = List.of(kpiUtilidad, kpiMargenNeto, kpiEquilibrio);
+        if (empresa == null) {
+            tarjetas.forEach(t -> t.actualizar(TarjetaIndicador.SIN_VALOR, "Requiere una empresa activa"));
+            return;
+        }
+        if (!contexto.sesion().tienePermiso(Permiso.ANALISIS_VER)) {
+            tarjetas.forEach(t -> t.actualizar(TarjetaIndicador.SIN_VALOR, "Requiere permiso de análisis"));
+            return;
+        }
+        try {
+            YearMonth mes = YearMonth.now();
+            AnalisisService.ResumenPeriodo r = contexto.analisis().resumen(mes.atDay(1), mes.atEndOfMonth());
+            EstadoResultados e = r.estado();
+            PuntoEquilibrio pe = r.equilibrio();
+            kpiUtilidad.actualizar(Montos.formatear(e.utilidadNeta(), empresa.moneda()),
+                    e.utilidadNeta().signum() >= 0 ? "Ganancia después de todos los gastos" : "El mes va con pérdida");
+            kpiMargenNeto.actualizar(Montos.porcentaje(e.margenNeto()),
+                    "Margen bruto " + Montos.porcentaje(e.margenBruto()));
+            if (pe.ventasEquilibrio() == null) {
+                kpiEquilibrio.actualizar("No alcanzable", e.ventasNetas().signum() == 0
+                        ? "Sin ventas este mes" : "Las ventas no cubren sus costos variables");
+            } else {
+                kpiEquilibrio.actualizar(Montos.formatear(pe.ventasEquilibrio(), empresa.moneda()), pe.alcanzado()
+                        ? "Alcanzado ✓"
+                        : "Faltan " + Montos.formatear(pe.ventasFaltantes(), empresa.moneda()) + " en ventas");
+            }
+        } catch (RuntimeException ex) {
+            tarjetas.forEach(t -> t.actualizar(TarjetaIndicador.SIN_VALOR, Errores.mensaje(ex)));
+        }
     }
 
     /** Ventas netas (sin impuestos ni anuladas) del mes en curso. */
@@ -105,8 +137,8 @@ public class DashboardController implements VistaModulo {
             return;
         }
         try {
-            LocalDate hoy = LocalDate.now();
-            ResumenOperaciones r = contexto.operaciones().resumen(hoy.withDayOfMonth(1), hoy);
+            YearMonth mes = YearMonth.now();
+            ResumenOperaciones r = contexto.operaciones().resumen(mes.atDay(1), mes.atEndOfMonth());
             kpiVentasMes.actualizar(Montos.formatear(r.ventasNetas(), empresa.moneda()),
                     r.cantidadVentas() + (r.cantidadVentas() == 1 ? " venta" : " ventas")
                             + " · margen bruto " + Montos.porcentaje(r.margenBrutoSobreVentas()));

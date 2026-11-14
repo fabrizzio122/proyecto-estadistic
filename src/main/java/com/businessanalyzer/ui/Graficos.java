@@ -1,0 +1,241 @@
+package com.businessanalyzer.ui;
+
+import com.businessanalyzer.analytics.AnalisisFinanciero.ResultadoMensual;
+import com.businessanalyzer.analytics.PuntoEquilibrio;
+import com.businessanalyzer.analytics.RentabilidadProducto;
+import com.businessanalyzer.model.Moneda;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.Axis;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.CategoryLabelPositions;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.block.BlockBorder;
+import org.jfree.chart.fx.ChartViewer;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.DatasetRenderingOrder;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.ValueMarker;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.ui.RectangleAnchor;
+import org.jfree.chart.ui.RectangleInsets;
+import org.jfree.chart.ui.TextAnchor;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Paint;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.time.YearMonth;
+import java.time.format.TextStyle;
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * Gráficos de JFreeChart con el tema oscuro de la aplicación. Cada método devuelve un
+ * {@link JFreeChart} listo para mostrarse con {@link #visor(JFreeChart)}; el visor incluye
+ * un menú contextual (clic derecho) para exportar la imagen.
+ */
+public final class Graficos {
+
+    public static final Color AZUL = new Color(0x38, 0xbd, 0xf8);
+    public static final Color VERDE = new Color(0x22, 0xc5, 0x5e);
+    public static final Color AMBAR = new Color(0xf5, 0x9e, 0x0b);
+    public static final Color ROJO = new Color(0xef, 0x44, 0x44);
+
+    private static final Color FONDO = new Color(0x14, 0x1e, 0x34);
+    private static final Color GRILLA = new Color(0x22, 0x30, 0x4d);
+    private static final Color TEXTO = new Color(0x8d, 0x9b, 0xb5);
+    private static final Color TEXTO_FUERTE = new Color(0xe6, 0xeb, 0xf5);
+    private static final Font FUENTE = new Font("Segoe UI", Font.PLAIN, 11);
+    private static final BasicStroke LINEA_GRUESA = new BasicStroke(2.5f);
+    private static final BasicStroke LINEA_PUNTEADA = new BasicStroke(1.5f, BasicStroke.CAP_ROUND,
+            BasicStroke.JOIN_ROUND, 1f, new float[]{6f, 5f}, 0f);
+    private static final Locale ESPANOL = Locale.forLanguageTag("es");
+
+    private Graficos() {
+    }
+
+    public static ChartViewer visor(JFreeChart grafico) {
+        ChartViewer visor = new ChartViewer(grafico);
+        visor.setMinSize(200, 160);
+        visor.setPrefSize(400, 240);
+        return visor;
+    }
+
+    /** Barras de ventas netas y línea de utilidad neta de cada mes. */
+    public static JFreeChart evolucionMensual(List<ResultadoMensual> meses, Moneda moneda) {
+        DefaultCategoryDataset ventas = new DefaultCategoryDataset();
+        DefaultCategoryDataset utilidad = new DefaultCategoryDataset();
+        for (ResultadoMensual m : meses) {
+            String etiqueta = etiquetaMes(m.mes());
+            ventas.addValue(m.estado().ventasNetas(), "Ventas netas", etiqueta);
+            utilidad.addValue(m.estado().utilidadNeta(), "Utilidad neta", etiqueta);
+        }
+
+        BarRenderer barras = new BarRenderer();
+        barras.setBarPainter(new StandardBarPainter());
+        barras.setShadowVisible(false);
+        barras.setSeriesPaint(0, AZUL);
+        barras.setItemMargin(0);
+        barras.setMaximumBarWidth(0.05);
+
+        CategoryAxis ejeMeses = new CategoryAxis();
+        ejeMeses.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        ejeMeses.setCategoryMargin(0.1);
+        CategoryPlot plot = new CategoryPlot(ventas, ejeMeses, ejeMonto(moneda), barras);
+
+        LineAndShapeRenderer linea = new LineAndShapeRenderer(true, true);
+        linea.setSeriesPaint(0, VERDE);
+        linea.setSeriesStroke(0, LINEA_GRUESA);
+        plot.setDataset(1, utilidad);
+        plot.setRenderer(1, linea);
+        plot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+        plot.addRangeMarker(new ValueMarker(0, TEXTO, new BasicStroke(1f)));
+
+        return aplicarTema(new JFreeChart(null, FUENTE, plot, true));
+    }
+
+    /**
+     * Gráfico clásico de equilibrio: la recta de ingresos y la de costos totales
+     * (fijos + variables) se cruzan en el punto de equilibrio.
+     */
+    public static JFreeChart puntoEquilibrio(PuntoEquilibrio pe, Moneda moneda) {
+        double fijos = pe.costosFijos().doubleValue();
+        double razonVariable = pe.razonCostoVariable() == null ? 1 : pe.razonCostoVariable().doubleValue();
+        double referencia = Math.max(pe.ventas().doubleValue(),
+                pe.ventasEquilibrio() == null ? 0 : pe.ventasEquilibrio().doubleValue());
+        double maximo = referencia > 0 ? referencia * 1.4 : Math.max(fijos * 2, 100);
+
+        XYSeries ingresos = new XYSeries("Ingresos por ventas");
+        XYSeries costos = new XYSeries("Costos totales");
+        XYSeries costosFijos = new XYSeries("Costos fijos");
+        for (double x : new double[]{0, maximo}) {
+            ingresos.add(x, x);
+            costos.add(x, fijos + razonVariable * x);
+            costosFijos.add(x, fijos);
+        }
+        XYSeriesCollection datos = new XYSeriesCollection();
+        datos.addSeries(ingresos);
+        datos.addSeries(costos);
+        datos.addSeries(costosFijos);
+
+        XYLineAndShapeRenderer lineas = new XYLineAndShapeRenderer(true, false);
+        lineas.setSeriesPaint(0, AZUL);
+        lineas.setSeriesStroke(0, LINEA_GRUESA);
+        lineas.setSeriesPaint(1, AMBAR);
+        lineas.setSeriesStroke(1, LINEA_GRUESA);
+        lineas.setSeriesPaint(2, TEXTO);
+        lineas.setSeriesStroke(2, LINEA_PUNTEADA);
+
+        NumberAxis ejeVentas = ejeMonto(moneda);
+        ejeVentas.setLabel("Nivel de ventas");
+        XYPlot plot = new XYPlot(datos, ejeVentas, ejeMonto(moneda), lineas);
+        if (pe.ventasEquilibrio() != null) {
+            plot.addDomainMarker(marcador(pe.ventasEquilibrio().doubleValue(), "Equilibrio", VERDE));
+        }
+        if (pe.ventas().signum() > 0) {
+            plot.addDomainMarker(marcador(pe.ventas().doubleValue(), "Ventas actuales", TEXTO_FUERTE));
+        }
+        return aplicarTema(new JFreeChart(null, FUENTE, plot, true));
+    }
+
+    /** Barras horizontales con el margen bruto de los productos que más aportan (en rojo si es negativo). */
+    public static JFreeChart rentabilidadProductos(List<RentabilidadProducto> productos, int maximo, Moneda moneda) {
+        DefaultCategoryDataset datos = new DefaultCategoryDataset();
+        productos.stream().limit(maximo).forEach(p -> datos.addValue(p.margen(), "Margen bruto", abreviar(p.nombre(), 26)));
+
+        BarRenderer barras = new BarRenderer() {
+            @Override
+            public Paint getItemPaint(int fila, int columna) {
+                Number valor = datos.getValue(fila, columna);
+                return valor != null && valor.doubleValue() < 0 ? ROJO : AZUL;
+            }
+        };
+        barras.setBarPainter(new StandardBarPainter());
+        barras.setShadowVisible(false);
+        barras.setMaximumBarWidth(0.08);
+
+        CategoryAxis ejeProductos = new CategoryAxis();
+        ejeProductos.setMaximumCategoryLabelWidthRatio(0.45f);
+        CategoryPlot plot = new CategoryPlot(datos, ejeProductos, ejeMonto(moneda), barras);
+        plot.setOrientation(PlotOrientation.HORIZONTAL);
+        return aplicarTema(new JFreeChart(null, FUENTE, plot, false));
+    }
+
+    // ------------------------------------------------------------------ estilo
+
+    private static JFreeChart aplicarTema(JFreeChart grafico) {
+        grafico.setBackgroundPaint(FONDO);
+        grafico.setBorderVisible(false);
+        grafico.setPadding(new RectangleInsets(6, 4, 4, 8));
+        grafico.setAntiAlias(true);
+        grafico.setTextAntiAlias(true);
+        if (grafico.getLegend() != null) {
+            grafico.getLegend().setBackgroundPaint(FONDO);
+            grafico.getLegend().setItemPaint(TEXTO);
+            grafico.getLegend().setItemFont(FUENTE);
+            grafico.getLegend().setFrame(BlockBorder.NONE);
+        }
+        if (grafico.getPlot() instanceof CategoryPlot plot) {
+            estiloPlot(plot.getDomainAxis(), plot.getRangeAxis());
+            plot.setBackgroundPaint(FONDO);
+            plot.setOutlineVisible(false);
+            plot.setRangeGridlinePaint(GRILLA);
+            plot.setDomainGridlinesVisible(false);
+        } else if (grafico.getPlot() instanceof XYPlot plot) {
+            estiloPlot(plot.getDomainAxis(), plot.getRangeAxis());
+            plot.setBackgroundPaint(FONDO);
+            plot.setOutlineVisible(false);
+            plot.setRangeGridlinePaint(GRILLA);
+            plot.setDomainGridlinePaint(GRILLA);
+        }
+        return grafico;
+    }
+
+    private static void estiloPlot(Axis... ejes) {
+        for (Axis eje : ejes) {
+            eje.setLabelPaint(TEXTO);
+            eje.setLabelFont(FUENTE);
+            eje.setTickLabelPaint(TEXTO);
+            eje.setTickLabelFont(FUENTE);
+            eje.setAxisLinePaint(GRILLA);
+            eje.setTickMarkPaint(GRILLA);
+        }
+    }
+
+    private static NumberAxis ejeMonto(Moneda moneda) {
+        NumberAxis eje = new NumberAxis();
+        eje.setNumberFormatOverride(new DecimalFormat("'" + moneda.simbolo() + "' #,##0",
+                DecimalFormatSymbols.getInstance(Locale.US)));
+        eje.setAutoRangeIncludesZero(true);
+        return eje;
+    }
+
+    private static ValueMarker marcador(double valor, String etiqueta, Color color) {
+        ValueMarker marcador = new ValueMarker(valor, color, LINEA_PUNTEADA);
+        marcador.setLabel(etiqueta);
+        marcador.setLabelPaint(color);
+        marcador.setLabelFont(FUENTE);
+        marcador.setLabelAnchor(RectangleAnchor.TOP_RIGHT);
+        marcador.setLabelTextAnchor(TextAnchor.TOP_LEFT);
+        return marcador;
+    }
+
+    /** "ene", "feb"... (se añade el año solo en enero para no saturar el eje). */
+    private static String etiquetaMes(YearMonth mes) {
+        String nombre = mes.getMonth().getDisplayName(TextStyle.SHORT, ESPANOL).replace(".", "");
+        return mes.getMonthValue() == 1 ? nombre + " " + String.valueOf(mes.getYear()).substring(2) : nombre;
+    }
+
+    private static String abreviar(String texto, int maximo) {
+        return texto.length() <= maximo ? texto : texto.substring(0, maximo - 1) + "…";
+    }
+}

@@ -16,16 +16,22 @@ import java.util.Map;
 /**
  * Totales de los ingresos y gastos no comerciales de un período (sin anulados).
  *
- * @param gastosFijos     gastos marcados como fijos
- * @param gastosVariables gastos marcados como variables (no incluye el costo de lo vendido)
+ * @param gastosFijos               gastos marcados como fijos
+ * @param gastosVariables           gastos marcados como variables (no incluye el costo de lo vendido)
+ * @param costosFijosEquilibrio     gastos fijos sin el impuesto a la renta (para el punto de equilibrio)
+ * @param costosVariablesEquilibrio gastos variables sin el impuesto a la renta (para el punto de equilibrio)
  */
 public record ResumenFinanciero(
         BigDecimal ingresos,
         BigDecimal gastos,
         BigDecimal gastosFijos,
         BigDecimal gastosVariables,
+        BigDecimal costosFijosEquilibrio,
+        BigDecimal costosVariablesEquilibrio,
         Map<CategoriaFinanciera, BigDecimal> porCategoria,
         int cantidadMovimientos) {
+
+    public static final ResumenFinanciero VACIO = de(java.util.List.of());
 
     public ResumenFinanciero {
         porCategoria = Collections.unmodifiableMap(new EnumMap<>(porCategoria.isEmpty()
@@ -36,6 +42,8 @@ public record ResumenFinanciero(
         BigDecimal ingresos = BigDecimal.ZERO;
         BigDecimal fijos = BigDecimal.ZERO;
         BigDecimal variables = BigDecimal.ZERO;
+        BigDecimal fijosEquilibrio = BigDecimal.ZERO;
+        BigDecimal variablesEquilibrio = BigDecimal.ZERO;
         Map<CategoriaFinanciera, BigDecimal> porCategoria = new EnumMap<>(CategoriaFinanciera.class);
         int cantidad = 0;
         for (MovimientoFinanciero m : movimientos) {
@@ -46,13 +54,23 @@ public record ResumenFinanciero(
             porCategoria.merge(m.categoria(), m.monto(), BigDecimal::add);
             if (m.tipo() == TipoMovimiento.INGRESO) {
                 ingresos = ingresos.add(m.monto());
-            } else if (m.comportamiento() == Comportamiento.FIJO) {
+                continue;
+            }
+            boolean cuentaParaEquilibrio = m.categoria().grupo() != GrupoFinanciero.IMPUESTO_RENTA;
+            if (m.comportamiento() == Comportamiento.FIJO) {
                 fijos = fijos.add(m.monto());
+                if (cuentaParaEquilibrio) {
+                    fijosEquilibrio = fijosEquilibrio.add(m.monto());
+                }
             } else {
                 variables = variables.add(m.monto());
+                if (cuentaParaEquilibrio) {
+                    variablesEquilibrio = variablesEquilibrio.add(m.monto());
+                }
             }
         }
-        return new ResumenFinanciero(ingresos, fijos.add(variables), fijos, variables, porCategoria, cantidad);
+        return new ResumenFinanciero(ingresos, fijos.add(variables), fijos, variables, fijosEquilibrio,
+                variablesEquilibrio, porCategoria, cantidad);
     }
 
     /** Suma de las categorías de un grupo del estado de resultados. */

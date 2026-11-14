@@ -33,7 +33,7 @@ public enum Modulo {
 
     ANALISIS_FINANCIERO(Seccion.ANALISIS, "Análisis financiero",
             "Estado de resultados, márgenes, ratios y punto de equilibrio", "fth-pie-chart", 7,
-            Permiso.ANALISIS_VER, null),
+            Permiso.ANALISIS_VER, "/fxml/analisis-financiero-view.fxml"),
     ESTADISTICA(Seccion.ANALISIS, "Análisis estadístico",
             "Tendencias, estacionalidad, dispersión y análisis ABC", "fth-bar-chart-2", 8,
             Permiso.ANALISIS_VER, null),

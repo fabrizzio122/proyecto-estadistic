@@ -54,6 +54,22 @@ class ModuloTest {
         }
     }
 
+    /**
+     * En FXML un texto que empieza con "%" se interpreta como clave de traducción y la vista
+     * no carga ("No resources specified"). Debe escribirse "\%".
+     */
+    @Test
+    void ningunTextoDeLasVistasEmpiezaConPorcentajeSinEscapar() throws Exception {
+        java.nio.file.Path carpeta = java.nio.file.Path.of(Modulo.class.getResource("/fxml").toURI());
+        try (var archivos = java.nio.file.Files.list(carpeta)) {
+            for (java.nio.file.Path archivo : archivos.filter(a -> a.toString().endsWith(".fxml")).toList()) {
+                String contenido = java.nio.file.Files.readString(archivo);
+                assertFalse(java.util.regex.Pattern.compile("=\"%").matcher(contenido).find(),
+                        "Texto con % sin escapar en " + archivo.getFileName());
+            }
+        }
+    }
+
     @Test
     void desdeNombreToleraValoresDesconocidos() {
         assertEquals(Modulo.EMPRESAS, Modulo.desdeNombre("EMPRESAS").orElseThrow());

@@ -17,9 +17,11 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <main.class>com.businessanalyzer.Launcher</main.class>
 
-        <!-- Versiones de dependencias (Fase 1). Las de JFreeChart, Commons Math,
-             Apache POI y JasperReports se agregan en la fase que las utiliza. -->
+        <!-- Versiones de dependencias. Commons Math, Apache POI y JasperReports se
+             agregan en la fase que las utiliza. -->
         <javafx.version>21.0.4</javafx.version>
+        <jfreechart.version>1.5.5</jfreechart.version>
+        <jfreechart-fx.version>2.0.1</jfreechart-fx.version>
         <sqlite.version>3.45.3.0</sqlite.version>
         <ikonli.version>12.3.1</ikonli.version>
         <slf4j.version>2.0.13</slf4j.version>
@@ -50,6 +52,18 @@
             <groupId>org.kordamp.ikonli</groupId>
             <artifactId>ikonli-feather-pack</artifactId>
             <version>${ikonli.version}</version>
+        </dependency>
+
+        <!-- Gráficos (Fase 7): JFreeChart y su visor para JavaFX -->
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>${jfreechart.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>org.jfree.chart.fx</artifactId>
+            <version>${jfreechart-fx.version}</version>
         </dependency>
 
         <!-- Base de datos local: driver JDBC de SQLite -->

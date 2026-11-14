@@ -1,6 +1,11 @@
 package com.businessanalyzer.repository;
 
 import com.businessanalyzer.analytics.CalculadoraOperacion;
+import com.businessanalyzer.analytics.RentabilidadProducto;
+import com.businessanalyzer.model.TipoItem;
+import java.time.YearMonth;
+import java.util.Map;
+import java.util.TreeMap;
 import com.businessanalyzer.analytics.ResumenOperaciones;
 import com.businessanalyzer.exception.DataAccessException;
 import com.businessanalyzer.exception.ValidacionException;
@@ -215,6 +220,72 @@ public class OperacionRepository {
             }
         }
         return new ResumenOperaciones(ventas, costoVentas, compras, cantidadVentas, cantidadCompras);
+    }
+
+    /** Totales de cada mes del rango (solo registradas), para el gráfico de evolución. */
+    public Map<YearMonth, ResumenOperaciones> resumenMensual(Connection c, long empresaId, LocalDate desde,
+                                                            LocalDate hasta) throws SQLException {
+        Map<YearMonth, ResumenOperaciones> porMes = new TreeMap<>();
+        try (PreparedStatement ps = c.prepareStatement("""
+                SELECT substr(fecha, 1, 7) AS mes, tipo, COUNT(*) AS cantidad,
+                       COALESCE(SUM(subtotal), 0) AS subtotal, COALESCE(SUM(costo_total), 0) AS costo
+                FROM operacion
+                WHERE empresa_id = ? AND estado = 'REGISTRADA' AND fecha BETWEEN ? AND ?
+                GROUP BY mes, tipo""")) {
+            ps.setLong(1, empresaId);
+            ps.setString(2, Fechas.fechaATexto(desde));
+            ps.setString(3, Fechas.fechaATexto(hasta));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    YearMonth mes = YearMonth.parse(rs.getString("mes"));
+                    ResumenOperaciones actual = porMes.getOrDefault(mes, ResumenOperaciones.VACIO);
+                    BigDecimal subtotal = Montos.desdeEntero(rs.getLong("subtotal"));
+                    int cantidad = rs.getInt("cantidad");
+                    if (TipoOperacion.VENTA.name().equals(rs.getString("tipo"))) {
+                        actual = new ResumenOperaciones(subtotal, Montos.desdeEntero(rs.getLong("costo")),
+                                actual.comprasNetas(), cantidad, actual.cantidadCompras());
+                    } else {
+                        actual = new ResumenOperaciones(actual.ventasNetas(), actual.costoVentas(), subtotal,
+                                actual.cantidadVentas(), cantidad);
+                    }
+                    porMes.put(mes, actual);
+                }
+            }
+        }
+        return porMes;
+    }
+
+    /** Líneas de las ventas registradas del período, para la rentabilidad por producto. */
+    public List<RentabilidadProducto.Venta> lineasVendidas(Connection c, long empresaId, LocalDate desde,
+                                                           LocalDate hasta) throws SQLException {
+        List<RentabilidadProducto.Venta> lineas = new ArrayList<>();
+        try (PreparedStatement ps = c.prepareStatement("""
+                SELECT p.id, p.codigo, p.nombre, p.tipo, cat.nombre AS categoria,
+                       ol.cantidad, ol.subtotal, ol.costo_unitario
+                FROM operacion_linea ol
+                JOIN operacion o ON o.id = ol.operacion_id
+                JOIN producto p ON p.id = ol.producto_id
+                LEFT JOIN categoria cat ON cat.id = p.categoria_id
+                WHERE o.empresa_id = ? AND o.tipo = 'VENTA' AND o.estado = 'REGISTRADA'
+                  AND o.fecha BETWEEN ? AND ?""")) {
+            ps.setLong(1, empresaId);
+            ps.setString(2, Fechas.fechaATexto(desde));
+            ps.setString(3, Fechas.fechaATexto(hasta));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lineas.add(new RentabilidadProducto.Venta(
+                            rs.getLong("id"),
+                            rs.getString("codigo"),
+                            rs.getString("nombre"),
+                            TipoItem.valueOf(rs.getString("tipo")),
+                            rs.getString("categoria"),
+                            Montos.desdeEntero(rs.getLong("cantidad")),
+                            Montos.desdeEntero(rs.getLong("subtotal")),
+                            Montos.desdeEntero(rs.getLong("costo_unitario"))));
+                }
+            }
+        }
+        return lineas;
     }
 
     private static List<Operacion> mapearCabeceras(PreparedStatement ps) throws SQLException {
