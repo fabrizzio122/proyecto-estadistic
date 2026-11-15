@@ -15,6 +15,9 @@ import com.businessanalyzer.service.OperacionService;
 import com.businessanalyzer.repository.OperacionRepository;
 import com.businessanalyzer.repository.MovimientoRepository;
 import com.businessanalyzer.service.FinanzasService;
+import com.businessanalyzer.service.PatrimonioService;
+import com.businessanalyzer.repository.ActivoRepository;
+import com.businessanalyzer.repository.DeudaRepository;
 import com.businessanalyzer.model.Rol;
 import com.businessanalyzer.model.Usuario;
 import com.businessanalyzer.repository.ConfiguracionRepository;
@@ -60,6 +63,7 @@ public final class EntornoPrueba {
     public final CatalogoService catalogo;
     public final OperacionService operaciones;
     public final FinanzasService finanzas;
+    public final PatrimonioService patrimonio;
 
     public EntornoPrueba(Path carpeta) {
         this(carpeta, new PasswordHasher(1_000));
@@ -79,6 +83,9 @@ public final class EntornoPrueba {
         this.operaciones = new OperacionService(database, new OperacionRepository(), new ProductoRepository(),
                 empresaService, configuracion, sesion, reloj);
         this.finanzas = new FinanzasService(database, new MovimientoRepository(), empresaService, sesion, reloj);
+        this.patrimonio = new PatrimonioService(database, new ActivoRepository(), new DeudaRepository(),
+                new ProductoRepository(), new OperacionRepository(), new MovimientoRepository(), empresaService,
+                sesion, reloj);
     }
 
     /** Crea una empresa con datos mínimos (requiere sesión con permiso) y la deja activa. */

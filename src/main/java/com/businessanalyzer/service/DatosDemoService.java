@@ -1,7 +1,12 @@
 package com.businessanalyzer.service;
 
 import com.businessanalyzer.exception.ValidacionException;
+import com.businessanalyzer.model.CategoriaActivo;
+import com.businessanalyzer.model.CategoriaDeuda;
 import com.businessanalyzer.model.CategoriaFinanciera;
+import com.businessanalyzer.model.DatosActivo;
+import com.businessanalyzer.model.DatosDeuda;
+import com.businessanalyzer.model.Deuda;
 import com.businessanalyzer.model.DatosEmpresa;
 import com.businessanalyzer.model.DatosMovimiento;
 import com.businessanalyzer.model.DatosOperacion;
@@ -39,11 +44,13 @@ public class DatosDemoService {
     private final CatalogoService catalogo;
     private final OperacionService operaciones;
     private final FinanzasService finanzas;
+    private final PatrimonioService patrimonio;
     private final Sesion sesion;
     private final Clock reloj;
 
     public DatosDemoService(EmpresaService empresas, CatalogoService catalogo, OperacionService operaciones,
-                            FinanzasService finanzas, Sesion sesion, Clock reloj) {
+                            FinanzasService finanzas, PatrimonioService patrimonio, Sesion sesion, Clock reloj) {
+        this.patrimonio = patrimonio;
         this.empresas = empresas;
         this.catalogo = catalogo;
         this.operaciones = operaciones;
@@ -82,8 +89,9 @@ public class DatosDemoService {
         for (int i = 12; i >= 0; i--) {
             YearMonth mes = actual.minusMonths(i);
             int v = (int) Math.round(3.2 * (100 + (12 - i) * 3) * estacional[mes.getMonthValue() - 1] / 100.0);
-            compra(mes.atDay(1), hoy, l(arroz, v * 2, "18.50"), l(azucar, v * 4, "3.20"), l(aceite, v * 2, "8.90"),
-                    l(gaseosa, v * 2, "7.40"), l(detergente, v, "14.20"), l(agua, 20, "16.00"));
+            // Se repone lo que se vende cada mes, con un pequeño colchón de stock.
+            compra(mes.atDay(1), hoy, l(arroz, v + 30, "18.50"), l(azucar, v * 3 + 35, "3.20"), l(aceite, v + 12, "8.90"),
+                    l(gaseosa, v + 20, "7.40"), l(detergente, v / 2 + 8, "14.20"), l(agua, 14, "16.00"));
             for (int semana = 0; semana < 4; semana++) {
                 LocalDate fecha = mes.atDay(3 + semana * 7);
                 if (fecha.isAfter(hoy)) {
@@ -105,7 +113,39 @@ public class DatosDemoService {
             movimiento(TipoMovimiento.INGRESO, CategoriaFinanciera.ALQUILERES_COBRADOS, mes.atDay(4), hoy,
                     "Alquiler de cochera", 200);
         }
+        registrarPatrimonio(hoy);
         return empresa;
+    }
+
+    /** Activos y deudas de la bodega: un préstamo de la caja municipal pagado mes a mes y deudas de corto plazo. */
+    private void registrarPatrimonio(LocalDate hoy) {
+        activo(CategoriaActivo.CAJA_BANCOS, "Caja y cuenta corriente", hoy, "6800", null, null);
+        activo(CategoriaActivo.CUENTAS_POR_COBRAR, "Ventas al crédito a clientes del barrio", hoy, "950", null, null);
+        activo(CategoriaActivo.MOBILIARIO, "Anaqueles y mostrador", hoy.minusYears(3), "4500", 10, null);
+        activo(CategoriaActivo.MOBILIARIO, "Refrigeradora exhibidora", hoy.minusMonths(14), "3200", 10, "300");
+        activo(CategoriaActivo.EQUIPOS_COMPUTO, "Computadora y caja registradora", hoy.minusYears(2), "2600", 4, null);
+        activo(CategoriaActivo.VEHICULOS, "Motocicleta para delivery", hoy.minusYears(1), "5500", 5, "800");
+
+        LocalDate inicio = hoy.minusMonths(12).withDayOfMonth(1);
+        Deuda prestamo = patrimonio.registrarDeuda(new DatosDeuda(CategoriaDeuda.PRESTAMO_BANCARIO,
+                "Caja Municipal", "Préstamo para equipar la bodega", inicio, new BigDecimal("12000"),
+                new BigDecimal("28"), new BigDecimal("560"), inicio.plusMonths(36)));
+        for (int i = 1; i <= 12; i++) {
+            LocalDate fecha = inicio.plusMonths(i).withDayOfMonth(10);
+            if (!fecha.isAfter(hoy)) {
+                patrimonio.registrarPago(prestamo.id(), fecha, new BigDecimal("400"), "Cuota " + i + " de 36");
+            }
+        }
+        patrimonio.registrarDeuda(new DatosDeuda(CategoriaDeuda.PROVEEDORES, "Distribuidora Lima",
+                "Mercadería al crédito a 30 días", hoy, new BigDecimal("2300"), null, null, hoy.plusDays(30)));
+        patrimonio.registrarDeuda(new DatosDeuda(CategoriaDeuda.TRIBUTOS, "SUNAT", "IGV del mes por pagar",
+                hoy, new BigDecimal("540"), null, null, null));
+    }
+
+    private void activo(CategoriaActivo categoria, String descripcion, LocalDate fecha, String valor, Integer vida,
+                        String residual) {
+        patrimonio.registrarActivo(new DatosActivo(categoria, descripcion, fecha, new BigDecimal(valor), vida,
+                residual == null ? null : new BigDecimal(residual)));
     }
 
     private Producto item(TipoItem tipo, String nombre, String costo, String precio) {

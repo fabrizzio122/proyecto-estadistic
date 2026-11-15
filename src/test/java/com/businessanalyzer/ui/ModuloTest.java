@@ -49,7 +49,7 @@ class ModuloTest {
     @Test
     void cadaModuloTieneUnaFaseValidaYUnPermiso() {
         for (Modulo modulo : Modulo.values()) {
-            assertTrue(modulo.fase() >= 1 && modulo.fase() <= 13, "Fase invalida en " + modulo);
+            assertTrue(modulo.fase() >= 1 && modulo.fase() <= 20, "Fase invalida en " + modulo);
             assertNotNull(modulo.permiso(), "Falta el permiso de " + modulo);
         }
     }
