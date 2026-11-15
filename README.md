@@ -1,7 +1,15 @@
-# Business Analyzer Desktop 1.0
+# Business Analyzer Desktop 1.1
 
 Aplicación de escritorio para analizar la situación económica y financiera de negocios y
 empresas: rentabilidad, punto de equilibrio, tendencias, predicciones, escenarios y diagnóstico.
+
+## Documentación del proyecto
+
+| Documento | Contenido |
+|---|---|
+| [docs/uml](docs/uml/README.md) | 9 diagramas UML: casos de uso, arquitectura, clases, secuencia, estados, modelo de datos y despliegue |
+| [docs/guion-demo.md](docs/guion-demo.md) | Guion de la demostración (15 minutos) con preguntas frecuentes |
+| [CHANGELOG.md](CHANGELOG.md) | Cambios de cada versión |
 
 ## Requisitos
 
@@ -38,7 +46,9 @@ com.businessanalyzer
 ├── repository    acceso a datos con SQL parametrizado
 ├── model         entidades: Usuario, Rol, Permiso, Empresa...
 ├── seguridad     hash de contraseñas (PBKDF2), política de contraseñas y sesión
-├── analytics     cálculos de negocio: márgenes y resumen del catálogo (base del motor financiero)
+├── analytics     cálculos puros (sin BD ni JavaFX): financiero, estadística, predicción, simulación,
+│                 diagnóstico, patrimonio, ganadería, agricultura y valoración
+├── informes      contenido de los informes, PDF (JasperReports) y Excel (Apache POI)
 ├── util          montos (BigDecimal), fechas y validaciones
 ├── exception     errores de datos y de validación
 └── ui            navegación, notificaciones, diálogos y componentes visuales
@@ -70,6 +80,7 @@ automáticamente al iniciar y dentro de una transacción.
 18. Integración agropecuaria: ventas agro en los análisis, evolución del hato, comparación de campañas y diagnóstico del productor ✅
 19. Valoración del negocio: patrimonial, capitalización de utilidades, flujos descontados, sensibilidad e informe PDF ✅
 20. Pulido para la presentación: editar registros, Dashboard nuevo, comparación del mes en curso y datos demo realistas ✅
+21. Material del curso: diagramas UML, guion de la demostración y versión 1.1.0 con instalador ✅
 
 ## Seguridad
 
@@ -276,8 +287,8 @@ Genera en `target\instalador`:
 | Resultado | Descripción |
 |---|---|
 | `Business Analyzer\Business Analyzer.exe` | Aplicación lista para usar (unos 160 MB, con Java incluido) |
-| `BusinessAnalyzer-1.0.0-portable.zip` | La misma carpeta comprimida, para copiarla a otro equipo y descomprimirla |
-| `Business Analyzer-1.0.0.exe` | Instalador con acceso directo y menú Inicio; se instala por usuario, sin permisos de administrador. Requiere WiX Toolset 3.14: basta con descomprimir `wix314-binaries.zip` (de [sus releases](https://github.com/wixtoolset/wix3/releases)) en `%USERPROFILE%\tools\wix314`; el script lo encuentra solo |
+| `BusinessAnalyzer-1.1.0-portable.zip` | La misma carpeta comprimida, para copiarla a otro equipo y descomprimirla |
+| `Business Analyzer-1.1.0.exe` | Instalador con acceso directo y menú Inicio; se instala por usuario, sin permisos de administrador. Requiere WiX Toolset 3.14: basta con descomprimir `wix314-binaries.zip` (de [sus releases](https://github.com/wixtoolset/wix3/releases)) en `%USERPROFILE%\tools\wix314`; el script lo encuentra solo |
 
 Los datos no se guardan dentro de la carpeta de la aplicación, sino en `%USERPROFILE%\BusinessAnalyzer`, así que reinstalar o actualizar no los borra.
 
@@ -287,16 +298,16 @@ Los datos no se guardan dentro de la carpeta de la aplicación, sino en `%USERPR
 
 La versión se define **solo** en `pom.xml` (`<version>x.y.z</version>`). La leen la aplicación (título, menú lateral, Configuración → Sistema), el pie de los informes PDF y `empaquetar.ps1`.
 
-Numeración: `1.0.1` para correcciones, `1.1.0` para funciones nuevas compatibles y `2.0.0` para cambios grandes.
+Numeración: `1.1.1` para correcciones, `1.2.0` para funciones nuevas compatibles y `2.0.0` para cambios grandes.
 
-1. Cambia `<version>` en `pom.xml`, por ejemplo a `1.0.1`.
-2. Si el cambio modifica la base de datos, agrega una migración `V9__descripcion.sql` y regístrala en `Migrador`. Nunca modifiques una migración ya publicada.
-3. Ejecuta `.\empaquetar.ps1`: corre las pruebas y genera `Business Analyzer-1.0.1.exe` y el `.zip` portable.
-4. Haz commit, crea la etiqueta (`git tag -a v1.0.1 -m "..."`) y súbela con `git push --follow-tags`.
+1. Cambia `<version>` en `pom.xml`, por ejemplo a `1.1.1`.
+2. Si el cambio modifica la base de datos, agrega una migración nueva (la siguiente es `V13__descripcion.sql`) y regístrala en `Migrador`. Nunca modifiques una migración ya publicada.
+3. Ejecuta `.\empaquetar.ps1`: corre las pruebas y genera `Business Analyzer-1.1.1.exe` y el `.zip` portable.
+4. Haz commit, crea la etiqueta (`git tag -a v1.1.1 -m "..."`) y súbela con `git push --follow-tags`.
 5. Publica la release:
 
    ```
-   gh release create v1.0.1 "target/instalador/Business Analyzer-1.0.1.exe" target/instalador/BusinessAnalyzer-1.0.1-portable.zip --title "Business Analyzer Desktop 1.0.1" --notes "Cambios: ..."
+   gh release create v1.1.1 "target/instalador/Business Analyzer-1.1.1.exe" target/instalador/BusinessAnalyzer-1.1.1-portable.zip --title "Business Analyzer Desktop 1.1.1" --notes "Cambios: ..."
    ```
 
 El instalador nuevo actualiza la versión instalada (identificador de actualización fijo) y conserva los datos de `%USERPROFILE%\BusinessAnalyzer`. Al abrirla, las migraciones pendientes se aplican solas.

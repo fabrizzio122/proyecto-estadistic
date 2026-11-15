@@ -1,0 +1,235 @@
+@startuml 08-modelo-datos
+!include estilo.iuml
+title Business Analyzer Desktop 1.1 — Modelo de datos (SQLite, migraciones V1–V12)
+hide methods
+skinparam linetype ortho
+
+package "Seguridad (V2)" {
+  entity rol {
+    * id : INTEGER <<PK>>
+    --
+    codigo, nombre, descripcion
+  }
+  entity permiso {
+    * codigo : TEXT <<PK>>
+    --
+    descripcion
+  }
+  entity rol_permiso {
+    * rol_id <<FK>>
+    * permiso_codigo <<FK>>
+  }
+  entity usuario {
+    * id <<PK>>
+    --
+    nombre_usuario <<UQ>>
+    password_hash
+    rol_id <<FK>>
+    intentos_fallidos, bloqueado_hasta
+  }
+  entity registro_acceso {
+    * id <<PK>>
+    --
+    usuario_id <<FK>>
+    evento, fecha
+  }
+}
+
+package "Empresas y catálogo (V3–V4)" {
+  entity empresa {
+    * id <<PK>>
+    --
+    razon_social
+    identificacion_fiscal <<UQ>>
+    sector, tamano, moneda
+  }
+  entity usuario_empresa {
+    * usuario_id <<FK>>
+    * empresa_id <<FK>>
+  }
+  entity categoria {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    nombre
+  }
+  entity producto {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    categoria_id <<FK>>
+    codigo, tipo
+    costo_unitario, precio_venta
+  }
+  entity historial_precio {
+    * id <<PK>>
+    --
+    producto_id <<FK>>
+    costo_unitario, precio_venta, fecha
+  }
+}
+
+package "Operaciones y finanzas (V5–V9)" {
+  entity operacion {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    tipo, numero, fecha
+    subtotal, impuesto, total, costo_total
+    estado
+  }
+  entity operacion_linea {
+    * id <<PK>>
+    --
+    operacion_id <<FK>>
+    producto_id <<FK>>
+    cantidad, precio_unitario, costo_unitario
+  }
+  entity movimiento_financiero {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    tipo, categoria, comportamiento, monto
+  }
+  entity escenario {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    nombre, cambio_precio, cambio_volumen …
+  }
+  entity informe_generado {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    tipo, desde, hasta, archivo
+  }
+  entity activo {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    categoria, valor, vida_util_anios
+  }
+  entity deuda {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    acreedor, monto, tasa_anual
+  }
+  entity pago_deuda {
+    * id <<PK>>
+    --
+    deuda_id <<FK>>
+    fecha, monto
+  }
+}
+
+package "Agropecuario (V10–V12)" {
+  entity movimiento_ganado {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    tipo, categoria, cantidad, monto
+  }
+  entity produccion_ganadera {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    especie, producto, cantidad
+  }
+  entity precio_ganado {
+    * empresa_id <<FK>>
+    * categoria
+    --
+    precio
+  }
+  entity parcela {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    nombre, area, tenencia, riego
+  }
+  entity campania {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    parcela_id <<FK>>
+    cultivo, fecha_siembra, estado
+  }
+  entity costo_campania {
+    * id <<PK>>
+    --
+    campania_id <<FK>>
+    rubro, monto
+  }
+  entity cosecha {
+    * id <<PK>>
+    --
+    campania_id <<FK>>
+    cantidad, destino, precio
+  }
+  entity visita {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    fecha, tipo, inspector, conclusion
+  }
+  entity visita_aspecto {
+    * visita_id <<FK>>
+    * aspecto
+    --
+    resultado
+  }
+  entity compromiso {
+    * id <<PK>>
+    --
+    visita_id <<FK>>
+    visita_verificacion_id <<FK>>
+    descripcion, plazo, estado
+  }
+  entity visita_foto {
+    * id <<PK>>
+    --
+    visita_id <<FK>>
+    archivo
+  }
+}
+
+entity configuracion {
+  * clave <<PK>>
+  --
+  valor
+}
+
+rol ||--o{ rol_permiso
+permiso ||--o{ rol_permiso
+rol ||--o{ usuario
+usuario ||--o{ registro_acceso
+usuario ||--o{ usuario_empresa
+empresa ||--o{ usuario_empresa
+
+empresa ||--o{ categoria
+empresa ||--o{ producto
+categoria |o--o{ producto
+producto ||--o{ historial_precio
+empresa ||--o{ operacion
+operacion ||--|{ operacion_linea
+producto ||--o{ operacion_linea
+empresa ||--o{ movimiento_financiero
+empresa ||--o{ escenario
+empresa ||--o{ informe_generado
+empresa ||--o{ activo
+empresa ||--o{ deuda
+deuda ||--o{ pago_deuda
+
+empresa ||--o{ movimiento_ganado
+empresa ||--o{ produccion_ganadera
+empresa ||--o{ precio_ganado
+empresa ||--o{ parcela
+parcela ||--o{ campania
+campania ||--o{ costo_campania
+campania ||--o{ cosecha
+empresa ||--o{ visita
+visita ||--o{ visita_aspecto
+visita ||--o{ compromiso
+visita ||--o{ visita_foto
+@enduml

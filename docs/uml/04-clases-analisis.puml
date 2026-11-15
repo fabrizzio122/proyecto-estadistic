@@ -1,0 +1,133 @@
+@startuml 04-clases-analisis
+!include estilo.iuml
+title Business Analyzer Desktop 1.1 — Motor de análisis (paquete analytics)
+hide empty members
+
+package service {
+  class AnalisisService
+  class EstadisticaService
+  class PrediccionService
+  class SimulacionService
+  class DiagnosticoService
+  class ValoracionService
+  class ConsultaMensual <<utilidad>> {
+    {static} porMes(c, operaciones, movimientos, empresaId, …) : List<Mes>
+  }
+}
+
+package analytics {
+  class EstadoResultados {
+    ventas, costoVentas, utilidadBruta
+    gastosOperativos, utilidadNeta
+  }
+  class PuntoEquilibrio {
+    ventasEquilibrio : BigDecimal
+    margenSeguridad : BigDecimal
+  }
+  class Periodo {
+    desde, hasta : LocalDate
+    anterior() : Periodo
+  }
+  class RentabilidadProducto
+}
+
+package analytics.estadistica {
+  class EstadisticaDescriptiva
+  class Tendencia {
+    pendiente, r2
+    «SimpleRegression»
+  }
+  class AnalisisAbc
+  class MatrizCorrelacion
+  class EstacionalidadSemanal
+}
+
+package analytics.prediccion {
+  interface MetodoPronostico {
+    nombre() : String
+    pronosticar(historia : double[], horizonte : int) : double[]
+  }
+  class TendenciaLineal
+  class PromedioMovil
+  class SuavizadoHolt
+  class Pronosticador {
+    {static} METODOS : List<MetodoPronostico>
+    {static} pronosticar(serie, historia, horizonte, noNegativo) : Pronostico
+    «valida rolling-origin, menor MAE»
+  }
+}
+
+package analytics.simulacion {
+  class BaseSimulacion
+  class Supuestos
+  class Simulador {
+    {static} simular(base, supuestos) : ResultadoEscenario
+    {static} sensibilidad(base, supuestos) : ±10 %
+    {static} cambioPrecioParaMeta(base, supuestos, meta)
+  }
+}
+
+package analytics.diagnostico {
+  class MotorDiagnostico {
+    {static} evaluar(DatosDiagnostico) : Diagnostico
+  }
+  class DatosDiagnostico
+  class Diagnostico {
+    nivel : NivelSalud
+    puntaje : int
+  }
+  class Hallazgo {
+    tipo : TipoIndicador
+    semaforo : Semaforo
+    lectura : String
+    recomendacion : String
+  }
+  enum Semaforo {
+    VERDE
+    AMARILLO
+    ROJO
+  }
+}
+
+package analytics.valoracion {
+  class ValoracionNegocio {
+    {static} calcular(supuestos, patrimonial, utilidadAnual, …)
+  }
+}
+
+MetodoPronostico <|.. TendenciaLineal
+MetodoPronostico <|.. PromedioMovil
+MetodoPronostico <|.. SuavizadoHolt
+Pronosticador o--> "3" MetodoPronostico
+
+Simulador ..> BaseSimulacion
+Simulador ..> Supuestos
+MotorDiagnostico ..> DatosDiagnostico
+MotorDiagnostico ..> Simulador : cifras de las\nrecomendaciones
+MotorDiagnostico --> Diagnostico
+Diagnostico "1" *-- "14..18" Hallazgo
+Hallazgo --> Semaforo
+PuntoEquilibrio ..> EstadoResultados
+
+AnalisisService ..> EstadoResultados
+AnalisisService ..> PuntoEquilibrio
+AnalisisService ..> RentabilidadProducto
+EstadisticaService ..> EstadisticaDescriptiva
+EstadisticaService ..> Tendencia
+EstadisticaService ..> AnalisisAbc
+PrediccionService ..> Pronosticador
+SimulacionService ..> Simulador
+DiagnosticoService ..> MotorDiagnostico
+DiagnosticoService ..> ConsultaMensual
+EstadisticaService ..> ConsultaMensual
+PrediccionService ..> ConsultaMensual
+ValoracionService ..> ValoracionNegocio
+ValoracionService ..> Tendencia : crecimiento\nsugerido
+
+note bottom of Pronosticador
+  Patrón Estrategia: los tres métodos se
+  prueban con los últimos meses reales y
+  se queda el de menor error (MAE).
+  Intervalo: ±1,96 · RMSE · √h
+end note
+@enduml

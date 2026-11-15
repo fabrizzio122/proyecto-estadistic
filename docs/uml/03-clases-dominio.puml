@@ -1,0 +1,163 @@
+@startuml 03-clases-dominio
+!include estilo.iuml
+title Business Analyzer Desktop 1.1 — Modelo de dominio (paquete model)
+hide empty methods
+
+package "Seguridad" {
+  class Usuario <<record>> {
+    nombreUsuario : String
+    nombreCompleto : String
+    activo : boolean
+    intentosFallidos : int
+    bloqueadoHasta : LocalDateTime
+    --
+    tiene(Permiso) : boolean
+    bloqueadoEn(LocalDateTime) : boolean
+  }
+  class Rol <<record>> {
+    codigo : String
+    nombre : String
+    permisos : Set<Permiso>
+  }
+  enum Permiso {
+    DASHBOARD_VER
+    OPERACIONES_GESTIONAR
+    ANALISIS_VER
+    AGRO_GESTIONAR
+    VISITAS_REGISTRAR
+    … (16 en total)
+  }
+}
+
+package "Empresa y catálogo" {
+  class Empresa <<record>> {
+    razonSocial : String
+    identificacionFiscal : String
+    sector : Sector
+    tamano : TamanoEmpresa
+    moneda : Moneda
+    mesInicioEjercicio : int
+  }
+  enum Sector {
+    COMERCIO
+    RESTAURANTE
+    SERVICIOS
+    AGROPECUARIO
+    …
+  }
+  class Categoria <<record>>
+  class Producto <<record>> {
+    tipo : TipoItem
+    codigo : String
+    costoUnitario : BigDecimal
+    precioVenta : BigDecimal
+    stock : BigDecimal  «calculado»
+  }
+}
+
+package "Operaciones y finanzas" {
+  class Operacion <<record>> {
+    tipo : TipoOperacion  «VENTA / COMPRA»
+    numero : String
+    fecha : LocalDate
+    subtotal, impuesto, total : BigDecimal
+    costoTotal : BigDecimal
+    estado : EstadoOperacion
+    --
+    margenBruto() : BigDecimal
+    anulada() : boolean
+  }
+  class LineaOperacion <<record>> {
+    cantidad : BigDecimal
+    precioUnitario : BigDecimal
+    costoUnitario : BigDecimal  «congelado»
+  }
+  class MovimientoFinanciero <<record>> {
+    tipo : TipoMovimiento  «INGRESO / GASTO»
+    categoria : CategoriaFinanciera
+    comportamiento : Comportamiento  «FIJO / VARIABLE»
+    monto : BigDecimal
+  }
+  class Activo <<record>> {
+    categoria : CategoriaActivo
+    valor : BigDecimal
+    vidaUtilAnios : Integer
+  }
+  class Deuda <<record>> {
+    acreedor : String
+    monto : BigDecimal
+    tasaAnual : BigDecimal
+  }
+  class PagoDeuda <<record>>
+  class Escenario <<record>>
+  class InformeGenerado <<record>>
+}
+
+package "Agropecuario" {
+  class MovimientoGanado <<record>> {
+    tipo : TipoMovimientoGanado
+    categoria : CategoriaGanado
+    cantidad : int
+  }
+  class ProduccionGanadera <<record>> {
+    especie : Especie
+    producto : ProductoGanadero
+    cantidad : BigDecimal
+  }
+  class Parcela <<record>> {
+    area : BigDecimal  «ha»
+    tenencia : Tenencia
+    riego : boolean
+  }
+  class Campania <<record>> {
+    cultivo : Cultivo
+    fechaSiembra : LocalDate
+    estado : EstadoCampania
+  }
+  class CostoCampania <<record>>
+  class Cosecha <<record>> {
+    cantidad : BigDecimal  «kg»
+    destino : DestinoCosecha
+  }
+  class Visita <<record>> {
+    tipo : TipoVisita
+    inspector : String
+    conclusion : ConclusionVisita
+  }
+  class Compromiso <<record>> {
+    estado : EstadoCompromiso
+  }
+  class FotoVisita <<record>>
+}
+
+Usuario "*" --> "1" Rol
+Rol "*" --> "*" Permiso
+Usuario "*" -- "*" Empresa : acceso >
+Empresa --> Sector
+
+Empresa "1" *-- "*" Categoria
+Empresa "1" *-- "*" Producto
+Categoria "0..1" <-- "*" Producto
+Empresa "1" *-- "*" Operacion
+Operacion "1" *-- "1..*" LineaOperacion
+LineaOperacion "*" --> "1" Producto
+Empresa "1" *-- "*" MovimientoFinanciero
+Empresa "1" *-- "*" Activo
+Empresa "1" *-- "*" Deuda
+Deuda "1" *-- "*" PagoDeuda
+Empresa "1" *-- "*" Escenario
+Empresa "1" *-- "*" InformeGenerado
+
+Empresa "1" *-- "*" MovimientoGanado
+Empresa "1" *-- "*" ProduccionGanadera
+Empresa "1" *-- "*" Parcela
+Parcela "1" *-- "*" Campania
+Campania "1" *-- "*" CostoCampania
+Campania "1" *-- "*" Cosecha
+Empresa "1" *-- "*" Visita
+Visita "1" *-- "*" Compromiso
+Visita "1" *-- "*" FotoVisita
+
+note "Los módulos agropecuarios solo se\nmuestran si sector = AGROPECUARIO." as N1
+N1 .. Sector
+@enduml
