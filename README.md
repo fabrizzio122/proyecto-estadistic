@@ -68,6 +68,7 @@ automáticamente al iniciar y dentro de una transacción.
 16. Agricultura (sector agropecuario): parcelas, campañas, costos, cosechas, rendimiento y margen por campaña ✅
 17. Visitas de inspección: verificación en campo, compromisos, fotos e informe técnico en PDF ✅
 18. Integración agropecuaria: ventas agro en los análisis, evolución del hato, comparación de campañas y diagnóstico del productor ✅
+19. Valoración del negocio: patrimonial, capitalización de utilidades, flujos descontados, sensibilidad e informe PDF ✅
 
 ## Seguridad
 
@@ -160,6 +161,16 @@ automáticamente al iniciar y dentro de una transacción.
 - **Ganadería → Indicadores:** cada indicador muestra entre paréntesis el valor del período anterior, si ya había animales registrados antes de ese período.
 - **Agricultura → Comparación:** campañas cerradas por cultivo (rendimiento, porcentaje de la referencia, costo y margen por hectárea, mejor campaña) y gráfico de rendimiento frente a la referencia.
 - **Diagnóstico del productor:** nueva área «Producción agropecuaria» con natalidad, mortalidad de crías (umbrales por especie), rendimiento de los cultivos frente a la referencia y cumplimiento de compromisos de inspección. En productores, las ventas se comparan con el mismo período del año anterior por la estacionalidad.
+
+## Valoración del negocio
+
+- **Patrimonial:** activos − deudas del balance general (activos fijos a su valor actual, inventario y cultivos en proceso al costo, ganado a precio de mercado).
+- **Capitalización de utilidades:** utilidad neta anual (últimos 12 meses completos, llevada a un año) ÷ tasa de descuento.
+- **Flujos descontados:** flujo para el dueño (utilidad + depreciación) proyectado 5 años con el crecimiento elegido, más un valor terminal con 2 % de crecimiento, traído a valor de hoy.
+- **Valor de referencia:** el promedio de los dos métodos por rentabilidad si supera al patrimonial (la diferencia es el **fondo de comercio**); si no, el valor patrimonial. Se muestra también el rango.
+- **Supuestos por empresa:** tasa de descuento (20 % por defecto, entre 5 % y 60 %) y crecimiento anual (por defecto, el de la tendencia de las ventas del último año, acotado entre −10 % y 10 %).
+- **Sensibilidad:** valor por flujos descontados con la tasa ±5 puntos y el crecimiento ±2 puntos.
+- **Informe PDF** desde el módulo; queda en el historial de informes. Permiso: ver análisis (exportar, generar informes).
 
 ## Análisis financiero
 

@@ -115,7 +115,7 @@ public class InformesController implements VistaModulo {
     @FXML
     private void initialize() {
         for (TipoInforme tipo : TipoInforme.values()) {
-            if (tipo.desdeVisita()) {
+            if (tipo.desdeOtroModulo()) {
                 continue;
             }
             tarjetas.getChildren().add(tarjeta(tipo));

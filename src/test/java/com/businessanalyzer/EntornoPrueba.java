@@ -18,6 +18,7 @@ import com.businessanalyzer.service.FinanzasService;
 import com.businessanalyzer.service.PatrimonioService;
 import com.businessanalyzer.service.GanaderiaService;
 import com.businessanalyzer.service.AgriculturaService;
+import com.businessanalyzer.service.ValoracionService;
 import com.businessanalyzer.service.VisitaService;
 import com.businessanalyzer.service.InformeTecnicoService;
 import com.businessanalyzer.repository.VisitaRepository;
@@ -74,6 +75,7 @@ public final class EntornoPrueba {
     public final PatrimonioService patrimonio;
     public final GanaderiaService ganaderia;
     public final AgriculturaService agricultura;
+    public final ValoracionService valoracion;
     public final VisitaService visitas;
     public final InformeTecnicoService informeTecnico;
 
@@ -101,6 +103,8 @@ public final class EntornoPrueba {
         this.patrimonio = new PatrimonioService(database, new ActivoRepository(), new DeudaRepository(),
                 new ProductoRepository(), new OperacionRepository(), new MovimientoRepository(), empresaService,
                 sesion, reloj);
+        this.valoracion = new ValoracionService(database, new OperacionRepository(), new MovimientoRepository(),
+                new InformeRepository(), empresaService, configuracion, sesion, reloj);
         this.informeTecnico = new InformeTecnicoService(database, new InformeRepository(), visitas, ganaderia,
                 agricultura, patrimonio, empresaService, sesion, reloj);
     }

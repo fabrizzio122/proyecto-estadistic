@@ -16,7 +16,10 @@ public enum TipoInforme {
                     + "compras y los ingresos y gastos, listas para filtrar o seguir analizando."),
     INFORME_TECNICO("Informe técnico de visita", Formato.PDF, "fth-clipboard",
             "Informe de la visita de inspección a un productor agropecuario: verificación en campo, compromisos, "
-                    + "indicadores del hato, campañas, situación patrimonial y fotos. Se genera desde «Visitas».");
+                    + "indicadores del hato, campañas, situación patrimonial y fotos. Se genera desde «Visitas»."),
+    VALORACION("Valoración del negocio", Formato.PDF, "fth-star",
+            "Cuánto vale el negocio por su patrimonio, por capitalización de utilidades y por flujos descontados, "
+                    + "con sensibilidad. Se genera desde «Valoración del negocio».");
 
     /** Formato del archivo generado. */
     public enum Formato {
@@ -58,9 +61,9 @@ public enum TipoInforme {
         this.descripcion = descripcion;
     }
 
-    /** Se genera desde una visita de inspección, no desde el módulo de informes. */
-    public boolean desdeVisita() {
-        return this == INFORME_TECNICO;
+    /** Se genera desde su propio módulo (visitas, valoración), no desde el módulo de informes. */
+    public boolean desdeOtroModulo() {
+        return this == INFORME_TECNICO || this == VALORACION;
     }
 
     public String titulo() {
