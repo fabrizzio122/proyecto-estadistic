@@ -3,7 +3,15 @@ package com.businessanalyzer.service;
 import com.businessanalyzer.exception.ValidacionException;
 import com.businessanalyzer.model.CategoriaActivo;
 import com.businessanalyzer.model.CategoriaDeuda;
+import com.businessanalyzer.model.AspectoInspeccion;
 import com.businessanalyzer.model.Campania;
+import com.businessanalyzer.model.Compromiso;
+import com.businessanalyzer.model.ConclusionVisita;
+import com.businessanalyzer.model.DatosVisita;
+import com.businessanalyzer.model.EstadoCompromiso;
+import com.businessanalyzer.model.ResultadoAspecto;
+import com.businessanalyzer.model.TipoVisita;
+import com.businessanalyzer.model.Visita;
 import com.businessanalyzer.model.CategoriaGanado;
 import com.businessanalyzer.model.Cultivo;
 import com.businessanalyzer.model.DatosCampania;
@@ -32,6 +40,7 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.businessanalyzer.model.CategoriaGanado.*;
@@ -49,12 +58,14 @@ public class DatosDemoAgroService {
     private final EmpresaService empresas;
     private final GanaderiaService ganaderia;
     private final AgriculturaService agricultura;
+    private final VisitaService visitas;
     private final PatrimonioService patrimonio;
     private final Sesion sesion;
     private final Clock reloj;
 
     public DatosDemoAgroService(EmpresaService empresas, GanaderiaService ganaderia, AgriculturaService agricultura,
-                                PatrimonioService patrimonio, Sesion sesion, Clock reloj) {
+                                PatrimonioService patrimonio, Sesion sesion, Clock reloj, VisitaService visitas) {
+        this.visitas = visitas;
         this.empresas = empresas;
         this.ganaderia = ganaderia;
         this.agricultura = agricultura;
@@ -147,7 +158,57 @@ public class DatosDemoAgroService {
         patrimonio.registrarDeuda(new DatosDeuda(CategoriaDeuda.PRESTAMO_BANCARIO, "Agrobanco",
                 "Crédito para compra de vaquillonas", inicio, bd("15000"), bd("15"), bd("720"), inicio.plusMonths(24)));
         registrarAgricultura(inicio);
+        registrarVisitas(hoy);
         return empresa;
+    }
+
+    /** Una supervisión hace 3 meses con compromisos y una de seguimiento reciente que los verifica. */
+    private void registrarVisitas(LocalDate hoy) {
+        String inspector = "Ing. Rosa Quispe";
+        Map<AspectoInspeccion, ResultadoAspecto> primera = new EnumMap<>(AspectoInspeccion.class);
+        primera.putAll(Map.of(AspectoInspeccion.SANIDAD_ANIMAL, ResultadoAspecto.PARCIAL,
+                AspectoInspeccion.VACUNACION, ResultadoAspecto.NO_CUMPLE,
+                AspectoInspeccion.ALIMENTACION, ResultadoAspecto.CUMPLE,
+                AspectoInspeccion.INSTALACIONES, ResultadoAspecto.PARCIAL,
+                AspectoInspeccion.ESTADO_CULTIVOS, ResultadoAspecto.CUMPLE,
+                AspectoInspeccion.REGISTROS, ResultadoAspecto.PARCIAL,
+                AspectoInspeccion.USO_CREDITO, ResultadoAspecto.CUMPLE));
+        Map<AspectoInspeccion, String> notasPrimera = new EnumMap<>(AspectoInspeccion.class);
+        notasPrimera.put(AspectoInspeccion.VACUNACION, "Falta la dosificación contra parásitos de las alpacas.");
+        notasPrimera.put(AspectoInspeccion.INSTALACIONES, "El cobertizo de crías no protege de las heladas.");
+        Visita anterior = visitas.registrar(new DatosVisita(hoy.minusMonths(3), TipoVisita.SUPERVISION, inspector,
+                "Anexo Chacapampa", -12.1352, -75.2311, "Juan Huamán (productor)",
+                "Hato en buen estado general. Se observaron crías de alpaca con signos de neumonía.",
+                ConclusionVisita.CON_OBSERVACIONES, hoy.minusDays(10), primera, notasPrimera, List.of(
+                new DatosVisita.NuevoCompromiso("Dosificar a todas las alpacas contra parásitos", hoy.minusMonths(2)),
+                new DatosVisita.NuevoCompromiso("Mejorar el cobertizo de crías antes de las heladas", hoy.minusMonths(1)),
+                new DatosVisita.NuevoCompromiso("Llevar al día el registro de nacimientos y muertes", hoy.plusMonths(1)))));
+
+        Map<AspectoInspeccion, ResultadoAspecto> segunda = new EnumMap<>(AspectoInspeccion.class);
+        segunda.putAll(Map.of(AspectoInspeccion.SANIDAD_ANIMAL, ResultadoAspecto.CUMPLE,
+                AspectoInspeccion.VACUNACION, ResultadoAspecto.CUMPLE,
+                AspectoInspeccion.ALIMENTACION, ResultadoAspecto.CUMPLE,
+                AspectoInspeccion.INSTALACIONES, ResultadoAspecto.PARCIAL,
+                AspectoInspeccion.ESTADO_CULTIVOS, ResultadoAspecto.CUMPLE,
+                AspectoInspeccion.PLAGAS, ResultadoAspecto.CUMPLE,
+                AspectoInspeccion.REGISTROS, ResultadoAspecto.CUMPLE,
+                AspectoInspeccion.USO_CREDITO, ResultadoAspecto.CUMPLE,
+                AspectoInspeccion.COMPROMISOS, ResultadoAspecto.PARCIAL,
+                AspectoInspeccion.RIEGO, ResultadoAspecto.NO_APLICA));
+        Visita reciente = visitas.registrar(new DatosVisita(hoy.minusDays(10), TipoVisita.SEGUIMIENTO_CREDITO, inspector,
+                "Anexo Chacapampa", -12.1352, -75.2311, "Juan Huamán (productor)",
+                "Se dosificó a las alpacas y bajó la mortalidad de crías. El cobertizo sigue a medio construir.",
+                ConclusionVisita.FAVORABLE, hoy.plusMonths(3), segunda, Map.of(), List.of(
+                new DatosVisita.NuevoCompromiso("Terminar el cobertizo de crías", hoy.plusMonths(1)))));
+
+        List<Compromiso> pendientes = visitas.compromisos().stream().filter(k -> k.visitaId() == anterior.id()).toList();
+        for (Compromiso k : pendientes) {
+            EstadoCompromiso estado = k.descripcion().startsWith("Dosificar") ? EstadoCompromiso.CUMPLIDO
+                    : k.descripcion().startsWith("Mejorar") ? EstadoCompromiso.INCUMPLIDO : null;
+            if (estado != null) {
+                visitas.verificarCompromiso(k.id(), estado, reciente.fecha(), reciente.id(), null);
+            }
+        }
     }
 
     /** Tres parcelas y cinco campañas: papa, quinua y avena cosechadas, un maíz perdido por granizada y papa en curso. */

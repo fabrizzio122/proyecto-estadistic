@@ -66,6 +66,7 @@ automáticamente al iniciar y dentro de una transacción.
 14. Activos, deudas y patrimonio: balance general, depreciación, liquidez y endeudamiento ✅
 15. Ganadería (sector agropecuario): hato, movimientos, producción de leche y fibra, indicadores técnicos y valor del hato ✅
 16. Agricultura (sector agropecuario): parcelas, campañas, costos, cosechas, rendimiento y margen por campaña ✅
+17. Visitas de inspección: verificación en campo, compromisos, fotos e informe técnico en PDF ✅
 
 ## Seguridad
 
@@ -136,6 +137,15 @@ automáticamente al iniciar y dentro de una transacción.
 - **Cierre:** la campaña se cierra como **cosechada** (requiere al menos una cosecha) o **perdida** (helada, granizada, sequía…, con la causa). Se puede reabrir para corregir.
 - **Resultado de cada campaña:** rendimiento (kg/ha) frente a la referencia con semáforo, costo por hectárea y por kilo, rendimiento mínimo para no perder, valor de la producción, margen y destino de la cosecha. Lo no vendido se valoriza al precio en chacra (o al precio promedio de venta).
 - **Balance:** lo invertido en las campañas en curso entra al activo corriente como «Cultivos en proceso (al costo)».
+
+## Visitas de inspección (empresas agropecuarias)
+
+- **Visita:** fecha, tipo (evaluación inicial, supervisión, seguimiento de crédito, asistencia técnica, evaluación final), inspector, lugar, coordenadas GPS (grados decimales), quién atendió, observaciones, conclusión y próxima visita.
+- **Verificación en campo:** 12 aspectos en tres áreas (ganadería, agricultura y generales). Cada uno se marca «Cumple», «Cumple en parte», «No cumple» o «No aplica». El **cumplimiento** vale 1, 0.5 y 0 sin contar los que no aplican, y propone la conclusión: desde 80 % favorable, desde 50 % con observaciones y, por debajo, desfavorable.
+- **Compromisos:** se acuerdan en una visita con un plazo y, en la visita siguiente, aparecen para marcarlos como cumplidos o no cumplidos. Los pendientes con el plazo vencido se resaltan.
+- **Fotos:** JPG o PNG de hasta 15 MB. Se copian a la carpeta de datos, en `fotos-visitas/`. **Las copias de seguridad aún no incluyen las fotos.**
+- **Informe técnico (PDF):** datos de la visita, verificación en campo, compromisos, indicadores del hato y de las campañas de los 12 meses previos, situación patrimonial, observaciones, conclusión, hasta 6 fotos y espacio para las firmas. Queda en el historial de informes.
+- **Permisos:** las ven todos los roles con acceso a la empresa; las registran el administrador, el gerente y el analista (el rol del inspector). El operador (productor) las ve pero no las modifica.
 
 ## Análisis financiero
 

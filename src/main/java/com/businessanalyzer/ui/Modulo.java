@@ -40,6 +40,9 @@ public enum Modulo {
     AGRICULTURA(Seccion.AGRO, "Agricultura",
             "Parcelas, campañas, costos, cosechas y rendimiento", "fth-sun", 16,
             Permiso.AGRO_VER, "/fxml/agricultura-view.fxml"),
+    VISITAS(Seccion.AGRO, "Visitas de inspección",
+            "Verificación en campo, compromisos, fotos e informe técnico", "fth-clipboard", 17,
+            Permiso.AGRO_VER, "/fxml/visitas-view.fxml"),
 
     ANALISIS_FINANCIERO(Seccion.ANALISIS, "Análisis financiero",
             "Estado de resultados, márgenes, ratios y punto de equilibrio", "fth-pie-chart", 7,

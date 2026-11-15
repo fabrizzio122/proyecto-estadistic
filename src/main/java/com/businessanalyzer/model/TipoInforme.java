@@ -13,7 +13,10 @@ public enum TipoInforme {
             "Ventas, costo y margen de cada producto o servicio vendido en el período, con su gráfico."),
     LIBRO_EXCEL("Libro de datos en Excel", Formato.EXCEL, "fth-grid",
             "Hojas con el estado de resultados, la evolución mensual, los productos, las ventas, las "
-                    + "compras y los ingresos y gastos, listas para filtrar o seguir analizando.");
+                    + "compras y los ingresos y gastos, listas para filtrar o seguir analizando."),
+    INFORME_TECNICO("Informe técnico de visita", Formato.PDF, "fth-clipboard",
+            "Informe de la visita de inspección a un productor agropecuario: verificación en campo, compromisos, "
+                    + "indicadores del hato, campañas, situación patrimonial y fotos. Se genera desde «Visitas».");
 
     /** Formato del archivo generado. */
     public enum Formato {
@@ -53,6 +56,11 @@ public enum TipoInforme {
         this.formato = formato;
         this.icono = icono;
         this.descripcion = descripcion;
+    }
+
+    /** Se genera desde una visita de inspección, no desde el módulo de informes. */
+    public boolean desdeVisita() {
+        return this == INFORME_TECNICO;
     }
 
     public String titulo() {

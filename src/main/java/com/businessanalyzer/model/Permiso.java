@@ -20,7 +20,8 @@ public enum Permiso {
     USUARIOS_GESTIONAR("Administrar usuarios y revisar accesos"),
     CONFIGURACION_GESTIONAR("Configuración y copias de seguridad"),
     AGRO_VER("Ver ganadería y agricultura"),
-    AGRO_GESTIONAR("Registrar ganado, producción y campañas agrícolas");
+    AGRO_GESTIONAR("Registrar ganado, producción y campañas agrícolas"),
+    VISITAS_REGISTRAR("Registrar visitas de inspección y verificar compromisos");
 
     private final String descripcion;
 

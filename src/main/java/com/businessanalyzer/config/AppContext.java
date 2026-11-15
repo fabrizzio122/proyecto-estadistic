@@ -8,6 +8,9 @@ import com.businessanalyzer.service.FinanzasService;
 import com.businessanalyzer.service.PatrimonioService;
 import com.businessanalyzer.service.GanaderiaService;
 import com.businessanalyzer.service.AgriculturaService;
+import com.businessanalyzer.service.VisitaService;
+import com.businessanalyzer.service.InformeTecnicoService;
+import com.businessanalyzer.repository.VisitaRepository;
 import com.businessanalyzer.repository.AgriculturaRepository;
 import com.businessanalyzer.service.DatosDemoAgroService;
 import com.businessanalyzer.repository.GanaderiaRepository;
@@ -63,6 +66,8 @@ public final class AppContext {
     private final PatrimonioService patrimonioService;
     private final GanaderiaService ganaderiaService;
     private final AgriculturaService agriculturaService;
+    private final VisitaService visitaService;
+    private final InformeTecnicoService informeTecnicoService;
     private final DatosDemoAgroService datosDemoAgroService;
     private final AnalisisService analisisService;
     private final EstadisticaService estadisticaService;
@@ -103,6 +108,8 @@ public final class AppContext {
         OperacionRepository operacionRepository = new OperacionRepository();
         this.ganaderiaService = new GanaderiaService(database, new GanaderiaRepository(), empresaService, sesion, reloj);
         this.agriculturaService = new AgriculturaService(database, new AgriculturaRepository(), empresaService, sesion, reloj);
+        this.visitaService = new VisitaService(database, new VisitaRepository(), empresaService, sesion, reloj,
+                config.directorioDatos());
         this.patrimonioService = new PatrimonioService(database, new ActivoRepository(), new DeudaRepository(),
                 productoRepository, operacionRepository, movimientoRepository, empresaService, sesion, reloj);
         this.analisisService = new AnalisisService(database, operacionRepository, movimientoRepository,
@@ -119,10 +126,12 @@ public final class AppContext {
                 configuracionService, sesion, reloj);
         this.informeService = new InformeService(database, new InformeRepository(), analisisService,
                 diagnosticoService, operacionService, finanzasService, empresaService, sesion, reloj);
+        this.informeTecnicoService = new InformeTecnicoService(database, new InformeRepository(), visitaService,
+                ganaderiaService, agriculturaService, patrimonioService, empresaService, sesion, reloj);
         this.datosDemoService = new DatosDemoService(empresaService, catalogoService, operacionService,
                 finanzasService, patrimonioService, sesion, reloj);
         this.datosDemoAgroService = new DatosDemoAgroService(empresaService, ganaderiaService, agriculturaService, patrimonioService,
-                sesion, reloj);
+                sesion, reloj, visitaService);
     }
 
     /** Prepara las carpetas, migra la base de datos y crea los servicios. */
@@ -180,6 +189,14 @@ public final class AppContext {
 
     public DatosDemoAgroService datosDemoAgro() {
         return datosDemoAgroService;
+    }
+
+    public VisitaService visitas() {
+        return visitaService;
+    }
+
+    public InformeTecnicoService informeTecnico() {
+        return informeTecnicoService;
     }
 
     public AgriculturaService agricultura() {

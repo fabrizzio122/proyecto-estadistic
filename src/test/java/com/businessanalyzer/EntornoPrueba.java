@@ -18,6 +18,10 @@ import com.businessanalyzer.service.FinanzasService;
 import com.businessanalyzer.service.PatrimonioService;
 import com.businessanalyzer.service.GanaderiaService;
 import com.businessanalyzer.service.AgriculturaService;
+import com.businessanalyzer.service.VisitaService;
+import com.businessanalyzer.service.InformeTecnicoService;
+import com.businessanalyzer.repository.VisitaRepository;
+import com.businessanalyzer.repository.InformeRepository;
 import com.businessanalyzer.repository.AgriculturaRepository;
 import com.businessanalyzer.repository.GanaderiaRepository;
 import com.businessanalyzer.repository.ActivoRepository;
@@ -70,6 +74,8 @@ public final class EntornoPrueba {
     public final PatrimonioService patrimonio;
     public final GanaderiaService ganaderia;
     public final AgriculturaService agricultura;
+    public final VisitaService visitas;
+    public final InformeTecnicoService informeTecnico;
 
     public EntornoPrueba(Path carpeta) {
         this(carpeta, new PasswordHasher(1_000));
@@ -91,9 +97,12 @@ public final class EntornoPrueba {
         this.finanzas = new FinanzasService(database, new MovimientoRepository(), empresaService, sesion, reloj);
         this.ganaderia = new GanaderiaService(database, new GanaderiaRepository(), empresaService, sesion, reloj);
         this.agricultura = new AgriculturaService(database, new AgriculturaRepository(), empresaService, sesion, reloj);
+        this.visitas = new VisitaService(database, new VisitaRepository(), empresaService, sesion, reloj, carpeta);
         this.patrimonio = new PatrimonioService(database, new ActivoRepository(), new DeudaRepository(),
                 new ProductoRepository(), new OperacionRepository(), new MovimientoRepository(), empresaService,
                 sesion, reloj);
+        this.informeTecnico = new InformeTecnicoService(database, new InformeRepository(), visitas, ganaderia,
+                agricultura, patrimonio, empresaService, sesion, reloj);
     }
 
     /** Crea una empresa con datos mínimos (requiere sesión con permiso) y la deja activa. */
