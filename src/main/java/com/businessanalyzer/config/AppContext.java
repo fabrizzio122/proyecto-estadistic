@@ -147,6 +147,17 @@ public final class AppContext {
         return new AppContext(config, database, version, restaurada);
     }
 
+    private java.util.function.Consumer<com.businessanalyzer.ui.Modulo> irAModulo = m -> { };
+
+    /** La ventana principal indica cómo abrir un módulo (lo usan los accesos del Dashboard). */
+    public void alAbrirModulo(java.util.function.Consumer<com.businessanalyzer.ui.Modulo> accion) {
+        this.irAModulo = accion == null ? m -> { } : accion;
+    }
+
+    public void abrirModulo(com.businessanalyzer.ui.Modulo modulo) {
+        irAModulo.accept(modulo);
+    }
+
     public AppConfig config() {
         return config;
     }

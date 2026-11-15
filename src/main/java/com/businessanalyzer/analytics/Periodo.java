@@ -33,19 +33,31 @@ public record Periodo(LocalDate desde, LocalDate hasta) {
     }
 
     /**
-     * Período inmediatamente anterior de igual duración: si son meses completos, los mismos
-     * meses previos (octubre para noviembre); si no, la misma cantidad de días.
+     * Período anterior equivalente para comparar:
+     * <ul>
+     *   <li>meses completos: los mismos meses previos (octubre para noviembre);</li>
+     *   <li>un mes en curso (del 1 al 15 de noviembre): los mismos días del mes anterior (1 al 15 de octubre),
+     *       para no comparar medio mes contra un mes entero;</li>
+     *   <li>el año en curso (del 1 de enero a hoy): las mismas fechas del año anterior;</li>
+     *   <li>cualquier otro rango: la misma cantidad de días inmediatamente antes.</li>
+     * </ul>
      */
     public Periodo anterior() {
+        long meses = ChronoUnit.MONTHS.between(YearMonth.from(desde), YearMonth.from(hasta)) + 1;
         if (mesesCompletos()) {
-            long meses = ChronoUnit.MONTHS.between(YearMonth.from(desde), YearMonth.from(hasta)) + 1;
             YearMonth inicio = YearMonth.from(desde).minusMonths(meses);
             return new Periodo(inicio.atDay(1), desde.minusDays(1));
+        }
+        if (desde.getDayOfMonth() == 1 && meses == 1) {
+            return new Periodo(desde.minusMonths(1), hasta.minusMonths(1));
+        }
+        if (desde.getDayOfYear() == 1 && desde.getYear() == hasta.getYear()) {
+            return new Periodo(desde.minusYears(1), hasta.minusYears(1));
         }
         return new Periodo(desde.minusDays(dias()), desde.minusDays(1));
     }
 
-    /** "noviembre 2026", "enero – marzo 2026" o "01/11/2026 – 13/11/2026". */
+    /** "noviembre 2026", "enero – marzo 2026", "del 1 al 13 de noviembre 2026" o "15/10/2026 – 13/11/2026". */
     public String descripcion() {
         if (mesesCompletos()) {
             YearMonth inicio = YearMonth.from(desde);
@@ -56,6 +68,10 @@ public record Periodo(LocalDate desde, LocalDate hasta) {
             }
             return nombreInicio + (inicio.getYear() == fin.getYear() ? "" : " " + inicio.getYear()) + " – "
                     + Fechas.nombreMes(fin.getMonthValue()).toLowerCase() + " " + fin.getYear();
+        }
+        if (YearMonth.from(desde).equals(YearMonth.from(hasta))) {
+            return "del " + desde.getDayOfMonth() + " al " + hasta.getDayOfMonth() + " de "
+                    + Fechas.nombreMes(hasta.getMonthValue()).toLowerCase() + " " + hasta.getYear();
         }
         return Fechas.paraMostrar(desde) + " – " + Fechas.paraMostrar(hasta);
     }

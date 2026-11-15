@@ -67,8 +67,15 @@ class PuntoEquilibrioTest {
         assertEquals("enero – marzo 2026", primerTrimestre.descripcion());
 
         Periodo parcial = new Periodo(LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 13));
-        assertEquals(new Periodo(LocalDate.of(2026, 10, 19), LocalDate.of(2026, 10, 31)), parcial.anterior());
-        assertEquals(13, parcial.anterior().dias());
+        // Mes en curso: los mismos días del mes anterior, no medio mes contra un mes entero.
+        assertEquals(new Periodo(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 13)), parcial.anterior());
+        assertEquals("del 1 al 13 de noviembre 2026", parcial.descripcion());
+
+        Periodo anioEnCurso = new Periodo(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 11, 13));
+        assertEquals(new Periodo(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 11, 13)), anioEnCurso.anterior());
+
+        Periodo libre = new Periodo(LocalDate.of(2026, 11, 5), LocalDate.of(2026, 11, 13));
+        assertEquals(new Periodo(LocalDate.of(2026, 10, 27), LocalDate.of(2026, 11, 4)), libre.anterior());
     }
 
     @Test

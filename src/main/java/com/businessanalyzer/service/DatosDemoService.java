@@ -84,24 +84,20 @@ public class DatosDemoService {
 
         LocalDate hoy = LocalDate.now(reloj);
         YearMonth actual = YearMonth.from(hoy);
-        // Volumen mensual creciente, con un pico en diciembre y bajada en enero y febrero.
-        int[] estacional = {92, 90, 97, 98, 100, 99, 103, 104, 101, 106, 112, 125};
+        // Volumen mensual creciente, con un pico en diciembre y un febrero flojo (el mes malo del año).
+        int[] estacional = {92, 80, 97, 98, 100, 99, 103, 104, 101, 106, 112, 125};
+        Producto[] productos = {arroz, azucar, aceite, gaseosa, detergente, agua, delivery};
+        String[] precios = {"24.90", "4.50", "11.80", "10.50", "19.90", "15.00", "5.00"};
+        // Semilla fija: los datos de demostración salen siempre iguales.
+        java.util.Random azar = new java.util.Random(20_26L);
         for (int i = 12; i >= 0; i--) {
             YearMonth mes = actual.minusMonths(i);
             int v = (int) Math.round(3.2 * (100 + (12 - i) * 3) * estacional[mes.getMonthValue() - 1] / 100.0);
             // Se repone lo que se vende cada mes, con un pequeño colchón de stock.
             compra(mes.atDay(1), hoy, l(arroz, v + 30, "18.50"), l(azucar, v * 3 + 35, "3.20"), l(aceite, v + 12, "8.90"),
                     l(gaseosa, v + 20, "7.40"), l(detergente, v / 2 + 8, "14.20"), l(agua, 14, "16.00"));
-            for (int semana = 0; semana < 4; semana++) {
-                LocalDate fecha = mes.atDay(3 + semana * 7);
-                if (fecha.isAfter(hoy)) {
-                    continue;
-                }
-                int f = v / 4 + (semana == 3 ? 6 : semana);
-                venta(fecha, l(arroz, f + 4, "24.90"), l(azucar, f * 3, "4.50"), l(aceite, f, "11.80"),
-                        l(gaseosa, f + 2, "10.50"), l(detergente, f / 2, "19.90"), l(agua, 3, "15.00"),
-                        l(delivery, 2 + semana, "5.00"));
-            }
+            ventasDelMes(mes, hoy, azar, productos, precios,
+                    new int[]{v + 10, v * 3, v, v + 8, v / 2, 12, 14 + (12 - i)});
             gasto(CategoriaFinanciera.ALQUILER, mes.atDay(5), hoy, "Alquiler del local", 1200);
             gasto(CategoriaFinanciera.SUELDOS, mes.atEndOfMonth(), hoy, "Planilla (2 trabajadores)", 2400);
             gasto(CategoriaFinanciera.SERVICIOS_BASICOS, mes.atDay(12), hoy, "Luz, agua e internet", 360 + (i % 3) * 15);
@@ -115,6 +111,39 @@ public class DatosDemoService {
         }
         registrarPatrimonio(hoy);
         return empresa;
+    }
+
+    /**
+     * Una venta por día (el cierre de caja de la bodega). Las cantidades del mes se reparten entre los
+     * días según el día de la semana (sábado fuerte, domingo y lunes flojos) con algo de variación, y se
+     * redondean acumulando el resto para que el total del mes se mantenga.
+     */
+    private void ventasDelMes(YearMonth mes, LocalDate hoy, java.util.Random azar, Producto[] productos,
+                              String[] precios, int[] totalesMes) {
+        double[] pesoDia = {0.9, 0.95, 1.0, 1.0, 1.15, 1.35, 0.65}; // lunes … domingo
+        double[] pesos = new double[mes.lengthOfMonth()];
+        double suma = 0;
+        for (int d = 0; d < pesos.length; d++) {
+            pesos[d] = pesoDia[mes.atDay(d + 1).getDayOfWeek().getValue() - 1] * (0.85 + azar.nextDouble() * 0.3);
+            suma += pesos[d];
+        }
+        double[] acumulado = new double[productos.length];
+        for (int d = 0; d < pesos.length; d++) {
+            LocalDate fecha = mes.atDay(d + 1);
+            List<DatosLinea> lineas = new java.util.ArrayList<>();
+            for (int p = 0; p < productos.length; p++) {
+                acumulado[p] += totalesMes[p] * pesos[d] / suma;
+                int cantidad = (int) acumulado[p];
+                acumulado[p] -= cantidad;
+                if (cantidad > 0) {
+                    lineas.add(l(productos[p], cantidad, precios[p]));
+                }
+            }
+            if (!fecha.isAfter(hoy) && !lineas.isEmpty()) {
+                operaciones.registrar(new DatosOperacion(TipoOperacion.VENTA, fecha, "Clientes varios", null, null, IGV,
+                        "Cierre de caja del día", lineas, false), true);
+            }
+        }
     }
 
     /** Activos y deudas de la bodega: un préstamo de la caja municipal pagado mes a mes y deudas de corto plazo. */
@@ -163,11 +192,6 @@ public class DatosDemoService {
             operaciones.registrar(new DatosOperacion(TipoOperacion.COMPRA, fecha, null, null, null, IGV, null,
                     List.of(lineas), false), true);
         }
-    }
-
-    private void venta(LocalDate fecha, DatosLinea... lineas) {
-        operaciones.registrar(new DatosOperacion(TipoOperacion.VENTA, fecha, null, null, null, IGV, null,
-                List.of(lineas), false), true);
     }
 
     private void gasto(CategoriaFinanciera categoria, LocalDate fecha, LocalDate hoy, String descripcion, int monto) {

@@ -63,6 +63,11 @@ public class MainController {
 
     public MainController(AppContext contexto, Ventana ventana) {
         this.contexto = contexto;
+        contexto.alAbrirModulo(m -> {
+            if (botones.containsKey(m) && botones.get(m).isVisible() && !botones.get(m).isDisabled()) {
+                abrir(m);
+            }
+        });
         this.ventana = ventana;
     }
 

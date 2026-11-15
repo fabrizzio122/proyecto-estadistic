@@ -1224,3 +1224,17 @@
     -fx-font-size: 11px;
     -fx-font-weight: bold;
 }
+
+/* ---------- Dashboard (Fase 20): enlaces a los módulos ---------- */
+
+.button-link {
+    -fx-background-color: transparent;
+    -fx-text-fill: -ba-acento;
+    -fx-padding: 2 4;
+    -fx-cursor: hand;
+    -fx-font-size: 12px;
+}
+
+.button-link:hover {
+    -fx-underline: true;
+}
