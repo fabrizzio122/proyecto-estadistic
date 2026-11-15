@@ -82,7 +82,8 @@
                         <TableColumn fx:id="colActFecha" text="Fecha" prefWidth="90"/>
                         <TableColumn fx:id="colActValor" text="Valor" prefWidth="105" styleClass="col-numero"/>
                         <TableColumn fx:id="colActVida" text="Vida útil" prefWidth="80" styleClass="col-numero"/>
-                        <TableColumn fx:id="colActDepreciacion" text="Depreciación" prefWidth="105" styleClass="col-numero"/>
+                        <TableColumn fx:id="colActMensual" text="Por mes" prefWidth="85" styleClass="col-numero"/>
+                        <TableColumn fx:id="colActDepreciacion" text="Dep. acumulada" prefWidth="110" styleClass="col-numero"/>
                         <TableColumn fx:id="colActLibros" text="Valor actual" prefWidth="110" styleClass="col-numero"/>
                     </columns>
                     <columnResizePolicy>
