@@ -12,6 +12,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
@@ -134,6 +135,43 @@
         <Tab text="Indicadores">
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="dialog-scroll">
                 <VBox fx:id="contenedorIndicadores" spacing="14" styleClass="tab-contenido"/>
+            </ScrollPane>
+        </Tab>
+
+        <!-- 5. Evolución -->
+        <Tab text="Evolución">
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="dialog-scroll">
+                <VBox spacing="14" styleClass="tab-contenido">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Mostrar los últimos" styleClass="form-label"/>
+                        <ComboBox fx:id="cmbMesesEvolucion" prefWidth="120"/>
+                        <Label text="Independiente del período de arriba: siempre termina en el mes actual." styleClass="hint" wrapText="true"/>
+                    </HBox>
+                    <HBox spacing="16">
+                        <VBox styleClass="card" spacing="6" HBox.hgrow="ALWAYS" prefWidth="400">
+                            <Label text="Animales al cierre de cada mes" styleClass="card-title"/>
+                            <StackPane fx:id="graficoExistencias" minHeight="230" prefHeight="230"/>
+                        </VBox>
+                        <VBox styleClass="card" spacing="6" HBox.hgrow="ALWAYS" prefWidth="400">
+                            <Label text="Nacimientos, muertes y salidas" styleClass="card-title"/>
+                            <StackPane fx:id="graficoNacimientos" minHeight="230" prefHeight="230"/>
+                        </VBox>
+                    </HBox>
+                    <HBox spacing="16">
+                        <VBox styleClass="card" spacing="6" HBox.hgrow="ALWAYS" prefWidth="400">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Producción mensual y tendencia" styleClass="card-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <ComboBox fx:id="cmbProductoEvolucion" prefWidth="130"/>
+                            </HBox>
+                            <StackPane fx:id="graficoProduccion" minHeight="230" prefHeight="230"/>
+                        </VBox>
+                        <VBox styleClass="card" spacing="8" prefWidth="340" minWidth="300">
+                            <Label text="Lectura" styleClass="card-title"/>
+                            <VBox fx:id="lecturaEvolucion" spacing="6"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
             </ScrollPane>
         </Tab>
     </TabPane>

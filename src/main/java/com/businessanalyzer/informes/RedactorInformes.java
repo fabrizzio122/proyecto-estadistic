@@ -235,6 +235,9 @@ public final class RedactorInformes {
         }
         d.resumen().forEach(c::texto);
         for (Area area : Area.values()) {
+            if (d.deArea(area).isEmpty()) {
+                continue;
+            }
             c.espacio();
             c.encabezado(area.descripcion() + (d.puntajePorArea().containsKey(area)
                     ? "  ·  " + d.puntajePorArea().get(area) + "/100" : ""));

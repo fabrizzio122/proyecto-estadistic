@@ -59,7 +59,7 @@ class DiagnosticoServiceTest {
         Diagnostico d = servicio.diagnosticar();
 
         assertTrue(d.evaluado());
-        assertEquals(TipoIndicador.values().length, d.hallazgos().size());
+        assertEquals(java.util.Arrays.stream(TipoIndicador.values()).filter(t -> !t.soloAgropecuario()).count(), (long) d.hallazgos().size());
         assertTrue(d.hallazgos().stream().allMatch(h -> h.semaforo().evaluado()), d.hallazgos().toString());
         // La demo vende el agua mineral por debajo de su costo.
         assertTrue(d.hallazgos().stream().anyMatch(h -> h.tipo() == TipoIndicador.PRODUCTOS_CON_PERDIDA

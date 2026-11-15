@@ -37,7 +37,16 @@ public enum TipoIndicador {
     CONCENTRACION("Dependencia del producto principal", Area.RIESGO_COMERCIAL, 1,
             "Parte de las ventas que viene del producto o servicio que más se vende."),
     PRODUCTOS_CON_PERDIDA("Productos vendidos con pérdida", Area.RIESGO_COMERCIAL, 2,
-            "Parte de las ventas que corresponde a productos vendidos por debajo de su costo.");
+            "Parte de las ventas que corresponde a productos vendidos por debajo de su costo."),
+
+    NATALIDAD("Natalidad del hato", Area.AGROPECUARIO, 2,
+            "Crías nacidas por cada 100 hembras reproductoras en los últimos 12 meses, según la especie."),
+    MORTALIDAD_CRIAS("Mortalidad de crías", Area.AGROPECUARIO, 2,
+            "Crías muertas por cada 100 nacidas en los últimos 12 meses."),
+    RENDIMIENTO_CULTIVOS("Rendimiento de los cultivos", Area.AGROPECUARIO, 2,
+            "Kilos por hectárea de las campañas cerradas en los últimos 12 meses frente a su referencia."),
+    COMPROMISOS_INSPECCION("Cumplimiento de compromisos", Area.AGROPECUARIO, 1,
+            "Compromisos de las visitas de inspección cumplidos frente a los que ya debían cumplirse.");
 
     private final String nombre;
     private final Area area;
@@ -61,6 +70,11 @@ public enum TipoIndicador {
 
     public int peso() {
         return peso;
+    }
+
+    /** Solo se evalúa en empresas del sector agropecuario. */
+    public boolean soloAgropecuario() {
+        return area == Area.AGROPECUARIO;
     }
 
     public String queMide() {

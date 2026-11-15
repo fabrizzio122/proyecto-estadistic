@@ -138,7 +138,7 @@ public class DashboardController implements VistaModulo {
         }
         try {
             YearMonth mes = YearMonth.now();
-            ResumenOperaciones r = contexto.operaciones().resumen(mes.atDay(1), mes.atEndOfMonth());
+            ResumenOperaciones r = contexto.operaciones().resumenConAgro(mes.atDay(1), mes.atEndOfMonth());
             kpiVentasMes.actualizar(Montos.formatear(r.ventasNetas(), empresa.moneda()),
                     r.cantidadVentas() + (r.cantidadVentas() == 1 ? " venta" : " ventas")
                             + " · margen bruto " + Montos.porcentaje(r.margenBrutoSobreVentas()));

@@ -131,7 +131,7 @@ public final class AppContext {
         this.datosDemoService = new DatosDemoService(empresaService, catalogoService, operacionService,
                 finanzasService, patrimonioService, sesion, reloj);
         this.datosDemoAgroService = new DatosDemoAgroService(empresaService, ganaderiaService, agriculturaService, patrimonioService,
-                sesion, reloj, visitaService);
+                sesion, reloj, visitaService, finanzasService);
     }
 
     /** Prepara las carpetas, migra la base de datos y crea los servicios. */

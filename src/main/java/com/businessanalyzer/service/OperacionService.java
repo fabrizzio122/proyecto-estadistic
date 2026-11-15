@@ -87,11 +87,19 @@ public class OperacionService {
         return database.conConexion(c -> exigirOperacion(c, id, empresa.id()));
     }
 
-    public ResumenOperaciones resumen(LocalDate desde, LocalDate hasta) {
+    /** Como {@link #resumen}, pero sumando las ventas y costos de la producción agropecuaria. */
+    public ResumenOperaciones resumenConAgro(LocalDate desde, LocalDate hasta) {
         sesion.requerir(Permiso.OPERACIONES_VER);
         Empresa empresa = empresas.empresaDeTrabajo();
         validarPeriodo(desde, hasta);
         return database.conConexion(c -> operaciones.resumen(c, empresa.id(), desde, hasta));
+    }
+
+    public ResumenOperaciones resumen(LocalDate desde, LocalDate hasta) {
+        sesion.requerir(Permiso.OPERACIONES_VER);
+        Empresa empresa = empresas.empresaDeTrabajo();
+        validarPeriodo(desde, hasta);
+        return database.conConexion(c -> operaciones.resumenOperaciones(c, empresa.id(), desde, hasta));
     }
 
     /** Productos y servicios activos que se pueden usar en una operación nueva. */

@@ -3,7 +3,9 @@ package com.businessanalyzer.analytics.diagnostico;
 import com.businessanalyzer.analytics.EstadoResultados;
 import com.businessanalyzer.analytics.PuntoEquilibrio;
 import com.businessanalyzer.analytics.RentabilidadProducto;
+import com.businessanalyzer.analytics.agricultura.ResultadoCampania;
 import com.businessanalyzer.analytics.estadistica.EstadisticaDescriptiva;
+import com.businessanalyzer.analytics.ganaderia.IndicadoresEspecie;
 import com.businessanalyzer.analytics.patrimonio.BalanceGeneral;
 import com.businessanalyzer.analytics.patrimonio.IndicadoresPatrimonio;
 import com.businessanalyzer.analytics.patrimonio.SituacionPatrimonial;
@@ -92,11 +94,15 @@ public final class MotorDiagnostico {
     }
 
     private Diagnostico diagnosticar() {
-        List<Hallazgo> hallazgos = List.of(
+        List<Hallazgo> hallazgos = new ArrayList<>(List.of(
                 margenNeto(), margenBruto(), mesesConPerdida(),
                 margenSeguridad(), pesoCostosFijos(), cargaFinanciera(), liquidez(), endeudamiento(),
                 variacionVentas(), tendenciaVentas(), proyeccionVentas(),
-                regularidadVentas(), concentracion(), productosConPerdida());
+                regularidadVentas(), concentracion(), productosConPerdida()));
+        if (datos.agro() != null) {
+            hallazgos.addAll(List.of(natalidad(datos.agro()), mortalidadCrias(datos.agro()),
+                    rendimientoCultivos(datos.agro()), compromisos(datos.agro())));
+        }
 
         int puntaje = puntaje(hallazgos);
         NivelSalud nivel = NivelSalud.de(puntaje);
@@ -379,19 +385,137 @@ public final class MotorDiagnostico {
                         + dinero(exceso.max(BigDecimal.ZERO)) + ". Evita nuevos préstamos y amortiza primero los de mayor tasa.");
     }
 
+    // ------------------------------------------------------------------ producción agropecuaria
+
+    private Hallazgo natalidad(DatosAgro agro) {
+        TipoIndicador tipo = TipoIndicador.NATALIDAD;
+        List<IndicadoresEspecie> conDatos = agro.especies().stream().filter(e -> e.natalidad() != null).toList();
+        if (conDatos.isEmpty()) {
+            return Hallazgo.sinDatos(tipo, "No hay hembras reproductoras registradas para calcularla.");
+        }
+        Semaforo peor = Semaforo.VERDE;
+        IndicadoresEspecie critica = conDatos.get(0);
+        List<String> valores = new ArrayList<>();
+        for (IndicadoresEspecie e : conDatos) {
+            Semaforo s = mayorEsMejor(e.natalidad(), e.especie().natalidadVerde(), e.especie().natalidadAmarillo());
+            valores.add(e.especie().descripcion() + " " + pct(e.natalidad()));
+            if (s.puntaje() < peor.puntaje()) {
+                peor = s;
+                critica = e;
+            }
+        }
+        String criterio = conDatos.stream().map(e -> e.especie().descripcion() + ": bien desde "
+                + pct(e.especie().natalidadVerde())).reduce((a, b) -> a + "; " + b).orElse("") + ".";
+        String lectura = conDatos.stream().map(e -> e.nacimientos() + " crías de " + e.hembrasInicio() + " "
+                + e.especie().hembras()).reduce((a, b) -> a + "; " + b).orElse("") + ".";
+        return new Hallazgo(tipo, peor, String.join(" · ", valores), criterio, lectura, peor == Semaforo.VERDE ? null
+                : "En " + critica.especie().descripcion().toLowerCase() + ", revisa la condición corporal de las "
+                + critica.especie().hembras() + ", la época de empadre y la proporción de machos; pide una evaluación "
+                + "veterinaria de las que no parieron.");
+    }
+
+    private Hallazgo mortalidadCrias(DatosAgro agro) {
+        TipoIndicador tipo = TipoIndicador.MORTALIDAD_CRIAS;
+        List<IndicadoresEspecie> conDatos = agro.especies().stream().filter(e -> e.mortalidadCrias() != null).toList();
+        if (conDatos.isEmpty()) {
+            return Hallazgo.sinDatos(tipo, "No hubo nacimientos en los últimos 12 meses.");
+        }
+        Semaforo peor = Semaforo.VERDE;
+        IndicadoresEspecie critica = conDatos.get(0);
+        List<String> valores = new ArrayList<>();
+        for (IndicadoresEspecie e : conDatos) {
+            Semaforo s = menorEsMejor(e.mortalidadCrias(), e.especie().mortalidadCriasVerde(), e.especie().mortalidadCriasAmarillo());
+            valores.add(e.especie().descripcion() + " " + pct(e.mortalidadCrias()));
+            if (s.puntaje() < peor.puntaje()) {
+                peor = s;
+                critica = e;
+            }
+        }
+        String criterio = conDatos.stream().map(e -> e.especie().descripcion() + ": bien hasta "
+                + pct(e.especie().mortalidadCriasVerde())).reduce((a, b) -> a + "; " + b).orElse("") + ".";
+        String lectura = conDatos.stream().map(e -> e.muertesCrias() + " de " + e.nacimientos() + " crías de "
+                + e.especie().descripcion().toLowerCase()).reduce((a, b) -> a + "; " + b).orElse("") + " murieron.";
+        return new Hallazgo(tipo, peor, String.join(" · ", valores), criterio, lectura, peor == Semaforo.VERDE ? null
+                : "En " + critica.especie().descripcion().toLowerCase() + ", protege a las crías del frío y la lluvia "
+                + "(cobertizos), asegura que tomen calostro en las primeras horas y dosifica contra parásitos.");
+    }
+
+    private Hallazgo rendimientoCultivos(DatosAgro agro) {
+        TipoIndicador tipo = TipoIndicador.RENDIMIENTO_CULTIVOS;
+        List<ResultadoCampania> conReferencia = agro.campanias().stream()
+                .filter(r -> r.campania().rendimientoReferencia() != null).toList();
+        if (conReferencia.isEmpty()) {
+            return Hallazgo.sinDatos(tipo, "No hay campañas cerradas con rendimiento de referencia en los últimos 12 meses.");
+        }
+        BigDecimal ponderado = BigDecimal.ZERO;
+        BigDecimal area = BigDecimal.ZERO;
+        ResultadoCampania peor = conReferencia.get(0);
+        for (ResultadoCampania r : conReferencia) {
+            BigDecimal avance = r.avanceReferencia() == null ? BigDecimal.ZERO : r.avanceReferencia();
+            ponderado = ponderado.add(avance.multiply(r.campania().area()));
+            area = area.add(r.campania().area());
+            BigDecimal avancePeor = peor.avanceReferencia() == null ? BigDecimal.ZERO : peor.avanceReferencia();
+            if (avance.compareTo(avancePeor) < 0) {
+                peor = r;
+            }
+        }
+        BigDecimal promedio = ponderado.divide(area, 6, RoundingMode.HALF_UP);
+        Semaforo semaforo = mayorEsMejor(promedio, ResultadoCampania.RENDIMIENTO_VERDE, ResultadoCampania.RENDIMIENTO_AMARILLO);
+        String criterio = "Bien si alcanza la referencia; bajo por debajo del 70 % de ella.";
+        String lectura = conReferencia.size() + (conReferencia.size() == 1 ? " campaña cerrada" : " campañas cerradas")
+                + " en los últimos 12 meses; en promedio rindieron el " + pct(promedio) + " de su referencia.";
+        String nombrePeor = peor.campania().cultivo().descripcion() + " (" + peor.campania().parcelaNombre() + ")";
+        return new Hallazgo(tipo, semaforo, pct(promedio) + " de la referencia", criterio, lectura,
+                semaforo == Semaforo.VERDE ? null
+                        : "El rendimiento más bajo fue el de " + nombrePeor
+                        + (peor.campania().motivo() == null ? "" : ", perdido por " + peor.campania().motivo().toLowerCase())
+                        + ". Revisa la semilla, el abonamiento y el control de plagas, y compara costos y rendimientos "
+                        + "en Agricultura → Comparación.");
+    }
+
+    private Hallazgo compromisos(DatosAgro agro) {
+        TipoIndicador tipo = TipoIndicador.COMPROMISOS_INSPECCION;
+        int evaluables = agro.compromisosCumplidos() + agro.compromisosFallidos();
+        if (evaluables == 0) {
+            return Hallazgo.sinDatos(tipo, "No hay compromisos de inspección cuyo plazo ya se haya cumplido.");
+        }
+        BigDecimal cumplimiento = BigDecimal.valueOf(agro.compromisosCumplidos())
+                .divide(BigDecimal.valueOf(evaluables), 6, RoundingMode.HALF_UP);
+        Semaforo semaforo = mayorEsMejor(cumplimiento, new BigDecimal("0.80"), new BigDecimal("0.50"));
+        return new Hallazgo(tipo, semaforo, pct(cumplimiento), "Bien desde 80 %; riesgo por debajo de 50 %.",
+                agro.compromisosCumplidos() + " de " + evaluables + " compromisos cumplidos.",
+                semaforo == Semaforo.VERDE ? null
+                        : "Atiende los " + agro.compromisosFallidos() + " compromisos no cumplidos o vencidos antes de la "
+                        + "próxima visita (Visitas de inspección → Compromisos).");
+    }
+
+    private static Semaforo mayorEsMejor(BigDecimal valor, BigDecimal verde, BigDecimal amarillo) {
+        if (valor.compareTo(verde) >= 0) {
+            return Semaforo.VERDE;
+        }
+        return valor.compareTo(amarillo) >= 0 ? Semaforo.AMARILLO : Semaforo.ROJO;
+    }
+
+    private static Semaforo menorEsMejor(BigDecimal valor, BigDecimal verde, BigDecimal amarillo) {
+        if (valor.compareTo(verde) <= 0) {
+            return Semaforo.VERDE;
+        }
+        return valor.compareTo(amarillo) <= 0 ? Semaforo.AMARILLO : Semaforo.ROJO;
+    }
+
     // ------------------------------------------------------------------ crecimiento
 
     private Hallazgo variacionVentas() {
         TipoIndicador tipo = TipoIndicador.VARIACION_VENTAS;
         BigDecimal anterior = datos.operacionesAnteriores().ventasNetas();
         if (anterior.signum() <= 0) {
-            return Hallazgo.sinDatos(tipo, "No hay ventas en " + datos.periodo().anterior().descripcion() + " para comparar.");
+            return Hallazgo.sinDatos(tipo, "No hay ventas en " + datos.periodoComparado().descripcion() + " para comparar.");
         }
         BigDecimal cambio = estado.ventasNetas().subtract(anterior).divide(anterior, 6, RoundingMode.HALF_UP);
         String valor = signo(cambio) + pct(cambio);
         String criterio = "Bien si no caen más de 2 %; riesgo si caen más de 10 %.";
         String lectura = "Las ventas " + (cambio.signum() >= 0 ? "subieron " : "bajaron ") + pct(cambio.abs())
-                + " frente a " + datos.periodo().anterior().descripcion() + ".";
+                + " frente a " + datos.periodoComparado().descripcion() + ".";
         if (cambio.compareTo(new BigDecimal("-0.02")) >= 0) {
             return new Hallazgo(tipo, Semaforo.VERDE, valor, criterio, lectura, null);
         }

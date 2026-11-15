@@ -30,6 +30,7 @@ import java.util.Map;
  * Un inventario inicial registrado dentro del período cuenta como existencia inicial, no como compra.
  *
  * @param hembrasPorMacho hembras reproductoras por cada macho reproductor al final; {@code null} sin machos
+ * @param historiaCompleta  ya había animales registrados antes de empezar el período (sus cifras son comparables)
  */
 public record IndicadoresEspecie(Especie especie, Periodo periodo,
                                  int existenciaInicial, int existenciaFinal, int hembrasInicio, int hembrasFinal,
@@ -37,7 +38,7 @@ public record IndicadoresEspecie(Especie especie, Periodo periodo,
                                  int muertesCrias, int perdidas, int consumo, BigDecimal ingresoVentas,
                                  BigDecimal natalidad, BigDecimal mortalidad, BigDecimal mortalidadCrias,
                                  BigDecimal extraccion, BigDecimal crecimiento, BigDecimal hembrasPorMacho,
-                                 List<ResumenProduccion> produccion) {
+                                 List<ResumenProduccion> produccion, boolean historiaCompleta) {
 
     private static final int ESCALA = 6;
 
@@ -108,7 +109,7 @@ public record IndicadoresEspecie(Especie especie, Periodo periodo,
                 dividir(ventas + consumo, inicial),
                 inicial == 0 ? null : dividir(finalHato - inicial, inicial),
                 dividir(hembrasFinal, machosFinal),
-                produccion);
+                produccion, !Hato.existencias(antes, periodo.desde().minusDays(1)).isEmpty());
     }
 
     private static ResumenProduccion resumir(ProductoGanadero producto, List<ProduccionGanadera> registros) {

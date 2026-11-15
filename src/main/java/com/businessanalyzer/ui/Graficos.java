@@ -346,6 +346,106 @@ public final class Graficos {
 
     // ------------------------------------------------------------------ impresión (Fase 12)
 
+    private static final Color[] PALETA = {AZUL, VERDE, AMBAR, new Color(0xa7, 0x8b, 0xfa), ROJO, new Color(0x2d, 0xd4, 0xbf)};
+
+    /** Una línea por serie (por ejemplo, animales de cada especie al cierre de cada mes). */
+    public static JFreeChart lineasMensuales(List<YearMonth> meses, java.util.Map<String, double[]> series, String formato) {
+        DefaultCategoryDataset datos = new DefaultCategoryDataset();
+        series.forEach((nombre, valores) -> {
+            for (int i = 0; i < meses.size(); i++) {
+                datos.addValue(valores[i], nombre, etiqueta(meses, i));
+            }
+        });
+        LineAndShapeRenderer lineas = new LineAndShapeRenderer(true, false);
+        for (int i = 0; i < series.size(); i++) {
+            lineas.setSeriesPaint(i, PALETA[i % PALETA.length]);
+            lineas.setSeriesStroke(i, LINEA_GRUESA);
+        }
+        CategoryAxis ejeMeses = new CategoryAxis();
+        ejeMeses.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryPlot plot = new CategoryPlot(datos, ejeMeses, ejeNumero(formato), lineas);
+        return aplicarTema(new JFreeChart(null, FUENTE, plot, series.size() > 1));
+    }
+
+    /**
+     * Barras agrupadas por mes; si se indica una tendencia, se dibuja su recta sobre la primera serie.
+     *
+     * @param inicioTendencia mes desde el que se calculó la tendencia (índice en {@code meses})
+     */
+    public static JFreeChart barrasMensuales(List<YearMonth> meses, java.util.Map<String, double[]> series, Color[] colores,
+                                             Tendencia tendencia, int inicioTendencia, String formato) {
+        DefaultCategoryDataset datos = new DefaultCategoryDataset();
+        series.forEach((nombre, valores) -> {
+            for (int i = 0; i < meses.size(); i++) {
+                datos.addValue(valores[i], nombre, etiqueta(meses, i));
+            }
+        });
+        BarRenderer barras = new BarRenderer();
+        barras.setBarPainter(new StandardBarPainter());
+        barras.setShadowVisible(false);
+        barras.setItemMargin(0.02);
+        barras.setMaximumBarWidth(0.06);
+        for (int i = 0; i < series.size(); i++) {
+            barras.setSeriesPaint(i, colores[i % colores.length]);
+        }
+        CategoryAxis ejeMeses = new CategoryAxis();
+        ejeMeses.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryPlot plot = new CategoryPlot(datos, ejeMeses, ejeNumero(formato), barras);
+        if (tendencia != null && !Double.isNaN(tendencia.pendiente())) {
+            DefaultCategoryDataset recta = new DefaultCategoryDataset();
+            for (int i = inicioTendencia; i < meses.size(); i++) {
+                recta.addValue(tendencia.valorAjustado(i - inicioTendencia), "Tendencia", etiqueta(meses, i));
+            }
+            LineAndShapeRenderer linea = new LineAndShapeRenderer(true, false);
+            linea.setSeriesPaint(0, AMBAR);
+            linea.setSeriesStroke(0, LINEA_GRUESA);
+            plot.setDataset(1, recta);
+            plot.setRenderer(1, linea);
+            plot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+        }
+        return aplicarTema(new JFreeChart(null, FUENTE, plot, series.size() > 1 || tendencia != null));
+    }
+
+    /** Barras agrupadas por categoría (por ejemplo, rendimiento y referencia de cada campaña). */
+    public static JFreeChart barrasCategorias(List<String> categorias, java.util.Map<String, double[]> series, String formato) {
+        DefaultCategoryDataset datos = new DefaultCategoryDataset();
+        series.forEach((nombre, valores) -> {
+            for (int i = 0; i < categorias.size(); i++) {
+                datos.addValue(valores[i], nombre, abreviar(categorias.get(i), 18));
+            }
+        });
+        BarRenderer barras = new BarRenderer();
+        barras.setBarPainter(new StandardBarPainter());
+        barras.setShadowVisible(false);
+        barras.setItemMargin(0.05);
+        barras.setMaximumBarWidth(0.12);
+        Color[] colores = {AZUL, TEXTO, VERDE, AMBAR};
+        for (int i = 0; i < series.size(); i++) {
+            barras.setSeriesPaint(i, colores[i % colores.length]);
+        }
+        CategoryAxis eje = new CategoryAxis();
+        eje.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryPlot plot = new CategoryPlot(datos, eje, ejeNumero(formato), barras);
+        return aplicarTema(new JFreeChart(null, FUENTE, plot, series.size() > 1));
+    }
+
+    /** Con más de 12 meses, cada etiqueta lleva el año para que no se repitan («feb 25», «feb 26»). */
+    private static String etiqueta(List<YearMonth> meses, int i) {
+        YearMonth mes = meses.get(i);
+        if (meses.size() <= 12) {
+            return etiquetaMes(mes);
+        }
+        return mes.getMonth().getDisplayName(TextStyle.SHORT, ESPANOL).replace(".", "") + " "
+                + String.valueOf(mes.getYear()).substring(2);
+    }
+
+    private static NumberAxis ejeNumero(String formato) {
+        NumberAxis eje = new NumberAxis();
+        eje.setNumberFormatOverride(new DecimalFormat(formato, DecimalFormatSymbols.getInstance(Locale.US)));
+        eje.setAutoRangeIncludesZero(true);
+        return eje;
+    }
+
     /**
      * Imagen del gráfico con fondo blanco para incluirla en un informe PDF. Se dibuja al doble de
      * resolución para que se vea nítida al imprimir.

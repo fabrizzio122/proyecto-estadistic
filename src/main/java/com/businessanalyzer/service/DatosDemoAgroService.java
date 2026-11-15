@@ -12,7 +12,10 @@ import com.businessanalyzer.model.EstadoCompromiso;
 import com.businessanalyzer.model.ResultadoAspecto;
 import com.businessanalyzer.model.TipoVisita;
 import com.businessanalyzer.model.Visita;
+import com.businessanalyzer.model.CategoriaFinanciera;
 import com.businessanalyzer.model.CategoriaGanado;
+import com.businessanalyzer.model.DatosMovimiento;
+import com.businessanalyzer.model.TipoMovimiento;
 import com.businessanalyzer.model.Cultivo;
 import com.businessanalyzer.model.DatosCampania;
 import com.businessanalyzer.model.DatosParcela;
@@ -59,12 +62,15 @@ public class DatosDemoAgroService {
     private final GanaderiaService ganaderia;
     private final AgriculturaService agricultura;
     private final VisitaService visitas;
+    private final FinanzasService finanzas;
     private final PatrimonioService patrimonio;
     private final Sesion sesion;
     private final Clock reloj;
 
     public DatosDemoAgroService(EmpresaService empresas, GanaderiaService ganaderia, AgriculturaService agricultura,
-                                PatrimonioService patrimonio, Sesion sesion, Clock reloj, VisitaService visitas) {
+                                PatrimonioService patrimonio, Sesion sesion, Clock reloj, VisitaService visitas,
+                                FinanzasService finanzas) {
+        this.finanzas = finanzas;
         this.visitas = visitas;
         this.empresas = empresas;
         this.ganaderia = ganaderia;
@@ -158,6 +164,7 @@ public class DatosDemoAgroService {
         patrimonio.registrarDeuda(new DatosDeuda(CategoriaDeuda.PRESTAMO_BANCARIO, "Agrobanco",
                 "Crédito para compra de vaquillonas", inicio, bd("15000"), bd("15"), bd("720"), inicio.plusMonths(24)));
         registrarAgricultura(inicio);
+        registrarGastos(inicio, hoy);
         registrarVisitas(hoy);
         return empresa;
     }
@@ -208,6 +215,26 @@ public class DatosDemoAgroService {
             if (estado != null) {
                 visitas.verificarCompromiso(k.id(), estado, reciente.fecha(), reciente.id(), null);
             }
+        }
+    }
+
+    /** Gastos de cada mes del productor (pastor, sanidad animal, fletes, intereses del crédito...). */
+    private void registrarGastos(LocalDate inicio, LocalDate hoy) {
+        for (int i = 1; i <= 12; i++) {
+            gasto(CategoriaFinanciera.SUELDOS, mes(inicio, i, 28), hoy, "Pastor (medio tiempo)", 600);
+            gasto(CategoriaFinanciera.OTROS_GASTOS, mes(inicio, i, 8), hoy, "Vacunas, dosificaciones y medicinas",
+                    150 + (i % 4 == 1 ? 120 : 0));
+            gasto(CategoriaFinanciera.SERVICIOS_BASICOS, mes(inicio, i, 15), hoy, "Luz y agua", 60);
+            gasto(CategoriaFinanciera.TRANSPORTE, mes(inicio, i, 20), hoy, "Flete a la feria", 90 + (i % 3) * 20);
+            gasto(CategoriaFinanciera.MANTENIMIENTO, mes(inicio, i, 12), hoy, "Reparación de cercos y canales", 70);
+            gasto(CategoriaFinanciera.INTERESES_PRESTAMOS, mes(inicio, i, 10), hoy, "Interés del crédito Agrobanco", 180);
+        }
+    }
+
+    private void gasto(CategoriaFinanciera categoria, LocalDate fecha, LocalDate hoy, String descripcion, int monto) {
+        if (!fecha.isAfter(hoy)) {
+            finanzas.registrar(new DatosMovimiento(TipoMovimiento.GASTO, categoria, null, fecha, descripcion,
+                    BigDecimal.valueOf(monto), null));
         }
     }
 

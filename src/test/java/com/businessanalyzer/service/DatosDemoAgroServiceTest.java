@@ -30,7 +30,7 @@ class DatosDemoAgroServiceTest {
         EntornoPrueba entorno = new EntornoPrueba(carpeta);
         entorno.administradorConectado();
         DatosDemoAgroService demo = new DatosDemoAgroService(entorno.empresaService, entorno.ganaderia, entorno.agricultura,
-                entorno.patrimonio, entorno.sesion, entorno.reloj, entorno.visitas);
+                entorno.patrimonio, entorno.sesion, entorno.reloj, entorno.visitas, entorno.finanzas);
 
         Empresa fundo = demo.crearFundoDemo();
 
