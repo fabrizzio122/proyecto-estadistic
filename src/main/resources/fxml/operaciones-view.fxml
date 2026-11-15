@@ -35,6 +35,10 @@
                 onAction="#verDetalle">
             <graphic><FontIcon iconLiteral="fth-eye"/></graphic>
         </Button>
+        <Button fx:id="btnEditar" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
+                onAction="#editar">
+            <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
+        </Button>
         <Button fx:id="btnAnular" text="Anular" styleClass="button-secondary" minWidth="-Infinity"
                 onAction="#anular">
             <graphic><FontIcon iconLiteral="fth-x-circle"/></graphic>

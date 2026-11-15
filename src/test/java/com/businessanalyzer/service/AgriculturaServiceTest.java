@@ -133,6 +133,27 @@ class AgriculturaServiceTest {
     }
 
     @Test
+    void corregirCostosYCosechas() {
+        Campania papa = campania(Cultivo.PAPA, "1");
+        servicio.registrarCosto(papa.id(), SIEMBRA, RubroCosto.SEMILLA, "Semilla", new BigDecimal("1000"));
+        long costoId = servicio.listarCostos(papa.id()).get(0).id();
+        servicio.corregirCosto(costoId, SIEMBRA, RubroCosto.SEMILLA, "Semilla certificada", new BigDecimal("1200"));
+        assertEquals(0, new BigDecimal("1200").compareTo(servicio.resultado(papa.id()).costoTotal()));
+        assertInvalido(() -> servicio.corregirCosto(costoId, SIEMBRA, RubroCosto.SEMILLA, "Otra", BigDecimal.ONE));
+
+        servicio.registrarCosecha(papa.id(), HOY, new BigDecimal("100"), DestinoCosecha.VENTA, null, null);
+        servicio.cerrarCampania(papa.id(), EstadoCampania.COSECHADA, HOY, null);
+        long cosechaId = servicio.listarCosechas(papa.id()).get(0).id();
+        // Con la campaña cerrada se puede corregir el dato, aunque no agregar cosechas nuevas.
+        servicio.corregirCosecha(cosechaId, HOY, new BigDecimal("150"), DestinoCosecha.VENTA, new BigDecimal("1.2"), null);
+        assertEquals(0, new BigDecimal("150").compareTo(servicio.resultado(papa.id()).produccion()));
+        assertInvalido(() -> servicio.registrarCosecha(papa.id(), HOY, BigDecimal.TEN, DestinoCosecha.VENTA, null, null));
+        long nuevaId = servicio.listarCosechas(papa.id()).stream().filter(h -> !h.anulado()).findFirst().orElseThrow().id();
+        assertInvalido(() -> servicio.corregirCosecha(nuevaId, SIEMBRA.minusDays(1), BigDecimal.TEN,
+                DestinoCosecha.VENTA, null, null));
+    }
+
+    @Test
     void losCultivosEnCursoEntranAlBalance() {
         Campania papa = campania(Cultivo.PAPA, "1");
         servicio.registrarCosto(papa.id(), SIEMBRA, RubroCosto.SEMILLA, "Semilla", new BigDecimal("2500"));

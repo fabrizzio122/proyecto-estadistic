@@ -184,6 +184,17 @@ public class AgriculturaService {
 
     public ResultadoCampania registrarCosto(long campaniaId, LocalDate fecha, RubroCosto rubro, String descripcion,
                                             BigDecimal monto) {
+        return guardarCosto(campaniaId, null, fecha, rubro, descripcion, monto);
+    }
+
+    /** Corrige un costo: el original queda anulado y se registra el corregido, en una sola operación. */
+    public ResultadoCampania corregirCosto(long costoId, LocalDate fecha, RubroCosto rubro, String descripcion,
+                                           BigDecimal monto) {
+        return guardarCosto(null, costoId, fecha, rubro, descripcion, monto);
+    }
+
+    private ResultadoCampania guardarCosto(Long campaniaDestino, Long reemplaza, LocalDate fecha, RubroCosto rubro,
+                                           String descripcion, BigDecimal monto) {
         sesion.requerir(Permiso.AGRO_GESTIONAR);
         Empresa empresa = empresaAgropecuaria();
         LocalDate hoy = LocalDate.now(reloj);
@@ -196,6 +207,9 @@ public class AgriculturaService {
         String usuario = sesion.usuario().nombreUsuario();
         LocalDateTime ahora = LocalDateTime.now(reloj);
         return database.enTransaccion(c -> {
+            long campaniaId = reemplaza == null ? campaniaDestino : repositorio.anularRegistro(c, "costo_campania",
+                    reemplaza, empresa.id(), usuario, ahora)
+                    .orElseThrow(() -> new ValidacionException("El costo no existe o está anulado. Actualiza la lista."));
             Campania campania = exigirCampania(c, campaniaId, empresa.id());
             exigirNoAnulada(campania);
             if (dia.isBefore(campania.fechaSiembra().minusMonths(MESES_COSTOS_PREVIOS))) {
@@ -209,6 +223,20 @@ public class AgriculturaService {
 
     public ResultadoCampania registrarCosecha(long campaniaId, LocalDate fecha, BigDecimal kilos, DestinoCosecha destino,
                                               BigDecimal precio, String observacion) {
+        return guardarCosecha(campaniaId, null, fecha, kilos, destino, precio, observacion);
+    }
+
+    /**
+     * Corrige una cosecha: la original queda anulada y se registra la corregida. Se permite aunque la
+     * campaña ya esté cerrada como cosechada (corregir un dato no agrega una cosecha nueva).
+     */
+    public ResultadoCampania corregirCosecha(long cosechaId, LocalDate fecha, BigDecimal kilos, DestinoCosecha destino,
+                                             BigDecimal precio, String observacion) {
+        return guardarCosecha(null, cosechaId, fecha, kilos, destino, precio, observacion);
+    }
+
+    private ResultadoCampania guardarCosecha(Long campaniaDestino, Long reemplaza, LocalDate fecha, BigDecimal kilos,
+                                             DestinoCosecha destino, BigDecimal precio, String observacion) {
         sesion.requerir(Permiso.AGRO_GESTIONAR);
         Empresa empresa = empresaAgropecuaria();
         LocalDate dia = ValidadorAgricultura.fecha(fecha, "La fecha de cosecha", LocalDate.now(reloj));
@@ -222,9 +250,12 @@ public class AgriculturaService {
         String usuario = sesion.usuario().nombreUsuario();
         LocalDateTime ahora = LocalDateTime.now(reloj);
         return database.enTransaccion(c -> {
+            long campaniaId = reemplaza == null ? campaniaDestino : repositorio.anularRegistro(c, "cosecha",
+                    reemplaza, empresa.id(), usuario, ahora)
+                    .orElseThrow(() -> new ValidacionException("La cosecha no existe o está anulada. Actualiza la lista."));
             Campania campania = exigirCampania(c, campaniaId, empresa.id());
             exigirNoAnulada(campania);
-            if (campania.estado() == EstadoCampania.COSECHADA) {
+            if (reemplaza == null && campania.estado() == EstadoCampania.COSECHADA) {
                 throw new ValidacionException("La campaña ya está cerrada como cosechada. Reábrela para agregar cosechas.");
             }
             if (dia.isBefore(campania.fechaSiembra())) {

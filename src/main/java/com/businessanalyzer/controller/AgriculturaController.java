@@ -368,9 +368,14 @@ public class AgriculturaController implements VistaModulo {
     @FXML
     private void registrarCosto() {
         ResultadoCampania r = seleccionada();
-        if (r == null) {
-            return;
+        if (r != null && formularioCosto(r.campania().nombre(), r.campania().id(), null)) {
+            cargar();
+            Notificador.exito("Costo registrado.");
         }
+    }
+
+    /** Formulario de costo: registra uno nuevo en la campaña o, con {@code original}, lo corrige. */
+    private boolean formularioCosto(String campania, long campaniaId, CostoCampania original) {
         ComboBox<RubroCosto> rubro = new ComboBox<>(FXCollections.observableArrayList(RubroCosto.values()));
         rubro.setPromptText("Selecciona el rubro");
         rubro.setVisibleRowCount(11);
@@ -387,21 +392,35 @@ public class AgriculturaController implements VistaModulo {
         Formularios.fila(grilla, "Fecha *", fecha);
         Formularios.fila(grilla, "Descripción *", descripcion);
         Formularios.fila(grilla, "Monto (" + moneda.simbolo() + ") *", monto);
-        boolean ok = Dialogos.formulario(ventana(), "Registrar costo", r.campania().nombre(), grilla, "Registrar",
-                () -> servicio().registrarCosto(r.campania().id(), CamposFecha.leer(fecha, "el costo"), rubro.getValue(),
-                        descripcion.getText(), Montos.leer(monto.getText(), "Monto")));
-        if (ok) {
-            cargar();
-            Notificador.exito("Costo registrado.");
+        if (original != null) {
+            rubro.setValue(original.rubro());
+            fecha.setValue(original.fecha());
+            descripcion.setText(original.descripcion());
+            monto.setText(Montos.paraEditar(original.monto()));
         }
+        return Dialogos.formulario(ventana(), original == null ? "Registrar costo" : "Editar costo", campania, grilla,
+                original == null ? "Registrar" : "Guardar cambios", () -> {
+                    LocalDate dia = CamposFecha.leer(fecha, "el costo");
+                    BigDecimal importe = Montos.leer(monto.getText(), "Monto");
+                    if (original == null) {
+                        servicio().registrarCosto(campaniaId, dia, rubro.getValue(), descripcion.getText(), importe);
+                    } else {
+                        servicio().corregirCosto(original.id(), dia, rubro.getValue(), descripcion.getText(), importe);
+                    }
+                });
     }
 
     @FXML
     private void registrarCosecha() {
         ResultadoCampania r = seleccionada();
-        if (r == null) {
-            return;
+        if (r != null && formularioCosecha(r.campania().nombre(), r.campania().id(), null)) {
+            cargar();
+            Notificador.exito("Cosecha registrada.");
         }
+    }
+
+    /** Formulario de cosecha: registra una nueva en la campaña o, con {@code original}, la corrige. */
+    private boolean formularioCosecha(String campania, long campaniaId, Cosecha original) {
         DatePicker fecha = CamposFecha.nuevo(LocalDate.now());
         TextField kilos = new TextField();
         kilos.setPromptText("Kilos");
@@ -425,15 +444,27 @@ public class AgriculturaController implements VistaModulo {
         Formularios.fila(grilla, "Observación", observacion);
         Formularios.nota(grilla, "Registra por separado lo que vendes, lo que guardas para consumo o semilla y lo que "
                 + "das a los animales. Una arroba son 11.5 kg; un quintal, 46 kg.");
-        boolean ok = Dialogos.formulario(ventana(), "Registrar cosecha", r.campania().nombre(), grilla, "Registrar",
-                () -> servicio().registrarCosecha(r.campania().id(), CamposFecha.leer(fecha, "la cosecha"),
-                        Montos.leer(kilos.getText(), "Cantidad"), destino.getValue(),
-                        precio.getText() == null || precio.getText().isBlank() ? null : Montos.leer(precio.getText(), "Precio"),
-                        observacion.getText()));
-        if (ok) {
-            cargar();
-            Notificador.exito("Cosecha registrada.");
+        if (original != null) {
+            fecha.setValue(original.fecha());
+            kilos.setText(Montos.paraEditar(original.cantidad()));
+            destino.setValue(original.destino());
+            precio.setText(original.precio() == null ? "" : Montos.paraEditar(original.precio()));
+            observacion.setText(original.observacion() == null ? "" : original.observacion());
         }
+        return Dialogos.formulario(ventana(), original == null ? "Registrar cosecha" : "Editar cosecha", campania, grilla,
+                original == null ? "Registrar" : "Guardar cambios", () -> {
+                    LocalDate dia = CamposFecha.leer(fecha, "la cosecha");
+                    BigDecimal cantidad = Montos.leer(kilos.getText(), "Cantidad");
+                    BigDecimal precioKg = precio.getText() == null || precio.getText().isBlank() ? null
+                            : Montos.leer(precio.getText(), "Precio");
+                    if (original == null) {
+                        servicio().registrarCosecha(campaniaId, dia, cantidad, destino.getValue(), precioKg,
+                                observacion.getText());
+                    } else {
+                        servicio().corregirCosecha(original.id(), dia, cantidad, destino.getValue(), precioKg,
+                                observacion.getText());
+                    }
+                });
     }
 
     @FXML
@@ -497,7 +528,7 @@ public class AgriculturaController implements VistaModulo {
         }
     }
 
-    /** Costos y cosechas de la campaña, con la opción de anular los registrados por error. */
+    /** Costos y cosechas de la campaña, con la opción de corregirlos o anular los registrados por error. */
     @FXML
     private void verRegistros() {
         ResultadoCampania r = seleccionada();
@@ -542,7 +573,17 @@ public class AgriculturaController implements VistaModulo {
             anularCosto.disableProperty().bind(costos.getSelectionModel().selectedItemProperty().isNull());
             anularCosto.setOnAction(e -> anular(costos.getSelectionModel().getSelectedItem() == null ? null
                     : () -> servicio().anularCosto(costos.getSelectionModel().getSelectedItem().id()), recargar, cambios));
-            contenido.getChildren().add(anularCosto);
+            Button editarCosto = new Button("Editar costo seleccionado");
+            editarCosto.getStyleClass().add("button-secondary");
+            editarCosto.disableProperty().bind(costos.getSelectionModel().selectedItemProperty().isNull());
+            editarCosto.setOnAction(e -> {
+                CostoCampania k = costos.getSelectionModel().getSelectedItem();
+                if (k != null && !k.anulado() && formularioCosto(r.campania().nombre(), id, k)) {
+                    cambios[0] = true;
+                    recargar.run();
+                }
+            });
+            contenido.getChildren().add(new HBox(8, editarCosto, anularCosto));
         }
         contenido.getChildren().addAll(tituloCosechas, cosechas);
         if (gestiona) {
@@ -551,7 +592,17 @@ public class AgriculturaController implements VistaModulo {
             anularCosecha.disableProperty().bind(cosechas.getSelectionModel().selectedItemProperty().isNull());
             anularCosecha.setOnAction(e -> anular(cosechas.getSelectionModel().getSelectedItem() == null ? null
                     : () -> servicio().anularCosecha(cosechas.getSelectionModel().getSelectedItem().id()), recargar, cambios));
-            contenido.getChildren().add(anularCosecha);
+            Button editarCosecha = new Button("Editar cosecha seleccionada");
+            editarCosecha.getStyleClass().add("button-secondary");
+            editarCosecha.disableProperty().bind(cosechas.getSelectionModel().selectedItemProperty().isNull());
+            editarCosecha.setOnAction(e -> {
+                Cosecha h = cosechas.getSelectionModel().getSelectedItem();
+                if (h != null && !h.anulado() && formularioCosecha(r.campania().nombre(), id, h)) {
+                    cambios[0] = true;
+                    recargar.run();
+                }
+            });
+            contenido.getChildren().add(new HBox(8, editarCosecha, anularCosecha));
         }
         try {
             recargar.run();

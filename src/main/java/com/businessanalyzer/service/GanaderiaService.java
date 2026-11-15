@@ -163,6 +163,44 @@ public class GanaderiaService {
         });
     }
 
+    /**
+     * Corrige un movimiento: el original queda anulado (con nota) y se registra el corregido en la misma
+     * transacción. Se rechaza si el resultado deja alguna categoría con existencias negativas.
+     */
+    public MovimientoGanado corregirMovimiento(long id, DatosMovimientoGanado datos) {
+        sesion.requerir(Permiso.AGRO_GESTIONAR);
+        Empresa empresa = empresaAgropecuaria();
+        DatosMovimientoGanado d = ValidadorGanaderia.movimiento(datos, LocalDate.now(reloj));
+        String usuario = sesion.usuario().nombreUsuario();
+        LocalDateTime ahora = LocalDateTime.now(reloj);
+        return database.enTransaccion(c -> {
+            MovimientoGanado actual = repositorio.buscarMovimiento(c, id)
+                    .filter(m -> m.empresaId() == empresa.id() && !m.anulado())
+                    .orElseThrow(() -> new ValidacionException("El movimiento no existe o está anulado. Actualiza la lista."));
+            repositorio.anularMovimiento(c, actual.id(), "Corregido por el usuario", usuario, ahora);
+            long nuevo = repositorio.insertarMovimiento(c, empresa.id(), d, usuario, ahora);
+            exigirExistencias(c, empresa.id());
+            return repositorio.buscarMovimiento(c, nuevo).orElseThrow();
+        });
+    }
+
+    /** Corrige un registro de producción (el original queda anulado). */
+    public ProduccionGanadera corregirProduccion(long id, DatosProduccion datos) {
+        sesion.requerir(Permiso.AGRO_GESTIONAR);
+        Empresa empresa = empresaAgropecuaria();
+        DatosProduccion d = ValidadorGanaderia.produccion(datos, LocalDate.now(reloj));
+        String usuario = sesion.usuario().nombreUsuario();
+        LocalDateTime ahora = LocalDateTime.now(reloj);
+        return database.enTransaccion(c -> {
+            ProduccionGanadera actual = repositorio.buscarProduccion(c, id)
+                    .filter(p -> p.empresaId() == empresa.id() && !p.anulado())
+                    .orElseThrow(() -> new ValidacionException("El registro no existe o está anulado. Actualiza la lista."));
+            repositorio.anularProduccion(c, actual.id(), usuario, ahora);
+            long nuevo = repositorio.insertarProduccion(c, empresa.id(), d, usuario, ahora);
+            return repositorio.buscarProduccion(c, nuevo).orElseThrow();
+        });
+    }
+
     public ProduccionGanadera registrarProduccion(DatosProduccion datos) {
         sesion.requerir(Permiso.AGRO_GESTIONAR);
         Empresa empresa = empresaAgropecuaria();

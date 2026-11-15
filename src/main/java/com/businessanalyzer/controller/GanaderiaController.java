@@ -111,6 +111,7 @@ public class GanaderiaController implements VistaModulo {
     @FXML private ComboBox<String> cmbEspecie;
     @FXML private CheckBox chkAnulados;
     @FXML private Button btnAnularMovimiento;
+    @FXML private Button btnEditarMovimiento;
     @FXML private TableView<MovimientoGanado> tablaMovimientos;
     @FXML private TableColumn<MovimientoGanado, LocalDate> colMovFecha;
     @FXML private TableColumn<MovimientoGanado, String> colMovTipo;
@@ -121,6 +122,7 @@ public class GanaderiaController implements VistaModulo {
 
     @FXML private Label lblProduccion;
     @FXML private Button btnAnularProduccion;
+    @FXML private Button btnEditarProduccion;
     @FXML private Button btnNuevaProduccion;
     @FXML private TableView<ProduccionGanadera> tablaProduccion;
     @FXML private TableColumn<ProduccionGanadera, LocalDate> colProdFecha;
@@ -184,7 +186,7 @@ public class GanaderiaController implements VistaModulo {
 
         boolean gestiona = contexto.sesion().tienePermiso(Permiso.AGRO_GESTIONAR);
         for (Node nodo : List.of(btnNuevoMovimiento, btnInventarioInicial, btnPrecios, btnAnularMovimiento,
-                btnAnularProduccion, btnNuevaProduccion)) {
+                btnEditarMovimiento, btnAnularProduccion, btnEditarProduccion, btnNuevaProduccion)) {
             nodo.setVisible(gestiona);
             nodo.setManaged(gestiona);
         }
@@ -537,6 +539,42 @@ public class GanaderiaController implements VistaModulo {
     }
 
     @FXML
+    private void editarMovimiento() {
+        MovimientoGanado m = tablaMovimientos.getSelectionModel().getSelectedItem();
+        if (m == null || m.anulado()) {
+            return;
+        }
+        FormularioMovimiento formulario = new FormularioMovimiento(m.tipo());
+        formulario.cargarDesde(m);
+        boolean ok = Dialogos.formulario(ventana(), "Editar movimiento",
+                "El registro original queda anulado como historial y se guarda el corregido. "
+                        + "Las existencias se recalculan solas.",
+                formulario.contenido(), "Guardar cambios", 540,
+                () -> servicio().corregirMovimiento(m.id(), formulario.datos()));
+        if (ok) {
+            cargar();
+            Notificador.exito("Movimiento corregido.");
+        }
+    }
+
+    @FXML
+    private void editarProduccion() {
+        ProduccionGanadera p = tablaProduccion.getSelectionModel().getSelectedItem();
+        if (p == null || p.anulado()) {
+            return;
+        }
+        FormularioProduccion formulario = new FormularioProduccion();
+        formulario.cargarDesde(p);
+        boolean ok = Dialogos.formulario(ventana(), "Editar producción", null, formulario.contenido(),
+                "Guardar cambios", 520, () -> servicio().corregirProduccion(p.id(), formulario.datos()));
+        if (ok) {
+            cargar();
+            pestanas.getSelectionModel().select(2);
+            Notificador.exito("Producción corregida.");
+        }
+    }
+
+    @FXML
     private void nuevaProduccion() {
         FormularioProduccion formulario = new FormularioProduccion();
         boolean ok = Dialogos.formulario(ventana(), "Registrar producción", null, formulario.contenido(),
@@ -721,8 +759,10 @@ public class GanaderiaController implements VistaModulo {
     private void actualizarAcciones() {
         MovimientoGanado m = tablaMovimientos.getSelectionModel().getSelectedItem();
         btnAnularMovimiento.setDisable(m == null || m.anulado());
+        btnEditarMovimiento.setDisable(m == null || m.anulado());
         ProduccionGanadera p = tablaProduccion.getSelectionModel().getSelectedItem();
         btnAnularProduccion.setDisable(p == null || p.anulado());
+        btnEditarProduccion.setDisable(p == null || p.anulado());
     }
 
     private static <T> TableCell<T, LocalDate> celdaFecha() {
@@ -843,6 +883,17 @@ public class GanaderiaController implements VistaModulo {
                     : CategoriaGanado.de(origen.especie()).stream().filter(c -> c != origen).toList());
         }
 
+        void cargarDesde(MovimientoGanado m) {
+            dpFecha.setValue(m.fecha());
+            cmbEspecie.setValue(m.categoria().especie());
+            cmbCategoria.setValue(m.categoria());
+            cmbDestino.setValue(m.categoriaDestino());
+            txtCantidad.setText(String.valueOf(m.cantidad()));
+            txtMonto.setText(m.monto() == null ? "" : Montos.paraEditar(m.monto()));
+            txtCausa.setText(m.causa() == null ? "" : m.causa());
+            txtObservacion.setText(m.observacion() == null ? "" : m.observacion());
+        }
+
         GridPane contenido() {
             GridPane grilla = Formularios.grilla();
             Formularios.fila(grilla, "Movimiento *", cmbTipo);
@@ -903,6 +954,17 @@ public class GanaderiaController implements VistaModulo {
             });
             hatoActual.stream().max(java.util.Comparator.comparingInt(ExistenciaValorizada::cabezas))
                     .ifPresent(e -> cmbEspecie.setValue(e.categoria().especie()));
+        }
+
+        void cargarDesde(ProduccionGanadera p) {
+            cmbEspecie.setValue(p.especie());
+            cmbProducto.setValue(p.producto());
+            dpFecha.setValue(p.fecha());
+            txtDias.setText(String.valueOf(p.dias()));
+            txtCantidad.setText(Montos.paraEditar(p.cantidad()));
+            txtAnimales.setText(p.animales() == null ? "" : String.valueOf(p.animales()));
+            txtPrecio.setText(p.precioUnitario() == null ? "" : Montos.paraEditar(p.precioUnitario()));
+            txtObservacion.setText(p.observacion() == null ? "" : p.observacion());
         }
 
         GridPane contenido() {

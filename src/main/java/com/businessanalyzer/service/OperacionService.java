@@ -128,56 +128,98 @@ public class OperacionService {
         DatosOperacion d = ValidadorOperacion.normalizar(datos, LocalDate.now(reloj));
         String usuario = sesion.usuario().nombreUsuario();
         LocalDateTime ahora = LocalDateTime.now(reloj);
-        boolean esVenta = d.tipo() == TipoOperacion.VENTA;
 
-        Operacion registrada = database.enTransaccion(c -> {
-            List<Producto> items = new ArrayList<>();
-            List<CalculadoraOperacion.Linea> lineasCalculo = new ArrayList<>();
-            List<String> faltantes = new ArrayList<>();
-
-            for (DatosLinea linea : d.lineas()) {
-                Producto producto = productos.buscarPorId(c, linea.productoId())
-                        .filter(p -> p.empresaId() == empresa.id())
-                        .orElseThrow(() -> new ValidacionException(
-                                "Uno de los productos ya no existe en la empresa activa. Vuelve a elegirlo."));
-                if (!producto.activo()) {
-                    throw new ValidacionException("\"" + producto.nombre() + "\" está archivado. Reactívalo para usarlo.");
-                }
-                BigDecimal costo = esVenta ? producto.costoUnitario() : linea.precioUnitario();
-                if (esVenta && producto.tipo() == TipoItem.PRODUCTO
-                        && producto.stock().compareTo(linea.cantidad()) < 0) {
-                    faltantes.add(producto.nombre() + " (disponible " + Montos.cantidad(producto.stock())
-                            + ", se venden " + Montos.cantidad(linea.cantidad()) + ")");
-                }
-                items.add(producto);
-                lineasCalculo.add(new CalculadoraOperacion.Linea(linea.cantidad(), linea.precioUnitario(), costo));
-            }
-            if (!faltantes.isEmpty() && !permitirStockNegativo) {
-                throw new StockInsuficienteException(faltantes);
-            }
-
-            CalculadoraOperacion.Totales totales = CalculadoraOperacion.calcular(lineasCalculo, d.tasaImpuesto());
-            String numero = operaciones.siguienteNumero(c, empresa.id(), d.tipo());
-            long id = operaciones.insertar(c, empresa.id(), new NuevaOperacion(d.tipo(), numero, d.fecha(),
-                    d.contraparte(), d.documentoContraparte(), d.comprobante(), d.tasaImpuesto(), totales,
-                    d.observaciones(), usuario, ahora));
-
-            for (int i = 0; i < items.size(); i++) {
-                CalculadoraOperacion.Linea linea = lineasCalculo.get(i);
-                operaciones.insertarLinea(c, id, items.get(i).id(), linea.cantidad(), linea.precioUnitario(),
-                        linea.costoUnitario(), CalculadoraOperacion.subtotalLinea(linea.cantidad(), linea.precioUnitario()));
-            }
-
-            if (!esVenta && d.actualizarCostos()) {
-                actualizarCostosDelCatalogo(c, items, d.lineas(), ahora, usuario);
-            }
-            return operaciones.buscarPorId(c, id).orElseThrow();
-        });
+        Operacion registrada = database.enTransaccion(
+                c -> registrarEn(c, empresa, d, permitirStockNegativo, usuario, ahora));
 
         recordarTasa(empresa, d.tasaImpuesto());
         log.info("{} {} registrada por {} ({} líneas)", d.tipo().descripcion(), registrada.numero(), usuario,
                 registrada.cantidadItems());
         return registrada;
+    }
+
+    /**
+     * Corrige una venta o compra: en una sola transacción anula la original (queda como historial, con
+     * el número que la reemplaza) y registra los datos nuevos con un número nuevo. Como el stock se
+     * calcula de las operaciones registradas, al corregir una venta sus cantidades vuelven a estar
+     * disponibles antes de revisar el stock.
+     */
+    public Operacion corregir(long id, DatosOperacion datos, boolean permitirStockNegativo) {
+        sesion.requerir(Permiso.OPERACIONES_GESTIONAR);
+        Empresa empresa = empresas.empresaDeTrabajo();
+        DatosOperacion d = ValidadorOperacion.normalizar(datos, LocalDate.now(reloj));
+        String usuario = sesion.usuario().nombreUsuario();
+        LocalDateTime ahora = LocalDateTime.now(reloj);
+
+        Operacion nueva = database.enTransaccion(c -> {
+            Operacion original = exigirOperacion(c, id, empresa.id());
+            if (original.anulada()) {
+                throw new ValidacionException("La operación " + original.numero() + " está anulada y no se puede corregir.");
+            }
+            if (original.tipo() != d.tipo()) {
+                throw new ValidacionException("Una " + original.tipo().descripcion().toLowerCase()
+                        + " no puede convertirse en " + d.tipo().descripcion().toLowerCase() + ".");
+            }
+            String numeroNuevo = operaciones.siguienteNumero(c, empresa.id(), d.tipo());
+            operaciones.anular(c, id, "Corregida: reemplazada por " + numeroNuevo, usuario, ahora);
+            String nota = "Corrige " + original.numero();
+            String observaciones = d.observaciones() == null || d.observaciones().isBlank() ? nota
+                    : d.observaciones().startsWith("Corrige ") ? d.observaciones() : nota + ". " + d.observaciones();
+            DatosOperacion conNota = new DatosOperacion(d.tipo(), d.fecha(), d.contraparte(), d.documentoContraparte(),
+                    d.comprobante(), d.tasaImpuesto(), observaciones.length() > 500 ? observaciones.substring(0, 500)
+                    : observaciones, d.lineas(), d.actualizarCostos());
+            return registrarEn(c, empresa, conNota, permitirStockNegativo, usuario, ahora);
+        });
+
+        recordarTasa(empresa, d.tasaImpuesto());
+        log.info("Operación {} corregida por {}", nueva.numero(), usuario);
+        return nueva;
+    }
+
+    private Operacion registrarEn(Connection c, Empresa empresa, DatosOperacion d, boolean permitirStockNegativo,
+                                  String usuario, LocalDateTime ahora) throws SQLException {
+        boolean esVenta = d.tipo() == TipoOperacion.VENTA;
+        List<Producto> items = new ArrayList<>();
+        List<CalculadoraOperacion.Linea> lineasCalculo = new ArrayList<>();
+        List<String> faltantes = new ArrayList<>();
+
+        for (DatosLinea linea : d.lineas()) {
+            Producto producto = productos.buscarPorId(c, linea.productoId())
+                    .filter(p -> p.empresaId() == empresa.id())
+                    .orElseThrow(() -> new ValidacionException(
+                            "Uno de los productos ya no existe en la empresa activa. Vuelve a elegirlo."));
+            if (!producto.activo()) {
+                throw new ValidacionException("\"" + producto.nombre() + "\" está archivado. Reactívalo para usarlo.");
+            }
+            BigDecimal costo = esVenta ? producto.costoUnitario() : linea.precioUnitario();
+            if (esVenta && producto.tipo() == TipoItem.PRODUCTO
+                    && producto.stock().compareTo(linea.cantidad()) < 0) {
+                faltantes.add(producto.nombre() + " (disponible " + Montos.cantidad(producto.stock())
+                        + ", se venden " + Montos.cantidad(linea.cantidad()) + ")");
+            }
+            items.add(producto);
+            lineasCalculo.add(new CalculadoraOperacion.Linea(linea.cantidad(), linea.precioUnitario(), costo));
+        }
+        if (!faltantes.isEmpty() && !permitirStockNegativo) {
+            throw new StockInsuficienteException(faltantes);
+        }
+
+        CalculadoraOperacion.Totales totales = CalculadoraOperacion.calcular(lineasCalculo, d.tasaImpuesto());
+        String numero = operaciones.siguienteNumero(c, empresa.id(), d.tipo());
+        long id = operaciones.insertar(c, empresa.id(), new NuevaOperacion(d.tipo(), numero, d.fecha(),
+                d.contraparte(), d.documentoContraparte(), d.comprobante(), d.tasaImpuesto(), totales,
+                d.observaciones(), usuario, ahora));
+
+        for (int i = 0; i < items.size(); i++) {
+            CalculadoraOperacion.Linea linea = lineasCalculo.get(i);
+            operaciones.insertarLinea(c, id, items.get(i).id(), linea.cantidad(), linea.precioUnitario(),
+                    linea.costoUnitario(), CalculadoraOperacion.subtotalLinea(linea.cantidad(), linea.precioUnitario()));
+        }
+
+        if (!esVenta && d.actualizarCostos()) {
+            actualizarCostosDelCatalogo(c, items, d.lineas(), ahora, usuario);
+        }
+        return operaciones.buscarPorId(c, id).orElseThrow();
     }
 
     public Operacion anular(long id, String motivo) {
