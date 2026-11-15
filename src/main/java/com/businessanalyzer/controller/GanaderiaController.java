@@ -133,6 +133,14 @@ public class GanaderiaController implements VistaModulo {
 
     @FXML private VBox contenedorIndicadores;
 
+    @FXML private ComboBox<Integer> cmbMesesEvolucion;
+    @FXML private ComboBox<ProductoGanadero> cmbProductoEvolucion;
+    @FXML private javafx.scene.layout.StackPane graficoExistencias;
+    @FXML private javafx.scene.layout.StackPane graficoNacimientos;
+    @FXML private javafx.scene.layout.StackPane graficoProduccion;
+    @FXML private VBox lecturaEvolucion;
+    private com.businessanalyzer.analytics.ganaderia.EvolucionHato evolucion;
+
     public GanaderiaController(AppContext contexto) {
         this.contexto = contexto;
     }
@@ -158,6 +166,21 @@ public class GanaderiaController implements VistaModulo {
         configurarTablaHato();
         configurarTablaMovimientos();
         configurarTablaProduccion();
+        cmbMesesEvolucion.getItems().setAll(12, 24, 36);
+        cmbMesesEvolucion.setValue(24);
+        cmbMesesEvolucion.setConverter(new javafx.util.StringConverter<>() {
+            @Override
+            public String toString(Integer meses) {
+                return meses == null ? "" : meses + " meses";
+            }
+
+            @Override
+            public Integer fromString(String texto) {
+                return null;
+            }
+        });
+        cmbMesesEvolucion.valueProperty().addListener((o, a, n) -> mostrarEvolucion());
+        cmbProductoEvolucion.valueProperty().addListener((o, a, n) -> dibujarProduccion());
 
         boolean gestiona = contexto.sesion().tienePermiso(Permiso.AGRO_GESTIONAR);
         for (Node nodo : List.of(btnNuevoMovimiento, btnInventarioInicial, btnPrecios, btnAnularMovimiento,
@@ -221,7 +244,9 @@ public class GanaderiaController implements VistaModulo {
                     servicio.indicadores(new Periodo(dpDesde.getValue(), dpHasta.getValue()));
             mostrarHato();
             mostrarResumen(indicadoresPeriodo);
-            mostrarIndicadores(indicadoresPeriodo);
+            Periodo actual = new Periodo(dpDesde.getValue(), dpHasta.getValue());
+            mostrarIndicadores(indicadoresPeriodo, servicio.indicadores(actual.anterior()), actual.anterior());
+            mostrarEvolucion();
             lblProduccion.setText(produccion.isEmpty() ? "Sin registros de producción en el período."
                     : produccion.size() + (produccion.size() == 1 ? " registro" : " registros") + " en el período.");
         } catch (RuntimeException e) {
@@ -306,7 +331,7 @@ public class GanaderiaController implements VistaModulo {
                 muertes + (muertes == 1 ? " animal muerto" : " animales muertos"));
     }
 
-    private void mostrarIndicadores(List<IndicadoresEspecie> lista) {
+    private void mostrarIndicadores(List<IndicadoresEspecie> lista, List<IndicadoresEspecie> anteriores, Periodo anterior) {
         contenedorIndicadores.getChildren().clear();
         if (lista.isEmpty()) {
             Label vacio = new Label("Sin datos en el período. Registra el inventario inicial y los movimientos del hato.");
@@ -315,16 +340,93 @@ public class GanaderiaController implements VistaModulo {
             return;
         }
         Label periodo = new Label("Período: " + new Periodo(dpDesde.getValue(), dpHasta.getValue()).descripcion()
-                + ". Los criterios son referencias para la ganadería familiar y mediana del Perú.");
+                + ", comparado con " + anterior.descripcion() + " (entre paréntesis). Los criterios son referencias "
+                + "para la ganadería familiar y mediana del Perú.");
         periodo.getStyleClass().add("muted");
         periodo.setWrapText(true);
         contenedorIndicadores.getChildren().add(periodo);
         for (IndicadoresEspecie i : lista) {
-            contenedorIndicadores.getChildren().add(tarjetaEspecie(i));
+            IndicadoresEspecie previo = anteriores.stream().filter(a -> a.especie() == i.especie() && a.historiaCompleta()).findFirst().orElse(null);
+            contenedorIndicadores.getChildren().add(tarjetaEspecie(i, previo));
         }
     }
 
-    private Node tarjetaEspecie(IndicadoresEspecie i) {
+    // ------------------------------------------------------------------ evolución
+
+    private void mostrarEvolucion() {
+        Empresa empresa = contexto.sesion().empresaActiva().orElse(null);
+        if (empresa == null || empresa.sector() != Sector.AGROPECUARIO || cmbMesesEvolucion.getValue() == null) {
+            return;
+        }
+        YearMonth hasta = YearMonth.now();
+        try {
+            evolucion = servicio().evolucion(hasta.minusMonths(cmbMesesEvolucion.getValue() - 1L), hasta);
+        } catch (RuntimeException e) {
+            Notificador.error(Errores.mensaje(e));
+            return;
+        }
+        Map<String, double[]> especies = new LinkedHashMap<>();
+        evolucion.existencias().forEach((especie, serie) ->
+                especies.put(especie.descripcion(), java.util.Arrays.stream(serie).asDoubleStream().toArray()));
+        graficoExistencias.getChildren().setAll(especies.isEmpty() ? sinDatos()
+                : com.businessanalyzer.ui.Graficos.visor(com.businessanalyzer.ui.Graficos.lineasMensuales(
+                evolucion.meses(), especies, "#,##0")));
+
+        Map<String, double[]> flujo = new LinkedHashMap<>();
+        flujo.put("Nacimientos", java.util.Arrays.stream(evolucion.nacimientos()).asDoubleStream().toArray());
+        flujo.put("Muertes", java.util.Arrays.stream(evolucion.muertes()).asDoubleStream().toArray());
+        flujo.put("Ventas y consumo", java.util.Arrays.stream(evolucion.salidas()).asDoubleStream().toArray());
+        graficoNacimientos.getChildren().setAll(com.businessanalyzer.ui.Graficos.visor(
+                com.businessanalyzer.ui.Graficos.barrasMensuales(evolucion.meses(), flujo, new java.awt.Color[]{
+                        com.businessanalyzer.ui.Graficos.VERDE, com.businessanalyzer.ui.Graficos.ROJO,
+                        com.businessanalyzer.ui.Graficos.AZUL}, null, 0, "#,##0")));
+
+        ProductoGanadero elegido = cmbProductoEvolucion.getValue();
+        cmbProductoEvolucion.getItems().setAll(evolucion.produccion().keySet());
+        cmbProductoEvolucion.setValue(evolucion.produccion().containsKey(elegido) ? elegido
+                : cmbProductoEvolucion.getItems().isEmpty() ? null : cmbProductoEvolucion.getItems().get(0));
+        cmbProductoEvolucion.setVisible(cmbProductoEvolucion.getItems().size() > 1);
+        dibujarProduccion();
+
+        lecturaEvolucion.getChildren().clear();
+        for (String frase : evolucion.lectura()) {
+            Label punto = new Label("•  " + frase);
+            punto.setWrapText(true);
+            punto.getStyleClass().add("lectura");
+            lecturaEvolucion.getChildren().add(punto);
+        }
+    }
+
+    private void dibujarProduccion() {
+        ProductoGanadero producto = cmbProductoEvolucion.getValue();
+        if (evolucion == null || producto == null) {
+            graficoProduccion.getChildren().setAll(sinDatos());
+            return;
+        }
+        double[] serie = evolucion.produccion().get(producto);
+        int inicio = 0;
+        while (inicio < serie.length && serie[inicio] == 0) {
+            inicio++;
+        }
+        Map<String, double[]> datos = new LinkedHashMap<>();
+        datos.put(producto.descripcion() + " (" + producto.unidad() + ")", serie);
+        graficoProduccion.getChildren().setAll(com.businessanalyzer.ui.Graficos.visor(
+                com.businessanalyzer.ui.Graficos.barrasMensuales(evolucion.meses(), datos,
+                        new java.awt.Color[]{com.businessanalyzer.ui.Graficos.AZUL}, evolucion.tendencia(producto),
+                        inicio, "#,##0")));
+    }
+
+    private static Label sinDatos() {
+        Label l = new Label("Sin datos en estos meses.");
+        l.getStyleClass().add("muted");
+        return l;
+    }
+
+    private Node tarjetaEspecie(IndicadoresEspecie i, IndicadoresEspecie previo) {
+        Map<String, String> valoresPrevios = new java.util.HashMap<>();
+        if (previo != null) {
+            previo.evaluar(moneda).forEach(p -> valoresPrevios.put(p.nombre(), p.valor()));
+        }
         Label titulo = new Label(i.especie().descripcion() + "  ·  " + i.existenciaFinal() + " animales");
         titulo.getStyleClass().add("card-title");
         Label movimientosTexto = new Label("Inicio: " + i.existenciaInicial() + "   Nacimientos: " + i.nacimientos()
@@ -347,7 +449,8 @@ public class GanaderiaController implements VistaModulo {
         for (IndicadorGanadero ind : i.evaluar(moneda)) {
             Label nombre = new Label(ind.nombre());
             nombre.getStyleClass().add("info-key");
-            Label valor = new Label(ind.valor());
+            String antes = valoresPrevios.get(ind.nombre());
+            Label valor = new Label(ind.valor() + (antes == null || "—".equals(antes) ? "" : "  (" + antes + ")"));
             valor.getStyleClass().add("info-value");
             if (ind.semaforo().evaluado() || "—".equals(ind.valor())) {
                 valor.getStyleClass().add("semaforo-" + claseSemaforo(ind.semaforo()));

@@ -6,7 +6,8 @@ public enum Area {
     RENTABILIDAD("Rentabilidad", "la", "¿El negocio gana dinero?"),
     SOLIDEZ("Solidez", "la", "¿Aguanta una caída de ventas o un mes malo?"),
     CRECIMIENTO("Crecimiento", "el", "¿Las ventas van hacia arriba o hacia abajo?"),
-    RIESGO_COMERCIAL("Riesgo comercial", "el", "¿Depende de pocos productos o de ventas irregulares?");
+    RIESGO_COMERCIAL("Riesgo comercial", "el", "¿Depende de pocos productos o de ventas irregulares?"),
+    AGROPECUARIO("Producción agropecuaria", "la", "¿El hato y los cultivos rinden lo esperado?");
 
     private final String descripcion;
     private final String articulo;

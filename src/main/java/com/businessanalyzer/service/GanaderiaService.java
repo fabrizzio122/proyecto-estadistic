@@ -1,6 +1,7 @@
 package com.businessanalyzer.service;
 
 import com.businessanalyzer.analytics.Periodo;
+import com.businessanalyzer.analytics.ganaderia.EvolucionHato;
 import com.businessanalyzer.analytics.ganaderia.ExistenciaValorizada;
 import com.businessanalyzer.analytics.ganaderia.Hato;
 import com.businessanalyzer.analytics.ganaderia.IndicadoresEspecie;
@@ -25,6 +26,7 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -112,6 +114,18 @@ public class GanaderiaService {
             }
             return resultado;
         });
+    }
+
+    /** Evolución mensual del hato y de la producción entre los meses indicados (máximo 5 años). */
+    public EvolucionHato evolucion(YearMonth desde, YearMonth hasta) {
+        sesion.requerir(Permiso.AGRO_VER);
+        Empresa empresa = empresaAgropecuaria();
+        if (desde == null || hasta == null || desde.isAfter(hasta) || desde.plusYears(5).isBefore(hasta)) {
+            throw new ValidacionException("Elige un rango de meses válido (máximo 5 años).");
+        }
+        return database.conConexion(c -> EvolucionHato.calcular(desde, hasta,
+                repositorio.listarMovimientos(c, empresa.id(), hasta.atEndOfMonth(), false),
+                repositorio.listarProduccion(c, empresa.id(), desde.atDay(1), hasta.atEndOfMonth(), false)));
     }
 
     // ------------------------------------------------------------------ registro

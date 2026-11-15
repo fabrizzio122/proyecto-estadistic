@@ -21,12 +21,39 @@ import java.util.List;
  * @param productos        rentabilidad por producto en {@code periodo}
  * @param patrimonio       balance general a hoy; {@code null} si no se dispone (liquidez y
  *                         endeudamiento quedan sin evaluar)
+ * @param agro             datos del hato, las campañas y las inspecciones; {@code null} si la empresa no
+ *                         es agropecuaria (sus indicadores no se incluyen)
  */
 public record DatosDiagnostico(Sector sector, Moneda moneda, Periodo periodo, int mesesPeriodo,
                                ResumenOperaciones operaciones, ResumenFinanciero finanzas,
                                ResumenOperaciones operacionesAnteriores,
                                List<YearMonth> meses, double[] ventasMensuales, double[] utilidadMensual,
-                               List<RentabilidadProducto> productos, SituacionPatrimonial patrimonio) {
+                               List<RentabilidadProducto> productos, SituacionPatrimonial patrimonio,
+                               DatosAgro agro) {
+
+    /**
+     * Período con el que se comparan las ventas: el trimestre anterior o, en un productor agropecuario,
+     * el mismo período del año anterior (las cosechas y ventas de animales son estacionales).
+     */
+    public Periodo periodoComparado() {
+        return comparadoCon(periodo, agro != null);
+    }
+
+    public static Periodo comparadoCon(Periodo periodo, boolean agropecuario) {
+        return agropecuario
+                ? new Periodo(periodo.desde().minusYears(1), java.time.YearMonth.from(periodo.hasta().minusYears(1)).atEndOfMonth())
+                : periodo.anterior();
+    }
+
+    /** Sin datos agropecuarios. */
+    public DatosDiagnostico(Sector sector, Moneda moneda, Periodo periodo, int mesesPeriodo,
+                            ResumenOperaciones operaciones, ResumenFinanciero finanzas,
+                            ResumenOperaciones operacionesAnteriores,
+                            List<YearMonth> meses, double[] ventasMensuales, double[] utilidadMensual,
+                            List<RentabilidadProducto> productos, SituacionPatrimonial patrimonio) {
+        this(sector, moneda, periodo, mesesPeriodo, operaciones, finanzas, operacionesAnteriores, meses,
+                ventasMensuales, utilidadMensual, productos, patrimonio, null);
+    }
 
     public DatosDiagnostico {
         meses = List.copyOf(meses);
@@ -43,6 +70,6 @@ public record DatosDiagnostico(Sector sector, Moneda moneda, Periodo periodo, in
                             List<YearMonth> meses, double[] ventasMensuales, double[] utilidadMensual,
                             List<RentabilidadProducto> productos) {
         this(sector, moneda, periodo, mesesPeriodo, operaciones, finanzas, operacionesAnteriores, meses,
-                ventasMensuales, utilidadMensual, productos, null);
+                ventasMensuales, utilidadMensual, productos, null, null);
     }
 }

@@ -1,5 +1,6 @@
 package com.businessanalyzer.controller;
 
+import com.businessanalyzer.analytics.agricultura.ComparacionCultivos;
 import com.businessanalyzer.analytics.agricultura.ResultadoCampania;
 import com.businessanalyzer.analytics.diagnostico.Semaforo;
 import com.businessanalyzer.analytics.ganaderia.IndicadorGanadero;
@@ -119,6 +120,17 @@ public class AgriculturaController implements VistaModulo {
     @FXML private TableColumn<Parcela, String> colParRiego;
     @FXML private TableColumn<Parcela, String> colParUbicacion;
 
+    @FXML private TableView<ComparacionCultivos> tablaComparacion;
+    @FXML private TableColumn<ComparacionCultivos, String> colCmpCultivo;
+    @FXML private TableColumn<ComparacionCultivos, String> colCmpCampanias;
+    @FXML private TableColumn<ComparacionCultivos, String> colCmpArea;
+    @FXML private TableColumn<ComparacionCultivos, String> colCmpRendimiento;
+    @FXML private TableColumn<ComparacionCultivos, String> colCmpAvance;
+    @FXML private TableColumn<ComparacionCultivos, String> colCmpCosto;
+    @FXML private TableColumn<ComparacionCultivos, BigDecimal> colCmpMargen;
+    @FXML private TableColumn<ComparacionCultivos, String> colCmpMejor;
+    @FXML private javafx.scene.layout.StackPane graficoCampanias;
+
     public AgriculturaController(AppContext contexto) {
         this.contexto = contexto;
     }
@@ -131,6 +143,7 @@ public class AgriculturaController implements VistaModulo {
         cmbFiltro.valueProperty().addListener((o, a, n) -> filtrar());
         configurarTablaCampanias();
         configurarTablaParcelas();
+        configurarTablaComparacion();
 
         boolean gestiona = contexto.sesion().tienePermiso(Permiso.AGRO_GESTIONAR);
         for (Node nodo : List.of(btnCosto, btnCosecha, btnCerrar, menuMas, btnNuevaCampania, btnEditarParcela,
@@ -174,6 +187,7 @@ public class AgriculturaController implements VistaModulo {
         tablaCampanias.setPlaceholder(new Label(tablaParcelas.getItems().isEmpty()
                 ? "Primero registra tus parcelas en la pestaña «Parcelas»." : "Aún no hay campañas."));
         mostrarResumen();
+        mostrarComparacion();
         filtrar();
         if (seleccionada != null) {
             tablaCampanias.getItems().stream().filter(r -> r.campania().id() == seleccionada).findFirst()
@@ -210,6 +224,51 @@ public class AgriculturaController implements VistaModulo {
         kpiCosechado.actualizar(Montos.cantidad(cosechado.setScale(0, RoundingMode.HALF_UP)) + " kg", "En todas las campañas");
         kpiMargen.actualizar(Montos.formatear(margen, moneda),
                 cerradas.size() + (cerradas.size() == 1 ? " campaña cerrada" : " campañas cerradas"));
+    }
+
+    // ------------------------------------------------------------------ comparación
+
+    private void mostrarComparacion() {
+        tablaComparacion.getItems().setAll(ComparacionCultivos.de(campanias));
+        tablaComparacion.setPlaceholder(new Label("Aún no hay campañas cerradas para comparar."));
+        List<ResultadoCampania> cerradas = campanias.stream()
+                .filter(r -> r.campania().estado().cerrada())
+                .sorted(java.util.Comparator.comparing((ResultadoCampania r) -> r.campania().fechaSiembra()))
+                .toList();
+        if (cerradas.isEmpty()) {
+            Label vacio = new Label("Sin campañas cerradas.");
+            vacio.getStyleClass().add("muted");
+            graficoCampanias.getChildren().setAll(vacio);
+            return;
+        }
+        List<String> nombres = cerradas.stream().map(r -> r.campania().cultivo().descripcion().split(" \\(")[0]
+                + " " + r.campania().fechaSiembra().getYear()).toList();
+        double[] rendimiento = cerradas.stream().mapToDouble(r -> r.rendimiento() == null ? 0 : r.rendimiento().doubleValue()).toArray();
+        double[] referencia = cerradas.stream().mapToDouble(r -> r.campania().rendimientoReferencia() == null ? 0
+                : r.campania().rendimientoReferencia().doubleValue()).toArray();
+        java.util.Map<String, double[]> series = new java.util.LinkedHashMap<>();
+        series.put("Rendimiento", rendimiento);
+        series.put("Referencia", referencia);
+        graficoCampanias.getChildren().setAll(com.businessanalyzer.ui.Graficos.visor(
+                com.businessanalyzer.ui.Graficos.barrasCategorias(nombres, series, "#,##0")));
+    }
+
+    private void configurarTablaComparacion() {
+        colCmpCultivo.setCellValueFactory(c -> texto(c.getValue().cultivo().descripcion()));
+        colCmpCampanias.setCellValueFactory(c -> texto(c.getValue().campanias()
+                + (c.getValue().perdidas() == 0 ? "" : " (" + c.getValue().perdidas()
+                + (c.getValue().perdidas() == 1 ? " perdida)" : " perdidas)"))));
+        colCmpArea.setCellValueFactory(c -> texto(Montos.cantidad(c.getValue().area())));
+        colCmpRendimiento.setCellValueFactory(c -> texto(Montos.cantidad(c.getValue().rendimiento().setScale(0, RoundingMode.HALF_UP))));
+        colCmpAvance.setCellValueFactory(c -> texto(Montos.porcentaje(c.getValue().avance())));
+        colCmpCosto.setCellValueFactory(c -> texto(Montos.formatear(c.getValue().costoPorHa(), moneda)));
+        colCmpMargen.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().margenPorHa()));
+        colCmpMargen.setCellFactory(col -> celdaMonto(true));
+        colCmpMejor.setCellValueFactory(c -> {
+            ResultadoCampania m = c.getValue().mejor();
+            return texto(m.campania().fechaSiembra().getYear() + " · " + m.campania().parcelaNombre()
+                    + (m.rendimiento() == null ? "" : " · " + Montos.cantidad(m.rendimiento().setScale(0, RoundingMode.HALF_UP)) + " kg/ha"));
+        });
     }
 
     private void filtrar() {
@@ -277,7 +336,7 @@ public class AgriculturaController implements VistaModulo {
         List<Parcela> activas = tablaParcelas.getItems().stream().filter(Parcela::activa).toList();
         if (activas.isEmpty()) {
             Notificador.info("Primero registra una parcela en la pestaña «Parcelas».");
-            pestanas.getSelectionModel().select(1);
+            pestanas.getSelectionModel().select(2);
             return;
         }
         FormularioCampania formulario = new FormularioCampania(activas, null);

@@ -24,19 +24,19 @@
 
     <HBox spacing="16">
         <!-- Calificación global -->
-        <VBox styleClass="card" spacing="8" prefWidth="330" minWidth="270">
+        <VBox styleClass="card" spacing="8" prefWidth="320" minWidth="250">
             <Label text="Salud del negocio" styleClass="card-title"/>
             <HBox spacing="14" alignment="CENTER_LEFT">
                 <HBox alignment="BASELINE_LEFT" spacing="2">
-                    <Label fx:id="lblPuntaje" text="—" styleClass="puntaje-salud"/>
-                    <Label text="/100" styleClass="muted"/>
+                    <Label fx:id="lblPuntaje" text="—" styleClass="puntaje-salud" minWidth="-Infinity"/>
+                    <Label text="/100" styleClass="muted" minWidth="-Infinity"/>
                 </HBox>
-                <Label fx:id="lblNivel" styleClass="nivel-salud"/>
+                <Label fx:id="lblNivel" styleClass="nivel-salud" wrapText="true" minHeight="-Infinity"/>
             </HBox>
             <VBox fx:id="resumen" spacing="4"/>
         </VBox>
         <!-- Puntaje por área -->
-        <HBox fx:id="areas" spacing="16" HBox.hgrow="ALWAYS"/>
+        <HBox fx:id="areas" spacing="12" HBox.hgrow="ALWAYS"/>
     </HBox>
 
     <HBox spacing="16" VBox.vgrow="ALWAYS">

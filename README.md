@@ -67,6 +67,7 @@ automáticamente al iniciar y dentro de una transacción.
 15. Ganadería (sector agropecuario): hato, movimientos, producción de leche y fibra, indicadores técnicos y valor del hato ✅
 16. Agricultura (sector agropecuario): parcelas, campañas, costos, cosechas, rendimiento y margen por campaña ✅
 17. Visitas de inspección: verificación en campo, compromisos, fotos e informe técnico en PDF ✅
+18. Integración agropecuaria: ventas agro en los análisis, evolución del hato, comparación de campañas y diagnóstico del productor ✅
 
 ## Seguridad
 
@@ -147,6 +148,19 @@ automáticamente al iniciar y dentro de una transacción.
 - **Informe técnico (PDF):** datos de la visita, verificación en campo, compromisos, indicadores del hato y de las campañas de los 12 meses previos, situación patrimonial, observaciones, conclusión, hasta 6 fotos y espacio para las firmas. Queda en el historial de informes.
 - **Permisos:** las ven todos los roles con acceso a la empresa; las registran el administrador, el gerente y el analista (el rol del inspector). El operador (productor) las ve pero no las modifica.
 
+## Integración agropecuaria
+
+- **El productor registra todo en Ganadería y Agricultura** (no en «Ventas y compras»). Esas ventas entran solas al estado de resultados, la estadística, las predicciones, la simulación, el diagnóstico y el Dashboard:
+  - **Venta de animales** con su valor total, en la fecha de la venta.
+  - **Leche, fibra y lana:** los registros de producción **con precio** se consideran vendidos.
+  - **Cosechas vendidas con precio.** Su costo es el costo por kilo de la campaña. Al cerrar la campaña se reconoce el resto del costo (semilla, forraje para los animales, merma o campaña perdida). Lo que consume la familia no es un costo del negocio.
+  - Los gastos del productor (pastor, vacunas, fletes, intereses...) se registran en Gestión financiera, como en cualquier empresa.
+  - El módulo «Ventas y compras» sigue mostrando solo sus propias operaciones.
+- **Ganadería → Evolución:** animales al cierre de cada mes por especie, nacimientos, muertes y salidas, producción mensual con su tendencia (regresión lineal) y una lectura en lenguaje sencillo (12, 24 o 36 meses).
+- **Ganadería → Indicadores:** cada indicador muestra entre paréntesis el valor del período anterior, si ya había animales registrados antes de ese período.
+- **Agricultura → Comparación:** campañas cerradas por cultivo (rendimiento, porcentaje de la referencia, costo y margen por hectárea, mejor campaña) y gráfico de rendimiento frente a la referencia.
+- **Diagnóstico del productor:** nueva área «Producción agropecuaria» con natalidad, mortalidad de crías (umbrales por especie), rendimiento de los cultivos frente a la referencia y cumplimiento de compromisos de inspección. En productores, las ventas se comparan con el mismo período del año anterior por la estacionalidad.
+
 ## Análisis financiero
 
 - **Estado de resultados** del período elegido (ventas − costo de ventas − gastos operativos ± resultados financieros − impuesto a la renta), con el % sobre las ventas y la comparación con el período anterior equivalente.
@@ -190,7 +204,7 @@ Se calcula con **Apache Commons Math**:
 ## Diagnóstico empresarial
 
 - **Período:** evalúa los últimos 3 meses completos frente a los 3 anteriores y usa hasta 24 meses de historia.
-- **Indicadores:** 14, con semáforo (verde, amarillo o rojo), agrupados en 4 áreas:
+- **Indicadores:** 14 (18 en productores agropecuarios), con semáforo (verde, amarillo o rojo), agrupados en 4 áreas:
   - **Rentabilidad:** margen neto, margen bruto y meses con pérdida.
   - **Solidez:** margen de seguridad, peso de los costos fijos, carga financiera, liquidez y endeudamiento. Estos dos últimos se evalúan solo si hay activos registrados en «Activos y deudas».
   - **Crecimiento:** ventas frente al trimestre anterior, tendencia de 12 meses y proyección a 3 meses.

@@ -5,7 +5,23 @@ import com.businessanalyzer.analytics.Periodo;
 import com.businessanalyzer.analytics.RentabilidadProducto;
 import com.businessanalyzer.analytics.ResumenFinanciero;
 import com.businessanalyzer.analytics.ResumenOperaciones;
+import com.businessanalyzer.analytics.agricultura.ResultadoCampania;
+import com.businessanalyzer.analytics.diagnostico.DatosAgro;
 import com.businessanalyzer.analytics.diagnostico.DatosDiagnostico;
+import com.businessanalyzer.analytics.ganaderia.IndicadoresEspecie;
+import com.businessanalyzer.model.Compromiso;
+import com.businessanalyzer.model.Cosecha;
+import com.businessanalyzer.model.CostoCampania;
+import com.businessanalyzer.model.Especie;
+import com.businessanalyzer.model.EstadoCompromiso;
+import com.businessanalyzer.model.MovimientoGanado;
+import com.businessanalyzer.model.ProduccionGanadera;
+import com.businessanalyzer.model.Sector;
+import com.businessanalyzer.repository.AgriculturaRepository;
+import com.businessanalyzer.repository.GanaderiaRepository;
+import com.businessanalyzer.repository.VisitaRepository;
+import java.sql.Connection;
+import java.sql.SQLException;
 import com.businessanalyzer.analytics.diagnostico.Diagnostico;
 import com.businessanalyzer.analytics.diagnostico.MotorDiagnostico;
 import com.businessanalyzer.config.Database;
@@ -42,6 +58,9 @@ public class DiagnosticoService {
     private final Sesion sesion;
     private final Clock reloj;
     private final ConsultaPatrimonio patrimonio;
+    private final GanaderiaRepository ganaderia = new GanaderiaRepository();
+    private final AgriculturaRepository agricultura = new AgriculturaRepository();
+    private final VisitaRepository visitas = new VisitaRepository();
 
     public DiagnosticoService(Database database, OperacionRepository operaciones, MovimientoRepository movimientos,
                               EmpresaService empresas, Sesion sesion, Clock reloj) {
@@ -60,7 +79,7 @@ public class DiagnosticoService {
         Empresa empresa = empresas.empresaDeTrabajo();
         YearMonth ultimo = YearMonth.from(LocalDate.now(reloj)).minusMonths(1);
         Periodo periodo = new Periodo(ultimo.minusMonths(MESES_EVALUADOS - 1L).atDay(1), ultimo.atEndOfMonth());
-        Periodo anterior = periodo.anterior();
+        Periodo anterior = DatosDiagnostico.comparadoCon(periodo, empresa.sector() == Sector.AGROPECUARIO);
 
         DatosDiagnostico datos = database.conConexion(c -> {
             ResumenOperaciones ops = operaciones.resumen(c, empresa.id(), periodo.desde(), periodo.hasta());
@@ -89,8 +108,40 @@ public class DiagnosticoService {
             }
             return new DatosDiagnostico(empresa.sector(), empresa.moneda(), periodo, MESES_EVALUADOS, ops, fin,
                     opsAnterior, meses, ventas, utilidad, productos,
-                    patrimonio.situacion(c, empresa.id(), LocalDate.now(reloj)));
+                    patrimonio.situacion(c, empresa.id(), LocalDate.now(reloj)),
+                    empresa.sector() == Sector.AGROPECUARIO ? datosAgro(c, empresa.id()) : null);
         });
         return MotorDiagnostico.evaluar(datos);
+    }
+
+    /** Hato, campañas cerradas y compromisos de inspección de los últimos 12 meses. */
+    private DatosAgro datosAgro(Connection c, long empresaId) throws SQLException {
+        LocalDate hoy = LocalDate.now(reloj);
+        Periodo anio = new Periodo(hoy.minusYears(1).plusDays(1), hoy);
+        List<MovimientoGanado> movimientos = ganaderia.listarMovimientos(c, empresaId, hoy, false);
+        List<ProduccionGanadera> produccion = ganaderia.listarProduccion(c, empresaId, anio.desde(), hoy, false);
+        List<IndicadoresEspecie> especies = new ArrayList<>();
+        for (Especie especie : Especie.values()) {
+            IndicadoresEspecie i = IndicadoresEspecie.calcular(especie, anio, movimientos, produccion);
+            if (i.tieneDatos()) {
+                especies.add(i);
+            }
+        }
+        List<CostoCampania> costos = agricultura.listarCostos(c, empresaId, null, false);
+        List<Cosecha> cosechas = agricultura.listarCosechas(c, empresaId, null, false);
+        List<ResultadoCampania> campanias = agricultura.listarCampanias(c, empresaId, false).stream()
+                .filter(k -> k.estado().cerrada() && k.fechaCierre() != null && !k.fechaCierre().isBefore(anio.desde()))
+                .map(k -> ResultadoCampania.de(k, costos, cosechas))
+                .toList();
+        int cumplidos = 0;
+        int fallidos = 0;
+        for (Compromiso k : visitas.listarCompromisos(c, empresaId)) {
+            if (k.estado() == EstadoCompromiso.CUMPLIDO) {
+                cumplidos++;
+            } else if (k.estado() == EstadoCompromiso.INCUMPLIDO || k.vencido(hoy)) {
+                fallidos++;
+            }
+        }
+        return new DatosAgro(especies, campanias, cumplidos, fallidos);
     }
 }

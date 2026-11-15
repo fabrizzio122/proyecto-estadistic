@@ -93,8 +93,11 @@ public class DiagnosticoController implements VistaModulo {
     }
 
     private void mostrar(Diagnostico d) {
+        boolean agro = contexto.sesion().empresaActiva()
+                .map(e -> e.sector() == com.businessanalyzer.model.Sector.AGROPECUARIO).orElse(false);
         lblPeriodo.setText("Período evaluado: " + d.periodo().descripcion() + ", comparado con "
-                + d.periodo().anterior().descripcion() + ".");
+                + com.businessanalyzer.analytics.diagnostico.DatosDiagnostico.comparadoCon(d.periodo(), agro).descripcion()
+                + (agro ? " (mismo período del año anterior, por la estacionalidad agropecuaria)." : "."));
         if (!d.evaluado()) {
             mostrarVacio(d.resumen().get(0));
             colorear(lblNivel, Semaforo.SIN_DATOS);
@@ -109,11 +112,17 @@ public class DiagnosticoController implements VistaModulo {
 
         areas.getChildren().clear();
         for (Area area : Area.values()) {
+            if (d.deArea(area).isEmpty()) {
+                continue;
+            }
             areas.getChildren().add(tarjetaArea(area, d));
         }
 
         indicadores.getChildren().clear();
         for (Area area : Area.values()) {
+            if (d.deArea(area).isEmpty()) {
+                continue;
+            }
             Label titulo = new Label(area.descripcion().toUpperCase());
             titulo.getStyleClass().add("diagnostico-seccion");
             indicadores.getChildren().add(titulo);
@@ -150,9 +159,12 @@ public class DiagnosticoController implements VistaModulo {
     private VBox tarjetaArea(Area area, Diagnostico d) {
         Label nombre = new Label(area.descripcion());
         nombre.getStyleClass().add("kpi-title");
+        nombre.setWrapText(true);
+        nombre.setMinHeight(Region.USE_PREF_SIZE);
         Integer puntaje = d.puntajePorArea().get(area);
         Label valor = new Label(puntaje == null ? "—" : puntaje + "/100");
         valor.getStyleClass().add("kpi-value");
+        valor.setMinWidth(Region.USE_PREF_SIZE);
         Semaforo color = puntaje == null ? Semaforo.SIN_DATOS
                 : puntaje >= 75 ? Semaforo.VERDE : puntaje >= 45 ? Semaforo.AMARILLO : Semaforo.ROJO;
         colorear(valor, color);
@@ -173,8 +185,8 @@ public class DiagnosticoController implements VistaModulo {
         pregunta.setMinHeight(Region.USE_PREF_SIZE);
         VBox tarjeta = new VBox(8, nombre, valor, barra, puntos, pregunta);
         tarjeta.getStyleClass().add("kpi-card");
-        tarjeta.setStyle("-fx-min-width: 130;");
-        tarjeta.setPrefWidth(160);
+        tarjeta.setStyle("-fx-min-width: 115;");
+        tarjeta.setPrefWidth(150);
         HBox.setHgrow(tarjeta, Priority.ALWAYS);
         return tarjeta;
     }

@@ -32,6 +32,8 @@ import java.util.Optional;
 /** Acceso a las tablas {@code operacion} y {@code operacion_linea}. */
 public class OperacionRepository {
 
+    private final VentasAgroRepository agro = new VentasAgroRepository();
+
     /** Cabecera de una operación nueva, con los totales ya calculados. */
     public record NuevaOperacion(TipoOperacion tipo, String numero, LocalDate fecha, String contraparte,
                                  String documentoContraparte, String comprobante, BigDecimal tasaImpuesto,
@@ -189,8 +191,26 @@ public class OperacionRepository {
         }
     }
 
-    /** Totales del período, solo con operaciones registradas (no anuladas). */
+    /**
+     * Totales del período para los análisis: operaciones registradas más las ventas y costos de la
+     * producción agropecuaria (ver {@link VentasAgroRepository}).
+     */
     public ResumenOperaciones resumen(Connection c, long empresaId, LocalDate desde, LocalDate hasta)
+            throws SQLException {
+        ResumenOperaciones ops = resumenOperaciones(c, empresaId, desde, hasta);
+        BigDecimal ventas = ops.ventasNetas();
+        BigDecimal costo = ops.costoVentas();
+        int cantidad = ops.cantidadVentas();
+        for (VentasAgroRepository.Partida p : agro.partidas(c, empresaId, desde, hasta)) {
+            ventas = ventas.add(p.venta());
+            costo = costo.add(p.costo());
+            cantidad += p.esVenta() ? 1 : 0;
+        }
+        return new ResumenOperaciones(ventas, costo, ops.comprasNetas(), cantidad, ops.cantidadCompras());
+    }
+
+    /** Totales del período, solo con las operaciones de «Ventas y compras» registradas (no anuladas). */
+    public ResumenOperaciones resumenOperaciones(Connection c, long empresaId, LocalDate desde, LocalDate hasta)
             throws SQLException {
         BigDecimal ventas = BigDecimal.ZERO;
         BigDecimal costoVentas = BigDecimal.ZERO;
@@ -252,6 +272,12 @@ public class OperacionRepository {
                 }
             }
         }
+        for (VentasAgroRepository.Partida p : agro.partidas(c, empresaId, desde, hasta)) {
+            YearMonth mes = YearMonth.from(p.fecha());
+            ResumenOperaciones actual = porMes.getOrDefault(mes, ResumenOperaciones.VACIO);
+            porMes.put(mes, new ResumenOperaciones(actual.ventasNetas().add(p.venta()), actual.costoVentas().add(p.costo()),
+                    actual.comprasNetas(), actual.cantidadVentas() + (p.esVenta() ? 1 : 0), actual.cantidadCompras()));
+        }
         return porMes;
     }
 
@@ -283,6 +309,13 @@ public class OperacionRepository {
                             Montos.desdeEntero(rs.getLong("subtotal")),
                             Montos.desdeEntero(rs.getLong("costo_unitario"))));
                 }
+            }
+        }
+        for (VentasAgroRepository.Partida p : agro.partidas(c, empresaId, desde, hasta)) {
+            if (p.esVenta() && p.cantidad().signum() > 0) {
+                lineas.add(new RentabilidadProducto.Venta(p.clave(), "AGRO", p.nombre(), TipoItem.PRODUCTO,
+                        "Producción agropecuaria", p.cantidad(), p.venta(),
+                        p.costo().divide(p.cantidad(), Montos.ESCALA, java.math.RoundingMode.HALF_UP)));
             }
         }
         return lineas;

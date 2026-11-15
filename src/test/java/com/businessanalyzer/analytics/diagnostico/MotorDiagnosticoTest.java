@@ -44,7 +44,7 @@ class MotorDiagnosticoTest {
 
         assertEquals(NivelSalud.SALUDABLE, d.nivel());
         assertEquals(100, d.puntaje());
-        assertEquals(TipoIndicador.values().length, d.hallazgos().size());
+        assertEquals(java.util.Arrays.stream(TipoIndicador.values()).filter(t -> !t.soloAgropecuario()).count(), (long) d.hallazgos().size());
         assertEquals(0, d.contar(Semaforo.ROJO) + d.contar(Semaforo.AMARILLO), d.hallazgos().toString());
         assertTrue(d.recomendaciones().isEmpty());
         assertEquals("9.5 %", hallazgo(d, TipoIndicador.MARGEN_NETO).valor());
