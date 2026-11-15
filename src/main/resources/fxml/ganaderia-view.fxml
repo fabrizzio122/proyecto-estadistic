@@ -77,6 +77,10 @@
                     <ComboBox fx:id="cmbEspecie" prefWidth="150" minWidth="130"/>
                     <CheckBox fx:id="chkAnulados" text="Incluir anulados" minWidth="-Infinity" onAction="#cargar"/>
                     <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="btnEditarMovimiento" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#editarMovimiento">
+                        <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
+                    </Button>
                     <Button fx:id="btnAnularMovimiento" text="Anular" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#anularMovimiento">
                         <graphic><FontIcon iconLiteral="fth-x-circle"/></graphic>
@@ -103,6 +107,10 @@
             <VBox spacing="10" styleClass="tab-contenido">
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label fx:id="lblProduccion" styleClass="muted" wrapText="true" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                    <Button fx:id="btnEditarProduccion" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#editarProduccion">
+                        <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
+                    </Button>
                     <Button fx:id="btnAnularProduccion" text="Anular" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#anularProduccion">
                         <graphic><FontIcon iconLiteral="fth-x-circle"/></graphic>

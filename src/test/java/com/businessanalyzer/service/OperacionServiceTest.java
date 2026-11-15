@@ -141,6 +141,32 @@ class OperacionServiceTest {
     }
 
     @Test
+    void corregirAnulaLaOriginalYRegistraLaNueva() {
+        comprar(arroz, "10", "18.50");
+        Operacion venta = vender(arroz, "8", "25");
+
+        // Vender 10 solo es posible porque las 8 de la venta original vuelven al stock.
+        Operacion corregida = servicio.corregir(venta.id(), datos(TipoOperacion.VENTA, linea(arroz, "10", "24")), false);
+
+        assertTrue(servicio.obtener(venta.id()).anulada());
+        assertTrue(servicio.obtener(venta.id()).motivoAnulacion().contains(corregida.numero()));
+        assertTrue(corregida.observaciones().startsWith("Corrige " + venta.numero()));
+        assertEquals(0, BigDecimal.ZERO.compareTo(stock(arroz)));
+        assertEquals(1, servicio.resumen(INICIO_MES, HOY).cantidadVentas());
+        assertEquals(0, new BigDecimal("240.00").compareTo(corregida.subtotal()));
+
+        assertThrows(ValidacionException.class,
+                () -> servicio.corregir(venta.id(), datos(TipoOperacion.VENTA, linea(arroz, "1", "24")), false),
+                "Una anulada no se corrige");
+        assertThrows(ValidacionException.class,
+                () -> servicio.corregir(corregida.id(), datos(TipoOperacion.COMPRA, linea(arroz, "1", "24")), false),
+                "No cambia de tipo");
+        assertThrows(StockInsuficienteException.class,
+                () -> servicio.corregir(corregida.id(), datos(TipoOperacion.VENTA, linea(arroz, "11", "24")), false));
+        assertTrue(!servicio.obtener(corregida.id()).anulada(), "Si falla, la original sigue registrada");
+    }
+
+    @Test
     void unaCompraPuedeActualizarElCostoDelCatalogo() {
         servicio.registrar(new DatosOperacion(TipoOperacion.COMPRA, HOY, "Distribuidora Lima", null, null,
                 new BigDecimal("18"), null, List.of(linea(arroz, "10", "19.40")), true), false);

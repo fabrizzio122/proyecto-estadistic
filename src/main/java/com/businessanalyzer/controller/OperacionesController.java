@@ -98,6 +98,7 @@ public class OperacionesController implements VistaModulo {
     @FXML private TableColumn<Operacion, Operacion> colEstado;
     @FXML private Button btnDetalle;
     @FXML private Button btnAnular;
+    @FXML private Button btnEditar;
     @FXML private Button btnNueva;
     @FXML private Label lblPie;
 
@@ -130,7 +131,7 @@ public class OperacionesController implements VistaModulo {
 
         configurarTabla();
         boolean gestiona = contexto.sesion().tienePermiso(Permiso.OPERACIONES_GESTIONAR);
-        for (Node nodo : List.of(btnNueva, btnAnular)) {
+        for (Node nodo : List.of(btnNueva, btnEditar, btnAnular)) {
             nodo.setVisible(gestiona);
             nodo.setManaged(gestiona);
         }
@@ -253,6 +254,47 @@ public class OperacionesController implements VistaModulo {
         }
     }
 
+    /** Corrige la operación seleccionada: la original queda anulada y se registra la versión corregida. */
+    @FXML
+    private void editar() {
+        Operacion seleccionada = seleccionada();
+        if (seleccionada == null || seleccionada.anulada()) {
+            return;
+        }
+        FormularioOperacion formulario;
+        try {
+            Operacion original = servicio().obtener(seleccionada.id());
+            formulario = new FormularioOperacion(original.tipo(), servicio().productosDisponibles(),
+                    original.tasaImpuesto());
+            formulario.cargarDesde(original);
+        } catch (RuntimeException e) {
+            Notificador.error(Errores.mensaje(e));
+            return;
+        }
+        Operacion[] corregida = new Operacion[1];
+        boolean ok = Dialogos.formulario(ventana(), "Editar " + seleccionada.numero(),
+                "Al guardar, " + seleccionada.numero() + " queda anulada como historial y los datos corregidos se "
+                        + "registran con un número nuevo. El stock y los totales se recalculan solos.",
+                formulario.contenido(), "Guardar cambios", 860, () -> {
+                    DatosOperacion datos = formulario.datos();
+                    try {
+                        corregida[0] = servicio().corregir(seleccionada.id(), datos, false);
+                    } catch (StockInsuficienteException e) {
+                        boolean confirmar = Dialogos.confirmar(formulario.ventana(), "Stock insuficiente",
+                                e.getMessage() + "\n\n¿Guardar la venta de todas formas? El stock quedará en negativo.");
+                        if (!confirmar) {
+                            throw new ValidacionException("Cambios no guardados. Ajusta las cantidades.");
+                        }
+                        corregida[0] = servicio().corregir(seleccionada.id(), datos, true);
+                    }
+                });
+        if (ok) {
+            cargar();
+            seleccionar(corregida[0].id());
+            Notificador.exito(seleccionada.numero() + " corregida: ahora es " + corregida[0].numero() + ".");
+        }
+    }
+
     @FXML
     private void verDetalle() {
         Operacion seleccionada = seleccionada();
@@ -368,6 +410,7 @@ public class OperacionesController implements VistaModulo {
         Operacion operacion = seleccionada();
         btnDetalle.setDisable(operacion == null);
         btnAnular.setDisable(operacion == null || operacion.anulada());
+        btnEditar.setDisable(operacion == null || operacion.anulada());
     }
 
     // ------------------------------------------------------------------ detalle
@@ -570,6 +613,23 @@ public class OperacionesController implements VistaModulo {
 
         Window ventana() {
             return raiz.getScene().getWindow();
+        }
+
+        /** Rellena el formulario con una operación ya registrada (para corregirla). */
+        void cargarDesde(Operacion o) {
+            dpFecha.setValue(o.fecha());
+            txtContraparte.setText(o.contraparte() == null ? "" : o.contraparte());
+            txtDocumento.setText(o.documentoContraparte() == null ? "" : o.documentoContraparte());
+            txtComprobante.setText(o.comprobante() == null ? "" : o.comprobante());
+            txtObservaciones.setText(o.observaciones() == null ? "" : o.observaciones());
+            chkActualizarCostos.setSelected(false);
+            for (LineaOperacion linea : o.lineas()) {
+                Producto producto = catalogo.stream().filter(p -> p.id() == linea.productoId()).findFirst()
+                        .orElseThrow(() -> new ValidacionException("\"" + linea.nombre() + "\" está archivado. "
+                                + "Reactívalo en Productos y servicios para poder editar " + o.numero() + "."));
+                lineas.add(new LineaFormulario(producto, linea.cantidad(), linea.precioUnitario()));
+            }
+            recalcular();
         }
 
         VBox contenido() {

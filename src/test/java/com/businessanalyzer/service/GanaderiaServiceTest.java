@@ -114,6 +114,37 @@ class GanaderiaServiceTest {
     }
 
     @Test
+    void corregirUnMovimientoRecalculaLasExistencias() {
+        MovimientoGanado inicial = mov("2025-06-01", INVENTARIO_INICIAL, OVEJA, 10, null);
+        MovimientoGanado muerte = mov("2025-07-01", MUERTE, OVEJA, 4, null);
+
+        MovimientoGanado corregido = servicio.corregirMovimiento(muerte.id(), new DatosMovimientoGanado(
+                LocalDate.parse("2025-07-01"), MUERTE, OVEJA, 2, null, null, "Neumonía", null));
+        assertEquals(2, corregido.cantidad());
+        assertEquals(Map.of(OVEJA, 8), existencias());
+        assertTrue(servicio.listarMovimientos(LocalDate.of(2025, 1, 1), HOY, true).stream()
+                .anyMatch(m -> m.id() == muerte.id() && m.anulado()));
+
+        // Bajar el inventario inicial a 1 dejaría la muerte de 2 sin animales: no se guarda nada.
+        assertInvalido(() -> servicio.corregirMovimiento(inicial.id(), new DatosMovimientoGanado(
+                LocalDate.parse("2025-06-01"), INVENTARIO_INICIAL, OVEJA, 1, null, null, null, null)));
+        assertEquals(Map.of(OVEJA, 8), existencias());
+        assertInvalido(() -> servicio.corregirMovimiento(muerte.id(), new DatosMovimientoGanado(
+                LocalDate.parse("2025-07-01"), MUERTE, OVEJA, 1, null, null, null, null)));
+    }
+
+    @Test
+    void corregirLaProduccion() {
+        mov("2025-06-01", INVENTARIO_INICIAL, VACA, 10, null);
+        ProduccionGanadera leche = servicio.registrarProduccion(new DatosProduccion(Especie.VACUNO,
+                ProductoGanadero.LECHE, LocalDate.of(2025, 12, 31), 31, new BigDecimal("1550"), 10, null, null));
+        ProduccionGanadera corregida = servicio.corregirProduccion(leche.id(), new DatosProduccion(Especie.VACUNO,
+                ProductoGanadero.LECHE, LocalDate.of(2025, 12, 31), 31, new BigDecimal("1650"), 10, null, null));
+        assertEquals(0, new BigDecimal("1650").compareTo(corregida.cantidad()));
+        assertEquals(1, servicio.listarProduccion(LocalDate.of(2025, 1, 1), HOY, false).size());
+    }
+
+    @Test
     void validaLosMovimientos() {
         mov("2025-06-01", INVENTARIO_INICIAL, ALPACA_MADRE, 30, null);
         assertInvalido(() -> mov("2025-07-01", NACIMIENTO, ALPACA_MADRE, 1, null));          // no es cría
