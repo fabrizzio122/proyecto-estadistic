@@ -78,6 +78,9 @@ public class InformeService {
         if (tipo == null) {
             throw new ValidacionException("Elige el informe que quieres generar.");
         }
+        if (tipo.desdeVisita()) {
+            throw new ValidacionException("El informe técnico se genera desde «Visitas», eligiendo la visita.");
+        }
         Periodo periodo = new Periodo(desde, hasta);
         if (periodo.dias() > DIAS_MAXIMOS) {
             throw new ValidacionException("El período no puede superar los 3 años.");

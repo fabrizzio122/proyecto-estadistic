@@ -214,6 +214,46 @@
             </textField>
         </band>
 
+        <!-- DATO (etiqueta y un valor largo que se ajusta en varias líneas) -->
+        <band height="17">
+            <printWhenExpression><![CDATA["DATO".equals($F{tipo})]]></printWhenExpression>
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="165" height="17" forecolor="#475569"/>
+                <box topPadding="3" leftPadding="5" bottomPadding="3"><bottomPen lineWidth="0.5" lineColor="#E2E8F0"/></box>
+                <textElement verticalAlignment="Top"/>
+                <textFieldExpression><![CDATA[$F{concepto}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+                <reportElement stretchType="RelativeToTallestObject" x="165" y="0" width="350" height="17"/>
+                <box topPadding="3" leftPadding="5" bottomPadding="3" rightPadding="5"><bottomPen lineWidth="0.5" lineColor="#E2E8F0"/></box>
+                <textElement verticalAlignment="Top"/>
+                <textFieldExpression><![CDATA[$F{c1}]]></textFieldExpression>
+            </textField>
+        </band>
+
+        <!-- FIRMAS (dos espacios para firmar) -->
+        <band height="70" splitType="Prevent">
+            <printWhenExpression><![CDATA["FIRMAS".equals($F{tipo})]]></printWhenExpression>
+            <line>
+                <reportElement x="20" y="40" width="200" height="1"/>
+                <graphicElement><pen lineWidth="0.75" lineColor="#334155"/></graphicElement>
+            </line>
+            <line>
+                <reportElement x="295" y="40" width="200" height="1"/>
+                <graphicElement><pen lineWidth="0.75" lineColor="#334155"/></graphicElement>
+            </line>
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+                <reportElement x="20" y="44" width="200" height="24"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA[$F{c1}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="StretchHeight" isBlankWhenNull="true">
+                <reportElement x="295" y="44" width="200" height="24"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA[$F{c2}]]></textFieldExpression>
+            </textField>
+        </band>
+
         <!-- TOTAL (fila resaltada) -->
         <band height="19">
             <printWhenExpression><![CDATA["TOTAL".equals($F{tipo})]]></printWhenExpression>

@@ -17,7 +17,7 @@ import java.util.Map;
 public final class ContenidoInforme {
 
     /** Tipos de bloque que reconoce la plantilla. */
-    enum Tipo { SECCION, ENCABEZADO, FILA, TOTAL, TEXTO, NOTA, INDICADORES, SEMAFORO, RECOMENDACION, GRAFICO, ESPACIO }
+    enum Tipo { SECCION, ENCABEZADO, FILA, DATO, TOTAL, TEXTO, NOTA, INDICADORES, SEMAFORO, RECOMENDACION, GRAFICO, FIRMAS, ESPACIO }
 
     static final int COLUMNAS = 4;
 
@@ -34,6 +34,16 @@ public final class ContenidoInforme {
 
     public ContenidoInforme fila(String concepto, String... valores) {
         return agregar(Tipo.FILA, concepto, valores);
+    }
+
+    /** Etiqueta con un valor largo que ocupa el resto del ancho y se ajusta en varias líneas. */
+    public ContenidoInforme dato(String etiqueta, String valor) {
+        return agregar(Tipo.DATO, etiqueta, valor);
+    }
+
+    /** Dos espacios para firmar, con el nombre bajo cada línea. */
+    public ContenidoInforme firmas(String izquierda, String derecha) {
+        return agregar(Tipo.FIRMAS, null, izquierda, derecha);
     }
 
     /** Fila resaltada (subtotales y totales). */
