@@ -37,7 +37,8 @@ public final class Migrador {
             new Migracion(6, "Gestión financiera", "/db/migration/V6__gestion_financiera.sql"),
             new Migracion(7, "Escenarios de simulación", "/db/migration/V7__escenarios.sql"),
             new Migracion(8, "Historial de informes", "/db/migration/V8__informes.sql"),
-            new Migracion(9, "Activos, deudas y patrimonio", "/db/migration/V9__patrimonio.sql")
+            new Migracion(9, "Activos, deudas y patrimonio", "/db/migration/V9__patrimonio.sql"),
+            new Migracion(10, "Ganadería", "/db/migration/V10__ganaderia.sql")
     );
 
     private static final Logger log = LoggerFactory.getLogger(Migrador.class);

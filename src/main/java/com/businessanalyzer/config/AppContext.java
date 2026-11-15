@@ -6,6 +6,9 @@ import com.businessanalyzer.repository.EmpresaRepository;
 import com.businessanalyzer.repository.MovimientoRepository;
 import com.businessanalyzer.service.FinanzasService;
 import com.businessanalyzer.service.PatrimonioService;
+import com.businessanalyzer.service.GanaderiaService;
+import com.businessanalyzer.service.DatosDemoAgroService;
+import com.businessanalyzer.repository.GanaderiaRepository;
 import com.businessanalyzer.repository.ActivoRepository;
 import com.businessanalyzer.repository.DeudaRepository;
 import com.businessanalyzer.service.AnalisisService;
@@ -56,6 +59,8 @@ public final class AppContext {
     private final OperacionService operacionService;
     private final FinanzasService finanzasService;
     private final PatrimonioService patrimonioService;
+    private final GanaderiaService ganaderiaService;
+    private final DatosDemoAgroService datosDemoAgroService;
     private final AnalisisService analisisService;
     private final EstadisticaService estadisticaService;
     private final PrediccionService prediccionService;
@@ -93,6 +98,7 @@ public final class AppContext {
         MovimientoRepository movimientoRepository = new MovimientoRepository();
         this.finanzasService = new FinanzasService(database, movimientoRepository, empresaService, sesion, reloj);
         OperacionRepository operacionRepository = new OperacionRepository();
+        this.ganaderiaService = new GanaderiaService(database, new GanaderiaRepository(), empresaService, sesion, reloj);
         this.patrimonioService = new PatrimonioService(database, new ActivoRepository(), new DeudaRepository(),
                 productoRepository, operacionRepository, movimientoRepository, empresaService, sesion, reloj);
         this.analisisService = new AnalisisService(database, operacionRepository, movimientoRepository,
@@ -111,6 +117,8 @@ public final class AppContext {
                 diagnosticoService, operacionService, finanzasService, empresaService, sesion, reloj);
         this.datosDemoService = new DatosDemoService(empresaService, catalogoService, operacionService,
                 finanzasService, patrimonioService, sesion, reloj);
+        this.datosDemoAgroService = new DatosDemoAgroService(empresaService, ganaderiaService, patrimonioService,
+                sesion, reloj);
     }
 
     /** Prepara las carpetas, migra la base de datos y crea los servicios. */
@@ -164,6 +172,14 @@ public final class AppContext {
 
     public FinanzasService finanzas() {
         return finanzasService;
+    }
+
+    public DatosDemoAgroService datosDemoAgro() {
+        return datosDemoAgroService;
+    }
+
+    public GanaderiaService ganaderia() {
+        return ganaderiaService;
     }
 
     public PatrimonioService patrimonio() {

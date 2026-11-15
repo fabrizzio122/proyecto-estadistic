@@ -3,6 +3,7 @@ package com.businessanalyzer.controller;
 import com.businessanalyzer.BusinessAnalyzerApp;
 import com.businessanalyzer.config.AppContext;
 import com.businessanalyzer.model.Empresa;
+import com.businessanalyzer.model.Sector;
 import com.businessanalyzer.model.Usuario;
 import com.businessanalyzer.service.ConfiguracionService;
 import com.businessanalyzer.ui.DialogoCambioPassword;
@@ -47,6 +48,7 @@ public class MainController {
     private final Ventana ventana;
     private final ToggleGroup grupoMenu = new ToggleGroup();
     private final Map<Modulo, ToggleButton> botones = new EnumMap<>(Modulo.class);
+    private final Map<Modulo.Seccion, Label> encabezados = new EnumMap<>(Modulo.Seccion.class);
     private Navegador navegador;
     private Modulo moduloActual;
 
@@ -83,10 +85,12 @@ public class MainController {
             }
         });
 
+        aplicarSector(contexto.sesion().empresaActiva());
         String ultimo = contexto.configuracion().obtener(claveUltimoModulo(usuario), "");
         Modulo.desdeNombre(ultimo)
                 .filter(botones::containsKey)
-                .or(() -> botones.keySet().stream().findFirst())
+                .filter(m -> botones.get(m).isVisible())
+                .or(() -> botones.keySet().stream().filter(m -> botones.get(m).isVisible()).findFirst())
                 .ifPresent(this::abrir);
     }
 
@@ -102,6 +106,7 @@ public class MainController {
                 seccionActual = modulo.seccion();
                 Label encabezado = new Label(seccionActual.titulo().toUpperCase());
                 encabezado.getStyleClass().add("sidebar-section");
+                encabezados.put(seccionActual, encabezado);
                 menu.getChildren().add(encabezado);
             }
             ToggleButton boton = new ToggleButton(modulo.titulo(), new FontIcon(modulo.icono()));
@@ -189,9 +194,37 @@ public class MainController {
 
     private void empresaCambiada(Optional<Empresa> empresa) {
         mostrarEmpresa(empresa);
+        if (aplicarSector(empresa)) {
+            return;
+        }
         if (moduloActual != null) {
             navegador.alCambiarEmpresa(moduloActual);
         }
+    }
+
+    /**
+     * Muestra la sección «Agropecuario» del menú solo si la empresa activa es de ese sector.
+     *
+     * @return {@code true} si el módulo abierto dejó de estar disponible y se abrió otro
+     */
+    private boolean aplicarSector(Optional<Empresa> empresa) {
+        boolean agro = empresa.map(e -> e.sector() == Sector.AGROPECUARIO).orElse(false);
+        botones.forEach((modulo, boton) -> {
+            if (modulo.soloAgropecuario()) {
+                boton.setVisible(agro);
+                boton.setManaged(agro);
+            }
+        });
+        Label encabezado = encabezados.get(Modulo.Seccion.AGRO);
+        if (encabezado != null) {
+            encabezado.setVisible(agro);
+            encabezado.setManaged(agro);
+        }
+        if (!agro && moduloActual != null && moduloActual.soloAgropecuario()) {
+            botones.keySet().stream().filter(m -> !m.soloAgropecuario()).findFirst().ifPresent(this::abrir);
+            return true;
+        }
+        return false;
     }
 
     private void mostrarEmpresa(Optional<Empresa> empresa) {

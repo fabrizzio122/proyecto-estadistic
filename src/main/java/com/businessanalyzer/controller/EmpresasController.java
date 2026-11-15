@@ -72,7 +72,7 @@ public class EmpresasController implements VistaModulo {
     @FXML private Button btnUsar;
     @FXML private Button btnEditar;
     @FXML private Button btnNueva;
-    @FXML private Button btnDemo;
+    @FXML private javafx.scene.control.MenuButton btnDemo;
     @FXML private MenuButton menuAcciones;
     @FXML private MenuItem itemEstado;
     @FXML private MenuItem itemAccesos;
@@ -176,6 +176,25 @@ public class EmpresasController implements VistaModulo {
         cargar();
         seleccionar(creada[0].id());
         Notificador.exito(mensaje);
+    }
+
+    @FXML
+    private void crearFundoDemo() {
+        if (!Dialogos.confirmar(ventana(), "Productor agropecuario de demostración",
+                "Se creará \"" + com.businessanalyzer.service.DatosDemoAgroService.NOMBRE_FUNDO + "\", un productor con "
+                        + "vacunos, alpacas y ovinos, con un año de nacimientos, muertes, ventas y producción de leche y "
+                        + "fibra, y quedará como empresa activa. Tus otras empresas no se modifican.\n\n¿Continuar?")) {
+            return;
+        }
+        try {
+            Empresa demo = contexto.datosDemoAgro().crearFundoDemo();
+            cargar();
+            seleccionar(demo.id());
+            Notificador.exito("Empresa \"" + demo.nombreVisible() + "\" creada. Abre «Ganadería» en el menú.");
+        } catch (RuntimeException e) {
+            cargar();
+            Notificador.error(Errores.mensaje(e));
+        }
     }
 
     @FXML

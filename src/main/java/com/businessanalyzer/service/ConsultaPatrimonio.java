@@ -3,6 +3,8 @@ package com.businessanalyzer.service;
 import com.businessanalyzer.analytics.EstadoResultados;
 import com.businessanalyzer.analytics.Periodo;
 import com.businessanalyzer.analytics.ResumenFinanciero;
+import com.businessanalyzer.analytics.ganaderia.ExistenciaValorizada;
+import com.businessanalyzer.analytics.ganaderia.Hato;
 import com.businessanalyzer.analytics.patrimonio.BalanceGeneral;
 import com.businessanalyzer.analytics.patrimonio.IndicadoresPatrimonio;
 import com.businessanalyzer.analytics.patrimonio.SituacionPatrimonial;
@@ -10,6 +12,7 @@ import com.businessanalyzer.model.Producto;
 import com.businessanalyzer.model.TipoItem;
 import com.businessanalyzer.repository.ActivoRepository;
 import com.businessanalyzer.repository.DeudaRepository;
+import com.businessanalyzer.repository.GanaderiaRepository;
 import com.businessanalyzer.repository.MovimientoRepository;
 import com.businessanalyzer.repository.OperacionRepository;
 import com.businessanalyzer.repository.ProductoRepository;
@@ -35,6 +38,7 @@ final class ConsultaPatrimonio {
     private final ProductoRepository productos;
     private final OperacionRepository operaciones;
     private final MovimientoRepository movimientos;
+    private final GanaderiaRepository ganaderia = new GanaderiaRepository();
 
     ConsultaPatrimonio(ActivoRepository activos, DeudaRepository deudas, ProductoRepository productos,
                        OperacionRepository operaciones, MovimientoRepository movimientos) {
@@ -46,8 +50,11 @@ final class ConsultaPatrimonio {
     }
 
     SituacionPatrimonial situacion(Connection c, long empresaId, LocalDate hoy) throws SQLException {
+        BigDecimal ganado = ExistenciaValorizada.total(ExistenciaValorizada.de(
+                Hato.existencias(ganaderia.listarMovimientos(c, empresaId, hoy, false), hoy),
+                ganaderia.precios(c, empresaId)));
         BalanceGeneral balance = BalanceGeneral.de(hoy, activos.listar(c, empresaId, false),
-                valorInventario(productos.listar(c, empresaId, true)), deudas.listar(c, empresaId, false));
+                valorInventario(productos.listar(c, empresaId, true)), ganado, deudas.listar(c, empresaId, false));
 
         // Resultados de los últimos 12 meses completos, desde el primero con ventas.
         YearMonth ultimo = YearMonth.from(hoy).minusMonths(1);
