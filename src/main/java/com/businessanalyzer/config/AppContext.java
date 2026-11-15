@@ -8,6 +8,7 @@ import com.businessanalyzer.service.FinanzasService;
 import com.businessanalyzer.service.PatrimonioService;
 import com.businessanalyzer.service.GanaderiaService;
 import com.businessanalyzer.service.AgriculturaService;
+import com.businessanalyzer.service.ValoracionService;
 import com.businessanalyzer.service.VisitaService;
 import com.businessanalyzer.service.InformeTecnicoService;
 import com.businessanalyzer.repository.VisitaRepository;
@@ -66,6 +67,7 @@ public final class AppContext {
     private final PatrimonioService patrimonioService;
     private final GanaderiaService ganaderiaService;
     private final AgriculturaService agriculturaService;
+    private final ValoracionService valoracionService;
     private final VisitaService visitaService;
     private final InformeTecnicoService informeTecnicoService;
     private final DatosDemoAgroService datosDemoAgroService;
@@ -126,6 +128,8 @@ public final class AppContext {
                 configuracionService, sesion, reloj);
         this.informeService = new InformeService(database, new InformeRepository(), analisisService,
                 diagnosticoService, operacionService, finanzasService, empresaService, sesion, reloj);
+        this.valoracionService = new ValoracionService(database, operacionRepository, movimientoRepository,
+                new InformeRepository(), empresaService, configuracionService, sesion, reloj);
         this.informeTecnicoService = new InformeTecnicoService(database, new InformeRepository(), visitaService,
                 ganaderiaService, agriculturaService, patrimonioService, empresaService, sesion, reloj);
         this.datosDemoService = new DatosDemoService(empresaService, catalogoService, operacionService,
@@ -197,6 +201,10 @@ public final class AppContext {
 
     public InformeTecnicoService informeTecnico() {
         return informeTecnicoService;
+    }
+
+    public ValoracionService valoracion() {
+        return valoracionService;
     }
 
     public AgriculturaService agricultura() {

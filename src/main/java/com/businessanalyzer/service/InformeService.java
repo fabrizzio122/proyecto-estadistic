@@ -78,8 +78,8 @@ public class InformeService {
         if (tipo == null) {
             throw new ValidacionException("Elige el informe que quieres generar.");
         }
-        if (tipo.desdeVisita()) {
-            throw new ValidacionException("El informe técnico se genera desde «Visitas», eligiendo la visita.");
+        if (tipo.desdeOtroModulo()) {
+            throw new ValidacionException("Este informe se genera desde su propio módulo («Visitas» o «Valoración del negocio»).");
         }
         Periodo periodo = new Periodo(desde, hasta);
         if (periodo.dias() > DIAS_MAXIMOS) {
