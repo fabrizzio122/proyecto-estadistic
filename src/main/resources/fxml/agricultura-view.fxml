@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.businessanalyzer.controller.AgriculturaController"
+      spacing="14" styleClass="page">
+
+    <!-- Indicadores principales -->
+    <HBox fx:id="indicadores" spacing="16"/>
+
+    <TabPane fx:id="pestanas" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
+
+        <!-- 1. Campañas -->
+        <Tab text="Campañas">
+            <VBox spacing="10" styleClass="tab-contenido">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="cmbFiltro" prefWidth="150" minWidth="130"/>
+                    <CheckBox fx:id="chkAnuladas" text="Incluir anuladas" minWidth="-Infinity" onAction="#cargar"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="btnCosto" text="Costo" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#registrarCosto">
+                        <graphic><FontIcon iconLiteral="fth-minus-circle"/></graphic>
+                    </Button>
+                    <Button fx:id="btnCosecha" text="Cosecha" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#registrarCosecha">
+                        <graphic><FontIcon iconLiteral="fth-package"/></graphic>
+                    </Button>
+                    <Button fx:id="btnCerrar" text="Cerrar campaña" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#cerrarCampania">
+                        <graphic><FontIcon iconLiteral="fth-check-square"/></graphic>
+                    </Button>
+                    <Button fx:id="btnRegistros" text="Registros" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#verRegistros">
+                        <graphic><FontIcon iconLiteral="fth-list"/></graphic>
+                    </Button>
+                    <MenuButton fx:id="menuMas" text="Más" styleClass="button-secondary" minWidth="-Infinity">
+                        <items>
+                            <MenuItem fx:id="itemEditar" text="Editar campaña…" onAction="#editarCampania"/>
+                            <MenuItem fx:id="itemReabrir" text="Reabrir campaña" onAction="#reabrirCampania"/>
+                            <MenuItem fx:id="itemAnular" text="Anular campaña…" onAction="#anularCampania"/>
+                        </items>
+                    </MenuButton>
+                    <Button fx:id="btnNuevaCampania" text="Nueva campaña" styleClass="button-primary" minWidth="-Infinity"
+                            onAction="#nuevaCampania">
+                        <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
+                    </Button>
+                </HBox>
+                <HBox spacing="16" VBox.vgrow="ALWAYS">
+                    <TableView fx:id="tablaCampanias" HBox.hgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colCamCultivo" text="Cultivo" prefWidth="175"/>
+                            <TableColumn fx:id="colCamSiembra" text="Siembra" prefWidth="90"/>
+                            <TableColumn fx:id="colCamArea" text="Área" prefWidth="60" styleClass="col-numero"/>
+                            <TableColumn fx:id="colCamEstado" text="Estado" prefWidth="90"/>
+                            <TableColumn fx:id="colCamCosto" text="Costo" prefWidth="95" styleClass="col-numero"/>
+                            <TableColumn fx:id="colCamRendimiento" text="kg/ha" prefWidth="75" styleClass="col-numero"/>
+                            <TableColumn fx:id="colCamMargen" text="Margen" prefWidth="95" styleClass="col-numero"/>
+                        </columns>
+                        <columnResizePolicy>
+                            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
+                        </columnResizePolicy>
+                    </TableView>
+                    <VBox styleClass="card" spacing="10" prefWidth="310" minWidth="290">
+                        <Label fx:id="lblDetalleTitulo" text="Resultado de la campaña" styleClass="card-title" wrapText="true"/>
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="dialog-scroll" VBox.vgrow="ALWAYS">
+                            <VBox fx:id="detalle" spacing="10"/>
+                        </ScrollPane>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </Tab>
+
+        <!-- 2. Parcelas -->
+        <Tab text="Parcelas">
+            <VBox spacing="10" styleClass="tab-contenido">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <CheckBox fx:id="chkInactivas" text="Incluir desactivadas" minWidth="-Infinity" onAction="#cargar"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="btnEditarParcela" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#editarParcela">
+                        <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
+                    </Button>
+                    <Button fx:id="btnEstadoParcela" text="Desactivar" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#cambiarEstadoParcela">
+                        <graphic><FontIcon iconLiteral="fth-archive"/></graphic>
+                    </Button>
+                    <Button fx:id="btnNuevaParcela" text="Nueva parcela" styleClass="button-primary" minWidth="-Infinity"
+                            onAction="#nuevaParcela">
+                        <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
+                    </Button>
+                </HBox>
+                <TableView fx:id="tablaParcelas" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colParNombre" text="Parcela" prefWidth="180"/>
+                        <TableColumn fx:id="colParArea" text="Superficie" prefWidth="90" styleClass="col-numero"/>
+                        <TableColumn fx:id="colParTenencia" text="Tenencia" prefWidth="140"/>
+                        <TableColumn fx:id="colParRiego" text="Agua" prefWidth="80"/>
+                        <TableColumn fx:id="colParUbicacion" text="Ubicación" prefWidth="220"/>
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
+                    </columnResizePolicy>
+                </TableView>
+                <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
+                       text="Las parcelas desactivadas conservan su historia, pero no se ofrecen para nuevas campañas. Si la parcela es propia, regístrala también como terreno en «Activos y deudas» para que su valor entre al balance."/>
+            </VBox>
+        </Tab>
+    </TabPane>
+
+    <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
+           text="Superficies en hectáreas y cosechas en kilos. Lo no vendido (consumo, semilla, alimento para animales) se valoriza al precio en chacra de la campaña o, si no se indicó, al precio promedio de venta. Los costos de las campañas en curso entran al balance como «Cultivos en proceso»."/>
+</VBox>

@@ -65,6 +65,7 @@ automáticamente al iniciar y dentro de una transacción.
 13. Configuración, copias de seguridad e instalador ✅
 14. Activos, deudas y patrimonio: balance general, depreciación, liquidez y endeudamiento ✅
 15. Ganadería (sector agropecuario): hato, movimientos, producción de leche y fibra, indicadores técnicos y valor del hato ✅
+16. Agricultura (sector agropecuario): parcelas, campañas, costos, cosechas, rendimiento y margen por campaña ✅
 
 ## Seguridad
 
@@ -125,6 +126,16 @@ automáticamente al iniciar y dentro de una transacción.
 - **Valor del hato:** cabezas × precio de mercado por cabeza; se suma al balance general como «Ganado (valor de mercado)».
 - **Permisos nuevos:** «Ver ganadería y agricultura» (todos los roles) y «Registrar ganado…» (administrador, gerente y operador, que es el rol pensado para el productor).
 - **Demostración:** Empresas → Empresa de demostración → «Fundo ganadero (agropecuario)».
+
+## Agricultura (empresas agropecuarias)
+
+- **Parcelas:** nombre, hectáreas, tenencia (propia, alquilada, comunal, al partir) y si tiene riego. Se desactivan en lugar de borrarse.
+- **Campañas:** un cultivo en una parcela (papa, maíz, quinua, cebada, trigo, habas, arveja, frijol, olluco, oca, avena forrajera, alfalfa u otro), con variedad, fecha de siembra, área y un **rendimiento de referencia** (se propone el promedio nacional aproximado y se puede ajustar a la zona).
+- **Costos por rubro:** preparación del terreno, semilla, fertilizantes, abono orgánico, control de plagas, mano de obra, riego, cosecha, transporte, alquiler del terreno y otros. Se aceptan hasta 6 meses antes de la siembra.
+- **Cosechas por destino:** venta (con precio por kilo), consumo familiar, semilla, alimento para animales, trueque y pérdida poscosecha.
+- **Cierre:** la campaña se cierra como **cosechada** (requiere al menos una cosecha) o **perdida** (helada, granizada, sequía…, con la causa). Se puede reabrir para corregir.
+- **Resultado de cada campaña:** rendimiento (kg/ha) frente a la referencia con semáforo, costo por hectárea y por kilo, rendimiento mínimo para no perder, valor de la producción, margen y destino de la cosecha. Lo no vendido se valoriza al precio en chacra (o al precio promedio de venta).
+- **Balance:** lo invertido en las campañas en curso entra al activo corriente como «Cultivos en proceso (al costo)».
 
 ## Análisis financiero
 

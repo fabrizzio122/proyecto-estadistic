@@ -10,6 +10,7 @@ import com.businessanalyzer.analytics.patrimonio.IndicadoresPatrimonio;
 import com.businessanalyzer.analytics.patrimonio.SituacionPatrimonial;
 import com.businessanalyzer.model.Producto;
 import com.businessanalyzer.model.TipoItem;
+import com.businessanalyzer.repository.AgriculturaRepository;
 import com.businessanalyzer.repository.ActivoRepository;
 import com.businessanalyzer.repository.DeudaRepository;
 import com.businessanalyzer.repository.GanaderiaRepository;
@@ -39,6 +40,7 @@ final class ConsultaPatrimonio {
     private final OperacionRepository operaciones;
     private final MovimientoRepository movimientos;
     private final GanaderiaRepository ganaderia = new GanaderiaRepository();
+    private final AgriculturaRepository agricultura = new AgriculturaRepository();
 
     ConsultaPatrimonio(ActivoRepository activos, DeudaRepository deudas, ProductoRepository productos,
                        OperacionRepository operaciones, MovimientoRepository movimientos) {
@@ -53,8 +55,9 @@ final class ConsultaPatrimonio {
         BigDecimal ganado = ExistenciaValorizada.total(ExistenciaValorizada.de(
                 Hato.existencias(ganaderia.listarMovimientos(c, empresaId, hoy, false), hoy),
                 ganaderia.precios(c, empresaId)));
+        BigDecimal cultivos = cultivosEnProceso(c, empresaId);
         BalanceGeneral balance = BalanceGeneral.de(hoy, activos.listar(c, empresaId, false),
-                valorInventario(productos.listar(c, empresaId, true)), ganado, deudas.listar(c, empresaId, false));
+                valorInventario(productos.listar(c, empresaId, true)), ganado, cultivos, deudas.listar(c, empresaId, false));
 
         // Resultados de los últimos 12 meses completos, desde el primero con ventas.
         YearMonth ultimo = YearMonth.from(hoy).minusMonths(1);
@@ -74,6 +77,21 @@ final class ConsultaPatrimonio {
         int meses = (int) (ultimo.getYear() * 12L + ultimo.getMonthValue() - primero.getYear() * 12L
                 - primero.getMonthValue() + 1);
         return new SituacionPatrimonial(balance, IndicadoresPatrimonio.de(balance, resultados, meses), periodo);
+    }
+
+    /** Costos acumulados de las campañas agrícolas en curso (aún no cosechadas). */
+    private BigDecimal cultivosEnProceso(Connection c, long empresaId) throws SQLException {
+        java.util.Set<Long> enCurso = agricultura.listarCampanias(c, empresaId, false).stream()
+                .filter(k -> k.estado() == com.businessanalyzer.model.EstadoCampania.EN_CURSO)
+                .map(com.businessanalyzer.model.Campania::id)
+                .collect(java.util.stream.Collectors.toSet());
+        if (enCurso.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        return agricultura.listarCostos(c, empresaId, null, false).stream()
+                .filter(k -> enCurso.contains(k.campaniaId()))
+                .map(com.businessanalyzer.model.CostoCampania::monto)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     /** Stock positivo de cada producto (incluso archivado) por su costo unitario. */

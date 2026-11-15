@@ -37,6 +37,9 @@ public enum Modulo {
     GANADERIA(Seccion.AGRO, "Ganadería",
             "Hato, nacimientos, mortalidad, producción y valor del ganado", "fth-feather", 15,
             Permiso.AGRO_VER, "/fxml/ganaderia-view.fxml"),
+    AGRICULTURA(Seccion.AGRO, "Agricultura",
+            "Parcelas, campañas, costos, cosechas y rendimiento", "fth-sun", 16,
+            Permiso.AGRO_VER, "/fxml/agricultura-view.fxml"),
 
     ANALISIS_FINANCIERO(Seccion.ANALISIS, "Análisis financiero",
             "Estado de resultados, márgenes, ratios y punto de equilibrio", "fth-pie-chart", 7,
