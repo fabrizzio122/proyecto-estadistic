@@ -4,6 +4,13 @@ import com.businessanalyzer.analytics.Periodo;
 import com.businessanalyzer.analytics.RentabilidadProducto;
 import com.businessanalyzer.analytics.ResumenFinanciero;
 import com.businessanalyzer.analytics.ResumenOperaciones;
+import com.businessanalyzer.analytics.patrimonio.BalanceGeneral;
+import com.businessanalyzer.analytics.patrimonio.IndicadoresPatrimonio;
+import com.businessanalyzer.analytics.patrimonio.SituacionPatrimonial;
+import com.businessanalyzer.model.Activo;
+import com.businessanalyzer.model.CategoriaActivo;
+import com.businessanalyzer.model.CategoriaDeuda;
+import com.businessanalyzer.model.Deuda;
 import com.businessanalyzer.model.CategoriaFinanciera;
 import com.businessanalyzer.model.Moneda;
 import com.businessanalyzer.model.Sector;
@@ -11,6 +18,7 @@ import com.businessanalyzer.model.TipoItem;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -36,7 +44,7 @@ class MotorDiagnosticoTest {
 
         assertEquals(NivelSalud.SALUDABLE, d.nivel());
         assertEquals(100, d.puntaje());
-        assertEquals(12, d.hallazgos().size());
+        assertEquals(TipoIndicador.values().length, d.hallazgos().size());
         assertEquals(0, d.contar(Semaforo.ROJO) + d.contar(Semaforo.AMARILLO), d.hallazgos().toString());
         assertTrue(d.recomendaciones().isEmpty());
         assertEquals("9.5 %", hallazgo(d, TipoIndicador.MARGEN_NETO).valor());
@@ -57,6 +65,58 @@ class MotorDiagnosticoTest {
         assertTrue(d.nivel() == NivelSalud.EN_RIESGO || d.nivel() == NivelSalud.CRITICO);
         assertEquals(TipoIndicador.MARGEN_NETO.peso() + 20, d.recomendaciones().get(0).prioridad());
         assertEquals(Semaforo.ROJO, d.recomendaciones().get(0).semaforo());
+    }
+
+    @Test
+    void sinBalanceLaLiquidezYElEndeudamientoNoSeEvaluan() {
+        Diagnostico d = MotorDiagnostico.evaluar(datos("21000", "30000", crecientes(12), productosSanos()));
+        assertEquals(Semaforo.SIN_DATOS, hallazgo(d, TipoIndicador.LIQUIDEZ).semaforo());
+        assertEquals(Semaforo.SIN_DATOS, hallazgo(d, TipoIndicador.ENDEUDAMIENTO).semaforo());
+    }
+
+    @Test
+    void evaluaLiquidezYEndeudamientoConElBalance() {
+        // Holgado: caja 9 000 y local 20 000 frente a 3 000 de deuda de corto plazo.
+        Diagnostico sano = MotorDiagnostico.evaluar(conBalance(List.of(
+                activo(CategoriaActivo.CAJA_BANCOS, "9000"), activo(CategoriaActivo.EDIFICIOS, "20000")), "3000"));
+        assertEquals(Semaforo.VERDE, hallazgo(sano, TipoIndicador.LIQUIDEZ).semaforo());
+        assertEquals("3.00", hallazgo(sano, TipoIndicador.LIQUIDEZ).valor());
+        assertEquals(Semaforo.VERDE, hallazgo(sano, TipoIndicador.ENDEUDAMIENTO).semaforo());
+        assertEquals(100, sano.puntaje());
+
+        // Apretado: caja 2 000 frente a 2 500 que vencen en el año (liquidez 0.80); deudas = 62.5 % de los activos.
+        Diagnostico apretado = MotorDiagnostico.evaluar(conBalance(List.of(
+                activo(CategoriaActivo.CAJA_BANCOS, "2000"), activo(CategoriaActivo.EDIFICIOS, "2000")), "2500"));
+        Hallazgo liquidez = hallazgo(apretado, TipoIndicador.LIQUIDEZ);
+        assertEquals(Semaforo.ROJO, liquidez.semaforo());
+        assertTrue(liquidez.recomendacion().contains("S/ 500.00"), liquidez.recomendacion());
+        assertEquals(Semaforo.AMARILLO, hallazgo(apretado, TipoIndicador.ENDEUDAMIENTO).semaforo());
+        assertTrue(apretado.puntaje() < 100);
+    }
+
+    @Test
+    void conPatrimonioNegativoElEndeudamientoEstaEnRojo() {
+        Diagnostico d = MotorDiagnostico.evaluar(conBalance(List.of(activo(CategoriaActivo.CAJA_BANCOS, "1000")), "4000"));
+        Hallazgo h = hallazgo(d, TipoIndicador.ENDEUDAMIENTO);
+        assertEquals(Semaforo.ROJO, h.semaforo());
+        assertTrue(h.lectura().contains("patrimonio es negativo"), h.lectura());
+    }
+
+    private static DatosDiagnostico conBalance(List<Activo> activos, String deudaCortoPlazo) {
+        DatosDiagnostico base = datos("21000", "30000", crecientes(12), productosSanos());
+        LocalDate corte = PERIODO.hasta();
+        Deuda deuda = new Deuda(1, 1, CategoriaDeuda.PROVEEDORES, "Proveedor", null, corte, bd(deudaCortoPlazo),
+                BigDecimal.ZERO, null, null, null, false, null, "admin", null, null, null);
+        BalanceGeneral balance = BalanceGeneral.de(corte, activos, BigDecimal.ZERO, List.of(deuda));
+        SituacionPatrimonial s = new SituacionPatrimonial(balance, IndicadoresPatrimonio.de(balance, null, 0), null);
+        return new DatosDiagnostico(base.sector(), base.moneda(), base.periodo(), 3, base.operaciones(), base.finanzas(),
+                base.operacionesAnteriores(), base.meses(), base.ventasMensuales(), base.utilidadMensual(),
+                base.productos(), s);
+    }
+
+    private static Activo activo(CategoriaActivo categoria, String valor) {
+        return new Activo(1, 1, categoria, categoria.descripcion(), PERIODO.hasta(), bd(valor), null, BigDecimal.ZERO,
+                false, null, null, "admin", null, null, null);
     }
 
     @Test

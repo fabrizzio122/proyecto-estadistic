@@ -60,9 +60,10 @@ automáticamente al iniciar y dentro de una transacción.
 8. Análisis estadístico: descriptiva, tendencia, estacionalidad, ABC y correlaciones ✅
 9. Predicciones: proyección de ventas y utilidad con selección automática del método ✅
 10. Simulación de escenarios: qué pasaría si…, sensibilidad, metas y comparación ✅
-11. Diagnóstico empresarial: puntaje de salud, semáforo de 12 indicadores y recomendaciones ✅
+11. Diagnóstico empresarial: puntaje de salud, semáforo de 14 indicadores y recomendaciones ✅
 12. Informes (PDF y Excel): JasperReports y Apache POI ✅
 13. Configuración, copias de seguridad e instalador ✅
+14. Activos, deudas y patrimonio: balance general, depreciación, liquidez y endeudamiento ✅
 
 ## Seguridad
 
@@ -101,6 +102,18 @@ automáticamente al iniciar y dentro de una transacción.
 - **Copiar gastos fijos del mes anterior** los repite en el mes actual sin duplicarlos.
 - Se aceptan fechas hasta el fin del mes en curso, para registrar por adelantado la planilla y el alquiler.
 
+## Activos, deudas y patrimonio
+
+- **Activos:** caja y bancos, cuentas por cobrar y otros corrientes (se registra el saldo y se actualiza cuando cambia); terrenos, edificios, maquinaria, vehículos, muebles y equipos de cómputo (se registra el valor de adquisición).
+- **Depreciación:** en línea recta, por meses completos, según la vida útil y el valor residual. Los terrenos no se deprecian. Una vida útil vacía significa que el bien no se deprecia.
+- **Inventario:** no se registra a mano. Se calcula con el stock de cada producto por su costo unitario.
+- **Deudas:** monto, acreedor, tasa anual, cuota mensual y vencimiento (estos tres son opcionales). Los **pagos de capital** reducen el saldo; los intereses se registran como gasto en Gestión financiera. Con saldo cero la deuda queda «Cancelada».
+- **Corto y largo plazo:** sin vencimiento, o si vence dentro de 12 meses, toda la deuda es de corto plazo. Si vence después, se considera de corto plazo la parte proporcional a 12 meses.
+- **Balance general** al día de hoy: activo corriente y no corriente, pasivo corriente y no corriente, y patrimonio (activo − pasivo).
+- **Indicadores:** liquidez corriente, prueba ácida, capital de trabajo, endeudamiento, deuda por cada 1 de patrimonio, rentabilidad del patrimonio y de los activos (con la utilidad de los últimos 12 meses llevada a un año) y cobertura de cuotas (utilidad operativa mensual ÷ cuotas).
+- **Nada se elimina:** los activos se dan de baja con fecha y motivo; las deudas y los pagos se anulan.
+- **Permisos:** los mismos de Gestión financiera (ver y registrar).
+
 ## Análisis financiero
 
 - **Estado de resultados** del período elegido (ventas − costo de ventas − gastos operativos ± resultados financieros − impuesto a la renta), con el % sobre las ventas y la comparación con el período anterior equivalente.
@@ -109,7 +122,7 @@ automáticamente al iniciar y dentro de una transacción.
 - **Rentabilidad por producto**: unidades, ventas, margen y aporte al margen total. Usa el costo vigente en cada venta.
 - **Evolución de los últimos 12 meses** y una **lectura rápida** en lenguaje sencillo.
 - Gráficos con **JFreeChart**. Con clic derecho sobre un gráfico se puede guardarlo como imagen.
-- Los ratios de liquidez y endeudamiento necesitan datos de balance (activos y pasivos), que el sistema aún no registra.
+- Los ratios de liquidez y endeudamiento se ven en el módulo «Activos y deudas» (Fase 14).
 
 ## Análisis estadístico
 
@@ -144,9 +157,9 @@ Se calcula con **Apache Commons Math**:
 ## Diagnóstico empresarial
 
 - **Período:** evalúa los últimos 3 meses completos frente a los 3 anteriores y usa hasta 24 meses de historia.
-- **Indicadores:** 12, con semáforo (verde, amarillo o rojo), agrupados en 4 áreas:
+- **Indicadores:** 14, con semáforo (verde, amarillo o rojo), agrupados en 4 áreas:
   - **Rentabilidad:** margen neto, margen bruto y meses con pérdida.
-  - **Solidez:** margen de seguridad, peso de los costos fijos y carga financiera.
+  - **Solidez:** margen de seguridad, peso de los costos fijos, carga financiera, liquidez y endeudamiento. Estos dos últimos se evalúan solo si hay activos registrados en «Activos y deudas».
   - **Crecimiento:** ventas frente al trimestre anterior, tendencia de 12 meses y proyección a 3 meses.
   - **Riesgo comercial:** regularidad de las ventas, dependencia del producto principal y productos vendidos con pérdida.
 - **Umbrales:** los de margen neto y margen bruto dependen del sector de la empresa.

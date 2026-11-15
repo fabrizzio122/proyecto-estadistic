@@ -11,8 +11,11 @@ import com.businessanalyzer.analytics.diagnostico.MotorDiagnostico;
 import com.businessanalyzer.config.Database;
 import com.businessanalyzer.model.Empresa;
 import com.businessanalyzer.model.Permiso;
+import com.businessanalyzer.repository.ActivoRepository;
+import com.businessanalyzer.repository.DeudaRepository;
 import com.businessanalyzer.repository.MovimientoRepository;
 import com.businessanalyzer.repository.OperacionRepository;
+import com.businessanalyzer.repository.ProductoRepository;
 import com.businessanalyzer.seguridad.Sesion;
 
 import java.time.Clock;
@@ -38,6 +41,7 @@ public class DiagnosticoService {
     private final EmpresaService empresas;
     private final Sesion sesion;
     private final Clock reloj;
+    private final ConsultaPatrimonio patrimonio;
 
     public DiagnosticoService(Database database, OperacionRepository operaciones, MovimientoRepository movimientos,
                               EmpresaService empresas, Sesion sesion, Clock reloj) {
@@ -47,6 +51,8 @@ public class DiagnosticoService {
         this.empresas = empresas;
         this.sesion = sesion;
         this.reloj = reloj;
+        this.patrimonio = new ConsultaPatrimonio(new ActivoRepository(), new DeudaRepository(),
+                new ProductoRepository(), operaciones, movimientos);
     }
 
     public Diagnostico diagnosticar() {
@@ -82,7 +88,8 @@ public class DiagnosticoService {
                 utilidad[i - inicio] = estado.utilidadNeta().doubleValue();
             }
             return new DatosDiagnostico(empresa.sector(), empresa.moneda(), periodo, MESES_EVALUADOS, ops, fin,
-                    opsAnterior, meses, ventas, utilidad, productos);
+                    opsAnterior, meses, ventas, utilidad, productos,
+                    patrimonio.situacion(c, empresa.id(), LocalDate.now(reloj)));
         });
         return MotorDiagnostico.evaluar(datos);
     }

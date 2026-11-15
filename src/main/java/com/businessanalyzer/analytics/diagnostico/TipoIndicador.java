@@ -19,6 +19,11 @@ public enum TipoIndicador {
             "Costos fijos ÷ ventas. Cuanto más alto, más difícil es adaptarse a un mes malo."),
     CARGA_FINANCIERA("Carga financiera", Area.SOLIDEZ, 1,
             "Intereses ÷ utilidad operativa: cuánto de lo que gana el negocio se va en pagar deudas."),
+    LIQUIDEZ("Liquidez", Area.SOLIDEZ, 2,
+            "Activo corriente ÷ pasivo corriente: si la caja, los cobros y el inventario alcanzan para "
+                    + "pagar lo que vence en el año."),
+    ENDEUDAMIENTO("Endeudamiento", Area.SOLIDEZ, 2,
+            "Deudas ÷ activos: qué parte de los bienes del negocio está financiada por terceros."),
 
     VARIACION_VENTAS("Ventas frente al trimestre anterior", Area.CRECIMIENTO, 2,
             "Ventas de los últimos tres meses comparadas con los tres meses previos."),

@@ -4,6 +4,9 @@ import com.businessanalyzer.analytics.EstadoResultados;
 import com.businessanalyzer.analytics.PuntoEquilibrio;
 import com.businessanalyzer.analytics.RentabilidadProducto;
 import com.businessanalyzer.analytics.estadistica.EstadisticaDescriptiva;
+import com.businessanalyzer.analytics.patrimonio.BalanceGeneral;
+import com.businessanalyzer.analytics.patrimonio.IndicadoresPatrimonio;
+import com.businessanalyzer.analytics.patrimonio.SituacionPatrimonial;
 import com.businessanalyzer.analytics.estadistica.Tendencia;
 import com.businessanalyzer.analytics.prediccion.Pronosticador;
 import com.businessanalyzer.analytics.prediccion.Pronostico;
@@ -27,7 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Motor del diagnóstico empresarial: evalúa doce indicadores con un semáforo, calcula un puntaje
+ * Motor del diagnóstico empresarial: evalúa catorce indicadores con un semáforo, calcula un puntaje
  * de salud de 0 a 100 y redacta una recomendación concreta para cada indicador en amarillo o rojo.
  * <p>
  * Reúne los cálculos de las fases anteriores (estado de resultados, punto de equilibrio,
@@ -90,7 +93,7 @@ public final class MotorDiagnostico {
     private Diagnostico diagnosticar() {
         List<Hallazgo> hallazgos = List.of(
                 margenNeto(), margenBruto(), mesesConPerdida(),
-                margenSeguridad(), pesoCostosFijos(), cargaFinanciera(),
+                margenSeguridad(), pesoCostosFijos(), cargaFinanciera(), liquidez(), endeudamiento(),
                 variacionVentas(), tendenciaVentas(), proyeccionVentas(),
                 regularidadVentas(), concentracion(), productosConPerdida());
 
@@ -305,6 +308,74 @@ public final class MotorDiagnostico {
         }
         Semaforo semaforo = carga.compareTo(new BigDecimal("0.50")) <= 0 ? Semaforo.AMARILLO : Semaforo.ROJO;
         return new Hallazgo(tipo, semaforo, pct(carga), criterio, lectura, recomendacion);
+    }
+
+    /** Balance general disponible con al menos un activo registrado; si no, liquidez y endeudamiento no se evalúan. */
+    private Optional<SituacionPatrimonial> patrimonio() {
+        return Optional.ofNullable(datos.patrimonio()).filter(s -> s.balance().activosRegistrados() > 0);
+    }
+
+    private Hallazgo liquidez() {
+        TipoIndicador tipo = TipoIndicador.LIQUIDEZ;
+        Optional<SituacionPatrimonial> situacion = patrimonio();
+        if (situacion.isEmpty()) {
+            return Hallazgo.sinDatos(tipo, "Registra la caja, los cobros pendientes y las deudas en «Activos y deudas» para evaluarla.");
+        }
+        IndicadoresPatrimonio i = situacion.get().indicadores();
+        String criterio = "Bien desde " + IndicadoresPatrimonio.veces(IndicadoresPatrimonio.LIQUIDEZ_VERDE)
+                + "; riesgo por debajo de " + IndicadoresPatrimonio.veces(IndicadoresPatrimonio.LIQUIDEZ_AMARILLO) + ".";
+        BigDecimal liquidez = i.liquidezCorriente();
+        if (liquidez == null) {
+            return new Hallazgo(tipo, Semaforo.VERDE, "Sin deudas", criterio,
+                    "No hay deudas que venzan en los próximos 12 meses.", null);
+        }
+        String valor = IndicadoresPatrimonio.veces(liquidez);
+        String lectura = "Por cada " + moneda.simbolo() + " 1 que vence en el año hay " + moneda.simbolo() + " " + valor
+                + " en caja, cobros pendientes e inventario.";
+        if (liquidez.compareTo(IndicadoresPatrimonio.LIQUIDEZ_VERDE) >= 0) {
+            return new Hallazgo(tipo, Semaforo.VERDE, valor, criterio, lectura, null);
+        }
+        if (liquidez.compareTo(IndicadoresPatrimonio.LIQUIDEZ_AMARILLO) >= 0) {
+            return new Hallazgo(tipo, Semaforo.AMARILLO, valor, criterio, lectura,
+                    "Cobra a tiempo a los clientes, mantén una reserva de caja de al menos un mes de gastos fijos "
+                            + "y no pagues bienes de largo plazo con dinero que necesitas en el año.");
+        }
+        return new Hallazgo(tipo, Semaforo.ROJO, valor, criterio, lectura,
+                "Faltan unos " + dinero(i.capitalTrabajo().negate()) + " para cubrir lo que vence en el año. Negocia "
+                        + "más plazo con proveedores, refinancia los préstamos a un plazo mayor y acelera los cobros pendientes.");
+    }
+
+    private Hallazgo endeudamiento() {
+        TipoIndicador tipo = TipoIndicador.ENDEUDAMIENTO;
+        Optional<SituacionPatrimonial> situacion = patrimonio();
+        if (situacion.isEmpty()) {
+            return Hallazgo.sinDatos(tipo, "Registra los activos y las deudas en «Activos y deudas» para evaluarlo.");
+        }
+        BalanceGeneral b = situacion.get().balance();
+        BigDecimal ratio = situacion.get().indicadores().endeudamiento();
+        String criterio = "Bien hasta " + pct(IndicadoresPatrimonio.ENDEUDAMIENTO_VERDE) + "; riesgo por encima de "
+                + pct(IndicadoresPatrimonio.ENDEUDAMIENTO_AMARILLO) + ".";
+        if (b.totalPasivo().signum() == 0) {
+            return new Hallazgo(tipo, Semaforo.VERDE, "0 %", criterio, "El negocio no tiene deudas pendientes.", null);
+        }
+        if (ratio == null || b.patrimonio().signum() <= 0) {
+            return new Hallazgo(tipo, Semaforo.ROJO, ratio == null ? "Sin activos" : pct(ratio), criterio,
+                    "Las deudas (" + dinero(b.totalPasivo()) + ") superan a los bienes del negocio ("
+                            + dinero(b.totalActivo()) + "): el patrimonio es negativo.",
+                    "No tomes nuevos préstamos, destina las utilidades a pagar primero las deudas más caras "
+                            + "y evalúa un aporte de capital de los dueños.");
+        }
+        String lectura = "Las deudas financian el " + pct(ratio) + " de los bienes del negocio; el resto es patrimonio "
+                + "de los dueños (" + dinero(b.patrimonio()) + ").";
+        if (ratio.compareTo(IndicadoresPatrimonio.ENDEUDAMIENTO_VERDE) <= 0) {
+            return new Hallazgo(tipo, Semaforo.VERDE, pct(ratio), criterio, lectura, null);
+        }
+        Semaforo semaforo = ratio.compareTo(IndicadoresPatrimonio.ENDEUDAMIENTO_AMARILLO) <= 0
+                ? Semaforo.AMARILLO : Semaforo.ROJO;
+        BigDecimal exceso = b.totalPasivo().subtract(b.totalActivo().multiply(IndicadoresPatrimonio.ENDEUDAMIENTO_VERDE));
+        return new Hallazgo(tipo, semaforo, pct(ratio), criterio, lectura,
+                "Para bajar al " + pct(IndicadoresPatrimonio.ENDEUDAMIENTO_VERDE) + " habría que reducir las deudas en unos "
+                        + dinero(exceso.max(BigDecimal.ZERO)) + ". Evita nuevos préstamos y amortiza primero los de mayor tasa.");
     }
 
     // ------------------------------------------------------------------ crecimiento

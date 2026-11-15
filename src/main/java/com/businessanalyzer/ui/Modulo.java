@@ -30,6 +30,9 @@ public enum Modulo {
     FINANZAS(Seccion.GESTION, "Gestión financiera",
             "Ingresos, gastos y costos fijos y variables", "fth-dollar-sign", 6,
             Permiso.FINANZAS_VER, "/fxml/finanzas-view.fxml"),
+    PATRIMONIO(Seccion.GESTION, "Activos y deudas",
+            "Bienes, deudas, balance general y patrimonio", "fth-layers", 14,
+            Permiso.FINANZAS_VER, "/fxml/patrimonio-view.fxml"),
 
     ANALISIS_FINANCIERO(Seccion.ANALISIS, "Análisis financiero",
             "Estado de resultados, márgenes, ratios y punto de equilibrio", "fth-pie-chart", 7,
