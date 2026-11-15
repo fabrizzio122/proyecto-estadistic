@@ -43,7 +43,7 @@ import java.util.UUID;
 public class VisitaService {
 
     /** Carpeta de las fotos dentro de la carpeta de datos. */
-    public static final String CARPETA_FOTOS = "fotos-visitas";
+    public static final String CARPETA_FOTOS = com.businessanalyzer.config.AppConfig.CARPETA_FOTOS;
     static final long TAMANO_MAXIMO_FOTO = 15L * 1024 * 1024;
     private static final LocalDate FECHA_MINIMA = LocalDate.of(2000, 1, 1);
 

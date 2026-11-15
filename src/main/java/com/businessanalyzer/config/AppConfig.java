@@ -16,6 +16,8 @@ public final class AppConfig {
 
     public static final String PROPIEDAD_DIRECTORIO_DATOS = "ba.data.dir";
     private static final String ARCHIVO_BASE_DATOS = "business-analyzer.db";
+    /** Carpeta, dentro de la carpeta de datos, donde se guardan las fotos de las visitas de inspección. */
+    public static final String CARPETA_FOTOS = "fotos-visitas";
 
     private final Path directorioDatos;
 

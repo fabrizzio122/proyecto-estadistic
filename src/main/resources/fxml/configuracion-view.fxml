@@ -63,7 +63,7 @@
                         <VBox styleClass="card" spacing="10">
                             <Label text="Restaurar" styleClass="card-title"/>
                             <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
-                                   text="Reemplaza todos los datos por los de una copia. Antes se guarda una copia del estado actual y la aplicación se reinicia."/>
+                                   text="Reemplaza todos los datos por los de una copia. Antes se guarda una copia del estado actual y la aplicación se reinicia. Las copias (.zip) incluyen las fotos de las visitas; las copias antiguas (.db) restauran solo los datos."/>
                             <Button text="Restaurar desde un archivo…" styleClass="button-secondary" onAction="#restaurarDesdeArchivo">
                                 <graphic><FontIcon iconLiteral="fth-upload"/></graphic>
                             </Button>

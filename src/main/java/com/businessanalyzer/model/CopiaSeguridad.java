@@ -3,7 +3,7 @@ package com.businessanalyzer.model;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 
-/** Copia de seguridad de la base de datos guardada en la carpeta de copias. */
+/** Copia de seguridad (base de datos y fotos de las visitas) guardada en la carpeta de copias. */
 public record CopiaSeguridad(Path archivo, LocalDateTime fecha, Tipo tipo, long bytes) {
 
     /** Origen de la copia; forma parte del nombre del archivo. */
@@ -38,7 +38,7 @@ public record CopiaSeguridad(Path archivo, LocalDateTime fecha, Tipo tipo, long 
         }
     }
 
-    /** Resumen del contenido de un archivo de copia, obtenido al validarlo. */
-    public record Contenido(int versionEsquema, int empresas, int usuarios, int operaciones) {
+    /** Resumen del contenido de un archivo de copia, obtenido al validarlo ({@code fotos}: fotos de visitas incluidas). */
+    public record Contenido(int versionEsquema, int empresas, int usuarios, int operaciones, int fotos) {
     }
 }

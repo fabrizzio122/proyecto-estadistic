@@ -194,7 +194,7 @@ public class ConfiguracionController implements VistaModulo {
     private void restaurarDesdeArchivo() {
         FileChooser selector = new FileChooser();
         selector.setTitle("Elegir copia de seguridad");
-        selector.getExtensionFilters().add(new FileChooser.ExtensionFilter("Copias de Business Analyzer (*.db)", "*.db"));
+        selector.getExtensionFilters().add(new FileChooser.ExtensionFilter("Copias de Business Analyzer (*.zip, *.db)", "*.zip", "*.db"));
         Path carpeta = contexto.copias().carpeta();
         if (Files.isDirectory(carpeta)) {
             selector.setInitialDirectory(carpeta.toFile());
@@ -214,7 +214,8 @@ public class ConfiguracionController implements VistaModulo {
             return;
         }
         String resumen = "La copia «" + origen.getFileName() + "» contiene " + contenido.empresas() + " empresa(s), "
-                + contenido.usuarios() + " usuario(s) y " + contenido.operaciones() + " operación(es).\n\n"
+                + contenido.usuarios() + " usuario(s), " + contenido.operaciones() + " operación(es) y "
+                + (contenido.fotos() == 0 ? "ninguna foto de visitas" : contenido.fotos() + " foto(s) de visitas") + ".\n\n"
                 + "Todos los datos actuales se reemplazarán por los de la copia. Antes se guardará una copia del "
                 + "estado actual en la carpeta de copias.\n\nLa aplicación se cerrará; al abrirla de nuevo trabajarás "
                 + "con los datos restaurados. ¿Continuar?";

@@ -119,6 +119,73 @@ class CopiaSeguridadServiceTest {
     }
 
     @Test
+    void laCopiaIncluyeLasFotosYLasRestaura() throws Exception {
+        Path fotos = entorno.database.archivo().resolveSibling("fotos-visitas");
+        Path foto = Files.createDirectories(fotos.resolve("7")).resolve("cobertizo.jpg");
+        Files.write(foto, new byte[]{1, 2, 3, 4, 5});
+        CopiaSeguridad copia = servicio.crearManual();
+
+        assertTrue(copia.archivo().getFileName().toString().endsWith(".zip"));
+        assertEquals(1, servicio.validar(copia.archivo()).fotos());
+
+        // Después de la copia se borra esa foto y se agrega otra.
+        Files.delete(foto);
+        Files.write(fotos.resolve("7").resolve("nueva.jpg"), new byte[]{9});
+
+        servicio.programarRestauracion(copia.archivo());
+        assertTrue(Files.isRegularFile(RestauracionPendiente.carpetaFotosPendiente(entorno.database.archivo())
+                .resolve("7").resolve("cobertizo.jpg")));
+        // La copia previa a la restauración guarda las fotos del estado actual.
+        CopiaSeguridad previa = servicio.listar().stream()
+                .filter(c -> c.tipo() == CopiaSeguridad.Tipo.PREVIA_RESTAURACION).findFirst().orElseThrow();
+        assertEquals(1, servicio.validar(previa.archivo()).fotos());
+
+        assertTrue(RestauracionPendiente.aplicar(entorno.database.archivo()));
+        assertTrue(Files.isRegularFile(foto), "La foto de la copia vuelve");
+        assertFalse(Files.exists(fotos.resolve("7").resolve("nueva.jpg")), "Las fotos quedan como en la copia");
+        assertFalse(Files.exists(RestauracionPendiente.carpetaFotosPendiente(entorno.database.archivo())));
+    }
+
+    @Test
+    void unaCopiaAntiguaSoloConLaBaseSeRestauraSinTocarLasFotos() throws Exception {
+        Path antigua = copiaAntigua("business-analyzer_2025-12-01_080000_manual.db");
+        Path foto = Files.createDirectories(entorno.database.archivo().resolveSibling("fotos-visitas").resolve("3"))
+                .resolve("a.jpg");
+        Files.write(foto, new byte[]{1});
+
+        Contenido contenido = servicio.programarRestauracion(antigua);
+
+        assertEquals(0, contenido.fotos());
+        assertFalse(Files.exists(RestauracionPendiente.carpetaFotosPendiente(entorno.database.archivo())));
+        assertTrue(RestauracionPendiente.aplicar(entorno.database.archivo()));
+        assertTrue(Files.isRegularFile(foto), "Las fotos actuales se conservan");
+    }
+
+    @Test
+    void rechazaUnZipQueNoEsUnaCopia() throws Exception {
+        Path zip = carpeta.resolve("otro.zip");
+        try (java.util.zip.ZipOutputStream salida = new java.util.zip.ZipOutputStream(Files.newOutputStream(zip))) {
+            salida.putNextEntry(new java.util.zip.ZipEntry("documento.txt"));
+            salida.write("hola".getBytes());
+            salida.closeEntry();
+        }
+        assertThrows(ValidacionException.class, () -> servicio.validar(zip));
+    }
+
+    /** Copia en el formato anterior a las fotos: solo el archivo de la base de datos. */
+    private Path copiaAntigua(String nombre) {
+        Path destino = carpeta.resolve(nombre);
+        entorno.database.conConexion(c -> {
+            try (PreparedStatement ps = c.prepareStatement("VACUUM INTO ?")) {
+                ps.setString(1, destino.toString());
+                ps.execute();
+            }
+            return null;
+        });
+        return destino;
+    }
+
+    @Test
     void restaurarReemplazaLaBaseAlReiniciar() throws Exception {
         CopiaSeguridad copia = servicio.crearManual();
         entorno.crearEmpresaActiva("Empresa creada después de la copia");
@@ -156,9 +223,9 @@ class CopiaSeguridadServiceTest {
         });
         assertThrows(ValidacionException.class, () -> servicio.validar(otra.archivo()));
 
-        // Copia de una versión más nueva de la aplicación
-        CopiaSeguridad copia = servicio.crearManual();
-        Database futura = new Database(copia.archivo());
+        // Copia (en el formato antiguo, solo la base) de una versión más nueva de la aplicación
+        Path vieja = copiaAntigua("futura.db");
+        Database futura = new Database(vieja);
         futura.conConexion(c -> {
             try (PreparedStatement ps = c.prepareStatement(
                     "INSERT INTO schema_version (version, descripcion, aplicada_en) VALUES (?, 'futura', '2030-01-01')")) {
@@ -167,7 +234,7 @@ class CopiaSeguridadServiceTest {
             }
             return null;
         });
-        ValidacionException error = assertThrows(ValidacionException.class, () -> servicio.validar(copia.archivo()));
+        ValidacionException error = assertThrows(ValidacionException.class, () -> servicio.validar(vieja));
         assertTrue(error.getMessage().contains("más nueva"));
         assertFalse(RestauracionPendiente.hayPendiente(entorno.database.archivo()));
     }

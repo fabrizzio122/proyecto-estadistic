@@ -144,7 +144,7 @@ automáticamente al iniciar y dentro de una transacción.
 - **Visita:** fecha, tipo (evaluación inicial, supervisión, seguimiento de crédito, asistencia técnica, evaluación final), inspector, lugar, coordenadas GPS (grados decimales), quién atendió, observaciones, conclusión y próxima visita.
 - **Verificación en campo:** 12 aspectos en tres áreas (ganadería, agricultura y generales). Cada uno se marca «Cumple», «Cumple en parte», «No cumple» o «No aplica». El **cumplimiento** vale 1, 0.5 y 0 sin contar los que no aplican, y propone la conclusión: desde 80 % favorable, desde 50 % con observaciones y, por debajo, desfavorable.
 - **Compromisos:** se acuerdan en una visita con un plazo y, en la visita siguiente, aparecen para marcarlos como cumplidos o no cumplidos. Los pendientes con el plazo vencido se resaltan.
-- **Fotos:** JPG o PNG de hasta 15 MB. Se copian a la carpeta de datos, en `fotos-visitas/`. **Las copias de seguridad aún no incluyen las fotos.**
+- **Fotos:** JPG o PNG de hasta 15 MB. Se copian a la carpeta de datos, en `fotos-visitas/`, y se incluyen en las copias de seguridad.
 - **Informe técnico (PDF):** datos de la visita, verificación en campo, compromisos, indicadores del hato y de las campañas de los 12 meses previos, situación patrimonial, observaciones, conclusión, hasta 6 fotos y espacio para las firmas. Queda en el historial de informes.
 - **Permisos:** las ven todos los roles con acceso a la empresa; las registran el administrador, el gerente y el analista (el rol del inspector). El operador (productor) las ve pero no las modifica.
 
@@ -234,11 +234,12 @@ Se calcula con **Apache Commons Math**:
 ## Configuración y copias de seguridad
 
 - **Copias de seguridad** con `VACUUM INTO`: una copia consistente y compacta, aunque la aplicación esté en uso. Cada copia se verifica (`PRAGMA quick_check`) al crearla.
+- **Formato:** cada copia es un solo archivo `.zip` con la base de datos y las fotos de las visitas de inspección. Basta con llevar ese archivo a otra computadora. Las copias antiguas (`.db`, solo la base de datos) se siguen pudiendo restaurar; en ese caso las fotos actuales se conservan.
 - **Copia automática** al iniciar la aplicación, como máximo una vez al día. Solo se conservan las últimas N automáticas (10 por defecto); las manuales nunca se borran solas.
 - **Carpeta de copias configurable**, por ejemplo una memoria USB o una carpeta sincronizada con la nube. La predeterminada es `%USERPROFILE%\BusinessAnalyzer\copias`.
 - **Restauración segura en dos pasos:**
   1. Se valida la copia: que sea SQLite, esté íntegra, sea de Business Analyzer y no venga de una versión más nueva.
-  2. Se guarda una copia del estado actual y la restauración se aplica al reiniciar, antes de abrir la base de datos. Si la copia es de una versión anterior, el migrador la actualiza.
+  2. Se guarda una copia del estado actual (con sus fotos) y la restauración se aplica al reiniciar, antes de abrir la base de datos: se reemplazan la base y la carpeta de fotos. Si la copia es de una versión anterior, el migrador la actualiza.
 - **Pestaña Sistema:** versión de la aplicación, del esquema, de Java y de JavaFX; rutas y tamaño de la base de datos; verificación de integridad; acceso a la carpeta de datos y a los registros.
 - **Permiso:** `CONFIGURACION_GESTIONAR` (solo Administrador).
 

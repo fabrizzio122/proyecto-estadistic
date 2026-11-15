@@ -64,7 +64,7 @@ public class CopiaSeguridadService {
     private static final String PREFIJO = "business-analyzer_";
     private static final DateTimeFormatter FORMATO_NOMBRE = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss");
     private static final Pattern NOMBRE = Pattern.compile(
-            "business-analyzer_(\\d{4}-\\d{2}-\\d{2})_(\\d{6})_(manual|auto|previa)(-\\d+)?\\.db");
+            "business-analyzer_(\\d{4}-\\d{2}-\\d{2})_(\\d{6})_(manual|auto|previa)(-\\d+)?\\.(db|zip)");
     private static final Duration INTERVALO_AUTOMATICA = Duration.ofHours(20);
     private static final byte[] CABECERA_SQLITE = "SQLite format 3\0".getBytes(StandardCharsets.US_ASCII);
 
@@ -175,26 +175,42 @@ public class CopiaSeguridadService {
         }
         LocalDateTime ahora = LocalDateTime.now(reloj).withNano(0);
         String base = PREFIJO + ahora.format(FORMATO_NOMBRE) + "_" + tipo.sufijo();
-        Path destino = carpeta.resolve(base + ".db");
-        for (int n = 2; Files.exists(destino); n++) {
-            destino = carpeta.resolve(base + "-" + n + ".db");
+        Path destino = carpeta.resolve(base + ".zip");
+        for (int n = 2; Files.exists(destino) || Files.exists(destino.resolveSibling(base + ".db")); n++) {
+            destino = carpeta.resolve(base + "-" + n + ".zip");
         }
         Path archivo = destino;
-        database.conConexion(c -> {
-            try (PreparedStatement ps = c.prepareStatement("VACUUM INTO ?")) {
-                ps.setString(1, archivo.toString());
-                ps.execute();
-            }
-            return null;
-        });
+        Path baseDatos = carpeta.resolve(archivo.getFileName() + ".db.tmp");
+        Path temporal = carpeta.resolve(archivo.getFileName() + ".tmp");
         try {
-            leerContenido(archivo);
-        } catch (RuntimeException e) {
+            database.conConexion(c -> {
+                try (PreparedStatement ps = c.prepareStatement("VACUUM INTO ?")) {
+                    ps.setString(1, baseDatos.toString());
+                    ps.execute();
+                }
+                return null;
+            });
+            try {
+                leerBaseDatos(baseDatos, 0);
+            } catch (RuntimeException e) {
+                throw new DataAccessException("La copia creada no pasó la verificación de integridad.", e);
+            }
+            int fotos = ArchivoCopia.crear(baseDatos, carpetaFotos(), temporal);
+            Files.move(temporal, archivo, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Copia de seguridad {} creada con {} fotos: {}", tipo, fotos, archivo);
+        } catch (IOException e) {
             borrar(archivo);
-            throw new DataAccessException("La copia creada no pasó la verificación de integridad.", e);
+            throw new DataAccessException("No se pudo escribir la copia de seguridad en " + carpeta, e);
+        } finally {
+            borrar(baseDatos);
+            borrar(temporal);
         }
-        log.info("Copia de seguridad {} creada: {}", tipo, archivo);
         return describir(archivo).orElseThrow();
+    }
+
+    /** Carpeta de las fotos de las visitas, junto a la base de datos. */
+    private Path carpetaFotos() {
+        return database.archivo().toAbsolutePath().resolveSibling(com.businessanalyzer.config.AppConfig.CARPETA_FOTOS);
     }
 
     /** Borra las copias automáticas más antiguas que excedan la cantidad a conservar. */
@@ -289,12 +305,26 @@ public class CopiaSeguridadService {
         Contenido contenido = validar(origen);
         crear(Tipo.PREVIA_RESTAURACION);
         Path pendiente = RestauracionPendiente.archivoPendiente(database.archivo());
+        Path fotosPendientes = RestauracionPendiente.carpetaFotosPendiente(database.archivo());
         Path temporal = pendiente.resolveSibling(pendiente.getFileName() + ".tmp");
         try {
-            Files.copy(origen, temporal, StandardCopyOption.REPLACE_EXISTING);
+            RestauracionPendiente.borrar(fotosPendientes);
+            if (ArchivoCopia.esZip(origen)) {
+                // Copia nueva: base de datos y fotos. La carpeta de fotos se reemplaza al reiniciar.
+                Files.createDirectories(fotosPendientes);
+                ArchivoCopia.extraer(origen, temporal, fotosPendientes);
+            } else {
+                // Copia antigua (solo la base de datos): las fotos actuales se conservan.
+                Files.copy(origen, temporal, StandardCopyOption.REPLACE_EXISTING);
+            }
             Files.move(temporal, pendiente, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             borrar(temporal);
+            try {
+                RestauracionPendiente.borrar(fotosPendientes);
+            } catch (IOException ignorado) {
+                // Se limpiará en la próxima restauración.
+            }
             throw new DataAccessException("No se pudo preparar la restauración.", e);
         }
         log.warn("Restauración programada desde {} por {}", origen, sesion.usuario().nombreUsuario());
@@ -315,10 +345,29 @@ public class CopiaSeguridadService {
         });
     }
 
+    /** Lee una copia nueva (ZIP con base de datos y fotos) o antigua (solo la base de datos). */
     private static Contenido leerContenido(Path archivo) {
         if (archivo == null || !Files.isRegularFile(archivo)) {
             throw new ValidacionException("El archivo de copia no existe.");
         }
+        if (!ArchivoCopia.esZip(archivo)) {
+            return leerBaseDatos(archivo, 0);
+        }
+        Path temporal = null;
+        try {
+            temporal = Files.createTempFile("ba-validar-", ".db");
+            int fotos = ArchivoCopia.extraer(archivo, temporal, null);
+            return leerBaseDatos(temporal, fotos);
+        } catch (IOException e) {
+            throw new ValidacionException("No se pudo leer el archivo de copia (¿está dañado?).");
+        } finally {
+            if (temporal != null) {
+                borrar(temporal);
+            }
+        }
+    }
+
+    private static Contenido leerBaseDatos(Path archivo, int fotos) {
         try (InputStream entrada = Files.newInputStream(archivo)) {
             byte[] cabecera = entrada.readNBytes(CABECERA_SQLITE.length);
             if (!java.util.Arrays.equals(cabecera, CABECERA_SQLITE)) {
@@ -343,7 +392,7 @@ public class CopiaSeguridadService {
             if (version < 1) {
                 throw new ValidacionException("El archivo no contiene datos de Business Analyzer.");
             }
-            return new Contenido(version, contar(st, "empresa"), contar(st, "usuario"), contar(st, "operacion"));
+            return new Contenido(version, contar(st, "empresa"), contar(st, "usuario"), contar(st, "operacion"), fotos);
         } catch (SQLException e) {
             throw new ValidacionException("El archivo elegido no es una copia válida de Business Analyzer.");
         }
