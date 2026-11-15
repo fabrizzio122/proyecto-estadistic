@@ -51,7 +51,7 @@ public class PrediccionesController implements VistaModulo {
     private long solicitudActual;
 
     private final TarjetaIndicador kpiVentas = new TarjetaIndicador("Ventas proyectadas", "fth-trending-up");
-    private final TarjetaIndicador kpiCambio = new TarjetaIndicador("Frente a los últimos meses", "fth-repeat");
+    private final TarjetaIndicador kpiCambio = new TarjetaIndicador("Cambio esperado", "fth-repeat");
     private final TarjetaIndicador kpiUtilidad = new TarjetaIndicador("Utilidad proyectada", "fth-dollar-sign");
     private final TarjetaIndicador kpiConfiabilidad = new TarjetaIndicador("Confiabilidad", "fth-check-circle");
 
@@ -138,7 +138,7 @@ public class PrediccionesController implements VistaModulo {
             return;
         }
         YearMonth primero = r.primerMesProyectado(YearMonth.now());
-        kpiVentas.actualizar(dinero(ventas.total()), "Próximos " + r.horizonte() + " meses, desde " + nombreMes(primero));
+        kpiVentas.actualizar(redondeado(ventas.total()), "Próximos " + r.horizonte() + " meses, desde " + nombreMes(primero));
         double anteriores = r.ventasUltimosMeses();
         if (anteriores > 0 && r.mesesComparados() == r.horizonte()) {
             double cambio = ventas.total() / anteriores - 1;
@@ -148,7 +148,7 @@ public class PrediccionesController implements VistaModulo {
             kpiCambio.actualizar(TarjetaIndicador.SIN_VALOR, "Historia más corta que el horizonte");
         }
         Pronostico utilidad = r.pronosticoUtilidad();
-        kpiUtilidad.actualizar(dinero(utilidad.total()), utilidad.total() >= 0 ? "Ganancia estimada del período"
+        kpiUtilidad.actualizar(redondeado(utilidad.total()), utilidad.total() >= 0 ? "Ganancia estimada del período"
                 : "Pérdida estimada del período");
         kpiConfiabilidad.actualizar(ventas.confiabilidad().descripcion(),
                 "Error típico " + porcentaje(ventas.errorRelativo()) + " · " + ventas.elegida().metodo().nombre());
@@ -327,6 +327,12 @@ public class PrediccionesController implements VistaModulo {
             columna.getStyleClass().add("col-numero");
         }
         return columna;
+    }
+
+    /** Las proyecciones son aproximadas: en las tarjetas se muestran sin céntimos. */
+    private String redondeado(double valor) {
+        return Double.isNaN(valor) ? "—" : Montos.formatear(BigDecimal.valueOf(valor).setScale(0, RoundingMode.HALF_UP), moneda)
+                .replaceAll("\\.00$", "");
     }
 
     private String dinero(double valor) {

@@ -115,9 +115,9 @@ public class AnalisisFinancieroController implements VistaModulo {
         indicadores.getChildren().addAll(kpiUtilidad, kpiMargen, kpiEquilibrio, kpiSeguridad);
         CamposFecha.configurar(dpDesde);
         CamposFecha.configurar(dpHasta);
-        YearMonth mes = YearMonth.now();
-        dpDesde.setValue(mes.atDay(1));
-        dpHasta.setValue(mes.atEndOfMonth());
+        // Mes en curso hasta hoy: se compara con los mismos días del mes anterior.
+        dpDesde.setValue(LocalDate.now().withDayOfMonth(1));
+        dpHasta.setValue(LocalDate.now());
         dpDesde.valueProperty().addListener((o, a, n) -> cargar());
         dpHasta.valueProperty().addListener((o, a, n) -> cargar());
         configurarTablaEstado();
@@ -139,7 +139,7 @@ public class AnalisisFinancieroController implements VistaModulo {
 
     @FXML
     private void esteMes() {
-        fijarPeriodo(YearMonth.now().atDay(1), YearMonth.now().atEndOfMonth());
+        fijarPeriodo(LocalDate.now().withDayOfMonth(1), LocalDate.now());
     }
 
     @FXML
@@ -151,7 +151,7 @@ public class AnalisisFinancieroController implements VistaModulo {
     @FXML
     private void esteAnio() {
         LocalDate hoy = LocalDate.now();
-        fijarPeriodo(hoy.withDayOfYear(1), hoy.withDayOfYear(hoy.lengthOfYear()));
+        fijarPeriodo(hoy.withDayOfYear(1), hoy);
     }
 
     /** Cambia ambas fechas y carga una sola vez. */
