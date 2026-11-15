@@ -111,6 +111,7 @@ public class PatrimonioController implements VistaModulo {
     @FXML private TableColumn<Activo, LocalDate> colActFecha;
     @FXML private TableColumn<Activo, BigDecimal> colActValor;
     @FXML private TableColumn<Activo, String> colActVida;
+    @FXML private TableColumn<Activo, BigDecimal> colActMensual;
     @FXML private TableColumn<Activo, BigDecimal> colActDepreciacion;
     @FXML private TableColumn<Activo, BigDecimal> colActLibros;
 
@@ -633,6 +634,9 @@ public class PatrimonioController implements VistaModulo {
         colActValor.setCellFactory(col -> celdaMonto());
         colActVida.setCellValueFactory(c -> texto(c.getValue().seDeprecia()
                 ? c.getValue().vidaUtilAnios() + (c.getValue().vidaUtilAnios() == 1 ? " año" : " años") : "—"));
+        colActMensual.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue().seDeprecia()
+                ? Depreciacion.de(c.getValue(), hoy).mensual() : null));
+        colActMensual.setCellFactory(col -> celdaMonto());
         colActDepreciacion.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(
                 Depreciacion.de(c.getValue(), hoy).acumulada()));
         colActDepreciacion.setCellFactory(col -> celdaMonto());
@@ -651,8 +655,18 @@ public class PatrimonioController implements VistaModulo {
                     super.updateItem(a, vacio);
                     boolean baja = !vacio && a != null && a.dadoDeBaja();
                     pseudoClassStateChanged(ARCHIVADO, baja);
-                    setTooltip(baja ? new Tooltip("Dado de baja el " + Fechas.paraMostrar(a.fechaBaja()) + ": "
-                            + a.motivoBaja()) : null);
+                    if (baja) {
+                        setTooltip(new Tooltip("Dado de baja el " + Fechas.paraMostrar(a.fechaBaja()) + ": "
+                                + a.motivoBaja()));
+                    } else if (!vacio && a != null && a.seDeprecia()) {
+                        Depreciacion d = Depreciacion.de(a, hoy);
+                        setTooltip(new Tooltip(d.mesesTranscurridos() == 0
+                                ? "Aún no cumple un mes: empieza a depreciarse el " + Fechas.paraMostrar(a.fecha().plusMonths(1))
+                                + " (" + Montos.formatear(d.mensual(), moneda) + " al mes)."
+                                : d.mesesTranscurridos() + " meses de uso de " + a.vidaUtilAnios() * 12 + " de vida útil."));
+                    } else {
+                        setTooltip(null);
+                    }
                 }
             };
             fila.setOnMouseClicked(e -> {
@@ -834,7 +848,9 @@ public class PatrimonioController implements VistaModulo {
             grilla.add(txtValor, 1, fila + 1);
             Formularios.fila(grilla, "Vida útil (años)", txtVida);
             Formularios.fila(grilla, "Valor residual (" + moneda.simbolo() + ")", txtResidual);
-            Formularios.nota(grilla, "Vida útil vacía = no se deprecia. Valor residual: lo que valdría al final de su vida útil.");
+            Formularios.nota(grilla, "La depreciación se acumula por cada mes completo desde la fecha de adquisición: "
+                    + "un bien comprado hoy empieza a perder valor en un mes. Vida útil vacía = no se deprecia. "
+                    + "Valor residual: lo que valdría al final de su vida útil.");
             return grilla;
         }
 
