@@ -34,6 +34,10 @@ public enum Modulo {
             "Bienes, deudas, balance general y patrimonio", "fth-layers", 14,
             Permiso.FINANZAS_VER, "/fxml/patrimonio-view.fxml"),
 
+    GANADERIA(Seccion.AGRO, "Ganadería",
+            "Hato, nacimientos, mortalidad, producción y valor del ganado", "fth-feather", 15,
+            Permiso.AGRO_VER, "/fxml/ganaderia-view.fxml"),
+
     ANALISIS_FINANCIERO(Seccion.ANALISIS, "Análisis financiero",
             "Estado de resultados, márgenes, ratios y punto de equilibrio", "fth-pie-chart", 7,
             Permiso.ANALISIS_VER, "/fxml/analisis-financiero-view.fxml"),
@@ -64,6 +68,7 @@ public enum Modulo {
     public enum Seccion {
         GENERAL("General"),
         GESTION("Gestión"),
+        AGRO("Agropecuario"),
         ANALISIS("Análisis"),
         SISTEMA("Sistema");
 
@@ -124,6 +129,11 @@ public enum Modulo {
     /** Permiso necesario para ver el modulo. */
     public Permiso permiso() {
         return permiso;
+    }
+
+    /** Solo se muestra cuando la empresa activa es del sector agropecuario. */
+    public boolean soloAgropecuario() {
+        return seccion == Seccion.AGRO;
     }
 
     public boolean disponible() {

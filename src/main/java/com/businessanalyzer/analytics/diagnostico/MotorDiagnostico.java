@@ -59,6 +59,7 @@ public final class MotorDiagnostico {
                 case RESTAURANTE -> new Umbrales(bd("0.08"), bd("0.55"), bd("0.40"));
                 case SERVICIOS -> new Umbrales(bd("0.10"), bd("0.45"), bd("0.30"));
                 case PRODUCCION -> new Umbrales(bd("0.07"), bd("0.30"), bd("0.20"));
+                case AGROPECUARIO -> new Umbrales(bd("0.08"), bd("0.35"), bd("0.20"));
                 default -> new Umbrales(bd("0.06"), bd("0.30"), bd("0.20"));
             };
         }
@@ -312,7 +313,7 @@ public final class MotorDiagnostico {
 
     /** Balance general disponible con al menos un activo registrado; si no, liquidez y endeudamiento no se evalúan. */
     private Optional<SituacionPatrimonial> patrimonio() {
-        return Optional.ofNullable(datos.patrimonio()).filter(s -> s.balance().activosRegistrados() > 0);
+        return Optional.ofNullable(datos.patrimonio()).filter(s -> s.balance().tieneActivos());
     }
 
     private Hallazgo liquidez() {

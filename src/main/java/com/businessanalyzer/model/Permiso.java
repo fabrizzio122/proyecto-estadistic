@@ -18,7 +18,9 @@ public enum Permiso {
     ANALISIS_VER("Ver análisis, predicciones, escenarios y diagnóstico"),
     INFORMES_GENERAR("Generar y exportar informes"),
     USUARIOS_GESTIONAR("Administrar usuarios y revisar accesos"),
-    CONFIGURACION_GESTIONAR("Configuración y copias de seguridad");
+    CONFIGURACION_GESTIONAR("Configuración y copias de seguridad"),
+    AGRO_VER("Ver ganadería y agricultura"),
+    AGRO_GESTIONAR("Registrar ganado, producción y campañas agrícolas");
 
     private final String descripcion;
 

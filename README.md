@@ -64,6 +64,7 @@ automáticamente al iniciar y dentro de una transacción.
 12. Informes (PDF y Excel): JasperReports y Apache POI ✅
 13. Configuración, copias de seguridad e instalador ✅
 14. Activos, deudas y patrimonio: balance general, depreciación, liquidez y endeudamiento ✅
+15. Ganadería (sector agropecuario): hato, movimientos, producción de leche y fibra, indicadores técnicos y valor del hato ✅
 
 ## Seguridad
 
@@ -113,6 +114,17 @@ automáticamente al iniciar y dentro de una transacción.
 - **Indicadores:** liquidez corriente, prueba ácida, capital de trabajo, endeudamiento, deuda por cada 1 de patrimonio, rentabilidad del patrimonio y de los activos (con la utilidad de los últimos 12 meses llevada a un año) y cobertura de cuotas (utilidad operativa mensual ÷ cuotas).
 - **Nada se elimina:** los activos se dan de baja con fecha y motivo; las deudas y los pagos se anulan.
 - **Permisos:** los mismos de Gestión financiera (ver y registrar).
+
+## Ganadería (empresas agropecuarias)
+
+- Se activa al elegir el sector **«Agropecuario»** en la empresa: aparece la sección «Agropecuario» del menú. En las demás empresas no se muestra.
+- **Especies y categorías:** vacunos (vacas, vaquillonas, terneras, terneros, toretes, toros), ovinos (ovejas, borregas, corderos, borregos, carneros), alpacas y llamas (madres, tuis hembras y machos, crías, padres, capones).
+- **Las existencias se calculan con los movimientos:** inventario inicial, nacimiento (solo en crías), compra, venta, muerte, pérdida o robo, consumo familiar y cambio de categoría. Nunca pueden quedar negativas: un movimiento que deje sin animales una categoría en alguna fecha se rechaza.
+- **Producción:** leche (litros, por vaca en ordeño y por día), fibra de alpaca y llama y lana de ovino (kilos por animal esquilado). Se puede registrar por día o el total del mes.
+- **Indicadores por especie y período:** natalidad, mortalidad, mortalidad de crías, extracción, crecimiento del hato, hembras por reproductor y producción promedio, con semáforo según referencias de la ganadería familiar y mediana del Perú.
+- **Valor del hato:** cabezas × precio de mercado por cabeza; se suma al balance general como «Ganado (valor de mercado)».
+- **Permisos nuevos:** «Ver ganadería y agricultura» (todos los roles) y «Registrar ganado…» (administrador, gerente y operador, que es el rol pensado para el productor).
+- **Demostración:** Empresas → Empresa de demostración → «Fundo ganadero (agropecuario)».
 
 ## Análisis financiero
 

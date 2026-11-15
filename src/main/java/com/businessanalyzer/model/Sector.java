@@ -9,6 +9,7 @@ public enum Sector {
     SERVICIOS("Servicios"),
     PRODUCCION("Producción y manufactura"),
     EMPRENDIMIENTO("Emprendimiento"),
+    AGROPECUARIO("Agropecuario"),
     OTRO("Otro");
 
     private final String descripcion;
