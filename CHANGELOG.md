@@ -1,0 +1,37 @@
+# Cambios
+
+## 1.1.0 — 2026-11-15
+
+### Nuevo
+- **Activos, deudas y patrimonio**: balance general, depreciación en línea recta, pagos de deudas,
+  liquidez y endeudamiento (también en el diagnóstico).
+- **Sector agropecuario** (solo empresas de ese sector):
+  - **Ganadería**: hato de vacunos, ovinos, alpacas y llamas; nacimientos, muertes, compras, ventas,
+    producción de leche, fibra y lana; indicadores técnicos y valor del hato.
+  - **Agricultura**: parcelas, campañas, costos por rubro, cosechas, rendimiento frente a la referencia
+    nacional y margen por campaña.
+  - **Visitas de inspección**: aspectos evaluados, compromisos, fotos e **informe técnico en PDF**.
+  - Las ventas de animales, producción y cosechas entran en los análisis financieros, estadísticos y en el
+    diagnóstico (4 indicadores agropecuarios).
+- **Valoración del negocio**: método patrimonial, capitalización de utilidades y flujos descontados, con
+  sensibilidad e informe PDF.
+- **Dashboard** rediseñado: indicadores del mes en curso y acceso directo a cada módulo.
+- **Editar registros**: ventas, compras, movimientos de ganado, producción, costos y cosechas se pueden
+  corregir. La corrección anula el original (queda como historial) y registra el nuevo en una sola transacción.
+- Las **copias de seguridad** incluyen las fotos de las visitas (archivo `.zip`); se siguen aceptando las `.db` de la 1.0.
+- Documentación del proyecto: diagramas UML (`docs/uml`) y guion de la demostración (`docs/guion-demo.md`).
+
+### Mejorado
+- El mes en curso se compara con los mismos días del mes anterior (antes, con el mes completo).
+- La empresa de demostración «Bodega Demo» registra una venta por día con estacionalidad realista;
+  nueva empresa de demostración «Fundo Demo» para el sector agropecuario.
+
+### Base de datos
+- Migraciones nuevas V9 (patrimonio), V10 (ganadería), V11 (agricultura) y V12 (visitas). Se aplican solas
+  al abrir una base de la versión 1.0; los datos existentes se conservan.
+
+## 1.0.0 — 2026-11-14
+
+Primera versión: usuarios y roles, empresas, productos y servicios, ventas y compras, gestión financiera,
+análisis financiero, estadística, predicciones, simulación de escenarios, diagnóstico empresarial,
+informes PDF/Excel, configuración, copias de seguridad e instalador.

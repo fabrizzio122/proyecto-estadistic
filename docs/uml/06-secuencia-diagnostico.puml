@@ -1,0 +1,42 @@
+@startuml 06-secuencia-diagnostico
+!include estilo.iuml
+title Business Analyzer Desktop 1.1 — Diagnóstico empresarial
+autonumber
+
+actor Analista
+participant ":DiagnosticoController" as CTRL
+participant ":DiagnosticoService" as SRV
+participant ":Database" as DB
+participant "ConsultaMensual" as CM
+participant ":ConsultaPatrimonio" as CP
+participant "MotorDiagnostico" as MOTOR
+participant "Simulador" as SIM
+
+Analista -> CTRL : abre «Diagnóstico empresarial»
+CTRL -> SRV : diagnosticar()  [en segundo plano]
+activate SRV
+SRV -> SRV : requerir(ANALISIS_VER)\nempresaDeTrabajo()
+SRV -> DB : enTransaccion(c -> …)
+activate DB
+SRV -> CM : porMes(c, …, 24 meses)
+CM --> SRV : ventas, costos y gastos por mes
+SRV -> CP : situacion(c, empresaId, hoy)
+CP --> SRV : liquidez y endeudamiento
+opt empresa agropecuaria
+  SRV -> SRV : indicadores del hato y campañas\n(vs. mismo período del año anterior)
+end
+deactivate DB
+SRV -> MOTOR : evaluar(DatosDiagnostico)
+activate MOTOR
+loop por cada indicador (14 generales + 4 agro)
+  MOTOR -> MOTOR : valor vs. umbrales del sector\n→ VERDE / AMARILLO / ROJO
+end
+MOTOR -> MOTOR : puntaje ponderado → NivelSalud\n(tope «En riesgo» si un indicador clave está en rojo)
+MOTOR -> SIM : cambioPrecioParaMeta / cambioVolumenParaMeta
+SIM --> MOTOR : cifras para las recomendaciones
+MOTOR --> SRV : Diagnostico (nivel, hallazgos, recomendaciones)
+deactivate MOTOR
+SRV --> CTRL : diagnóstico
+deactivate SRV
+CTRL -> Analista : semáforos, puntaje y\nrecomendaciones con cifras
+@enduml

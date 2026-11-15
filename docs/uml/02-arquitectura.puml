@@ -1,0 +1,55 @@
+@startuml 02-arquitectura
+!include estilo.iuml
+title Business Analyzer Desktop 1.1 — Arquitectura en capas
+
+package "Presentación (JavaFX 21)" as P {
+  component "Vistas FXML + CSS\n(resources/fxml, css)" as FXML
+  component "controller\n22 controladores\n(MainController, DashboardController,\nOperacionesController, …)" as CTRL
+  component "ui\nNavegador, Dialogos, Formularios,\nGraficos (JFreeChart), Tareas" as UI
+}
+
+package "Lógica de negocio" as N {
+  component "service\n22 servicios + validadores\n(OperacionService, DiagnosticoService, …)" as SRV
+  component "seguridad\nSesion, PasswordHasher\n(PBKDF2), PoliticaPassword" as SEG
+  component "analytics\ncálculos puros, sin BD:\nfinanciero, estadística, predicción,\nsimulación, diagnóstico, patrimonio,\nganadería, agricultura, valoración" as ANA
+  component "informes\nContenidoInforme, GeneradorPdf\n(JasperReports), LibroExcel (POI)" as INF
+}
+
+package "Datos" as D {
+  component "repository\n17 repositorios\nJDBC puro (PreparedStatement)" as REPO
+  component "config\nAppContext (composición),\nDatabase (transacciones),\nMigrador V1…V12" as CFG
+  database "SQLite\nbusiness-analyzer.db" as DB
+}
+
+component "model\nrecords y enums\n(Operacion, Empresa, Campania, …)" as MOD
+component "exception\nValidacionException,\nAccesoDenegadoException, …" as EXC
+
+FXML --> CTRL : fx:controller
+CTRL --> UI
+CTRL --> SRV : llama en segundo plano\n(Tareas.ejecutar)
+SRV --> SEG : sesion.requerir(Permiso)
+SRV --> ANA : datos ya leídos
+SRV --> INF
+SRV --> REPO : Connection de la\ntransacción
+SRV --> CFG : database.enTransaccion(...)
+REPO --> DB : SQL
+CFG --> DB : migraciones al iniciar
+
+CTRL ..> MOD
+SRV ..> MOD
+REPO ..> MOD
+ANA ..> MOD
+SRV ..> EXC
+
+note right of ANA
+  Paquete sin dependencias de JavaFX
+  ni de SQLite: se prueba con JUnit 5
+  usando solo datos en memoria.
+end note
+
+note bottom of CFG
+  AppContext crea una sola vez todos los
+  repositorios y servicios (inyección por
+  constructor, sin Spring).
+end note
+@enduml

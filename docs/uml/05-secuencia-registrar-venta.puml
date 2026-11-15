@@ -1,0 +1,69 @@
+@startuml 05-secuencia-registrar-venta
+!include estilo.iuml
+title Business Analyzer Desktop 1.1 — Registrar una venta
+autonumber
+
+actor Operador
+participant ":OperacionesController" as CTRL
+participant "Tareas" as T
+participant ":OperacionService" as SRV
+participant ":Sesion" as SES
+participant ":EmpresaService" as EMP
+participant "ValidadorOperacion" as VAL
+participant ":Database" as DB
+participant ":ProductoRepository" as PR
+participant "CalculadoraOperacion" as CALC
+participant ":OperacionRepository" as OR
+database "SQLite" as SQL
+
+Operador -> CTRL : completa el formulario\ny pulsa «Registrar»
+CTRL -> T : ejecutar(tarea)
+activate T
+T -> SRV : registrar(datos, permitirStockNegativo = false)
+activate SRV
+SRV -> SES : requerir(OPERACIONES_GESTIONAR)
+SRV -> EMP : empresaDeTrabajo()
+EMP --> SRV : empresa activa (acceso verificado)
+SRV -> VAL : normalizar(datos, hoy)
+VAL --> SRV : datos válidos
+SRV -> DB : enTransaccion(c -> registrarEn(...))
+activate DB
+DB -> SQL : BEGIN
+loop por cada línea
+  SRV -> PR : buscarPorId(c, productoId)
+  PR -> SQL : SELECT … (stock calculado)
+  PR --> SRV : producto
+end
+alt stock insuficiente
+  SRV --> DB : StockInsuficienteException
+  DB -> SQL : ROLLBACK
+  DB --> T : excepción
+  T --> CTRL : alFallar(excepción)
+  CTRL -> Operador : «¿Registrar de todos modos?»
+  note right : si confirma, se repite con\npermitirStockNegativo = true
+else stock suficiente
+  SRV -> CALC : calcular(líneas, tasaImpuesto)
+  CALC --> SRV : subtotal, IGV, total, costo
+  SRV -> OR : siguienteNumero(c, empresa, VENTA)
+  SRV -> OR : insertar(c, operación)
+  OR -> SQL : INSERT operacion
+  loop por cada línea
+    SRV -> OR : insertarLinea(c, …, costo congelado)
+    OR -> SQL : INSERT operacion_linea
+  end
+  DB -> SQL : COMMIT
+  DB --> SRV : operación registrada
+  deactivate DB
+  SRV --> T : operación
+  deactivate SRV
+  T --> CTRL : alTerminar(operación)
+  deactivate T
+  CTRL -> Operador : notificación «Venta V-000123 registrada»\ny refresca la tabla
+end
+
+note over SRV, OR
+  Corregir = en la MISMA transacción se anula la original
+  («Corregida: reemplazada por V-…») y se registra la nueva.
+  Si algo falla, no se pierde ni se duplica nada.
+end note
+@enduml

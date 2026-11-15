@@ -1,0 +1,41 @@
+' Estilo común de los diagramas de Business Analyzer Desktop.
+' Smetana es el motor de diagramación incluido en PlantUML: no hace falta instalar Graphviz.
+!pragma layout smetana
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam roundCorner 8
+skinparam dpi 150
+skinparam backgroundColor #FFFFFF
+skinparam ArrowColor #44546A
+skinparam ArrowFontSize 11
+skinparam TitleFontSize 18
+skinparam TitleFontStyle bold
+skinparam NoteBackgroundColor #FFF8DC
+skinparam NoteBorderColor #C9B458
+skinparam ClassBackgroundColor #F4F8FC
+skinparam ClassBorderColor #2F5597
+skinparam ClassHeaderBackgroundColor #DCE8F5
+skinparam PackageBorderColor #7F8FA6
+skinparam PackageBackgroundColor #FBFCFE
+skinparam ComponentBackgroundColor #F4F8FC
+skinparam ComponentBorderColor #2F5597
+skinparam ActorBorderColor #2F5597
+skinparam ActorBackgroundColor #DCE8F5
+skinparam UsecaseBackgroundColor #F4F8FC
+skinparam UsecaseBorderColor #2F5597
+skinparam ParticipantBackgroundColor #DCE8F5
+skinparam ParticipantBorderColor #2F5597
+skinparam SequenceLifeLineBorderColor #7F8FA6
+skinparam SequenceGroupBorderColor #7F8FA6
+skinparam StateBackgroundColor #F4F8FC
+skinparam StateBorderColor #2F5597
+skinparam EntityBackgroundColor #F4F8FC
+skinparam EntityBorderColor #2F5597
+skinparam NodeBackgroundColor #F4F8FC
+skinparam NodeBorderColor #2F5597
+skinparam DatabaseBackgroundColor #DCE8F5
+skinparam DatabaseBorderColor #2F5597
+hide circle
+skinparam CaptionFontSize 18
+skinparam CaptionFontStyle bold

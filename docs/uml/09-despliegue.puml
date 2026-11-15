@@ -1,0 +1,36 @@
+@startuml 09-despliegue
+!include estilo.iuml
+title Business Analyzer Desktop 1.1 — Despliegue
+
+node "PC con Windows 10/11 (64 bits)" as PC {
+  node "Business Analyzer\n(instalado con el .exe o portable .zip)" as APP {
+    artifact "business-analyzer.jar" as JAR
+    artifact "lib\\*.jar\n(JavaFX, SQLite JDBC, JasperReports,\nPOI, JFreeChart, Commons Math)" as LIB
+    node "runtime\\ (Java 17 incluido,\nno requiere instalar Java)" as JRE
+  }
+  folder "%USERPROFILE%\\BusinessAnalyzer\n(carpeta de datos)" as DATOS {
+    database "business-analyzer.db\n(SQLite)" as DB
+    folder "copias\\ (.zip diarios)" as COPIAS
+    folder "fotos-visitas\\" as FOTOS
+    folder "logs\\" as LOGS
+  }
+  folder "Descargas / carpeta elegida" as SALIDA {
+    artifact "informes .pdf / .xlsx" as PDF
+  }
+}
+
+JRE --> JAR : ejecuta
+JAR --> LIB
+JAR --> DB : JDBC (archivo local)
+JAR --> COPIAS : VACUUM INTO + zip\n(1 por día, con retención)
+JAR --> FOTOS
+JAR --> LOGS : logback
+JAR --> PDF : exporta
+
+note bottom of PC
+  Aplicación de escritorio monousuario por equipo:
+  no necesita servidor ni conexión a Internet.
+  La carpeta de datos se puede cambiar con
+  -Dba.data.dir=C:\ruta
+end note
+@enduml

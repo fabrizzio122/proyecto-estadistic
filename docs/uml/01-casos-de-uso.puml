@@ -1,0 +1,86 @@
+@startuml 01-casos-de-uso
+!include estilo.iuml
+title
+  Business Analyzer Desktop 1.1 — Casos de uso
+  <size:30> </size>
+end title
+left to right direction
+
+actor "Operador" as OP
+actor "Analista /\nInspector" as AN
+actor "Gerente" as GE
+actor "Administrador" as AD
+
+  package "Acceso (todos los roles)" {
+    usecase "Iniciar sesión" as UC_LOGIN
+    usecase "Cambiar contraseña" as UC_PASS
+    usecase "Elegir empresa activa" as UC_EMP_ACT
+    usecase "Ver dashboard" as UC_DASH
+  }
+  package "Gestión" {
+    usecase "Registrar productos\ny servicios" as UC_PROD
+    usecase "Registrar venta / compra" as UC_VENTA
+    usecase "Corregir o anular\nventa / compra" as UC_CORR
+    usecase "Registrar ingresos\ny gastos" as UC_FIN
+  }
+  package "Agropecuario" {
+    usecase "Registrar ganado\ny producción" as UC_GAN
+    usecase "Gestionar parcelas\ny campañas" as UC_AGR
+    usecase "Registrar visita\nde inspección" as UC_VIS
+    usecase "Generar informe técnico" as UC_INF_TEC
+  }
+  package "Análisis" {
+    usecase "Analizar resultados\ny punto de equilibrio" as UC_ANA
+    usecase "Análisis estadístico" as UC_EST
+    usecase "Predecir ventas" as UC_PRED
+    usecase "Diagnosticar la empresa" as UC_DIAG
+    usecase "Simular escenarios" as UC_SIM
+    usecase "Valorar el negocio" as UC_VAL
+    usecase "Exportar informe\nPDF / Excel" as UC_INF
+  }
+  package "Administración" {
+    usecase "Registrar activos,\ndeudas y pagos" as UC_PAT
+    usecase "Registrar empresas" as UC_EMP
+    usecase "Gestionar usuarios\ny permisos" as UC_USR
+    usecase "Copias de seguridad\ny restauración" as UC_COPIA
+  }
+
+
+OP --> UC_LOGIN
+OP --> UC_PROD
+OP --> UC_VENTA
+OP --> UC_CORR
+OP --> UC_FIN
+OP --> UC_GAN
+OP --> UC_AGR
+
+AN --> UC_LOGIN
+AN --> UC_VIS
+AN --> UC_ANA
+AN --> UC_EST
+AN --> UC_PRED
+AN --> UC_DIAG
+AN --> UC_SIM
+AN --> UC_VAL
+AN --> UC_INF
+
+GE --> UC_PAT
+GE --> UC_EMP
+AD --> UC_USR
+AD --> UC_COPIA
+
+UC_LOGIN ..> UC_PASS : <<extend>>
+UC_LOGIN ..> UC_EMP_ACT : <<include>>
+UC_LOGIN ..> UC_DASH : <<include>>
+UC_CORR ..> UC_VENTA : <<include>>
+UC_VIS ..> UC_INF_TEC : <<extend>>
+UC_DIAG ..> UC_SIM : <<include>>
+UC_VAL ..> UC_INF : <<extend>>
+
+legend bottom
+  **Permisos por rol** (16 permisos, tabla rol_permiso)
+  · Gerente = Operador + Analista + activos/deudas y empresas
+  · Administrador = todo + usuarios y copias de seguridad
+  · Lo agropecuario solo aparece si la empresa es del sector Agropecuario
+endlegend
+@enduml
