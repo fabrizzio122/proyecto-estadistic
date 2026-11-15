@@ -29,7 +29,7 @@ class DatosDemoAgroServiceTest {
     void creaUnProductorConGanadoProduccionYBalance() {
         EntornoPrueba entorno = new EntornoPrueba(carpeta);
         entorno.administradorConectado();
-        DatosDemoAgroService demo = new DatosDemoAgroService(entorno.empresaService, entorno.ganaderia,
+        DatosDemoAgroService demo = new DatosDemoAgroService(entorno.empresaService, entorno.ganaderia, entorno.agricultura,
                 entorno.patrimonio, entorno.sesion, entorno.reloj);
 
         Empresa fundo = demo.crearFundoDemo();
@@ -50,6 +50,15 @@ class DatosDemoAgroServiceTest {
         BalanceGeneral balance = entorno.patrimonio.situacion().balance();
         assertTrue(balance.ganado().signum() > 0);
         assertTrue(balance.patrimonio().signum() > 0);
+        assertTrue(balance.cultivos().signum() > 0);    // la papa recién sembrada
+
+        var campanias = entorno.agricultura.listarCampanias(false);
+        assertEquals(5, campanias.size());
+        assertEquals(3, entorno.agricultura.listarParcelas(false).size());
+        assertEquals(1, campanias.stream().filter(r -> r.campania().estado()
+                == com.businessanalyzer.model.EstadoCampania.PERDIDA).count());
+        assertTrue(campanias.stream().filter(r -> r.campania().estado()
+                == com.businessanalyzer.model.EstadoCampania.COSECHADA).allMatch(r -> r.rendimiento().signum() > 0));
         assertThrows(ValidacionException.class, demo::crearFundoDemo);
     }
 }

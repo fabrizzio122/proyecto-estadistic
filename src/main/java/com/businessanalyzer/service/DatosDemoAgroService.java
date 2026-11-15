@@ -3,7 +3,16 @@ package com.businessanalyzer.service;
 import com.businessanalyzer.exception.ValidacionException;
 import com.businessanalyzer.model.CategoriaActivo;
 import com.businessanalyzer.model.CategoriaDeuda;
+import com.businessanalyzer.model.Campania;
 import com.businessanalyzer.model.CategoriaGanado;
+import com.businessanalyzer.model.Cultivo;
+import com.businessanalyzer.model.DatosCampania;
+import com.businessanalyzer.model.DatosParcela;
+import com.businessanalyzer.model.DestinoCosecha;
+import com.businessanalyzer.model.EstadoCampania;
+import com.businessanalyzer.model.Parcela;
+import com.businessanalyzer.model.RubroCosto;
+import com.businessanalyzer.model.Tenencia;
 import com.businessanalyzer.model.DatosActivo;
 import com.businessanalyzer.model.DatosDeuda;
 import com.businessanalyzer.model.DatosEmpresa;
@@ -39,14 +48,16 @@ public class DatosDemoAgroService {
 
     private final EmpresaService empresas;
     private final GanaderiaService ganaderia;
+    private final AgriculturaService agricultura;
     private final PatrimonioService patrimonio;
     private final Sesion sesion;
     private final Clock reloj;
 
-    public DatosDemoAgroService(EmpresaService empresas, GanaderiaService ganaderia, PatrimonioService patrimonio,
-                                Sesion sesion, Clock reloj) {
+    public DatosDemoAgroService(EmpresaService empresas, GanaderiaService ganaderia, AgriculturaService agricultura,
+                                PatrimonioService patrimonio, Sesion sesion, Clock reloj) {
         this.empresas = empresas;
         this.ganaderia = ganaderia;
+        this.agricultura = agricultura;
         this.patrimonio = patrimonio;
         this.sesion = sesion;
         this.reloj = reloj;
@@ -135,7 +146,82 @@ public class DatosDemoAgroService {
                 hoy.minusYears(6), bd("18000"), 20, null));
         patrimonio.registrarDeuda(new DatosDeuda(CategoriaDeuda.PRESTAMO_BANCARIO, "Agrobanco",
                 "Crédito para compra de vaquillonas", inicio, bd("15000"), bd("15"), bd("720"), inicio.plusMonths(24)));
+        registrarAgricultura(inicio);
         return empresa;
+    }
+
+    /** Tres parcelas y cinco campañas: papa, quinua y avena cosechadas, un maíz perdido por granizada y papa en curso. */
+    private void registrarAgricultura(LocalDate inicio) {
+        Parcela alta = agricultura.registrarParcela(new DatosParcela("Parcela Alta", bd("1.5"), Tenencia.PROPIA, false,
+                "Ladera, 3 800 m s. n. m."));
+        Parcela rio = agricultura.registrarParcela(new DatosParcela("Chacra del río", bd("0.8"), Tenencia.PROPIA, true,
+                "Junto al canal de riego"));
+        Parcela comunal = agricultura.registrarParcela(new DatosParcela("Terreno comunal", bd("2"), Tenencia.COMUNAL,
+                false, null));
+
+        // Papa: rendimiento algo bajo la referencia, pero rentable.
+        Campania papa = campania(alta, Cultivo.PAPA, "Yungay", mes(inicio, 0, 15), "1", "0.80");
+        costos(papa, mes(inicio, 0, 5), new Object[][]{
+                {RubroCosto.PREPARACION, "Yunta y surcado", "600"}, {RubroCosto.SEMILLA, "Semilla 1 200 kg", "2400"},
+                {RubroCosto.FERTILIZANTE, "Urea y fosfato", "1500"}, {RubroCosto.ABONO_ORGANICO, "Guano de corral", "400"},
+                {RubroCosto.FITOSANITARIOS, "Control de rancha", "650"}, {RubroCosto.MANO_OBRA, "Jornales de aporque", "2200"}});
+        costo(papa, mes(inicio, 6, 2), RubroCosto.COSECHA, "Jornales de cosecha y sacos", "700");
+        cosecha(papa, mes(inicio, 6, 5), "9500", DestinoCosecha.VENTA, "0.85");
+        cosecha(papa, mes(inicio, 6, 5), "1500", DestinoCosecha.AUTOCONSUMO, null);
+        cosecha(papa, mes(inicio, 6, 5), "1200", DestinoCosecha.SEMILLA, null);
+        cosecha(papa, mes(inicio, 6, 5), "300", DestinoCosecha.MERMA, null);
+        agricultura.cerrarCampania(papa.id(), EstadoCampania.COSECHADA, mes(inicio, 6, 6), null);
+
+        // Quinua: por encima de la referencia.
+        Campania quinua = campania(comunal, Cultivo.QUINUA, "Blanca de Juli", mes(inicio, 0, 20), "1.2", null);
+        costos(quinua, mes(inicio, 0, 10), new Object[][]{
+                {RubroCosto.PREPARACION, "Preparación del terreno", "500"}, {RubroCosto.SEMILLA, "Semilla 15 kg", "150"},
+                {RubroCosto.FERTILIZANTE, "Fertilización", "600"}, {RubroCosto.MANO_OBRA, "Deshierbo y raleo", "1800"},
+                {RubroCosto.FITOSANITARIOS, "Control de mildiu", "300"}});
+        costo(quinua, mes(inicio, 6, 8), RubroCosto.COSECHA, "Siega, trilla y venteo", "600");
+        cosecha(quinua, mes(inicio, 6, 12), "1300", DestinoCosecha.VENTA, "5.50");
+        cosecha(quinua, mes(inicio, 6, 12), "260", DestinoCosecha.AUTOCONSUMO, null);
+        agricultura.cerrarCampania(quinua.id(), EstadoCampania.COSECHADA, mes(inicio, 6, 12), null);
+
+        // Avena forrajera para el ganado.
+        Campania avena = campania(rio, Cultivo.AVENA_FORRAJERA, null, mes(inicio, 1, 5), "0.8", "0.15");
+        costos(avena, mes(inicio, 1, 1), new Object[][]{
+                {RubroCosto.PREPARACION, "Arado con tractor", "450"}, {RubroCosto.SEMILLA, "Semilla 80 kg", "320"},
+                {RubroCosto.RIEGO, "Tarifa de agua", "130"}, {RubroCosto.MANO_OBRA, "Siembra y corte", "400"}});
+        cosecha(avena, mes(inicio, 5, 10), "14000", DestinoCosecha.ANIMALES, null);
+        agricultura.cerrarCampania(avena.id(), EstadoCampania.COSECHADA, mes(inicio, 5, 10), null);
+
+        // Maíz perdido por granizada.
+        Campania maiz = campania(alta, Cultivo.MAIZ_AMILACEO, "Blanco Urubamba", mes(inicio, 1, 10), "0.5", "2.50");
+        costos(maiz, mes(inicio, 1, 2), new Object[][]{
+                {RubroCosto.PREPARACION, "Yunta", "250"}, {RubroCosto.SEMILLA, "Semilla 20 kg", "160"},
+                {RubroCosto.MANO_OBRA, "Siembra y deshierbo", "490"}});
+        agricultura.cerrarCampania(maiz.id(), EstadoCampania.PERDIDA, mes(inicio, 4, 18), "Granizada");
+
+        // Nueva campaña de papa, recién sembrada.
+        Campania nueva = campania(alta, Cultivo.PAPA, "Canchán", mes(inicio, 11, 10), "1", "0.80");
+        costos(nueva, mes(inicio, 11, 1), new Object[][]{
+                {RubroCosto.PREPARACION, "Yunta y surcado", "650"}, {RubroCosto.SEMILLA, "Semilla 1 200 kg", "2500"}});
+    }
+
+    private Campania campania(Parcela parcela, Cultivo cultivo, String variedad, LocalDate siembra, String area,
+                              String precioChacra) {
+        return agricultura.registrarCampania(new DatosCampania(parcela.id(), cultivo, variedad, siembra, bd(area), null,
+                precioChacra == null ? null : bd(precioChacra), null));
+    }
+
+    private void costos(Campania campania, LocalDate fecha, Object[][] filas) {
+        for (Object[] f : filas) {
+            costo(campania, fecha, (RubroCosto) f[0], (String) f[1], (String) f[2]);
+        }
+    }
+
+    private void costo(Campania campania, LocalDate fecha, RubroCosto rubro, String descripcion, String monto) {
+        agricultura.registrarCosto(campania.id(), fecha, rubro, descripcion, bd(monto));
+    }
+
+    private void cosecha(Campania campania, LocalDate fecha, String kilos, DestinoCosecha destino, String precio) {
+        agricultura.registrarCosecha(campania.id(), fecha, bd(kilos), destino, precio == null ? null : bd(precio), null);
     }
 
     /** Día {@code dia} del mes que está {@code meses} después de {@code inicio}. */

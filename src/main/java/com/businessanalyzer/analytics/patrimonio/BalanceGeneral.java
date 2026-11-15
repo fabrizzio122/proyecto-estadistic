@@ -32,6 +32,7 @@ import java.util.Map;
  * @param depreciacionMensual   depreciación que generan los activos fijos cada mes
  * @param cuotasMensuales       suma de las cuotas mensuales de las deudas pendientes
  * @param ganado                valor de mercado del hato (Fase 15); cero si no hay ganado
+ * @param cultivos              costos acumulados de las campañas agrícolas en curso (Fase 16)
  * @param activosRegistrados    cantidad de activos registrados (sin contar el inventario)
  * @param deudasPendientes      cantidad de deudas con saldo
  */
@@ -42,6 +43,7 @@ public record BalanceGeneral(LocalDate corte,
                              List<Partida> pasivoNoCorriente,
                              BigDecimal inventario,
                              BigDecimal ganado,
+                             BigDecimal cultivos,
                              BigDecimal depreciacionAcumulada,
                              BigDecimal depreciacionMensual,
                              BigDecimal cuotasMensuales,
@@ -50,6 +52,7 @@ public record BalanceGeneral(LocalDate corte,
 
     public static final String INVENTARIO = "Inventario de mercadería";
     public static final String GANADO = "Ganado (valor de mercado)";
+    public static final String CULTIVOS = "Cultivos en proceso (al costo)";
 
     /** Rubro del balance con su monto. */
     public record Partida(String concepto, BigDecimal monto) {
@@ -75,6 +78,12 @@ public record BalanceGeneral(LocalDate corte,
     /** Igual que el anterior, sumando el valor del ganado al activo no corriente. */
     public static BalanceGeneral de(LocalDate corte, Collection<Activo> activos, BigDecimal inventario,
                                     BigDecimal ganado, Collection<Deuda> deudas) {
+        return de(corte, activos, inventario, ganado, BigDecimal.ZERO, deudas);
+    }
+
+    /** Igual que el anterior, sumando al activo corriente lo invertido en las campañas agrícolas en curso. */
+    public static BalanceGeneral de(LocalDate corte, Collection<Activo> activos, BigDecimal inventario,
+                                    BigDecimal ganado, BigDecimal cultivos, Collection<Deuda> deudas) {
         Map<CategoriaActivo, BigDecimal> porCategoria = new EnumMap<>(CategoriaActivo.class);
         BigDecimal depAcumulada = BigDecimal.ZERO;
         BigDecimal depMensual = BigDecimal.ZERO;
@@ -93,9 +102,13 @@ public record BalanceGeneral(LocalDate corte,
         List<Partida> corriente = new ArrayList<>();
         List<Partida> noCorriente = new ArrayList<>();
         BigDecimal stock = inventario == null ? BigDecimal.ZERO : inventario.max(BigDecimal.ZERO);
+        BigDecimal enProceso = cultivos == null ? BigDecimal.ZERO : cultivos.max(BigDecimal.ZERO);
         for (CategoriaActivo categoria : CategoriaActivo.values()) {
             if (categoria == CategoriaActivo.OTROS_CORRIENTES && stock.signum() > 0) {
                 corriente.add(new Partida(INVENTARIO, stock));
+            }
+            if (categoria == CategoriaActivo.OTROS_CORRIENTES && enProceso.signum() > 0) {
+                corriente.add(new Partida(CULTIVOS, enProceso));
             }
             BigDecimal monto = porCategoria.get(categoria);
             if (monto != null) {
@@ -127,7 +140,7 @@ public record BalanceGeneral(LocalDate corte,
             }
         }
         return new BalanceGeneral(corte, corriente, noCorriente, partidas(cortoPlazo), partidas(largoPlazo),
-                stock, hato, depAcumulada, depMensual, cuotas, registrados, pendientes);
+                stock, hato, enProceso, depAcumulada, depMensual, cuotas, registrados, pendientes);
     }
 
     /**
@@ -199,7 +212,7 @@ public record BalanceGeneral(LocalDate corte,
 
     /** Hay activos registrados o ganado valorizado (sin contar el inventario de mercadería). */
     public boolean tieneActivos() {
-        return activosRegistrados > 0 || ganado.signum() > 0;
+        return activosRegistrados > 0 || ganado.signum() > 0 || cultivos.signum() > 0;
     }
 
     private static BigDecimal suma(List<Partida> partidas) {
