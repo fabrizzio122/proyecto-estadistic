@@ -1,6 +1,6 @@
 @startuml 08-modelo-datos
 !include estilo.iuml
-title Business Analyzer Desktop 1.1 — Modelo de datos (SQLite, migraciones V1–V12)
+title Business Analyzer Desktop 1.2 — Modelo de datos (SQLite, migraciones V1–V13)
 hide methods
 skinparam linetype ortho
 
@@ -74,9 +74,10 @@ package "Operaciones y finanzas (V5–V9)" {
     * id <<PK>>
     --
     empresa_id <<FK>>
+    cuenta_id <<FK>>
     tipo, numero, fecha
     subtotal, impuesto, total, costo_total
-    estado
+    condicion, vencimiento, estado
   }
   entity operacion_linea {
     * id <<PK>>
@@ -89,6 +90,7 @@ package "Operaciones y finanzas (V5–V9)" {
     * id <<PK>>
     --
     empresa_id <<FK>>
+    cuenta_id <<FK>>
     tipo, categoria, comportamiento, monto
   }
   entity escenario {
@@ -107,19 +109,48 @@ package "Operaciones y finanzas (V5–V9)" {
     * id <<PK>>
     --
     empresa_id <<FK>>
+    cuenta_id <<FK>>
     categoria, valor, vida_util_anios
   }
   entity deuda {
     * id <<PK>>
     --
     empresa_id <<FK>>
+    cuenta_id <<FK>>
     acreedor, monto, tasa_anual
   }
   entity pago_deuda {
     * id <<PK>>
     --
     deuda_id <<FK>>
-    fecha, monto
+    cuenta_id <<FK>>
+    movimiento_id <<FK>>
+    fecha, monto, interes
+  }
+}
+
+package "Tesorería (V13)" {
+  entity cuenta_dinero {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    nombre <<UQ>>, tipo, numero
+    saldo_inicial, activa
+  }
+  entity pago_operacion {
+    * id <<PK>>
+    --
+    operacion_id <<FK>>
+    cuenta_id <<FK>>
+    fecha, monto, estado
+  }
+  entity movimiento_tesoreria {
+    * id <<PK>>
+    --
+    empresa_id <<FK>>
+    cuenta_origen_id <<FK>>
+    cuenta_destino_id <<FK>>
+    tipo, fecha, monto, estado
   }
 }
 
@@ -220,6 +251,15 @@ empresa ||--o{ informe_generado
 empresa ||--o{ activo
 empresa ||--o{ deuda
 deuda ||--o{ pago_deuda
+
+empresa ||--|{ cuenta_dinero
+cuenta_dinero |o--o{ operacion
+operacion ||--o{ pago_operacion
+cuenta_dinero ||--o{ pago_operacion
+cuenta_dinero |o--o{ movimiento_financiero
+cuenta_dinero |o--o{ pago_deuda
+cuenta_dinero ||--o{ movimiento_tesoreria
+movimiento_financiero |o--o| pago_deuda
 
 empresa ||--o{ movimiento_ganado
 empresa ||--o{ produccion_ganadera

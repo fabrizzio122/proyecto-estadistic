@@ -26,8 +26,13 @@ import java.util.Map;
  * = Total pasivo
  *   Patrimonio = Total activo − Total pasivo
  * </pre>
- * El inventario se valoriza con el stock actual de los productos por su costo unitario.
+ * El inventario se valoriza con el stock actual de los productos por su costo unitario. El efectivo es el
+ * saldo calculado de las cuentas de tesorería; las ventas y compras al crédito pendientes se suman como
+ * cuentas por cobrar y por pagar.
  *
+ * @param efectivo              saldo de las cuentas de tesorería (Fase 22)
+ * @param porCobrar             ventas al crédito pendientes de cobro (Fase 22)
+ * @param porPagar              compras al crédito pendientes de pago (Fase 22)
  * @param depreciacionAcumulada depreciación de todos los activos fijos hasta la fecha de corte
  * @param depreciacionMensual   depreciación que generan los activos fijos cada mes
  * @param cuotasMensuales       suma de las cuotas mensuales de las deudas pendientes
@@ -48,9 +53,15 @@ public record BalanceGeneral(LocalDate corte,
                              BigDecimal depreciacionMensual,
                              BigDecimal cuotasMensuales,
                              int activosRegistrados,
-                             int deudasPendientes) {
+                             int deudasPendientes,
+                             BigDecimal efectivo,
+                             BigDecimal porCobrar,
+                             BigDecimal porPagar) {
 
     public static final String INVENTARIO = "Inventario de mercadería";
+    public static final String EFECTIVO = "Efectivo (cuentas de tesorería)";
+    public static final String POR_COBRAR = "Ventas al crédito por cobrar";
+    public static final String POR_PAGAR = "Compras al crédito por pagar";
     public static final String GANADO = "Ganado (valor de mercado)";
     public static final String CULTIVOS = "Cultivos en proceso (al costo)";
 
@@ -84,6 +95,23 @@ public record BalanceGeneral(LocalDate corte,
     /** Igual que el anterior, sumando al activo corriente lo invertido en las campañas agrícolas en curso. */
     public static BalanceGeneral de(LocalDate corte, Collection<Activo> activos, BigDecimal inventario,
                                     BigDecimal ganado, BigDecimal cultivos, Collection<Deuda> deudas) {
+        return de(corte, activos, inventario, ganado, cultivos, deudas, BigDecimal.ZERO, BigDecimal.ZERO,
+                BigDecimal.ZERO);
+    }
+
+    /**
+     * Balance completo, con el dinero de las cuentas de tesorería y las ventas y compras al crédito pendientes.
+     *
+     * @param efectivo  saldo de las cuentas (puede ser negativo si una cuenta quedó sobregirada)
+     * @param porCobrar ventas al crédito pendientes de cobro
+     * @param porPagar  compras al crédito pendientes de pago (se consideran de corto plazo)
+     */
+    public static BalanceGeneral de(LocalDate corte, Collection<Activo> activos, BigDecimal inventario,
+                                    BigDecimal ganado, BigDecimal cultivos, Collection<Deuda> deudas,
+                                    BigDecimal efectivo, BigDecimal porCobrar, BigDecimal porPagar) {
+        BigDecimal dinero = efectivo == null ? BigDecimal.ZERO : efectivo;
+        BigDecimal cobrar = porCobrar == null ? BigDecimal.ZERO : porCobrar.max(BigDecimal.ZERO);
+        BigDecimal pagar = porPagar == null ? BigDecimal.ZERO : porPagar.max(BigDecimal.ZERO);
         Map<CategoriaActivo, BigDecimal> porCategoria = new EnumMap<>(CategoriaActivo.class);
         BigDecimal depAcumulada = BigDecimal.ZERO;
         BigDecimal depMensual = BigDecimal.ZERO;
@@ -103,7 +131,13 @@ public record BalanceGeneral(LocalDate corte,
         List<Partida> noCorriente = new ArrayList<>();
         BigDecimal stock = inventario == null ? BigDecimal.ZERO : inventario.max(BigDecimal.ZERO);
         BigDecimal enProceso = cultivos == null ? BigDecimal.ZERO : cultivos.max(BigDecimal.ZERO);
+        if (dinero.signum() != 0) {
+            corriente.add(new Partida(EFECTIVO, dinero));
+        }
         for (CategoriaActivo categoria : CategoriaActivo.values()) {
+            if (categoria == CategoriaActivo.CUENTAS_POR_COBRAR && cobrar.signum() > 0) {
+                corriente.add(new Partida(POR_COBRAR, cobrar));
+            }
             if (categoria == CategoriaActivo.OTROS_CORRIENTES && stock.signum() > 0) {
                 corriente.add(new Partida(INVENTARIO, stock));
             }
@@ -139,8 +173,14 @@ public record BalanceGeneral(LocalDate corte,
                 cuotas = cuotas.add(d.cuotaMensual());
             }
         }
-        return new BalanceGeneral(corte, corriente, noCorriente, partidas(cortoPlazo), partidas(largoPlazo),
-                stock, hato, enProceso, depAcumulada, depMensual, cuotas, registrados, pendientes);
+        List<Partida> pasivoCorriente = new ArrayList<>();
+        if (pagar.signum() > 0) {
+            pasivoCorriente.add(new Partida(POR_PAGAR, pagar));
+        }
+        pasivoCorriente.addAll(partidas(cortoPlazo));
+        return new BalanceGeneral(corte, corriente, noCorriente, pasivoCorriente, partidas(largoPlazo),
+                stock, hato, enProceso, depAcumulada, depMensual, cuotas, registrados, pendientes, dinero, cobrar,
+                pagar);
     }
 
     /**

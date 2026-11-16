@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import com.businessanalyzer.analytics.ResumenOperaciones;
 import com.businessanalyzer.exception.DataAccessException;
 import com.businessanalyzer.exception.ValidacionException;
+import com.businessanalyzer.model.CondicionPago;
 import com.businessanalyzer.model.EstadoOperacion;
 import com.businessanalyzer.model.LineaOperacion;
 import com.businessanalyzer.model.Operacion;
@@ -38,16 +39,20 @@ public class OperacionRepository {
     public record NuevaOperacion(TipoOperacion tipo, String numero, LocalDate fecha, String contraparte,
                                  String documentoContraparte, String comprobante, BigDecimal tasaImpuesto,
                                  CalculadoraOperacion.Totales totales, String observaciones,
-                                 String registradoPor, LocalDateTime registradoEn) {
+                                 String registradoPor, LocalDateTime registradoEn, CondicionPago condicion,
+                                 Long cuentaId, LocalDate vencimiento) {
     }
 
     private static final String CABECERA = """
             SELECT o.id, o.empresa_id, o.tipo, o.numero, o.fecha, o.contraparte, o.documento_contraparte,
                    o.comprobante, o.tasa_impuesto, o.subtotal, o.impuesto, o.total, o.costo_total, o.estado,
                    o.observaciones, o.registrado_por, o.registrado_en, o.motivo_anulacion, o.anulado_por,
-                   o.anulado_en,
-                   (SELECT COUNT(*) FROM operacion_linea ol WHERE ol.operacion_id = o.id) AS items
-            FROM operacion o""";
+                   o.anulado_en, o.condicion, o.cuenta_id, cd.nombre AS cuenta, o.vencimiento,
+                   (SELECT COUNT(*) FROM operacion_linea ol WHERE ol.operacion_id = o.id) AS items,
+                   (SELECT COALESCE(SUM(po.monto), 0) FROM pago_operacion po
+                    WHERE po.operacion_id = o.id AND po.estado = 'REGISTRADO') AS pagado
+            FROM operacion o
+            LEFT JOIN cuenta_dinero cd ON cd.id = o.cuenta_id""";
 
     public List<Operacion> listar(Connection c, long empresaId, TipoOperacion tipo, LocalDate desde,
                                   LocalDate hasta, boolean incluirAnuladas) throws SQLException {
@@ -71,12 +76,21 @@ public class OperacionRepository {
             if (resultado.isEmpty()) {
                 return Optional.empty();
             }
-            Operacion o = resultado.get(0);
-            return Optional.of(new Operacion(o.id(), o.empresaId(), o.tipo(), o.numero(), o.fecha(),
-                    o.contraparte(), o.documentoContraparte(), o.comprobante(), o.tasaImpuesto(), o.subtotal(),
-                    o.impuesto(), o.total(), o.costoTotal(), o.estado(), o.observaciones(), o.registradoPor(),
-                    o.registradoEn(), o.motivoAnulacion(), o.anuladoPor(), o.anuladoEn(), o.cantidadItems(),
-                    lineas(c, id)));
+            return Optional.of(resultado.get(0).conLineas(lineas(c, id)));
+        }
+    }
+
+    /**
+     * Ventas o compras al crédito registradas que aún tienen saldo por cobrar o pagar, de la más
+     * antigua a la más reciente.
+     */
+    public List<Operacion> listarPendientes(Connection c, long empresaId, TipoOperacion tipo) throws SQLException {
+        String sql = CABECERA + " WHERE o.empresa_id = ? AND o.tipo = ? AND o.estado = 'REGISTRADA'"
+                + " AND o.condicion = 'CREDITO' ORDER BY COALESCE(o.vencimiento, o.fecha), o.fecha, o.id";
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setLong(1, empresaId);
+            ps.setString(2, tipo.name());
+            return mapearCabeceras(ps).stream().filter(o -> o.pendiente().signum() > 0).toList();
         }
     }
 
@@ -132,8 +146,9 @@ public class OperacionRepository {
         try (PreparedStatement ps = c.prepareStatement("""
                 INSERT INTO operacion (empresa_id, tipo, numero, fecha, contraparte, documento_contraparte,
                                        comprobante, tasa_impuesto, subtotal, impuesto, total, costo_total,
-                                       observaciones, registrado_por, registrado_en)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS)) {
+                                       observaciones, registrado_por, registrado_en, condicion, cuenta_id,
+                                       vencimiento)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS)) {
             ps.setLong(1, empresaId);
             ps.setString(2, n.tipo().name());
             ps.setString(3, n.numero());
@@ -149,6 +164,13 @@ public class OperacionRepository {
             ps.setString(13, n.observaciones());
             ps.setString(14, n.registradoPor());
             ps.setString(15, Fechas.aTexto(n.registradoEn()));
+            ps.setString(16, (n.condicion() == null ? CondicionPago.CONTADO : n.condicion()).name());
+            if (n.cuentaId() == null) {
+                ps.setNull(17, java.sql.Types.INTEGER);
+            } else {
+                ps.setLong(17, n.cuentaId());
+            }
+            ps.setString(18, Fechas.fechaATexto(n.vencimiento()));
             ps.executeUpdate();
             try (ResultSet claves = ps.getGeneratedKeys()) {
                 if (!claves.next()) {
@@ -347,7 +369,12 @@ public class OperacionRepository {
                         rs.getString("anulado_por"),
                         Fechas.desdeTexto(rs.getString("anulado_en")),
                         rs.getInt("items"),
-                        List.of()));
+                        List.of(),
+                        CondicionPago.valueOf(rs.getString("condicion")),
+                        Sql.enteroOpcional(rs, "cuenta_id"),
+                        rs.getString("cuenta"),
+                        Fechas.fechaDesdeTexto(rs.getString("vencimiento")),
+                        Montos.desdeEntero(rs.getLong("pagado"))));
             }
         }
         return operaciones;

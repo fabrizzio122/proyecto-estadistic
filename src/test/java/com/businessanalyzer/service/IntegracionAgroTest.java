@@ -106,7 +106,7 @@ class IntegracionAgroTest {
         EntornoPrueba entorno = new EntornoPrueba(carpeta);
         entorno.administradorConectado();
         new DatosDemoAgroService(entorno.empresaService, entorno.ganaderia, entorno.agricultura, entorno.patrimonio,
-                entorno.sesion, entorno.reloj, entorno.visitas, entorno.finanzas).crearFundoDemo();
+                entorno.sesion, entorno.reloj, entorno.visitas, entorno.finanzas, entorno.tesoreria).crearFundoDemo();
 
         DiagnosticoService diagnostico = new DiagnosticoService(entorno.database, new OperacionRepository(),
                 new MovimientoRepository(), entorno.empresaService, entorno.sesion, entorno.reloj);

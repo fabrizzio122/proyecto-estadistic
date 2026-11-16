@@ -23,6 +23,7 @@ import com.businessanalyzer.ui.Dialogos;
 import com.businessanalyzer.ui.Errores;
 import com.businessanalyzer.ui.Formularios;
 import com.businessanalyzer.ui.Notificador;
+import com.businessanalyzer.ui.SelectorCuenta;
 import com.businessanalyzer.ui.TarjetaIndicador;
 import com.businessanalyzer.ui.VistaModulo;
 import com.businessanalyzer.util.Fechas;
@@ -185,7 +186,8 @@ public class PatrimonioController implements VistaModulo {
             return;
         }
         moneda = empresa.moneda();
-        tablaActivos.setPlaceholder(new Label("No hay activos registrados. Empieza por la caja y los equipos del negocio."));
+        tablaActivos.setPlaceholder(new Label("No hay activos registrados. Empieza por los equipos y muebles del negocio; "
+                + "el dinero se registra en «Tesorería»."));
         tablaDeudas.setPlaceholder(new Label("No hay deudas registradas."));
         try {
             PatrimonioService servicio = servicio();
@@ -478,20 +480,46 @@ public class PatrimonioController implements VistaModulo {
             return;
         }
         DatePicker fecha = CamposFecha.nuevo(LocalDate.now());
+        BigDecimal interesSugerido = PatrimonioService.interesSugerido(d);
+        TextField interes = new TextField(interesSugerido.signum() == 0 ? "" : Montos.paraEditar(interesSugerido));
+        interes.setPromptText("0.00");
         TextField monto = new TextField();
         monto.setPromptText("0.00");
+        if (d.cuotaMensual() != null) {
+            monto.setText(Montos.paraEditar(d.cuotaMensual().subtract(interesSugerido).max(BigDecimal.ZERO).min(d.saldo())));
+        }
+        Label total = new Label();
+        total.getStyleClass().add("info-value");
+        Runnable sumar = () -> {
+            try {
+                BigDecimal capital = monto.getText().isBlank() ? BigDecimal.ZERO : Montos.leer(monto.getText(), "Capital");
+                BigDecimal intereses = interes.getText().isBlank() ? BigDecimal.ZERO : Montos.leer(interes.getText(), "Intereses");
+                total.setText("Sale de la cuenta: " + Montos.formatear(capital.add(intereses), moneda));
+            } catch (RuntimeException e) {
+                total.setText("");
+            }
+        };
+        monto.textProperty().addListener((o, a, n) -> sumar.run());
+        interes.textProperty().addListener((o, a, n) -> sumar.run());
+        sumar.run();
+        SelectorCuenta cuenta = new SelectorCuenta(contexto.tesoreria().cuentasActivas(), null, d.cuentaId());
         TextField nota = new TextField();
         nota.setPromptText("Opcional. Ej.: cuota 3 de 12");
         GridPane grilla = Formularios.grilla();
         Formularios.fila(grilla, "Fecha *", fecha);
-        Formularios.fila(grilla, "Capital pagado (" + moneda.simbolo() + ") *", monto);
-        Formularios.nota(grilla, "Saldo pendiente: " + Montos.formatear(d.saldo(), moneda)
-                + ". Registra solo el capital; el interés va como gasto en Gestión financiera.");
+        Formularios.fila(grilla, "Capital (" + moneda.simbolo() + ") *", monto);
+        Formularios.fila(grilla, "Intereses (" + moneda.simbolo() + ")", interes);
+        Formularios.fila(grilla, "Pagado desde *", cuenta);
+        Formularios.fila(grilla, "", total);
+        Formularios.nota(grilla, "Saldo pendiente: " + Montos.formatear(d.saldo(), moneda) + ". El capital baja la "
+                + "deuda; los intereses se registran solos como gasto financiero en Gestión financiera"
+                + (interesSugerido.signum() > 0 ? " (sugerido: saldo × tasa anual ÷ 12)." : "."));
         Formularios.fila(grilla, "Nota", nota);
         Deuda[] actualizada = new Deuda[1];
         boolean ok = Dialogos.formulario(ventana(), "Registrar pago a " + d.acreedor(), null, grilla, "Registrar pago",
                 () -> actualizada[0] = servicio().registrarPago(d.id(), CamposFecha.leer(fecha, "pago"),
-                        Montos.leer(monto.getText(), "Capital pagado"), nota.getText()));
+                        Montos.leer(monto.getText(), "Capital"), montoOpcional(interes.getText(), "Intereses"),
+                        cuenta.cuentaId(), nota.getText()));
         if (ok) {
             cargar();
             seleccionar(tablaDeudas, x -> x.id() == d.id());
@@ -511,8 +539,11 @@ public class PatrimonioController implements VistaModulo {
         tabla.setPlaceholder(new Label("Aún no hay pagos registrados."));
         tabla.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
         tabla.getColumns().add(columna("Fecha", 95, p -> Fechas.paraMostrar(p.fecha()), false));
-        tabla.getColumns().add(columna("Capital", 110, p -> Montos.formatear(p.monto(), moneda), true));
-        tabla.getColumns().add(columna("Nota", 170, p -> Objects.requireNonNullElse(p.nota(), ""), false));
+        tabla.getColumns().add(columna("Capital", 100, p -> Montos.formatear(p.monto(), moneda), true));
+        tabla.getColumns().add(columna("Intereses", 90, p -> p.interes().signum() == 0 ? "—"
+                : Montos.formatear(p.interes(), moneda), true));
+        tabla.getColumns().add(columna("Cuenta", 110, p -> Objects.requireNonNullElse(p.cuenta(), "—"), false));
+        tabla.getColumns().add(columna("Nota", 150, p -> Objects.requireNonNullElse(p.nota(), ""), false));
         tabla.getColumns().add(columna("Registró", 120, p -> p.anulado()
                 ? "Anulado por " + p.anuladoPor() : p.registradoPor(), false));
         tabla.setRowFactory(t -> new TableRow<>() {
@@ -543,7 +574,8 @@ public class PatrimonioController implements VistaModulo {
                 }
                 if (Dialogos.confirmar(tabla.getScene().getWindow(), "Anular pago",
                         "El pago de " + Montos.formatear(p.monto(), moneda) + " del " + Fechas.paraMostrar(p.fecha())
-                                + " se anulará y el saldo de la deuda volverá a subir.")) {
+                                + " se anulará: el saldo de la deuda vuelve a subir, el dinero vuelve a la cuenta "
+                                + "y sus intereses se anulan.")) {
                     try {
                         servicio().anularPago(p.id());
                         cambios[0] = true;
@@ -779,8 +811,7 @@ public class PatrimonioController implements VistaModulo {
 
     /** Formulario de activo. La vida útil y el valor residual solo se piden en bienes que se deprecian. */
     private final class FormularioActivo {
-        private final ComboBox<CategoriaActivo> cmbCategoria =
-                new ComboBox<>(FXCollections.observableArrayList(CategoriaActivo.values()));
+        private final ComboBox<CategoriaActivo> cmbCategoria = new ComboBox<>();
         private final Label lblAyuda = new Label();
         private final TextField txtDescripcion = new TextField();
         private final DatePicker dpFecha = CamposFecha.nuevo(LocalDate.now());
@@ -789,11 +820,19 @@ public class PatrimonioController implements VistaModulo {
         private final TextField txtResidual = new TextField();
         private final Label lblFecha = new Label();
         private final Label lblValor = new Label();
+        private final SelectorCuenta cmbCuenta;
 
         FormularioActivo(Activo a) {
+            // El efectivo se lleva en «Tesorería»; «Caja y bancos» solo aparece al editar un registro antiguo.
+            cmbCategoria.setItems(FXCollections.observableArrayList(java.util.Arrays.stream(CategoriaActivo.values())
+                    .filter(c -> c != CategoriaActivo.CAJA_BANCOS
+                            || (a != null && a.categoria() == CategoriaActivo.CAJA_BANCOS))
+                    .toList()));
+            cmbCuenta = new SelectorCuenta(contexto.tesoreria().cuentasActivas(),
+                    "No salió dinero (ya lo tenía, aporte o compra financiada)", a == null ? null : a.cuentaId());
             cmbCategoria.setPromptText("Selecciona el tipo de activo");
             cmbCategoria.setVisibleRowCount(10);
-            txtDescripcion.setPromptText("Ej.: Refrigeradora exhibidora, Cuenta BCP");
+            txtDescripcion.setPromptText("Ej.: Refrigeradora exhibidora, Motocicleta");
             txtValor.setPromptText("0.00");
             txtVida.setPromptText("Años");
             txtResidual.setPromptText("0.00 (opcional)");
@@ -848,9 +887,11 @@ public class PatrimonioController implements VistaModulo {
             grilla.add(txtValor, 1, fila + 1);
             Formularios.fila(grilla, "Vida útil (años)", txtVida);
             Formularios.fila(grilla, "Valor residual (" + moneda.simbolo() + ")", txtResidual);
+            Formularios.fila(grilla, "Pagado desde", cmbCuenta);
             Formularios.nota(grilla, "La depreciación se acumula por cada mes completo desde la fecha de adquisición: "
                     + "un bien comprado hoy empieza a perder valor en un mes. Vida útil vacía = no se deprecia. "
-                    + "Valor residual: lo que valdría al final de su vida útil.");
+                    + "Valor residual: lo que valdría al final de su vida útil. Si lo compraste ahora, elige la cuenta "
+                    + "con la que pagaste: el valor saldrá de su saldo en «Tesorería».");
             return grilla;
         }
 
@@ -867,7 +908,8 @@ public class PatrimonioController implements VistaModulo {
                 }
             }
             return new DatosActivo(cmbCategoria.getValue(), txtDescripcion.getText(), fecha,
-                    Montos.leer(txtValor.getText(), "Valor"), vida, montoOpcional(txtResidual.getText(), "Valor residual"));
+                    Montos.leer(txtValor.getText(), "Valor"), vida, montoOpcional(txtResidual.getText(), "Valor residual"),
+                    cmbCuenta.cuentaId());
         }
     }
 
@@ -882,8 +924,11 @@ public class PatrimonioController implements VistaModulo {
         private final TextField txtTasa = new TextField();
         private final TextField txtCuota = new TextField();
         private final DatePicker dpVencimiento = CamposFecha.nuevo(null);
+        private final SelectorCuenta cmbCuenta;
 
         FormularioDeuda(Deuda d) {
+            cmbCuenta = new SelectorCuenta(contexto.tesoreria().cuentasActivas(),
+                    "No ingresó dinero (proveedor, impuestos, compra financiada)", d == null ? null : d.cuentaId());
             cmbCategoria.setPromptText("Selecciona el tipo de deuda");
             txtAcreedor.setPromptText("Ej.: Caja Arequipa, Distribuidora Lima");
             txtDescripcion.setPromptText("Opcional. Ej.: préstamo para la refrigeradora");
@@ -912,8 +957,10 @@ public class PatrimonioController implements VistaModulo {
             Formularios.fila(grilla, "Tasa anual (%)", txtTasa);
             Formularios.fila(grilla, "Cuota mensual (" + moneda.simbolo() + ")", txtCuota);
             Formularios.fila(grilla, "Vencimiento", dpVencimiento);
-            Formularios.nota(grilla, "Con la cuota se calcula la capacidad de pago; con el vencimiento, qué parte "
-                    + "de la deuda es de corto plazo (sin vencimiento se considera toda de corto plazo).");
+            Formularios.fila(grilla, "El dinero ingresó a", cmbCuenta);
+            Formularios.nota(grilla, "Con la cuota se calcula la capacidad de pago y la proyección de caja; con el "
+                    + "vencimiento, qué parte de la deuda es de corto plazo (sin vencimiento se considera toda de corto "
+                    + "plazo). Si es un préstamo en efectivo, elige la cuenta donde se depositó.");
             return grilla;
         }
 
@@ -922,7 +969,7 @@ public class PatrimonioController implements VistaModulo {
             LocalDate vencimiento = CamposFecha.leer(dpVencimiento, "vencimiento");
             return new DatosDeuda(cmbCategoria.getValue(), txtAcreedor.getText(), txtDescripcion.getText(), fecha,
                     Montos.leer(txtMonto.getText(), "Monto"), montoOpcional(txtTasa.getText(), "Tasa anual"),
-                    montoOpcional(txtCuota.getText(), "Cuota mensual"), vencimiento);
+                    montoOpcional(txtCuota.getText(), "Cuota mensual"), vencimiento, cmbCuenta.cuentaId());
         }
     }
 }

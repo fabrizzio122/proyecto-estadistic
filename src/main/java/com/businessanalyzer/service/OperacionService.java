@@ -5,6 +5,7 @@ import com.businessanalyzer.analytics.ResumenOperaciones;
 import com.businessanalyzer.config.Database;
 import com.businessanalyzer.exception.StockInsuficienteException;
 import com.businessanalyzer.exception.ValidacionException;
+import com.businessanalyzer.model.CondicionPago;
 import com.businessanalyzer.model.DatosOperacion;
 import com.businessanalyzer.model.DatosOperacion.DatosLinea;
 import com.businessanalyzer.model.Empresa;
@@ -16,6 +17,7 @@ import com.businessanalyzer.model.TipoOperacion;
 import com.businessanalyzer.repository.OperacionRepository;
 import com.businessanalyzer.repository.OperacionRepository.NuevaOperacion;
 import com.businessanalyzer.repository.ProductoRepository;
+import com.businessanalyzer.repository.TesoreriaRepository;
 import com.businessanalyzer.seguridad.Sesion;
 import com.businessanalyzer.util.Montos;
 import com.businessanalyzer.util.Validaciones;
@@ -59,6 +61,8 @@ public class OperacionService {
     private final ConfiguracionService configuracion;
     private final Sesion sesion;
     private final Clock reloj;
+    private final TesoreriaRepository tesoreria = new TesoreriaRepository();
+    private final CuentasEmpresa cuentas = new CuentasEmpresa(tesoreria);
 
     public OperacionService(Database database, OperacionRepository operaciones, ProductoRepository productos,
                             EmpresaService empresas, ConfiguracionService configuracion, Sesion sesion, Clock reloj) {
@@ -160,6 +164,7 @@ public class OperacionService {
                 throw new ValidacionException("Una " + original.tipo().descripcion().toLowerCase()
                         + " no puede convertirse en " + d.tipo().descripcion().toLowerCase() + ".");
             }
+            exigirSinPagos(c, original);
             String numeroNuevo = operaciones.siguienteNumero(c, empresa.id(), d.tipo());
             operaciones.anular(c, id, "Corregida: reemplazada por " + numeroNuevo, usuario, ahora);
             String nota = "Corrige " + original.numero();
@@ -167,7 +172,7 @@ public class OperacionService {
                     : d.observaciones().startsWith("Corrige ") ? d.observaciones() : nota + ". " + d.observaciones();
             DatosOperacion conNota = new DatosOperacion(d.tipo(), d.fecha(), d.contraparte(), d.documentoContraparte(),
                     d.comprobante(), d.tasaImpuesto(), observaciones.length() > 500 ? observaciones.substring(0, 500)
-                    : observaciones, d.lineas(), d.actualizarCostos());
+                    : observaciones, d.lineas(), d.actualizarCostos(), d.condicion(), d.cuentaId(), d.vencimiento());
             return registrarEn(c, empresa, conNota, permitirStockNegativo, usuario, ahora);
         });
 
@@ -205,10 +210,12 @@ public class OperacionService {
         }
 
         CalculadoraOperacion.Totales totales = CalculadoraOperacion.calcular(lineasCalculo, d.tasaImpuesto());
+        Long cuentaId = d.condicion() == CondicionPago.CONTADO
+                ? cuentas.resolver(c, empresa.id(), d.cuentaId(), null) : null;
         String numero = operaciones.siguienteNumero(c, empresa.id(), d.tipo());
         long id = operaciones.insertar(c, empresa.id(), new NuevaOperacion(d.tipo(), numero, d.fecha(),
                 d.contraparte(), d.documentoContraparte(), d.comprobante(), d.tasaImpuesto(), totales,
-                d.observaciones(), usuario, ahora));
+                d.observaciones(), usuario, ahora, d.condicion(), cuentaId, d.vencimiento()));
 
         for (int i = 0; i < items.size(); i++) {
             CalculadoraOperacion.Linea linea = lineasCalculo.get(i);
@@ -234,6 +241,7 @@ public class OperacionService {
             if (operacion.anulada()) {
                 throw new ValidacionException("La operación " + operacion.numero() + " ya está anulada.");
             }
+            exigirSinPagos(c, operacion);
             operaciones.anular(c, id, motivoLimpio, usuario, ahora);
             return operaciones.buscarPorId(c, id).orElseThrow();
         });
@@ -251,6 +259,15 @@ public class OperacionService {
                 productos.actualizarCosto(c, producto.id(), nuevoCosto, ahora);
                 productos.registrarPrecio(c, producto.id(), nuevoCosto, producto.precioVenta(), ahora, usuario);
             }
+        }
+    }
+
+    /** Una venta o compra al crédito con cobros o pagos registrados no se corrige ni se anula directamente. */
+    private void exigirSinPagos(Connection c, Operacion operacion) throws SQLException {
+        if (tesoreria.pagosVigentes(c, operacion.id()) > 0) {
+            String que = operacion.tipo() == TipoOperacion.VENTA ? "cobros" : "pagos";
+            throw new ValidacionException("La operación " + operacion.numero() + " tiene " + que
+                    + " registrados en «Tesorería». Anúlalos primero.");
         }
     }
 

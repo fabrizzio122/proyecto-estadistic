@@ -8,8 +8,11 @@ import com.businessanalyzer.analytics.ganaderia.Hato;
 import com.businessanalyzer.analytics.patrimonio.BalanceGeneral;
 import com.businessanalyzer.analytics.patrimonio.IndicadoresPatrimonio;
 import com.businessanalyzer.analytics.patrimonio.SituacionPatrimonial;
+import com.businessanalyzer.analytics.tesoreria.SaldoCuenta;
 import com.businessanalyzer.model.Producto;
 import com.businessanalyzer.model.TipoItem;
+import com.businessanalyzer.model.TipoOperacion;
+import com.businessanalyzer.repository.TesoreriaRepository;
 import com.businessanalyzer.repository.AgriculturaRepository;
 import com.businessanalyzer.repository.ActivoRepository;
 import com.businessanalyzer.repository.DeudaRepository;
@@ -41,6 +44,7 @@ final class ConsultaPatrimonio {
     private final MovimientoRepository movimientos;
     private final GanaderiaRepository ganaderia = new GanaderiaRepository();
     private final AgriculturaRepository agricultura = new AgriculturaRepository();
+    private final TesoreriaRepository tesoreria = new TesoreriaRepository();
 
     ConsultaPatrimonio(ActivoRepository activos, DeudaRepository deudas, ProductoRepository productos,
                        OperacionRepository operaciones, MovimientoRepository movimientos) {
@@ -56,8 +60,15 @@ final class ConsultaPatrimonio {
                 Hato.existencias(ganaderia.listarMovimientos(c, empresaId, hoy, false), hoy),
                 ganaderia.precios(c, empresaId)));
         BigDecimal cultivos = cultivosEnProceso(c, empresaId);
+        BigDecimal efectivo = SaldoCuenta.total(SaldoCuenta.de(tesoreria.listarCuentas(c, empresaId, true),
+                tesoreria.flujos(c, empresaId), hoy));
+        BigDecimal porCobrar = TesoreriaService.pendiente(
+                operaciones.listarPendientes(c, empresaId, TipoOperacion.VENTA), null);
+        BigDecimal porPagar = TesoreriaService.pendiente(
+                operaciones.listarPendientes(c, empresaId, TipoOperacion.COMPRA), null);
         BalanceGeneral balance = BalanceGeneral.de(hoy, activos.listar(c, empresaId, false),
-                valorInventario(productos.listar(c, empresaId, true)), ganado, cultivos, deudas.listar(c, empresaId, false));
+                valorInventario(productos.listar(c, empresaId, true)), ganado, cultivos, deudas.listar(c, empresaId, false),
+                efectivo, porCobrar, porPagar);
 
         // Resultados de los últimos 12 meses completos, desde el primero con ventas.
         YearMonth ultimo = YearMonth.from(hoy).minusMonths(1);

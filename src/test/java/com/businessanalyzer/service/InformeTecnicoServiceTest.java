@@ -30,7 +30,7 @@ class InformeTecnicoServiceTest {
         EntornoPrueba entorno = new EntornoPrueba(carpeta);
         entorno.administradorConectado();
         Empresa fundo = new DatosDemoAgroService(entorno.empresaService, entorno.ganaderia, entorno.agricultura,
-                entorno.patrimonio, entorno.sesion, entorno.reloj, entorno.visitas, entorno.finanzas).crearFundoDemo();
+                entorno.patrimonio, entorno.sesion, entorno.reloj, entorno.visitas, entorno.finanzas, entorno.tesoreria).crearFundoDemo();
         Visita reciente = entorno.visitas.listar(false).get(0);
         Path foto = carpeta.resolve("foto.png");
         ImageIO.write(new BufferedImage(320, 240, BufferedImage.TYPE_INT_RGB), "png", foto.toFile());

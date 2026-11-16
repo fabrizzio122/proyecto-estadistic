@@ -17,6 +17,7 @@ import com.businessanalyzer.analytics.simulacion.Simulador;
 import com.businessanalyzer.analytics.simulacion.Supuestos;
 import com.businessanalyzer.model.Moneda;
 import com.businessanalyzer.model.Sector;
+import com.businessanalyzer.analytics.tesoreria.ProyeccionCaja;
 import com.businessanalyzer.util.Fechas;
 import com.businessanalyzer.util.Montos;
 
@@ -96,7 +97,7 @@ public final class MotorDiagnostico {
     private Diagnostico diagnosticar() {
         List<Hallazgo> hallazgos = new ArrayList<>(List.of(
                 margenNeto(), margenBruto(), mesesConPerdida(),
-                margenSeguridad(), pesoCostosFijos(), cargaFinanciera(), liquidez(), endeudamiento(),
+                margenSeguridad(), pesoCostosFijos(), cargaFinanciera(), liquidez(), cajaProyectada(), endeudamiento(),
                 variacionVentas(), tendenciaVentas(), proyeccionVentas(),
                 regularidadVentas(), concentracion(), productosConPerdida()));
         if (datos.agro() != null) {
@@ -326,7 +327,7 @@ public final class MotorDiagnostico {
         TipoIndicador tipo = TipoIndicador.LIQUIDEZ;
         Optional<SituacionPatrimonial> situacion = patrimonio();
         if (situacion.isEmpty()) {
-            return Hallazgo.sinDatos(tipo, "Registra la caja, los cobros pendientes y las deudas en «Activos y deudas» para evaluarla.");
+            return Hallazgo.sinDatos(tipo, "Registra las cuentas en «Tesorería» y los activos y deudas en «Activos y deudas» para evaluarla.");
         }
         IndicadoresPatrimonio i = situacion.get().indicadores();
         String criterio = "Bien desde " + IndicadoresPatrimonio.veces(IndicadoresPatrimonio.LIQUIDEZ_VERDE)
@@ -350,6 +351,47 @@ public final class MotorDiagnostico {
         return new Hallazgo(tipo, Semaforo.ROJO, valor, criterio, lectura,
                 "Faltan unos " + dinero(i.capitalTrabajo().negate()) + " para cubrir lo que vence en el año. Negocia "
                         + "más plazo con proveedores, refinancia los préstamos a un plazo mayor y acelera los cobros pendientes.");
+    }
+
+    /**
+     * Rojo si con el pronóstico base el dinero se acaba en los próximos seis meses; amarillo si solo se
+     * acaba en el escenario pesimista; verde si alcanza en ambos.
+     */
+    private Hallazgo cajaProyectada() {
+        TipoIndicador tipo = TipoIndicador.CAJA_PROYECTADA;
+        ProyeccionCaja caja = datos.caja();
+        if (caja == null || !caja.suficiente()) {
+            return Hallazgo.sinDatos(tipo, "Se necesitan al menos " + ProyeccionCaja.MINIMO_MESES
+                    + " meses completos de movimientos en las cuentas de «Tesorería».");
+        }
+        String criterio = "Bien si el dinero alcanza los próximos " + ProyeccionCaja.HORIZONTE
+                + " meses incluso en un escenario pesimista.";
+        List<ProyeccionCaja.MesProyectado> meses = caja.meses();
+        BigDecimal minimo = meses.stream().map(ProyeccionCaja.MesProyectado::saldo)
+                .min(BigDecimal::compareTo).orElse(caja.saldoActual());
+        BigDecimal minimoPesimista = meses.stream().map(ProyeccionCaja.MesProyectado::saldoPesimista)
+                .min(BigDecimal::compareTo).orElse(caja.saldoActual());
+        BigDecimal alFinal = meses.get(meses.size() - 1).saldo();
+        if (caja.primerNegativo() != null) {
+            return new Hallazgo(tipo, Semaforo.ROJO, "Falta en " + mesTexto(caja.primerNegativo()), criterio,
+                    "Con el ritmo actual de cobros, pagos y cuotas, los " + dinero(caja.saldoActual())
+                            + " disponibles hoy no alcanzan: en " + mesTexto(caja.primerNegativo())
+                            + " faltaría dinero para pagar.",
+                    "Necesitarías unos " + dinero(minimo.negate()) + " adicionales. Acelera los cobros pendientes, "
+                            + "posterga las compras que no sean urgentes, recorta gastos que no generan ventas y "
+                            + "negocia con tiempo un plazo mayor para las cuotas.");
+        }
+        if (caja.primerNegativoPesimista() != null) {
+            return new Hallazgo(tipo, Semaforo.AMARILLO, dinero(alFinal), criterio,
+                    "El dinero alcanza con el pronóstico base, pero si los próximos meses salen tan mal como el "
+                            + "peor caso esperado faltaría en " + mesTexto(caja.primerNegativoPesimista()) + ".",
+                    "Arma una reserva de unos " + dinero(minimoPesimista.negate())
+                            + " (por ejemplo, separando una parte de la venta de cada semana) y evita comprometer "
+                            + "nuevas cuotas hasta tenerla.");
+        }
+        return new Hallazgo(tipo, Semaforo.VERDE, dinero(alFinal), criterio,
+                "El dinero alcanza los próximos " + ProyeccionCaja.HORIZONTE + " meses incluso en el escenario "
+                        + "pesimista; al final del período habría unos " + dinero(alFinal) + " disponibles.", null);
     }
 
     private Hallazgo endeudamiento() {

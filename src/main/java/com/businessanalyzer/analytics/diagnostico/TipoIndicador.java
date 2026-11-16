@@ -22,6 +22,9 @@ public enum TipoIndicador {
     LIQUIDEZ("Liquidez", Area.SOLIDEZ, 2,
             "Activo corriente ÷ pasivo corriente: si la caja, los cobros y el inventario alcanzan para "
                     + "pagar lo que vence en el año."),
+    CAJA_PROYECTADA("Caja proyectada", Area.SOLIDEZ, 2,
+            "Si el dinero de las cuentas alcanza para los próximos seis meses, según el pronóstico del flujo de "
+                    + "operación y las cuotas de las deudas."),
     ENDEUDAMIENTO("Endeudamiento", Area.SOLIDEZ, 2,
             "Deudas ÷ activos: qué parte de los bienes del negocio está financiada por terceros."),
 

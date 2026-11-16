@@ -56,6 +56,7 @@ final class ValidadorMovimiento {
             throw new ValidacionException("El monto debe ser mayor que cero.");
         }
         String comprobante = Validaciones.opcional(d.comprobante(), "Comprobante", 40);
-        return new DatosMovimiento(d.tipo(), d.categoria(), comportamiento, d.fecha(), descripcion, monto, comprobante);
+        return new DatosMovimiento(d.tipo(), d.categoria(), comportamiento, d.fecha(), descripcion, monto, comprobante,
+                d.cuentaId());
     }
 }

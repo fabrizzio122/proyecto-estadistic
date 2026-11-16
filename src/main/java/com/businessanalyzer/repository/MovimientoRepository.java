@@ -27,7 +27,9 @@ public class MovimientoRepository {
     private static final String CONSULTA = """
             SELECT id, empresa_id, tipo, categoria, comportamiento, fecha, descripcion, monto, comprobante,
                    estado, registrado_por, registrado_en, actualizado_por, actualizado_en, motivo_anulacion,
-                   anulado_por, anulado_en
+                   anulado_por, anulado_en, cuenta_id,
+                   (SELECT cd.nombre FROM cuenta_dinero cd WHERE cd.id = movimiento_financiero.cuenta_id) AS cuenta,
+                   EXISTS (SELECT 1 FROM pago_deuda p WHERE p.movimiento_id = movimiento_financiero.id) AS de_pago
             FROM movimiento_financiero""";
 
     public List<MovimientoFinanciero> listar(Connection c, long empresaId, LocalDate desde, LocalDate hasta,
@@ -55,12 +57,12 @@ public class MovimientoRepository {
             throws SQLException {
         try (PreparedStatement ps = c.prepareStatement("""
                 INSERT INTO movimiento_financiero (tipo, categoria, comportamiento, fecha, descripcion, monto,
-                                                  comprobante, empresa_id, registrado_por, registrado_en)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS)) {
+                                                  comprobante, cuenta_id, empresa_id, registrado_por, registrado_en)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS)) {
             asignarDatos(ps, d);
-            ps.setLong(8, empresaId);
-            ps.setString(9, usuario);
-            ps.setString(10, Fechas.aTexto(ahora));
+            ps.setLong(9, empresaId);
+            ps.setString(10, usuario);
+            ps.setString(11, Fechas.aTexto(ahora));
             ps.executeUpdate();
             try (ResultSet claves = ps.getGeneratedKeys()) {
                 if (!claves.next()) {
@@ -76,12 +78,12 @@ public class MovimientoRepository {
         try (PreparedStatement ps = c.prepareStatement("""
                 UPDATE movimiento_financiero
                 SET tipo = ?, categoria = ?, comportamiento = ?, fecha = ?, descripcion = ?, monto = ?,
-                    comprobante = ?, actualizado_por = ?, actualizado_en = ?
+                    comprobante = ?, cuenta_id = ?, actualizado_por = ?, actualizado_en = ?
                 WHERE id = ? AND estado = 'REGISTRADO'""")) {
             asignarDatos(ps, d);
-            ps.setString(8, usuario);
-            ps.setString(9, Fechas.aTexto(ahora));
-            ps.setLong(10, id);
+            ps.setString(9, usuario);
+            ps.setString(10, Fechas.aTexto(ahora));
+            ps.setLong(11, id);
             exigirUnaFila(ps.executeUpdate());
         }
     }
@@ -107,6 +109,7 @@ public class MovimientoRepository {
         ps.setString(5, d.descripcion());
         ps.setLong(6, Montos.aEntero(d.monto()));
         ps.setString(7, d.comprobante());
+        Sql.enteroOpcional(ps, 8, d.cuentaId());
     }
 
     private static List<MovimientoFinanciero> mapear(PreparedStatement ps) throws SQLException {
@@ -131,7 +134,10 @@ public class MovimientoRepository {
                         Fechas.desdeTexto(rs.getString("actualizado_en")),
                         rs.getString("motivo_anulacion"),
                         rs.getString("anulado_por"),
-                        Fechas.desdeTexto(rs.getString("anulado_en"))));
+                        Fechas.desdeTexto(rs.getString("anulado_en")),
+                        Sql.enteroOpcional(rs, "cuenta_id"),
+                        rs.getString("cuenta"),
+                        rs.getBoolean("de_pago")));
             }
         }
         return movimientos;

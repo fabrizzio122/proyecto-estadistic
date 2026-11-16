@@ -29,6 +29,7 @@ import com.businessanalyzer.model.Empresa;
 import com.businessanalyzer.model.Permiso;
 import com.businessanalyzer.repository.ActivoRepository;
 import com.businessanalyzer.repository.DeudaRepository;
+import com.businessanalyzer.repository.TesoreriaRepository;
 import com.businessanalyzer.repository.MovimientoRepository;
 import com.businessanalyzer.repository.OperacionRepository;
 import com.businessanalyzer.repository.ProductoRepository;
@@ -109,7 +110,9 @@ public class DiagnosticoService {
             return new DatosDiagnostico(empresa.sector(), empresa.moneda(), periodo, MESES_EVALUADOS, ops, fin,
                     opsAnterior, meses, ventas, utilidad, productos,
                     patrimonio.situacion(c, empresa.id(), LocalDate.now(reloj)),
-                    empresa.sector() == Sector.AGROPECUARIO ? datosAgro(c, empresa.id()) : null);
+                    empresa.sector() == Sector.AGROPECUARIO ? datosAgro(c, empresa.id()) : null,
+                    TesoreriaService.proyeccion(new TesoreriaRepository(), new DeudaRepository(), c, empresa.id(),
+                            LocalDate.now(reloj)));
         });
         return MotorDiagnostico.evaluar(datos);
     }

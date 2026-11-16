@@ -1,8 +1,8 @@
 @startuml 01-casos-de-uso
 !include estilo.iuml
 title
-  Business Analyzer Desktop 1.1 — Casos de uso
-  <size:30> </size>
+  Business Analyzer Desktop 1.2 — Casos de uso
+  <size:50> </size>
 end title
 left to right direction
 
@@ -22,6 +22,11 @@ actor "Administrador" as AD
     usecase "Registrar venta / compra" as UC_VENTA
     usecase "Corregir o anular\nventa / compra" as UC_CORR
     usecase "Registrar ingresos\ny gastos" as UC_FIN
+  }
+  package "Tesorería" {
+    usecase "Gestionar cuentas\ny mover dinero" as UC_CTA
+    usecase "Registrar cobros\ny pagos al crédito" as UC_COBRO
+    usecase "Ver flujo de efectivo\ny proyección de caja" as UC_FLUJO
   }
   package "Agropecuario" {
     usecase "Registrar ganado\ny producción" as UC_GAN
@@ -51,12 +56,15 @@ OP --> UC_PROD
 OP --> UC_VENTA
 OP --> UC_CORR
 OP --> UC_FIN
+OP --> UC_CTA
+OP --> UC_COBRO
 OP --> UC_GAN
 OP --> UC_AGR
 
 AN --> UC_LOGIN
 AN --> UC_VIS
 AN --> UC_ANA
+AN --> UC_FLUJO
 AN --> UC_EST
 AN --> UC_PRED
 AN --> UC_DIAG
@@ -76,6 +84,8 @@ UC_CORR ..> UC_VENTA : <<include>>
 UC_VIS ..> UC_INF_TEC : <<extend>>
 UC_DIAG ..> UC_SIM : <<include>>
 UC_VAL ..> UC_INF : <<extend>>
+UC_COBRO ..> UC_VENTA : <<extend>>
+UC_DIAG ..> UC_FLUJO : <<include>>
 
 legend bottom
   **Permisos por rol** (16 permisos, tabla rol_permiso)

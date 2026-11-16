@@ -72,6 +72,7 @@
             <TableColumn fx:id="colImpuesto" text="Impuesto" prefWidth="90" styleClass="col-numero"/>
             <TableColumn fx:id="colTotal" text="Total" prefWidth="100" styleClass="col-numero"/>
             <TableColumn fx:id="colMargen" text="Margen" prefWidth="95" styleClass="col-numero"/>
+            <TableColumn fx:id="colPago" text="Pago" prefWidth="140"/>
             <TableColumn fx:id="colEstado" text="Estado" prefWidth="120"/>
         </columns>
         <columnResizePolicy>

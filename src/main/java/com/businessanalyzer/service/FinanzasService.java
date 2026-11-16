@@ -10,6 +10,7 @@ import com.businessanalyzer.model.MovimientoFinanciero;
 import com.businessanalyzer.model.Permiso;
 import com.businessanalyzer.model.TipoMovimiento;
 import com.businessanalyzer.repository.MovimientoRepository;
+import com.businessanalyzer.repository.TesoreriaRepository;
 import com.businessanalyzer.seguridad.Sesion;
 import com.businessanalyzer.util.Validaciones;
 
@@ -37,6 +38,7 @@ public class FinanzasService {
     private final EmpresaService empresas;
     private final Sesion sesion;
     private final Clock reloj;
+    private final CuentasEmpresa cuentas = new CuentasEmpresa(new TesoreriaRepository());
 
     public FinanzasService(Database database, MovimientoRepository movimientos, EmpresaService empresas,
                            Sesion sesion, Clock reloj) {
@@ -65,9 +67,23 @@ public class FinanzasService {
         String usuario = sesion.usuario().nombreUsuario();
         LocalDateTime ahora = LocalDateTime.now(reloj);
         return database.enTransaccion(c -> {
-            long id = movimientos.insertar(c, empresa.id(), limpios, usuario, ahora);
+            long id = movimientos.insertar(c, empresa.id(), conCuenta(limpios,
+                    cuentas.resolver(c, empresa.id(), limpios.cuentaId(), null)), usuario, ahora);
             return movimientos.buscarPorId(c, id).orElseThrow();
         });
+    }
+
+    private static DatosMovimiento conCuenta(DatosMovimiento d, Long cuentaId) {
+        return new DatosMovimiento(d.tipo(), d.categoria(), d.comportamiento(), d.fecha(), d.descripcion(), d.monto(),
+                d.comprobante(), cuentaId);
+    }
+
+    /** Los intereses que generó el pago de una deuda se corrigen desde ese pago, en «Activos y deudas». */
+    private static void exigirNoGeneradoPorPago(MovimientoFinanciero m) {
+        if (m.dePagoDeuda()) {
+            throw new ValidacionException("Este gasto lo generó el pago de una deuda. Corrígelo o anúlalo desde "
+                    + "el pago, en «Activos y deudas».");
+        }
     }
 
     public MovimientoFinanciero actualizar(long id, DatosMovimiento datos) {
@@ -81,7 +97,11 @@ public class FinanzasService {
             if (actual.anulado()) {
                 throw new ValidacionException("Un movimiento anulado no se puede modificar.");
             }
-            movimientos.actualizar(c, id, limpios, usuario, ahora);
+            exigirNoGeneradoPorPago(actual);
+            // Un registro anterior a la tesorería puede seguir sin cuenta si no se elige una.
+            Long cuentaId = limpios.cuentaId() == null && actual.cuentaId() == null ? null
+                    : cuentas.resolver(c, empresa.id(), limpios.cuentaId(), actual.cuentaId());
+            movimientos.actualizar(c, id, conCuenta(limpios, cuentaId), usuario, ahora);
             return movimientos.buscarPorId(c, id).orElseThrow();
         });
     }
@@ -97,6 +117,7 @@ public class FinanzasService {
             if (actual.anulado()) {
                 throw new ValidacionException("El movimiento ya está anulado.");
             }
+            exigirNoGeneradoPorPago(actual);
             movimientos.anular(c, id, motivoLimpio, usuario, ahora);
             return movimientos.buscarPorId(c, id).orElseThrow();
         });
@@ -127,7 +148,8 @@ public class FinanzasService {
         return database.enTransaccion(c -> {
             List<MovimientoFinanciero> fijos = movimientos.listar(c, empresa.id(), origen.atDay(1),
                             origen.atEndOfMonth(), false).stream()
-                    .filter(m -> m.tipo() == TipoMovimiento.GASTO && m.comportamiento() == Comportamiento.FIJO)
+                    .filter(m -> m.tipo() == TipoMovimiento.GASTO && m.comportamiento() == Comportamiento.FIJO
+                            && !m.dePagoDeuda())
                     .toList();
             List<MovimientoFinanciero> existentes = movimientos.listar(c, empresa.id(), destino.atDay(1),
                     destino.atEndOfMonth(), false);
@@ -140,12 +162,23 @@ public class FinanzasService {
                     continue;
                 }
                 LocalDate fecha = destino.atDay(Math.min(m.fecha().getDayOfMonth(), destino.lengthOfMonth()));
+                Long cuenta = m.cuentaId() != null && cuentaActiva(c, empresa.id(), m.cuentaId()) ? m.cuentaId() : null;
                 movimientos.insertar(c, empresa.id(), new DatosMovimiento(m.tipo(), m.categoria(),
-                        m.comportamiento(), fecha, m.descripcion(), m.monto(), null), usuario, ahora);
+                        m.comportamiento(), fecha, m.descripcion(), m.monto(), null,
+                        cuentas.resolver(c, empresa.id(), cuenta, null)), usuario, ahora);
                 copiados++;
             }
             return copiados;
         });
+    }
+
+    private boolean cuentaActiva(Connection c, long empresaId, long cuentaId) throws SQLException {
+        try {
+            cuentas.exigir(c, empresaId, cuentaId, null);
+            return true;
+        } catch (ValidacionException e) {
+            return false;
+        }
     }
 
     private MovimientoFinanciero exigirMovimiento(Connection c, long id, long empresaId) throws SQLException {

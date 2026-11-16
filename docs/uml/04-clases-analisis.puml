@@ -1,6 +1,6 @@
 @startuml 04-clases-analisis
 !include estilo.iuml
-title Business Analyzer Desktop 1.1 — Motor de análisis (paquete analytics)
+title Business Analyzer Desktop 1.2 — Motor de análisis (paquete analytics)
 hide empty members
 
 package service {
@@ -10,6 +10,7 @@ package service {
   class SimulacionService
   class DiagnosticoService
   class ValoracionService
+  class TesoreriaService
   class ConsultaMensual <<utilidad>> {
     {static} porMes(c, operaciones, movimientos, empresaId, …) : List<Mes>
   }
@@ -95,6 +96,23 @@ package analytics.valoracion {
   }
 }
 
+package analytics.tesoreria {
+  class FlujoDinero <<record>> {
+    fecha, cuentaId, monto, rubro
+  }
+  class SaldoCuenta {
+    {static} de(cuentas, flujos, corte)
+  }
+  class FlujoEfectivo {
+    saldoInicial, porRubro, saldoFinal
+    neto(Actividad) : BigDecimal
+  }
+  class ProyeccionCaja {
+    {static} calcular(hoy, saldo, historia, deudas)
+    primerNegativo : YearMonth
+  }
+}
+
 MetodoPronostico <|.. TendenciaLineal
 MetodoPronostico <|.. PromedioMovil
 MetodoPronostico <|.. SuavizadoHolt
@@ -105,7 +123,13 @@ Simulador ..> Supuestos
 MotorDiagnostico ..> DatosDiagnostico
 MotorDiagnostico ..> Simulador : cifras de las\nrecomendaciones
 MotorDiagnostico --> Diagnostico
-Diagnostico "1" *-- "14..18" Hallazgo
+Diagnostico "1" *-- "15..19" Hallazgo
+SaldoCuenta ..> FlujoDinero
+FlujoEfectivo ..> FlujoDinero
+ProyeccionCaja ..> Pronosticador : flujo de operación
+MotorDiagnostico ..> ProyeccionCaja : caja proyectada
+TesoreriaService ..> FlujoEfectivo
+TesoreriaService ..> ProyeccionCaja
 Hallazgo --> Semaforo
 PuntoEquilibrio ..> EstadoResultados
 

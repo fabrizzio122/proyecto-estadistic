@@ -1,6 +1,7 @@
 package com.businessanalyzer.service;
 
 import com.businessanalyzer.exception.ValidacionException;
+import com.businessanalyzer.model.CondicionPago;
 import com.businessanalyzer.model.DatosOperacion;
 import com.businessanalyzer.model.DatosOperacion.DatosLinea;
 import com.businessanalyzer.util.Validaciones;
@@ -72,7 +73,21 @@ final class ValidadorOperacion {
             lineas.add(new DatosLinea(linea.productoId(), cantidad, precio));
         }
 
+        CondicionPago condicion = d.condicion() == null ? CondicionPago.CONTADO : d.condicion();
+        Long cuentaId = condicion == CondicionPago.CONTADO ? d.cuentaId() : null;
+        LocalDate vencimiento = condicion == CondicionPago.CREDITO ? d.vencimiento() : null;
+        if (vencimiento != null && vencimiento.isBefore(d.fecha())) {
+            throw new ValidacionException("El vencimiento no puede ser anterior a la fecha de la "
+                    + d.tipo().descripcion().toLowerCase() + ".");
+        }
+        if (vencimiento != null && vencimiento.isAfter(d.fecha().plusYears(5))) {
+            throw new ValidacionException("El plazo de crédito no puede superar 5 años.");
+        }
+        if (condicion == CondicionPago.CREDITO && contraparte == null) {
+            throw new ValidacionException("Una " + d.tipo().descripcion().toLowerCase() + " al crédito necesita el "
+                    + d.tipo().contraparte().toLowerCase() + ", para saber quién debe.");
+        }
         return new DatosOperacion(d.tipo(), d.fecha(), contraparte, documento, comprobante, tasa, observaciones,
-                lineas, d.actualizarCostos());
+                lineas, d.actualizarCostos(), condicion, cuentaId, vencimiento);
     }
 }

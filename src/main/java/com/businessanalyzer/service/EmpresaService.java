@@ -3,7 +3,10 @@ package com.businessanalyzer.service;
 import com.businessanalyzer.config.Database;
 import com.businessanalyzer.exception.AccesoDenegadoException;
 import com.businessanalyzer.exception.ValidacionException;
+import com.businessanalyzer.model.DatosCuenta;
 import com.businessanalyzer.model.DatosEmpresa;
+import com.businessanalyzer.model.TipoCuenta;
+import com.businessanalyzer.repository.TesoreriaRepository;
 import com.businessanalyzer.model.Empresa;
 import com.businessanalyzer.model.Permiso;
 import com.businessanalyzer.model.Usuario;
@@ -13,6 +16,7 @@ import com.businessanalyzer.seguridad.Sesion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Clock;
@@ -37,6 +41,10 @@ public class EmpresaService {
 
     private static final Logger log = LoggerFactory.getLogger(EmpresaService.class);
     private static final String CLAVE_EMPRESA_ACTIVA = "empresa.activa";
+    /** Nombre de la cuenta de efectivo que se crea con cada empresa. */
+    public static final String CUENTA_INICIAL = "Caja";
+
+    private final TesoreriaRepository tesoreria = new TesoreriaRepository();
 
     private final Database database;
     private final EmpresaRepository empresas;
@@ -81,6 +89,9 @@ public class EmpresaService {
             if (!usuario.rol().esAdministrador()) {
                 empresas.asignar(c, usuario.id(), id);
             }
+            // Toda empresa empieza con una caja para su efectivo; las demás cuentas se crean en «Tesorería».
+            tesoreria.insertarCuenta(c, id, new DatosCuenta(CUENTA_INICIAL, TipoCuenta.CAJA, null, BigDecimal.ZERO),
+                    usuario.nombreUsuario(), ahora);
             return empresas.buscarPorId(c, id).orElseThrow();
         });
         log.info("Empresa {} registrada por {}", creada.nombreVisible(), usuario.nombreUsuario());

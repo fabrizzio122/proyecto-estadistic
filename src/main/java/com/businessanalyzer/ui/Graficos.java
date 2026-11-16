@@ -111,6 +111,59 @@ public final class Graficos {
         return aplicarTema(new JFreeChart(null, FUENTE, plot, true));
     }
 
+    /** Flujo de caja: barras de entradas y salidas de cada mes y línea con el dinero disponible al cierre. */
+    public static JFreeChart flujoCaja(List<YearMonth> meses, double[] entradas, double[] salidas, double[] saldo,
+                                       Moneda moneda) {
+        DefaultCategoryDataset barrasDatos = new DefaultCategoryDataset();
+        DefaultCategoryDataset saldoDatos = new DefaultCategoryDataset();
+        for (int i = 0; i < meses.size(); i++) {
+            String etiqueta = etiqueta(meses, i);
+            barrasDatos.addValue(entradas[i], "Entradas", etiqueta);
+            barrasDatos.addValue(salidas[i], "Salidas", etiqueta);
+            saldoDatos.addValue(saldo[i], "Dinero al cierre", etiqueta);
+        }
+        BarRenderer barras = new BarRenderer();
+        barras.setBarPainter(new StandardBarPainter());
+        barras.setShadowVisible(false);
+        barras.setSeriesPaint(0, VERDE);
+        barras.setSeriesPaint(1, ROJO);
+        barras.setItemMargin(0.02);
+        barras.setMaximumBarWidth(0.05);
+
+        CategoryAxis ejeMeses = new CategoryAxis();
+        ejeMeses.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryPlot plot = new CategoryPlot(barrasDatos, ejeMeses, ejeMonto(moneda), barras);
+        LineAndShapeRenderer linea = new LineAndShapeRenderer(true, true);
+        linea.setSeriesPaint(0, AZUL);
+        linea.setSeriesStroke(0, LINEA_GRUESA);
+        plot.setDataset(1, saldoDatos);
+        plot.setRenderer(1, linea);
+        plot.setDatasetRenderingOrder(DatasetRenderingOrder.FORWARD);
+        plot.addRangeMarker(new ValueMarker(0, TEXTO, new BasicStroke(1f)));
+        return aplicarTema(new JFreeChart(null, FUENTE, plot, true));
+    }
+
+    /** Proyección de caja: escenario base y pesimista, con la línea de cero para ver cuándo falta dinero. */
+    public static JFreeChart proyeccionCaja(List<YearMonth> meses, double[] base, double[] pesimista, Moneda moneda) {
+        DefaultCategoryDataset datos = new DefaultCategoryDataset();
+        for (int i = 0; i < meses.size(); i++) {
+            String etiqueta = etiqueta(meses, i);
+            datos.addValue(base[i], "Escenario base", etiqueta);
+            datos.addValue(pesimista[i], "Escenario pesimista", etiqueta);
+        }
+        LineAndShapeRenderer lineas = new LineAndShapeRenderer(true, true);
+        lineas.setSeriesPaint(0, AZUL);
+        lineas.setSeriesPaint(1, AMBAR);
+        lineas.setSeriesStroke(0, LINEA_GRUESA);
+        lineas.setSeriesStroke(1, new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f,
+                new float[]{6f, 5f}, 0f));
+        CategoryAxis ejeMeses = new CategoryAxis();
+        ejeMeses.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryPlot plot = new CategoryPlot(datos, ejeMeses, ejeMonto(moneda), lineas);
+        plot.addRangeMarker(new ValueMarker(0, ROJO, new BasicStroke(1.5f)));
+        return aplicarTema(new JFreeChart(null, FUENTE, plot, true));
+    }
+
     /**
      * Gráfico clásico de equilibrio: la recta de ingresos y la de costos totales
      * (fijos + variables) se cruzan en el punto de equilibrio.

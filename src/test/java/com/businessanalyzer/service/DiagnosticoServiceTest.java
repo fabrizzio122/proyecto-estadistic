@@ -53,7 +53,7 @@ class DiagnosticoServiceTest {
     @Test
     void diagnosticaLaEmpresaDeDemostracion() {
         new DatosDemoService(entorno.empresaService, entorno.catalogo, entorno.operaciones, entorno.finanzas,
-                entorno.patrimonio,
+                entorno.patrimonio, entorno.tesoreria,
                 entorno.sesion, entorno.reloj).crearEmpresaDemo();
 
         Diagnostico d = servicio.diagnosticar();

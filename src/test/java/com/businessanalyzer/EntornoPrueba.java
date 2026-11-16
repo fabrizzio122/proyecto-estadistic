@@ -19,6 +19,8 @@ import com.businessanalyzer.service.PatrimonioService;
 import com.businessanalyzer.service.GanaderiaService;
 import com.businessanalyzer.service.AgriculturaService;
 import com.businessanalyzer.service.ValoracionService;
+import com.businessanalyzer.service.TesoreriaService;
+import com.businessanalyzer.repository.TesoreriaRepository;
 import com.businessanalyzer.service.VisitaService;
 import com.businessanalyzer.service.InformeTecnicoService;
 import com.businessanalyzer.repository.VisitaRepository;
@@ -78,6 +80,7 @@ public final class EntornoPrueba {
     public final ValoracionService valoracion;
     public final VisitaService visitas;
     public final InformeTecnicoService informeTecnico;
+    public final TesoreriaService tesoreria;
 
     public EntornoPrueba(Path carpeta) {
         this(carpeta, new PasswordHasher(1_000));
@@ -105,6 +108,8 @@ public final class EntornoPrueba {
                 sesion, reloj);
         this.valoracion = new ValoracionService(database, new OperacionRepository(), new MovimientoRepository(),
                 new InformeRepository(), empresaService, configuracion, sesion, reloj);
+        this.tesoreria = new TesoreriaService(database, new TesoreriaRepository(), new OperacionRepository(),
+                new DeudaRepository(), empresaService, sesion, reloj);
         this.informeTecnico = new InformeTecnicoService(database, new InformeRepository(), visitas, ganaderia,
                 agricultura, patrimonio, empresaService, sesion, reloj);
     }

@@ -1,4 +1,4 @@
-# Business Analyzer Desktop 1.1
+# Business Analyzer Desktop 1.2
 
 Aplicación de escritorio para analizar la situación económica y financiera de negocios y
 empresas: rentabilidad, punto de equilibrio, tendencias, predicciones, escenarios y diagnóstico.
@@ -81,6 +81,7 @@ automáticamente al iniciar y dentro de una transacción.
 19. Valoración del negocio: patrimonial, capitalización de utilidades, flujos descontados, sensibilidad e informe PDF ✅
 20. Pulido para la presentación: editar registros, Dashboard nuevo, comparación del mes en curso y datos demo realistas ✅
 21. Material del curso: diagramas UML, guion de la demostración y versión 1.1.0 con instalador ✅
+22. Tesorería: cuentas de dinero, ventas y compras al crédito, flujo de efectivo y proyección de caja ✅
 
 ## Seguridad
 
@@ -121,15 +122,36 @@ automáticamente al iniciar y dentro de una transacción.
 
 ## Activos, deudas y patrimonio
 
-- **Activos:** caja y bancos, cuentas por cobrar y otros corrientes (se registra el saldo y se actualiza cuando cambia); terrenos, edificios, maquinaria, vehículos, muebles y equipos de cómputo (se registra el valor de adquisición).
+- **Activos:** cuentas por cobrar y otros corrientes (el efectivo está en «Tesorería») (se registra el saldo y se actualiza cuando cambia); terrenos, edificios, maquinaria, vehículos, muebles y equipos de cómputo (se registra el valor de adquisición).
 - **Depreciación:** en línea recta, por meses completos, según la vida útil y el valor residual. Los terrenos no se deprecian. Una vida útil vacía significa que el bien no se deprecia.
 - **Inventario:** no se registra a mano. Se calcula con el stock de cada producto por su costo unitario.
-- **Deudas:** monto, acreedor, tasa anual, cuota mensual y vencimiento (estos tres son opcionales). Los **pagos de capital** reducen el saldo; los intereses se registran como gasto en Gestión financiera. Con saldo cero la deuda queda «Cancelada».
+- **Deudas:** monto, acreedor, tasa anual, cuota mensual y vencimiento (estos tres son opcionales). Cada **pago** indica el capital (reduce el saldo), los intereses (se registran solos como gasto financiero) y la cuenta de la que salió el dinero. Con saldo cero la deuda queda «Cancelada».
 - **Corto y largo plazo:** sin vencimiento, o si vence dentro de 12 meses, toda la deuda es de corto plazo. Si vence después, se considera de corto plazo la parte proporcional a 12 meses.
 - **Balance general** al día de hoy: activo corriente y no corriente, pasivo corriente y no corriente, y patrimonio (activo − pasivo).
 - **Indicadores:** liquidez corriente, prueba ácida, capital de trabajo, endeudamiento, deuda por cada 1 de patrimonio, rentabilidad del patrimonio y de los activos (con la utilidad de los últimos 12 meses llevada a un año) y cobertura de cuotas (utilidad operativa mensual ÷ cuotas).
 - **Nada se elimina:** los activos se dan de baja con fecha y motivo; las deudas y los pagos se anulan.
 - **Permisos:** los mismos de Gestión financiera (ver y registrar).
+
+## Tesorería (Fase 22)
+
+El dinero de la empresa vive en **cuentas**: la caja, cuentas bancarias y billeteras digitales (Yape, Plin). El saldo de cada cuenta **no se escribe a mano**: se calcula con su saldo inicial más las entradas menos las salidas.
+
+| Registro | Qué pasa con el dinero |
+|---|---|
+| Venta o compra **al contado** | Entra a (o sale de) la cuenta elegida el mismo día |
+| Venta o compra **al crédito** | Queda por cobrar (o por pagar) hasta registrar los cobros o pagos, que pueden ser parciales |
+| Ingreso o gasto | Entra a (o sale de) la cuenta elegida |
+| Compra de un activo | Sale de la cuenta con que se pagó (o de ninguna, si ya se tenía o se financió) |
+| Préstamo recibido | Entra a la cuenta donde se depositó |
+| Pago de una cuota | Sale el capital y los intereses; los intereses se registran solos como gasto financiero |
+| Transferencia, aporte o retiro del dueño | Solo cambia el dinero de lugar o cuánto puso o sacó el dueño: no afecta la utilidad |
+
+- **Estado de flujo de efectivo** (método directo, NIC 7): actividades de operación, inversión y financiamiento; dinero al inicio y al final del período.
+- **Proyección de caja** a 6 meses: flujo de operación pronosticado (el mejor método de la Fase 9) menos el capital de las cuotas; escenario base y pesimista, con aviso del primer mes en que faltaría dinero.
+- **Balance general**: el efectivo es el saldo de las cuentas; las ventas y compras al crédito pendientes son cuentas por cobrar y por pagar.
+- **Diagnóstico**: nuevo indicador «Caja proyectada» en Solidez.
+- **Migración V13**: cada empresa recibe una cuenta «Caja» con el saldo que tenía como «Caja y bancos». Los registros anteriores se conservan en los análisis, pero no mueven el saldo (ya está incluido en el saldo inicial).
+- **Permisos**: ver con `FINANZAS_VER`; cuentas y movimientos con `FINANZAS_GESTIONAR`; cobros y pagos de ventas y compras con `OPERACIONES_GESTIONAR`.
 
 ## Ganadería (empresas agropecuarias)
 
