@@ -2,7 +2,10 @@ package com.businessanalyzer;
 
 import com.businessanalyzer.config.AppConfig;
 import com.businessanalyzer.config.AppContext;
+import com.businessanalyzer.ui.Animaciones;
+import com.businessanalyzer.ui.ColorAcento;
 import com.businessanalyzer.ui.Dialogos;
+import com.businessanalyzer.ui.Estilos;
 import com.businessanalyzer.ui.Notificador;
 import com.businessanalyzer.ui.Ventana;
 import javafx.application.Application;
@@ -55,6 +58,14 @@ public class BusinessAnalyzerApp extends Application {
             log.error("Error no controlado en el hilo {}", hilo.getName(), error);
             Notificador.error("Ocurrió un error inesperado. El detalle quedó registrado en el log.");
         });
+
+        // El inicio de sesión toma el último color usado en este equipo (cada usuario aplica el suyo al entrar).
+        try {
+            contexto.preferencias().ultimoColor().flatMap(ColorAcento::desde).ifPresent(Estilos::cambiarAcento);
+            Animaciones.reducir(contexto.preferencias().animacionesReducidas());
+        } catch (RuntimeException e) {
+            log.warn("No se pudieron leer las preferencias visuales", e);
+        }
 
         try {
             Ventana ventana = new Ventana(stage, contexto);

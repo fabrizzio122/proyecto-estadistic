@@ -4,6 +4,7 @@ import com.businessanalyzer.config.AppContext;
 import com.businessanalyzer.model.DatosUsuario;
 import com.businessanalyzer.seguridad.PoliticaPassword;
 import com.businessanalyzer.ui.Errores;
+import com.businessanalyzer.ui.Estilos;
 import com.businessanalyzer.ui.Notificador;
 import com.businessanalyzer.ui.Tareas;
 import com.businessanalyzer.ui.Ventana;
@@ -60,6 +61,14 @@ public class ConfiguracionInicialController {
                     return contexto.autenticacion().iniciarSesion(datos.nombreUsuario(), password);
                 },
                 usuario -> {
+                    // El administrador conserva el color elegido en «Color de la luz» y queda recordado en el equipo.
+                    try {
+                        contexto.preferencias().guardarColorDelUsuario(Estilos.acento().name());
+                        contexto.preferencias().recordarUsuarioActual();
+                    } catch (RuntimeException e) {
+                        org.slf4j.LoggerFactory.getLogger(ConfiguracionInicialController.class)
+                                .warn("No se pudieron guardar las preferencias del administrador", e);
+                    }
                     ventana.mostrarPrincipal();
                     Notificador.exito("Cuenta de administrador creada. Bienvenido, " + usuario.nombreCompleto() + ".");
                 },

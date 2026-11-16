@@ -3,6 +3,7 @@ package com.businessanalyzer.config;
 import com.businessanalyzer.repository.CategoriaRepository;
 import com.businessanalyzer.repository.TesoreriaRepository;
 import com.businessanalyzer.service.TesoreriaService;
+import com.businessanalyzer.service.PreferenciasService;
 import com.businessanalyzer.repository.ConfiguracionRepository;
 import com.businessanalyzer.repository.EmpresaRepository;
 import com.businessanalyzer.repository.MovimientoRepository;
@@ -81,6 +82,7 @@ public final class AppContext {
     private final DiagnosticoService diagnosticoService;
     private final InformeService informeService;
     private final TesoreriaService tesoreriaService;
+    private final PreferenciasService preferenciasService;
     private final CopiaSeguridadService copiaSeguridadService;
     private final boolean restauracionAplicada;
 
@@ -103,6 +105,8 @@ public final class AppContext {
                 registroAccesoRepository, hasher, sesion, reloj);
         this.empresaService = new EmpresaService(database, new EmpresaRepository(), usuarioRepository,
                 configuracionService, sesion, reloj);
+        this.preferenciasService = new PreferenciasService(database, usuarioRepository, new EmpresaRepository(),
+                configuracionService, sesion);
         ProductoRepository productoRepository = new ProductoRepository();
         this.catalogoService = new CatalogoService(database, productoRepository, new CategoriaRepository(),
                 empresaService, sesion, reloj);
@@ -161,6 +165,33 @@ public final class AppContext {
 
     public void abrirModulo(com.businessanalyzer.ui.Modulo modulo) {
         irAModulo.accept(modulo);
+    }
+
+    private java.util.function.BiConsumer<com.businessanalyzer.ui.Modulo, String> fraseModulo = (m, f) -> { };
+
+    /** La ventana principal indica cómo mostrar la frase resumen de una pantalla de análisis. */
+    public void alMostrarFrase(java.util.function.BiConsumer<com.businessanalyzer.ui.Modulo, String> accion) {
+        this.fraseModulo = accion == null ? (m, f) -> { } : accion;
+    }
+
+    /**
+     * Frase que resume en simple lo que muestra la pantalla (la primera de su lectura); {@code null} la oculta.
+     * Se ignora si el usuario ya cambió de módulo.
+     */
+    public void mostrarFrase(com.businessanalyzer.ui.Modulo modulo, String frase) {
+        fraseModulo.accept(modulo, frase);
+    }
+
+    private java.util.function.IntConsumer alertasDiagnostico = n -> { };
+
+    /** La ventana principal indica cómo mostrar cuántas alertas del diagnóstico hay por atender. */
+    public void alActualizarAlertas(java.util.function.IntConsumer accion) {
+        this.alertasDiagnostico = accion == null ? n -> { } : accion;
+    }
+
+    /** Cantidad de indicadores en amarillo o rojo (el contador junto a «Diagnóstico empresarial»). */
+    public void mostrarAlertasDiagnostico(int cantidad) {
+        alertasDiagnostico.accept(cantidad);
     }
 
     public AppConfig config() {
@@ -266,6 +297,10 @@ public final class AppContext {
 
     public DatosDemoService datosDemo() {
         return datosDemoService;
+    }
+
+    public PreferenciasService preferencias() {
+        return preferenciasService;
     }
 
     public TesoreriaService tesoreria() {

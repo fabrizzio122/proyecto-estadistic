@@ -1,42 +1,92 @@
 /*
- * Business Analyzer - tema oscuro.
- * Paleta: azul oscuro (fondos), gris (bordes y textos secundarios),
- * blanco (texto principal) y azul celeste (acento).
- * Los colores se definen una sola vez como variables en .root.
+ * Business Analyzer - tema «pizarra de bodega».
+ * Fondo verde muy oscuro y cálido, texto claro y un color de acento que elige cada usuario
+ * (ámbar, coral, lima o celeste). Verde y coral tienen significado fijo: positivo y alerta.
+ *
+ * Los colores se definen una sola vez como variables en .root. El acento se cambia en tiempo de
+ * ejecución sobrescribiendo -ba-acento en el nodo raíz (ver ui.Estilos); sus variantes se derivan de él.
+ * Títulos y cifras grandes: Space Grotesk. Texto: Inter (las dos se incluyen en la aplicación).
  */
 
 .root {
-    /* Paleta propia */
-    -ba-fondo: #0b1220;
-    -ba-lateral: #0a1020;
-    -ba-tarjeta: #141e34;
-    -ba-tarjeta-hover: #1a2742;
-    -ba-borde: #22304d;
-    -ba-texto: #e6ebf5;
-    -ba-texto-sec: #8d9bb5;
-    -ba-texto-tenue: #64748b;
-    -ba-acento: #38bdf8;
-    -ba-acento-fuerte: #0284c7;
-    -ba-acento-suave: #0c2a45;
-    -ba-exito: #22c55e;
-    -ba-advertencia: #f59e0b;
-    -ba-error: #ef4444;
+    /* Superficies */
+    -ba-fondo: #0E1513;
+    -ba-lateral: #111A17;
+    -ba-tarjeta: #151E1B;
+    -ba-tarjeta-hover: #1B2623;
+    -ba-superficie: #1B2623;
+    -ba-campo: #111A17;
+    -ba-borde: #26332F;
+    -ba-borde-campo: #3A4D46;
+    -ba-neutro: #3A4D46;
 
-    /* Base de Modena: hace que los controles estandar se vean oscuros */
-    -fx-base: #1b2742;
+    /* Texto */
+    -ba-texto: #EDF2EE;
+    -ba-texto-claro: #D5DED9;
+    -ba-texto-sec: #9DB0A8;
+    -ba-texto-tenue: #7F938B;
+
+    /* Acento (cambia con el usuario) y sus variantes */
+    -ba-acento: #F2B544;
+    -ba-sobre-acento: #1A1405;
+    -ba-acento-hover: derive(-ba-acento, 14%);
+    -ba-acento-suave: derive(-ba-acento, -74%);
+    -ba-acento-borde: derive(-ba-acento, -35%);
+
+    /* Significado fijo */
+    -ba-exito: #63D6A4;
+    -ba-exito-apagado: #2F7A5C;
+    -ba-exito-fondo: #1D3A2E;
+    -ba-exito-texto: #8EE8BF;
+    -ba-error: #FF8F73;
+    -ba-error-fondo: #2A1C17;
+    -ba-error-texto: #FFD3C6;
+    -ba-advertencia: #F2B544;
+    -ba-advertencia-fondo: #2B2412;
+    -ba-enlace: #F2A65A;
+
+    /* Compatibilidad con nombres anteriores */
+    -ba-acento-fuerte: -ba-acento;
+
+    /* Base de Modena: controles estándar oscuros */
+    -fx-base: #1B2623;
     -fx-background: -ba-fondo;
-    -fx-control-inner-background: #111a2e;
-    -fx-accent: -ba-acento-fuerte;
+    -fx-control-inner-background: -ba-campo;
+    -fx-accent: -ba-acento-suave;
     -fx-focus-color: -ba-acento;
-    -fx-faint-focus-color: #38bdf822;
-    -fx-default-button: -ba-acento-fuerte;
+    -fx-faint-focus-color: transparent;
+    -fx-default-button: -ba-acento;
+    -fx-selection-bar: -ba-acento-suave;
+    -fx-selection-bar-non-focused: -ba-acento-suave;
 
-    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+    -fx-font-family: "Inter";
     -fx-font-size: 13px;
 }
 
 .app-root {
     -fx-background-color: -ba-fondo;
+}
+
+/* Tipografía de títulos y cifras */
+.titulo-display,
+.brand-title,
+.topbar-title,
+.card-title,
+.kpi-value,
+.empty-title,
+.login-title,
+.puntaje-salud,
+.total-valor-destacado,
+.diagnostico-valor,
+.dialog-pane > .header-panel .label {
+    -fx-font-family: "Space Grotesk";
+}
+
+/* Etiqueta de sección: pequeña, tenue y espaciada (el texto va en mayúsculas desde el código) */
+.etiqueta-seccion {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-font-size: 11px;
+    -fx-font-family: "Inter SemiBold";
 }
 
 /* ---------- Menu lateral ---------- */
@@ -48,20 +98,20 @@
 }
 
 .brand {
-    -fx-padding: 22 20 18 20;
+    -fx-padding: 24 20 20 20;
     -fx-spacing: 12;
     -fx-alignment: center-left;
 }
 
 .brand-icon {
     -fx-icon-color: -ba-acento;
-    -fx-icon-size: 28;
+    -fx-icon-size: 26;
 }
 
 .brand-title {
     -fx-text-fill: -ba-texto;
     -fx-font-size: 16px;
-    -fx-font-weight: bold;
+    -fx-font-weight: 700;
 }
 
 .brand-subtitle {
@@ -76,28 +126,28 @@
 }
 
 .sidebar-menu {
-    -fx-padding: 0 12 16 12;
+    -fx-padding: 0 14 16 14;
     -fx-spacing: 2;
 }
 
 .sidebar-section {
     -fx-text-fill: -ba-texto-tenue;
     -fx-font-size: 10.5px;
-    -fx-font-weight: bold;
-    -fx-padding: 14 10 6 10;
+    -fx-font-family: "Inter SemiBold";
+    -fx-padding: 18 12 6 12;
 }
 
 .sidebar-item {
     -fx-background-color: transparent;
-    -fx-background-radius: 8;
-    -fx-text-fill: #b4c0d6;
+    -fx-background-radius: 10;
+    -fx-text-fill: -ba-texto-claro;
     -fx-padding: 9 12;
     -fx-graphic-text-gap: 12;
     -fx-cursor: hand;
 }
 
 .sidebar-item .ikonli-font-icon {
-    -fx-icon-color: #7d8db0;
+    -fx-icon-color: -ba-texto-sec;
     -fx-icon-size: 16;
 }
 
@@ -107,19 +157,37 @@
 }
 
 .sidebar-item:selected {
-    -fx-background-color: -ba-acento-suave;
-    -fx-text-fill: -ba-acento;
+    -fx-background-color: -ba-acento;
+    -fx-text-fill: -ba-sobre-acento;
+    -fx-font-family: "Inter SemiBold";
 }
 
 .sidebar-item:selected .ikonli-font-icon {
-    -fx-icon-color: -ba-acento;
+    -fx-icon-color: -ba-sobre-acento;
+}
+
+/* Contador de alertas junto a un elemento del menú */
+/* El elemento con contador deja espacio a la derecha para el número. */
+.con-contador > .sidebar-item {
+    -fx-padding: 9 34 9 12;
+}
+
+.contador-alertas {
+    -fx-background-color: -ba-error;
+    -fx-background-radius: 999;
+    -fx-text-fill: #2A1209;
+    -fx-font-size: 10.5px;
+    -fx-font-weight: 700;
+    -fx-padding: 1 6;
+    -fx-min-width: 18;
+    -fx-alignment: center;
 }
 
 /* ---------- Barra superior y de estado ---------- */
 
 .topbar {
     -fx-background-color: -ba-fondo;
-    -fx-padding: 20 28 16 28;
+    -fx-padding: 22 32 16 32;
     -fx-alignment: center-left;
     -fx-border-color: -ba-borde;
     -fx-border-width: 0 0 1 0;
@@ -127,8 +195,8 @@
 
 .topbar-title {
     -fx-text-fill: -ba-texto;
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
 }
 
 .topbar-subtitle {
@@ -159,18 +227,19 @@
 }
 
 .page {
-    -fx-padding: 24 28;
+    -fx-padding: 26 32;
     -fx-background-color: -ba-fondo;
 }
 
 .card,
+.tarjeta,
 .kpi-card,
 .empty-state {
     -fx-background-color: -ba-tarjeta;
-    -fx-background-radius: 12;
+    -fx-background-radius: 16;
     -fx-border-color: -ba-borde;
-    -fx-border-radius: 12;
-    -fx-padding: 20;
+    -fx-border-radius: 16;
+    -fx-padding: 22 24;
 }
 
 .card-title {
@@ -201,7 +270,7 @@
 
 /* Indicadores (KPI) */
 .kpi-card {
-    -fx-padding: 18 20;
+    -fx-padding: 18 22;
     -fx-min-width: 180;
 }
 
@@ -222,20 +291,20 @@
 .kpi-value {
     -fx-text-fill: -ba-texto;
     -fx-font-size: 26px;
-    -fx-font-weight: bold;
+    -fx-font-weight: 700;
 }
 
 .kpi-detail {
-    -fx-text-fill: -ba-texto-tenue;
+    -fx-text-fill: -ba-texto-sec;
     -fx-font-size: 11.5px;
 }
 
 /* Primeros pasos */
 .step-number {
-    -fx-background-color: -ba-acento-suave;
+    -fx-background-color: -ba-acento;
     -fx-background-radius: 999;
-    -fx-text-fill: -ba-acento;
-    -fx-font-weight: bold;
+    -fx-text-fill: -ba-sobre-acento;
+    -fx-font-weight: 700;
     -fx-min-width: 28;
     -fx-min-height: 28;
     -fx-alignment: center;
@@ -243,7 +312,7 @@
 
 .step-title {
     -fx-text-fill: -ba-texto;
-    -fx-font-weight: bold;
+    -fx-font-family: "Inter SemiBold";
 }
 
 /* Estado del sistema */
@@ -255,7 +324,7 @@
     -fx-text-fill: -ba-texto;
 }
 
-/* Modulo en construccion */
+/* Modulo en construccion y estados vacíos */
 .empty-state {
     -fx-padding: 40;
 }
@@ -268,7 +337,7 @@
 .empty-title {
     -fx-text-fill: -ba-texto;
     -fx-font-size: 18px;
-    -fx-font-weight: bold;
+    -fx-font-weight: 700;
 }
 
 .empty-text {
@@ -279,29 +348,55 @@
 /* ---------- Botones ---------- */
 
 .button {
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
-    -fx-padding: 8 16;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 9 18;
     -fx-cursor: hand;
+    -fx-font-family: "Inter Medium";
 }
 
-.button-primary {
-    -fx-background-color: -ba-acento-fuerte;
-    -fx-text-fill: white;
+.button-primary,
+.boton-principal {
+    -fx-background-color: -ba-acento;
+    -fx-text-fill: -ba-sobre-acento;
+    -fx-font-family: "Inter SemiBold";
 }
 
-.button-primary:hover {
-    -fx-background-color: #0ea5e9;
+.button-primary .ikonli-font-icon,
+.boton-principal .ikonli-font-icon {
+    -fx-icon-color: -ba-sobre-acento;
 }
 
-.button-secondary {
-    -fx-background-color: #1b2742;
+.button-primary:hover,
+.boton-principal:hover {
+    -fx-background-color: -ba-acento-hover;
+}
+
+.button-secondary,
+.boton-secundario {
+    -fx-background-color: -ba-tarjeta;
     -fx-text-fill: -ba-texto;
     -fx-border-color: -ba-borde;
 }
 
-.button-secondary:hover {
-    -fx-background-color: #22304f;
+.button-secondary .ikonli-font-icon,
+.boton-secundario .ikonli-font-icon {
+    -fx-icon-color: -ba-texto-sec;
+}
+
+.button-secondary:hover,
+.boton-secundario:hover {
+    -fx-background-color: -ba-superficie;
+    -fx-border-color: -ba-borde-campo;
+}
+
+.button:focused {
+    -fx-border-color: -ba-acento;
+}
+
+.button-primary:focused,
+.boton-principal:focused {
+    -fx-border-color: -ba-texto;
 }
 
 /* ---------- Notificaciones ---------- */
@@ -313,9 +408,9 @@
 }
 
 .toast {
-    -fx-background-color: #18243d;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
+    -fx-background-color: -ba-superficie;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
     -fx-border-width: 1;
     -fx-padding: 12 16;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 18, 0, 0, 4);
@@ -349,12 +444,13 @@
     -fx-background-color: -ba-lateral;
     -fx-border-color: -ba-borde;
     -fx-border-width: 0 0 1 0;
+    -fx-padding: 4 8;
 }
 
 .dialog-pane > .header-panel .label {
     -fx-text-fill: -ba-texto;
-    -fx-font-size: 15px;
-    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
 }
 
 .dialog-pane > .content.label {
@@ -362,13 +458,18 @@
     -fx-padding: 16 20;
 }
 
+.dialog-pane > .button-bar > .container {
+    -fx-padding: 12 20 16 20;
+}
+
 /* ---------- Tooltips y barras de desplazamiento ---------- */
 
 .tooltip {
-    -fx-background-color: #1b2742;
+    -fx-background-color: -ba-superficie;
     -fx-text-fill: -ba-texto;
-    -fx-background-radius: 6;
+    -fx-background-radius: 8;
     -fx-font-size: 12px;
+    -fx-padding: 6 10;
 }
 
 .scroll-bar {
@@ -376,8 +477,12 @@
 }
 
 .scroll-bar .thumb {
-    -fx-background-color: #2a3a5c;
+    -fx-background-color: -ba-neutro;
     -fx-background-radius: 6;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: derive(-ba-neutro, 20%);
 }
 
 .scroll-bar .increment-button,
@@ -391,18 +496,22 @@
     -fx-padding: 0;
 }
 
-/* ---------- Pantallas de acceso (Fase 2) ---------- */
+.scroll-pane > .corner {
+    -fx-background-color: transparent;
+}
+
+/* ---------- Pantallas de acceso ---------- */
 
 .login-bg {
-    -fx-background-color: radial-gradient(center 50% 25%, radius 75%, #13254a, -ba-fondo);
+    -fx-background-color: radial-gradient(center 50% 20%, radius 80%, #17231F, -ba-fondo);
     -fx-padding: 24;
 }
 
 .login-card {
     -fx-background-color: -ba-tarjeta;
-    -fx-background-radius: 14;
+    -fx-background-radius: 16;
     -fx-border-color: -ba-borde;
-    -fx-border-radius: 14;
+    -fx-border-radius: 16;
     -fx-padding: 32 36;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 30, 0, 0, 8);
 }
@@ -415,13 +524,13 @@
 
 .login-title {
     -fx-text-fill: -ba-texto;
-    -fx-font-size: 20px;
-    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
 }
 
 .login-button {
-    -fx-padding: 10 16;
-    -fx-font-weight: bold;
+    -fx-padding: 12 16;
+    -fx-font-family: "Inter SemiBold";
 }
 
 /* ---------- Formularios ---------- */
@@ -429,6 +538,7 @@
 .form-label {
     -fx-text-fill: -ba-texto-sec;
     -fx-font-size: 12px;
+    -fx-font-family: "Inter Medium";
 }
 
 .hint {
@@ -437,24 +547,25 @@
 }
 
 .form-error {
-    -fx-text-fill: #fca5a5;
-    -fx-background-color: #3b1219;
-    -fx-background-radius: 8;
-    -fx-border-color: #7f1d1d;
-    -fx-border-radius: 8;
-    -fx-padding: 8 12;
+    -fx-text-fill: -ba-error-texto;
+    -fx-background-color: -ba-error-fondo;
+    -fx-background-radius: 10;
+    -fx-border-color: derive(-ba-error, -45%);
+    -fx-border-radius: 10;
+    -fx-padding: 9 12;
 }
 
 .text-field,
 .password-field {
-    -fx-background-color: #0e1729;
-    -fx-background-radius: 8;
-    -fx-border-color: -ba-borde;
-    -fx-border-radius: 8;
+    -fx-background-color: -ba-campo;
+    -fx-background-radius: 10;
+    -fx-border-color: -ba-borde-campo;
+    -fx-border-radius: 10;
     -fx-text-fill: -ba-texto;
     -fx-prompt-text-fill: -ba-texto-tenue;
-    -fx-highlight-fill: -ba-acento-fuerte;
-    -fx-padding: 8 10;
+    -fx-highlight-fill: -ba-acento;
+    -fx-highlight-text-fill: -ba-sobre-acento;
+    -fx-padding: 9 12;
 }
 
 .text-field:focused,
@@ -464,15 +575,15 @@
 
 .text-field:disabled,
 .password-field:disabled {
-    -fx-opacity: 0.6;
+    -fx-opacity: 0.55;
 }
 
 .combo-box {
-    -fx-background-color: #0e1729;
-    -fx-background-radius: 8;
-    -fx-border-color: -ba-borde;
-    -fx-border-radius: 8;
-    -fx-padding: 2 4;
+    -fx-background-color: -ba-campo;
+    -fx-background-radius: 10;
+    -fx-border-color: -ba-borde-campo;
+    -fx-border-radius: 10;
+    -fx-padding: 3 4;
 }
 
 .combo-box:focused {
@@ -489,14 +600,16 @@
 }
 
 .combo-box-popup > .list-view {
-    -fx-background-color: #18243d;
+    -fx-background-color: -ba-superficie;
     -fx-border-color: -ba-borde;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
 }
 
 .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell {
-    -fx-background-color: #18243d;
+    -fx-background-color: -ba-superficie;
     -fx-text-fill: -ba-texto;
-    -fx-padding: 8 10;
+    -fx-padding: 8 12;
 }
 
 .combo-box-popup > .list-view > .virtual-flow > .clipped-container > .sheet > .list-cell:hover,
@@ -513,16 +626,16 @@
 
 .table-view {
     -fx-background-color: -ba-tarjeta;
-    -fx-background-radius: 10;
+    -fx-background-radius: 14;
     -fx-border-color: -ba-borde;
-    -fx-border-radius: 10;
+    -fx-border-radius: 14;
     -fx-padding: 1;
     -fx-table-cell-border-color: transparent;
 }
 
 .table-view > .column-header-background {
-    -fx-background-color: #111a2e;
-    -fx-background-radius: 10 10 0 0;
+    -fx-background-color: -ba-tarjeta;
+    -fx-background-radius: 14 14 0 0;
 }
 
 .table-view .column-header,
@@ -530,15 +643,15 @@
     -fx-background-color: transparent;
     -fx-border-color: -ba-borde;
     -fx-border-width: 0 0 1 0;
-    -fx-size: 38;
+    -fx-size: 40;
 }
 
 .table-view .column-header .label {
-    -fx-text-fill: -ba-texto-sec;
-    -fx-font-weight: bold;
-    -fx-font-size: 12px;
+    -fx-text-fill: -ba-texto-tenue;
+    -fx-font-family: "Inter SemiBold";
+    -fx-font-size: 10.5px;
     -fx-alignment: center-left;
-    -fx-padding: 0 8;
+    -fx-padding: 0 10;
 }
 
 .table-view .column-header .arrow {
@@ -547,17 +660,17 @@
 
 .table-view .table-row-cell {
     -fx-background-color: -ba-tarjeta;
-    -fx-border-color: #1c2843;
+    -fx-border-color: -ba-borde;
     -fx-border-width: 0 0 1 0;
-    -fx-cell-size: 40;
+    -fx-cell-size: 42;
 }
 
 .table-view .table-row-cell:odd {
-    -fx-background-color: #121b30;
+    -fx-background-color: -ba-tarjeta;
 }
 
 .table-view .table-row-cell:hover {
-    -fx-background-color: #1a2742;
+    -fx-background-color: -ba-superficie;
 }
 
 .table-view .table-row-cell:selected {
@@ -566,7 +679,7 @@
 
 .table-view .table-row-cell .table-cell {
     -fx-text-fill: -ba-texto;
-    -fx-padding: 0 8;
+    -fx-padding: 0 10;
     -fx-alignment: center-left;
 }
 
@@ -576,7 +689,7 @@
 }
 
 .table-view .placeholder .label {
-    -fx-text-fill: -ba-texto-tenue;
+    -fx-text-fill: -ba-texto-sec;
 }
 
 .table-view:focused {
@@ -586,35 +699,35 @@
 /* Insignias de estado */
 .badge {
     -fx-background-radius: 999;
-    -fx-padding: 2 10;
+    -fx-padding: 3 10;
     -fx-font-size: 11.5px;
-    -fx-font-weight: bold;
+    -fx-font-family: "Inter SemiBold";
 }
 
 .badge-activo {
-    -fx-background-color: #0f2f22;
-    -fx-text-fill: #4ade80;
+    -fx-background-color: -ba-exito-fondo;
+    -fx-text-fill: -ba-exito-texto;
 }
 
 .badge-inactivo {
-    -fx-background-color: #1f2737;
-    -fx-text-fill: #94a3b8;
+    -fx-background-color: -ba-superficie;
+    -fx-text-fill: -ba-texto-sec;
 }
 
 .badge-bloqueado {
-    -fx-background-color: #3b1219;
-    -fx-text-fill: #fca5a5;
+    -fx-background-color: -ba-error-fondo;
+    -fx-text-fill: -ba-error-texto;
 }
 
 .chip-ok {
-    -fx-border-color: #166534;
-    -fx-text-fill: #4ade80;
+    -fx-border-color: -ba-exito-apagado;
+    -fx-text-fill: -ba-exito;
 }
 
 /* ---------- Pestañas ---------- */
 
 .tab-pane > .tab-header-area {
-    -fx-padding: 10 28 0 28;
+    -fx-padding: 10 32 0 32;
 }
 
 .tab-pane > .tab-header-area > .tab-header-background {
@@ -626,13 +739,18 @@
 .tab-pane > .tab-header-area > .headers-region > .tab {
     -fx-background-color: transparent;
     -fx-background-insets: 0;
-    -fx-padding: 8 16;
+    -fx-padding: 9 16;
     -fx-border-color: transparent;
     -fx-border-width: 0 0 2 0;
+    -fx-cursor: hand;
 }
 
 .tab-pane > .tab-header-area > .headers-region > .tab .tab-label {
     -fx-text-fill: -ba-texto-sec;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:hover .tab-label {
+    -fx-text-fill: -ba-texto;
 }
 
 .tab-pane > .tab-header-area > .headers-region > .tab:selected {
@@ -640,7 +758,8 @@
 }
 
 .tab-pane > .tab-header-area > .headers-region > .tab:selected .tab-label {
-    -fx-text-fill: -ba-acento;
+    -fx-text-fill: -ba-texto;
+    -fx-font-family: "Inter SemiBold";
 }
 
 .tab-pane > .tab-header-area > .headers-region > .tab .focus-indicator,
@@ -655,16 +774,16 @@
 /* ---------- Menús ---------- */
 
 .menu-button {
-    -fx-background-color: #1b2742;
-    -fx-background-radius: 8;
+    -fx-background-color: -ba-tarjeta;
+    -fx-background-radius: 10;
     -fx-border-color: -ba-borde;
-    -fx-border-radius: 8;
-    -fx-padding: 4 8;
+    -fx-border-radius: 10;
+    -fx-padding: 5 10;
     -fx-cursor: hand;
 }
 
 .menu-button:hover {
-    -fx-background-color: #22304f;
+    -fx-background-color: -ba-superficie;
 }
 
 .menu-button > .label {
@@ -682,16 +801,16 @@
 }
 
 .context-menu {
-    -fx-background-color: #18243d;
-    -fx-background-radius: 8;
+    -fx-background-color: -ba-superficie;
+    -fx-background-radius: 10;
     -fx-border-color: -ba-borde;
-    -fx-border-radius: 8;
+    -fx-border-radius: 10;
     -fx-padding: 6;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 16, 0, 0, 4);
 }
 
 .menu-item {
-    -fx-background-radius: 6;
+    -fx-background-radius: 8;
     -fx-padding: 8 14;
 }
 
@@ -717,30 +836,30 @@
     -fx-progress-color: -ba-acento;
 }
 
-/* ---------- Empresas (Fase 3) ---------- */
+/* ---------- Empresas ---------- */
 
 .company-selector {
-    -fx-background-color: -ba-acento-suave;
-    -fx-background-radius: 999;
-    -fx-border-color: #155e8a;
-    -fx-border-radius: 999;
-    -fx-padding: 4 12;
+    -fx-background-color: -ba-tarjeta;
+    -fx-background-radius: 10;
+    -fx-border-color: -ba-borde;
+    -fx-border-radius: 10;
+    -fx-padding: 5 12;
 }
 
 .company-selector > .label {
-    -fx-text-fill: -ba-acento;
-    -fx-font-weight: bold;
+    -fx-text-fill: -ba-texto;
+    -fx-font-family: "Inter SemiBold";
 }
 
 .company-selector:vacio {
-    -fx-background-color: #3a2a0c;
-    -fx-border-color: #92400e;
+    -fx-background-color: -ba-advertencia-fondo;
+    -fx-border-color: derive(-ba-advertencia, -45%);
 }
 
 .company-selector:vacio > .label,
 .company-selector:vacio .ikonli-font-icon {
-    -fx-text-fill: #fbbf24;
-    -fx-icon-color: #fbbf24;
+    -fx-text-fill: -ba-advertencia;
+    -fx-icon-color: -ba-advertencia;
 }
 
 .radio-menu-item:checked > .left-container > .radio {
@@ -749,10 +868,14 @@
 
 .banner {
     -fx-background-color: -ba-tarjeta;
-    -fx-background-radius: 12;
+    -fx-background-radius: 16;
     -fx-border-color: -ba-borde;
-    -fx-border-radius: 12;
-    -fx-padding: 14 20;
+    -fx-border-radius: 16;
+    -fx-padding: 16 22;
+}
+
+.banner .label {
+    -fx-text-fill: -ba-texto;
 }
 
 .banner-icon {
@@ -761,12 +884,16 @@
 }
 
 .banner.banner-aviso {
-    -fx-background-color: #2a2110;
-    -fx-border-color: #92400e;
+    -fx-background-color: -ba-error-fondo;
+    -fx-border-color: derive(-ba-error, -45%);
+}
+
+.banner.banner-aviso .label {
+    -fx-text-fill: -ba-error-texto;
 }
 
 .banner.banner-aviso .banner-icon {
-    -fx-icon-color: #fbbf24;
+    -fx-icon-color: -ba-error;
 }
 
 .badge-actual {
@@ -779,35 +906,30 @@
 }
 
 .check-box > .box {
-    -fx-background-color: #0e1729;
-    -fx-background-radius: 4;
-    -fx-border-color: -ba-borde;
-    -fx-border-radius: 4;
+    -fx-background-color: -ba-campo;
+    -fx-background-radius: 5;
+    -fx-border-color: -ba-borde-campo;
+    -fx-border-radius: 5;
 }
 
 .check-box:selected > .box {
-    -fx-background-color: -ba-acento-fuerte;
-    -fx-border-color: -ba-acento-fuerte;
+    -fx-background-color: -ba-acento;
+    -fx-border-color: -ba-acento;
 }
 
 .check-box:selected > .box > .mark {
-    -fx-background-color: white;
+    -fx-background-color: -ba-sobre-acento;
 }
 
 .date-picker {
     -fx-background-color: transparent;
 }
 
-.date-picker > .text-field {
-    -fx-background-radius: 8 0 0 8;
-    -fx-border-radius: 8 0 0 8;
-}
-
 .date-picker > .arrow-button {
-    -fx-background-color: #1b2742;
-    -fx-background-radius: 0 8 8 0;
-    -fx-border-color: -ba-borde;
-    -fx-border-radius: 0 8 8 0;
+    -fx-background-color: -ba-superficie;
+    -fx-background-radius: 0 10 10 0;
+    -fx-border-color: -ba-borde-campo;
+    -fx-border-radius: 0 10 10 0;
 }
 
 .date-picker > .arrow-button > .arrow {
@@ -815,12 +937,12 @@
 }
 
 .date-picker-popup {
-    -fx-background-color: #18243d;
+    -fx-background-color: -ba-superficie;
     -fx-border-color: -ba-borde;
 }
 
 .date-picker-popup > .month-year-pane {
-    -fx-background-color: #111a2e;
+    -fx-background-color: -ba-tarjeta;
 }
 
 .date-picker-popup .label,
@@ -830,7 +952,7 @@
 }
 
 .date-picker-popup .day-cell {
-    -fx-background-color: #18243d;
+    -fx-background-color: -ba-superficie;
 }
 
 .date-picker-popup .day-cell:hover,
@@ -852,7 +974,7 @@
     -fx-background-color: transparent;
 }
 
-/* ---------- Productos y servicios (Fase 4) ---------- */
+/* ---------- Productos y servicios ---------- */
 
 .table-view .table-row-cell .table-cell.col-numero,
 .table-view .column-header.col-numero .label {
@@ -861,17 +983,17 @@
 
 .table-view .table-row-cell .table-cell.margen-negativo,
 .label.margen-negativo {
-    -fx-text-fill: #f87171;
+    -fx-text-fill: -ba-error;
 }
 
 .table-view .table-row-cell .table-cell.margen-bajo,
 .label.margen-bajo {
-    -fx-text-fill: #fbbf24;
+    -fx-text-fill: -ba-advertencia;
 }
 
 .table-view .table-row-cell .table-cell.margen-ok,
 .label.margen-ok {
-    -fx-text-fill: #4ade80;
+    -fx-text-fill: -ba-exito;
 }
 
 .table-view .table-row-cell:archivado .table-cell {
@@ -879,44 +1001,44 @@
 }
 
 .text-area {
-    -fx-background-color: #0e1729;
-    -fx-background-radius: 8;
-    -fx-border-color: -ba-borde;
-    -fx-border-radius: 8;
+    -fx-background-color: -ba-campo;
+    -fx-background-radius: 10;
+    -fx-border-color: -ba-borde-campo;
+    -fx-border-radius: 10;
 }
 
 .text-area .content {
-    -fx-background-color: #0e1729;
-    -fx-background-radius: 8;
+    -fx-background-color: -ba-campo;
+    -fx-background-radius: 10;
 }
 
 .text-area:focused {
     -fx-border-color: -ba-acento;
 }
 
-/* ---------- Ventas y compras (Fase 5) ---------- */
+/* ---------- Ventas y compras ---------- */
 
 .segmented {
     -fx-spacing: 0;
 }
 
 .segmented > .toggle-button {
-    -fx-background-color: #1b2742;
+    -fx-background-color: -ba-tarjeta;
     -fx-text-fill: -ba-texto-sec;
     -fx-border-color: -ba-borde;
-    -fx-padding: 8 18;
+    -fx-padding: 9 18;
     -fx-cursor: hand;
     -fx-graphic-text-gap: 8;
 }
 
 .segmented > .toggle-button:first-child {
-    -fx-background-radius: 8 0 0 8;
-    -fx-border-radius: 8 0 0 8;
+    -fx-background-radius: 10 0 0 10;
+    -fx-border-radius: 10 0 0 10;
 }
 
 .segmented > .toggle-button:last-child {
-    -fx-background-radius: 0 8 8 0;
-    -fx-border-radius: 0 8 8 0;
+    -fx-background-radius: 0 10 10 0;
+    -fx-border-radius: 0 10 10 0;
 }
 
 .segmented > .toggle-button .ikonli-font-icon {
@@ -927,8 +1049,8 @@
 .segmented > .toggle-button:selected {
     -fx-background-color: -ba-acento-suave;
     -fx-text-fill: -ba-acento;
-    -fx-border-color: #155e8a;
-    -fx-font-weight: bold;
+    -fx-border-color: -ba-acento-borde;
+    -fx-font-family: "Inter SemiBold";
 }
 
 .segmented > .toggle-button:selected .ikonli-font-icon {
@@ -938,13 +1060,13 @@
 .total-clave-destacado {
     -fx-text-fill: -ba-texto;
     -fx-font-size: 15px;
-    -fx-font-weight: bold;
+    -fx-font-family: "Inter SemiBold";
 }
 
 .total-valor-destacado {
     -fx-text-fill: -ba-acento;
-    -fx-font-size: 17px;
-    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
 }
 
 .list-cell {
@@ -955,14 +1077,14 @@
    en cualquier contenedor. */
 .date-picker > .text-field,
 .date-picker > .date-picker-display-node {
-    -fx-background-color: #0e1729;
+    -fx-background-color: -ba-campo;
     -fx-text-fill: -ba-texto;
     -fx-prompt-text-fill: -ba-texto-tenue;
-    -fx-border-color: -ba-borde;
+    -fx-border-color: -ba-borde-campo;
     -fx-border-width: 1 0 1 1;
-    -fx-background-radius: 8 0 0 8;
-    -fx-border-radius: 8 0 0 8;
-    -fx-padding: 8 10;
+    -fx-background-radius: 10 0 0 10;
+    -fx-border-radius: 10 0 0 10;
+    -fx-padding: 9 12;
 }
 
 .date-picker:focused > .text-field,
@@ -970,26 +1092,26 @@
     -fx-border-color: -ba-acento;
 }
 
-/* ---------- Gestión financiera (Fase 6) ---------- */
+/* ---------- Barras de progreso ---------- */
 
 .progress-bar {
     -fx-indeterminate-bar-length: 60;
 }
 
 .progress-bar > .track {
-    -fx-background-color: #0e1729;
-    -fx-background-radius: 4;
+    -fx-background-color: -ba-superficie;
+    -fx-background-radius: 6;
     -fx-background-insets: 0;
 }
 
 .progress-bar > .bar {
     -fx-background-color: -ba-acento;
-    -fx-background-radius: 4;
+    -fx-background-radius: 6;
     -fx-background-insets: 0;
     -fx-padding: 4;
 }
 
-/* ---------- Análisis financiero (Fase 7) ---------- */
+/* ---------- Análisis financiero ---------- */
 
 /* Pestañas dentro de una página (sin la sangría de las pestañas de módulo) */
 .tabs-internas > .tab-header-area {
@@ -1001,19 +1123,19 @@
 }
 
 .tab-contenido {
-    -fx-padding: 14 0 0 0;
+    -fx-padding: 16 0 0 0;
 }
 
 .tabla-compacta .table-row-cell {
-    -fx-cell-size: 32;
+    -fx-cell-size: 34;
 }
 
 .table-view .table-row-cell:subtotal .table-cell {
-    -fx-font-weight: bold;
+    -fx-font-family: "Inter SemiBold";
 }
 
 .table-view .table-row-cell:subtotal {
-    -fx-background-color: #172440;
+    -fx-background-color: -ba-superficie;
 }
 
 .table-view .table-row-cell:resultado {
@@ -1021,16 +1143,16 @@
 }
 
 .table-view .table-row-cell:resultado .table-cell {
-    -fx-font-weight: bold;
-    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-font-size: 13.5px;
 }
 
 .lectura {
-    -fx-text-fill: -ba-texto;
+    -fx-text-fill: -ba-texto-claro;
     -fx-font-size: 12.5px;
 }
 
-/* ---------- Análisis estadístico (Fase 8) ---------- */
+/* ---------- Análisis estadístico ---------- */
 
 .badge-clase-a, .chip-clase-a {
     -fx-background-color: -ba-acento-suave;
@@ -1038,26 +1160,26 @@
 }
 
 .badge-clase-b, .chip-clase-b {
-    -fx-background-color: #3a2a0c;
-    -fx-text-fill: #fbbf24;
+    -fx-background-color: -ba-superficie;
+    -fx-text-fill: -ba-texto-claro;
 }
 
 .badge-clase-c, .chip-clase-c {
-    -fx-background-color: #1f2737;
-    -fx-text-fill: #94a3b8;
+    -fx-background-color: -ba-lateral;
+    -fx-text-fill: -ba-texto-sec;
 }
 
 .celda-correlacion {
     -fx-text-fill: -ba-texto;
-    -fx-font-weight: bold;
-    -fx-background-radius: 6;
-    -fx-background-color: #111a2e;
+    -fx-font-family: "Inter SemiBold";
+    -fx-background-radius: 8;
+    -fx-background-color: -ba-superficie;
 }
 
-/* ---------- Simulación de escenarios (Fase 10) ---------- */
+/* ---------- Simulación de escenarios ---------- */
 
 .slider .track {
-    -fx-background-color: #0e1729;
+    -fx-background-color: -ba-superficie;
     -fx-background-radius: 4;
     -fx-padding: 3;
 }
@@ -1069,19 +1191,19 @@
 }
 
 .slider:focused .thumb {
-    -fx-effect: dropshadow(gaussian, rgba(56, 189, 248, 0.5), 8, 0, 0, 0);
+    -fx-effect: dropshadow(gaussian, derive(-ba-acento, -20%), 8, 0, 0, 0);
 }
 
 .list-view {
-    -fx-background-color: #0e1729;
-    -fx-background-radius: 8;
+    -fx-background-color: -ba-campo;
+    -fx-background-radius: 10;
     -fx-border-color: -ba-borde;
-    -fx-border-radius: 8;
+    -fx-border-radius: 10;
 }
 
 .list-view .list-cell {
     -fx-background-color: transparent;
-    -fx-padding: 8 10;
+    -fx-padding: 8 12;
 }
 
 .list-view .list-cell:filled:hover {
@@ -1094,21 +1216,21 @@
 }
 
 .list-view .placeholder .label {
-    -fx-text-fill: -ba-texto-tenue;
+    -fx-text-fill: -ba-texto-sec;
 }
 
-/* ---------- Diagnóstico empresarial (Fase 11) ---------- */
+/* ---------- Diagnóstico empresarial ---------- */
 
 .puntaje-salud {
     -fx-font-size: 44px;
-    -fx-font-weight: bold;
+    -fx-font-weight: 700;
 }
 
 .nivel-salud,
 .diagnostico-prioridad {
     -fx-background-radius: 999;
     -fx-padding: 4 12;
-    -fx-font-weight: bold;
+    -fx-font-family: "Inter SemiBold";
 }
 
 .diagnostico-prioridad {
@@ -1116,27 +1238,27 @@
     -fx-padding: 2 9;
 }
 
-.nivel-salud.semaforo-verde, .diagnostico-prioridad.semaforo-verde { -fx-background-color: rgba(34, 197, 94, 0.15); }
-.nivel-salud.semaforo-amarillo, .diagnostico-prioridad.semaforo-amarillo { -fx-background-color: rgba(245, 158, 11, 0.15); }
-.nivel-salud.semaforo-rojo, .diagnostico-prioridad.semaforo-rojo { -fx-background-color: rgba(239, 68, 68, 0.15); }
-.nivel-salud.semaforo-sin-datos { -fx-background-color: rgba(100, 116, 139, 0.2); }
+.nivel-salud.semaforo-verde, .diagnostico-prioridad.semaforo-verde { -fx-background-color: -ba-exito-fondo; }
+.nivel-salud.semaforo-amarillo, .diagnostico-prioridad.semaforo-amarillo { -fx-background-color: -ba-advertencia-fondo; }
+.nivel-salud.semaforo-rojo, .diagnostico-prioridad.semaforo-rojo { -fx-background-color: -ba-error-fondo; }
+.nivel-salud.semaforo-sin-datos { -fx-background-color: -ba-superficie; }
 
 .label.semaforo-verde { -fx-text-fill: -ba-exito; }
 .label.semaforo-amarillo { -fx-text-fill: -ba-advertencia; }
 .label.semaforo-rojo { -fx-text-fill: -ba-error; }
-.label.semaforo-sin-datos { -fx-text-fill: -ba-texto-tenue; }
+.label.semaforo-sin-datos { -fx-text-fill: -ba-texto-sec; }
 
 .punto-semaforo.semaforo-verde { -fx-fill: -ba-exito; }
 .punto-semaforo.semaforo-amarillo { -fx-fill: -ba-advertencia; }
 .punto-semaforo.semaforo-rojo { -fx-fill: -ba-error; }
-.punto-semaforo.semaforo-sin-datos { -fx-fill: #334155; }
+.punto-semaforo.semaforo-sin-datos { -fx-fill: -ba-neutro; }
 
 .barra-salud {
     -fx-pref-height: 8px;
 }
 
 .barra-salud .track {
-    -fx-background-color: #0e1729;
+    -fx-background-color: -ba-superficie;
     -fx-background-radius: 4;
     -fx-background-insets: 0;
 }
@@ -1152,15 +1274,15 @@
 .barra-salud.semaforo-rojo .bar { -fx-background-color: -ba-error; }
 
 .diagnostico-seccion {
-    -fx-text-fill: -ba-texto-tenue;
+    -fx-text-fill: -ba-texto-sec;
     -fx-font-size: 11px;
-    -fx-font-weight: bold;
-    -fx-padding: 10 0 4 0;
+    -fx-font-family: "Inter SemiBold";
+    -fx-padding: 12 0 4 0;
 }
 
 .diagnostico-fila {
-    -fx-padding: 8 10;
-    -fx-background-radius: 8;
+    -fx-padding: 9 10;
+    -fx-background-radius: 10;
 }
 
 .diagnostico-fila:hover {
@@ -1169,7 +1291,7 @@
 
 .diagnostico-valor {
     -fx-font-size: 15px;
-    -fx-font-weight: bold;
+    -fx-font-weight: 700;
 }
 
 .diagnostico-estado {
@@ -1181,13 +1303,24 @@
     -fx-icon-size: 15;
 }
 
-/* ---------- Informes (Fase 12) ---------- */
+/* Fila de alerta (por ejemplo, «Atender primero») */
+.fila-alerta {
+    -fx-background-color: -ba-error-fondo;
+    -fx-background-radius: 10;
+    -fx-padding: 10 14;
+}
+
+.fila-alerta .label {
+    -fx-text-fill: -ba-error-texto;
+}
+
+/* ---------- Informes ---------- */
 
 .tarjeta-informe {
     -fx-background-color: -ba-tarjeta;
-    -fx-background-radius: 12;
+    -fx-background-radius: 14;
     -fx-border-color: -ba-borde;
-    -fx-border-radius: 12;
+    -fx-border-radius: 14;
     -fx-border-width: 1.5;
     -fx-padding: 14 15;
     -fx-alignment: top-left;
@@ -1209,32 +1342,503 @@
 }
 
 .chip-pdf {
-    -fx-background-color: rgba(239, 68, 68, 0.15);
-    -fx-text-fill: #fca5a5;
+    -fx-background-color: -ba-error-fondo;
+    -fx-text-fill: -ba-error-texto;
 }
 
 .chip-excel {
-    -fx-background-color: rgba(34, 197, 94, 0.15);
-    -fx-text-fill: #86efac;
+    -fx-background-color: -ba-exito-fondo;
+    -fx-text-fill: -ba-exito-texto;
 }
 
 .chip-pdf, .chip-excel {
     -fx-border-color: transparent;
     -fx-padding: 2 9;
     -fx-font-size: 11px;
-    -fx-font-weight: bold;
+    -fx-font-family: "Inter SemiBold";
 }
 
-/* ---------- Dashboard (Fase 20): enlaces a los módulos ---------- */
+/* ---------- Enlaces ---------- */
 
 .button-link {
     -fx-background-color: transparent;
-    -fx-text-fill: -ba-acento;
+    -fx-text-fill: -ba-enlace;
     -fx-padding: 2 4;
     -fx-cursor: hand;
     -fx-font-size: 12px;
+    -fx-font-family: "Inter Medium";
 }
 
 .button-link:hover {
     -fx-underline: true;
+}
+
+/* ---------- Texto con significado ---------- */
+
+.texto-positivo { -fx-text-fill: -ba-exito; }
+.texto-alerta { -fx-text-fill: -ba-error; }
+.texto-acento { -fx-text-fill: -ba-acento; }
+.texto-tenue { -fx-text-fill: -ba-texto-sec; }
+
+/* ---------- Inicio de sesión: pantalla dividida (Fase 23) ---------- */
+
+.pantalla-acceso {
+    -fx-background-color: -ba-fondo;
+}
+
+.panel-marca {
+    -fx-background-color: #121A17;
+    -fx-border-color: -ba-borde;
+    -fx-border-width: 0 1 0 0;
+}
+
+/* Resplandor que nace en la lámpara; su opacidad se anima al encender y apagar. */
+.panel-marca-resplandor {
+    -fx-background-color: radial-gradient(center 76% 8%, radius 78%,
+            derive(-ba-acento, -38%) 0%, derive(-ba-acento, -78%) 42%, rgba(18, 26, 23, 0) 100%);
+}
+
+.marca-nombre {
+    -fx-font-family: "Space Grotesk";
+    -fx-font-weight: bold;
+    -fx-font-size: 17px;
+    -fx-text-fill: -ba-texto;
+}
+
+.marca-frase {
+    -fx-font-family: "Space Grotesk";
+    -fx-font-weight: bold;
+    -fx-font-size: 40px;
+    -fx-text-fill: -ba-texto;
+    -fx-line-spacing: -4;
+}
+
+.marca-pie {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-font-size: 12px;
+}
+
+.marca-candado {
+    -fx-icon-color: -ba-exito;
+    -fx-icon-size: 15;
+}
+
+.logo-barra {
+    -fx-background-color: -ba-acento;
+    -fx-background-radius: 2;
+}
+
+.logo-barra-exito {
+    -fx-background-color: -ba-exito;
+    -fx-background-radius: 2;
+}
+
+.barra-marca {
+    -fx-background-radius: 10 10 0 0;
+}
+
+.barra-marca-0 { -fx-background-color: #26332F; }
+.barra-marca-1 { -fx-background-color: #2E3D38; }
+.barra-marca-2 { -fx-background-color: #354641; }
+.barra-marca-acento { -fx-background-color: -ba-acento; }
+.barra-marca-exito { -fx-background-color: -ba-exito; }
+
+.lampara-cordon {
+    -fx-stroke: #4A5E56;
+    -fx-stroke-width: 1.5;
+}
+
+.lampara-pantalla {
+    -fx-fill: #2E3D38;
+    -fx-stroke: #4A5E56;
+    -fx-stroke-width: 1;
+}
+
+.lampara-foco {
+    -fx-fill: -ba-acento;
+}
+
+.lampara-foco-apagado {
+    -fx-fill: #3A4D46;
+}
+
+.lampara-halo {
+    -fx-fill: -ba-acento;
+}
+
+.lampara-tirador {
+    -fx-fill: #9DB0A8;
+}
+
+.muestra-anillo {
+    -fx-fill: transparent;
+    -fx-stroke-width: 2;
+}
+
+.muestra-color:focused .muestra-anillo {
+    -fx-stroke: -ba-texto;
+}
+
+.acceso-formulario {
+    -fx-background-color: -ba-fondo;
+}
+
+.acceso-titulo {
+    -fx-font-family: "Space Grotesk";
+    -fx-font-weight: bold;
+    -fx-font-size: 30px;
+    -fx-text-fill: -ba-texto;
+}
+
+.acceso-subtitulo {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-font-size: 13.5px;
+}
+
+.tarjeta-usuario {
+    -fx-background-color: transparent;
+    -fx-background-radius: 14;
+    -fx-border-color: -ba-borde;
+    -fx-border-radius: 14;
+    -fx-padding: 12 16;
+}
+
+.tarjeta-usuario:hover {
+    -fx-background-color: -ba-tarjeta;
+}
+
+.tarjeta-usuario:selected {
+    -fx-background-color: derive(-ba-acento, -84%);
+    -fx-border-color: -ba-acento;
+}
+
+.tarjeta-usuario:focused {
+    -fx-border-color: -ba-acento-borde;
+}
+
+.tarjeta-usuario:selected:focused {
+    -fx-border-color: -ba-acento;
+}
+
+.avatar-circulo {
+    -fx-fill: -ba-acento;
+}
+
+.avatar-iniciales {
+    -fx-font-family: "Space Grotesk";
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-text-fill: -ba-sobre-acento;
+}
+
+.avatar-otro {
+    -fx-fill: transparent;
+    -fx-stroke: -ba-borde-campo;
+    -fx-stroke-width: 1.5;
+    -fx-stroke-dash-array: 4 3;
+}
+
+.avatar-otro-icono {
+    -fx-icon-color: -ba-texto-sec;
+    -fx-icon-size: 15;
+}
+
+.tarjeta-usuario-nombre {
+    -fx-font-family: "Inter SemiBold";
+    -fx-text-fill: -ba-texto;
+    -fx-font-size: 13.5px;
+}
+
+.tarjeta-usuario-detalle {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-font-size: 12px;
+}
+
+.tarjeta-usuario-otro {
+    -fx-text-fill: -ba-texto-claro;
+}
+
+.campo-acceso {
+    -fx-pref-height: 46;
+    -fx-background-color: #111A17;
+}
+
+.campo-con-boton {
+    -fx-padding: 9 78 9 14;
+}
+
+.boton-mostrar {
+    -fx-background-color: transparent;
+    -fx-text-fill: -ba-acento;
+    -fx-font-family: "Inter SemiBold";
+    -fx-font-size: 12.5px;
+    -fx-padding: 4 8;
+}
+
+.boton-mostrar:hover {
+    -fx-underline: true;
+}
+
+.acceso-boton {
+    -fx-pref-height: 52;
+    -fx-min-height: 52;
+    -fx-font-size: 14px;
+}
+
+.acceso-version {
+    -fx-text-fill: -ba-texto-tenue;
+    -fx-font-size: 11.5px;
+    -fx-alignment: center;
+}
+
+/* ---------- Encabezado del Dashboard (Fase 23) ---------- */
+
+.topbar-kicker {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-font-size: 12px;
+}
+
+.chip-periodo {
+    -fx-background-color: -ba-tarjeta;
+    -fx-background-radius: 10;
+    -fx-border-color: -ba-borde;
+    -fx-border-radius: 10;
+    -fx-padding: 8 14;
+    -fx-text-fill: -ba-texto;
+    -fx-font-family: "Inter Medium";
+}
+
+/* ---------- Dashboard (Fase 23) ---------- */
+
+.etiqueta-seccion-acento {
+    -fx-text-fill: -ba-acento;
+    -fx-font-size: 11px;
+    -fx-font-family: "Inter SemiBold";
+}
+
+.frase-mes {
+    -fx-line-spacing: 2;
+}
+
+.frase-mes-texto {
+    -fx-font-family: "Space Grotesk";
+    -fx-font-weight: bold;
+    -fx-font-size: 27px;
+}
+
+.frase-normal { -fx-fill: -ba-texto; }
+.frase-positiva { -fx-fill: -ba-exito; }
+.frase-negativa { -fx-fill: -ba-error; }
+
+.separador {
+    -fx-background-color: -ba-borde;
+    -fx-min-height: 1;
+    -fx-pref-height: 1;
+    -fx-max-height: 1;
+}
+
+.indicador-titulo {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-font-size: 12px;
+}
+
+.indicador-valor {
+    -fx-font-family: "Space Grotesk";
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+    -fx-text-fill: -ba-texto;
+}
+
+.indicador-detalle {
+    -fx-font-size: 11.5px;
+}
+
+.cifra-proyectada {
+    -fx-font-family: "Space Grotesk";
+    -fx-font-weight: bold;
+    -fx-font-size: 30px;
+    -fx-text-fill: -ba-texto;
+}
+
+/* Medidor circular de salud */
+.medidor-pista {
+    -fx-stroke: -ba-superficie;
+    -fx-stroke-width: 9;
+}
+
+.medidor-progreso {
+    -fx-stroke-width: 9;
+}
+
+.medidor-progreso.semaforo-verde { -fx-stroke: -ba-exito; }
+.medidor-progreso.semaforo-amarillo { -fx-stroke: -ba-advertencia; }
+.medidor-progreso.semaforo-rojo { -fx-stroke: -ba-error; }
+
+.medidor-nota {
+    -fx-font-family: "Space Grotesk";
+    -fx-font-weight: bold;
+    -fx-font-size: 26px;
+    -fx-text-fill: -ba-texto;
+}
+
+.medidor-sobre {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-font-size: 10.5px;
+}
+
+.nivel-salud.semaforo-verde { -fx-text-fill: -ba-exito-texto; }
+.nivel-salud.semaforo-amarillo { -fx-text-fill: -ba-advertencia; }
+.nivel-salud.semaforo-rojo { -fx-text-fill: -ba-error-texto; }
+
+.fila-alerta-texto {
+    -fx-text-fill: -ba-error-texto;
+}
+
+.fila-alerta-valor {
+    -fx-text-fill: -ba-error;
+    -fx-font-family: "Inter SemiBold";
+}
+
+/* Barras proporcionales (equilibrio, rango probable, productos) */
+.barra-proporcion-pista {
+    -fx-background-color: -ba-superficie;
+    -fx-background-radius: 6;
+}
+
+.barra-proporcion-tramo {
+    -fx-background-color: derive(-ba-acento, -55%);
+    -fx-background-radius: 6;
+}
+
+.barra-proporcion-relleno {
+    -fx-background-radius: 6;
+}
+
+.relleno-acento { -fx-background-color: -ba-acento; }
+.relleno-exito { -fx-background-color: -ba-exito; }
+.relleno-neutro { -fx-background-color: -ba-neutro; }
+
+.barra-proporcion-marca {
+    -fx-background-color: -ba-texto;
+    -fx-background-radius: 2;
+}
+
+.rango-extremo,
+.rango-centro {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-font-size: 11px;
+}
+
+.dato-clave {
+    -fx-text-fill: -ba-texto-claro;
+}
+
+.dato-valor {
+    -fx-text-fill: -ba-texto;
+    -fx-font-family: "Space Grotesk";
+    -fx-font-weight: bold;
+}
+
+.dato-valor.texto-positivo { -fx-text-fill: -ba-exito; }
+.dato-valor.texto-alerta { -fx-text-fill: -ba-error; }
+
+/* Gráfico de 12 meses con nodos nativos */
+.grafico-subtitulo {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-font-size: 11.5px;
+}
+
+.barra-mes {
+    -fx-background-color: -ba-neutro;
+    -fx-background-radius: 6 6 0 0;
+}
+
+.barra-mes:hover {
+    -fx-background-color: derive(-ba-neutro, 18%);
+}
+
+.barra-mes-actual {
+    -fx-background-color: -ba-acento;
+    -fx-background-radius: 6 6 0 0;
+}
+
+.contorno-esperado {
+    -fx-background-color: transparent;
+    -fx-border-color: -ba-texto-sec;
+    -fx-border-style: segments(4, 3);
+    -fx-border-width: 1.2;
+    -fx-border-radius: 7 7 0 0;
+}
+
+.barra-utilidad {
+    -fx-background-color: -ba-exito-apagado;
+    -fx-background-radius: 4 4 0 0;
+}
+
+.barra-utilidad-actual {
+    -fx-background-color: -ba-exito;
+    -fx-background-radius: 4 4 0 0;
+}
+
+.barra-perdida {
+    -fx-background-color: -ba-error;
+    -fx-background-radius: 4 4 0 0;
+}
+
+.etiqueta-mes {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-font-size: 11.5px;
+}
+
+.etiqueta-mes-actual {
+    -fx-text-fill: -ba-acento;
+    -fx-font-size: 11.5px;
+    -fx-font-family: "Inter SemiBold";
+}
+
+.leyenda-cuadro {
+    -fx-min-width: 11;
+    -fx-min-height: 11;
+    -fx-max-width: 11;
+    -fx-max-height: 11;
+    -fx-background-radius: 2;
+}
+
+.leyenda-cuadro.contorno-esperado {
+    -fx-border-radius: 2;
+}
+
+.leyenda-texto {
+    -fx-text-fill: -ba-texto-sec;
+    -fx-font-size: 11.5px;
+}
+
+/* Productos */
+.producto-nombre {
+    -fx-text-fill: -ba-texto-claro;
+}
+
+.producto-valor {
+    -fx-font-family: "Inter SemiBold";
+    -fx-text-fill: -ba-texto;
+}
+
+/* ---------- Frase resumen de las pantallas de análisis (Fase 23) ---------- */
+
+.franja-frase {
+    -fx-background-color: -ba-fondo;
+    -fx-padding: 22 32 0 32;
+    -fx-spacing: 14;
+}
+
+.franja-frase-marca {
+    -fx-background-color: -ba-acento;
+    -fx-background-radius: 2;
+}
+
+.franja-frase-texto {
+    -fx-font-family: "Space Grotesk Medium";
+    -fx-font-size: 19px;
+    -fx-text-fill: -ba-texto-claro;
+    -fx-padding: 2 0;
 }

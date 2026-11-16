@@ -125,7 +125,9 @@ public class PrediccionesController implements VistaModulo {
                 : "Basado en " + r.meses().size() + (r.meses().size() == 1 ? " mes completo" : " meses completos")
                 + " de historia (" + nombreMes(r.meses().get(0)) + " a " + nombreMes(r.meses().get(r.meses().size() - 1)) + ")");
         mostrarIndicadores(r);
-        tabVentas.setContent(contenidoSerie(r, r.pronosticoVentas(), r.ventas(), LecturaPrediccion.generar(r, moneda)));
+        List<String> lectura = LecturaPrediccion.generar(r, moneda);
+        contexto.mostrarFrase(com.businessanalyzer.ui.Modulo.PREDICCIONES, r.pronosticoVentas() == null || lectura.isEmpty() ? null : lectura.get(0));
+        tabVentas.setContent(contenidoSerie(r, r.pronosticoVentas(), r.ventas(), lectura));
         tabUtilidad.setContent(contenidoSerie(r, r.pronosticoUtilidad(), r.utilidad(), null));
     }
 
@@ -208,8 +210,8 @@ public class PrediccionesController implements VistaModulo {
         panelDerecho.setFitToWidth(true);
         panelDerecho.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         panelDerecho.getStyleClass().add("dialog-scroll");
-        panelDerecho.setPrefWidth(410);
-        panelDerecho.setMinWidth(360);
+        panelDerecho.setPrefWidth(450);
+        panelDerecho.setMinWidth(400);
 
         HBox contenido = new HBox(16, izquierda, panelDerecho);
         contenido.getStyleClass().add("tab-contenido");
@@ -220,7 +222,7 @@ public class PrediccionesController implements VistaModulo {
         YearMonth primero = r.primerMesProyectado(YearMonth.now());
         TableView<Pronostico.Punto> tabla = new TableView<>(FXCollections.observableArrayList(p.puntos()));
         TableColumn<Pronostico.Punto, String> mes = columna("Mes", punto -> mesCorto(primero.plusMonths(punto.h() - 1L)), 80, false);
-        mes.setMinWidth(78);
+        mes.setMinWidth(70);
         tabla.getColumns().add(mes);
         tabla.getColumns().add(columna("Proyección", punto -> entero(punto.valor()), 95, true));
         tabla.getColumns().add(columna("Rango 95 %", punto -> entero(punto.inferior()) + " – "
@@ -253,9 +255,9 @@ public class PrediccionesController implements VistaModulo {
                 java.text.DecimalFormatSymbols.getInstance(java.util.Locale.US)).format(Math.round(valor));
     }
 
-    /** "nov 2026". */
+    /** "nov 26". */
     private static String mesCorto(YearMonth mes) {
-        return nombreMes(mes).substring(0, 3) + " " + mes.getYear();
+        return nombreMes(mes).substring(0, 3) + " " + String.valueOf(mes.getYear()).substring(2);
     }
 
     /** Pestaña "Cómo se calcula": método por método y la forma de elegir. */

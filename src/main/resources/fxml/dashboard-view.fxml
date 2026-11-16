@@ -5,71 +5,72 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
+<!-- Dashboard: el mes en curso en una frase y cuatro indicadores, la salud del negocio, los últimos
+     12 meses, lo que viene y los productos que más aportan. El contenido lo arma DashboardController. -->
 <ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.businessanalyzer.controller.DashboardController"
             fitToWidth="true" styleClass="page-scroll">
 
-    <VBox spacing="16" styleClass="page">
+    <VBox spacing="20" styleClass="page">
 
-        <!-- Empresa activa (o aviso si no hay ninguna) -->
-        <HBox fx:id="bannerEmpresa" styleClass="banner" spacing="14" alignment="CENTER_LEFT">
-            <FontIcon fx:id="iconoBanner" styleClass="banner-icon"/>
+        <!-- Aviso cuando no hay empresa activa o el rol no incluye los análisis -->
+        <HBox fx:id="bannerEmpresa" styleClass="banner" spacing="14" alignment="CENTER_LEFT"
+              visible="false" managed="false">
+            <FontIcon fx:id="iconoBanner" iconLiteral="fth-info" styleClass="banner-icon"/>
             <VBox spacing="2" HBox.hgrow="ALWAYS">
                 <Label fx:id="lblBannerTitulo" styleClass="step-title"/>
-                <Label fx:id="lblBannerDetalle" styleClass="muted" wrapText="true"/>
+                <Label fx:id="lblBannerDetalle" wrapText="true"/>
             </VBox>
-            <Label fx:id="lblPeriodo" styleClass="muted" minWidth="-Infinity"/>
         </HBox>
 
-        <!-- Tarjetas de indicadores (se crean en DashboardController) -->
-        <HBox fx:id="indicadores" spacing="16"/>
-
-        <VBox fx:id="contenido" spacing="16">
-            <HBox spacing="16">
-                <VBox styleClass="card" spacing="10" HBox.hgrow="ALWAYS" prefWidth="560">
-                    <HBox alignment="CENTER_LEFT" spacing="8">
-                        <Label text="Ventas y utilidad de los últimos 12 meses" styleClass="card-title"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="btnAnalisis" text="Análisis financiero" styleClass="button-link"
-                                minWidth="-Infinity" onAction="#irAnalisis"/>
-                    </HBox>
-                    <StackPane fx:id="graficoEvolucion" minHeight="250" prefHeight="250"/>
-                </VBox>
-                <VBox styleClass="card" spacing="10" prefWidth="380" minWidth="330">
+        <VBox fx:id="contenido" spacing="20">
+            <HBox spacing="20">
+                <VBox fx:id="tarjetaMes" styleClass="card" spacing="16" HBox.hgrow="ALWAYS" prefWidth="640"/>
+                <VBox styleClass="card" spacing="14" prefWidth="360" minWidth="330" maxWidth="400">
                     <HBox alignment="CENTER_LEFT" spacing="8">
                         <Label text="Salud del negocio" styleClass="card-title"/>
                         <Region HBox.hgrow="ALWAYS"/>
                         <Button fx:id="btnDiagnostico" text="Ver diagnóstico" styleClass="button-link"
                                 minWidth="-Infinity" onAction="#irDiagnostico"/>
                     </HBox>
-                    <VBox fx:id="salud" spacing="8"/>
+                    <VBox fx:id="salud" spacing="14"/>
                 </VBox>
             </HBox>
 
-            <HBox spacing="16">
-                <VBox styleClass="card" spacing="10" HBox.hgrow="ALWAYS" prefWidth="560">
+            <HBox spacing="20">
+                <VBox styleClass="card" spacing="12" HBox.hgrow="ALWAYS" prefWidth="640">
                     <HBox alignment="CENTER_LEFT" spacing="8">
-                        <Label fx:id="lblTituloProductos" text="Productos que más aportan al margen" styleClass="card-title"/>
+                        <Label text="Ventas y utilidad, últimos 12 meses" styleClass="card-title"/>
                         <Region HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="btnVentas" text="Ventas y compras" styleClass="button-link"
-                                minWidth="-Infinity" onAction="#irVentas"/>
+                        <Button fx:id="btnAnalisis" text="Análisis financiero" styleClass="button-link"
+                                minWidth="-Infinity" onAction="#irAnalisis"/>
                     </HBox>
-                    <StackPane fx:id="graficoProductos" minHeight="210" prefHeight="210"/>
+                    <VBox fx:id="evolucion"/>
                 </VBox>
-                <VBox styleClass="card" spacing="10" prefWidth="380" minWidth="330">
+                <VBox styleClass="card" spacing="12" prefWidth="360" minWidth="330" maxWidth="400">
                     <HBox alignment="CENTER_LEFT" spacing="8">
                         <Label text="Lo que viene" styleClass="card-title"/>
                         <Region HBox.hgrow="ALWAYS"/>
                         <Button fx:id="btnPredicciones" text="Ver predicciones" styleClass="button-link"
                                 minWidth="-Infinity" onAction="#irPredicciones"/>
                     </HBox>
-                    <VBox fx:id="proximo" spacing="8"/>
+                    <VBox fx:id="proximo" spacing="10"/>
                 </VBox>
             </HBox>
+
+            <VBox styleClass="card" spacing="14">
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label fx:id="lblTituloProductos" text="Productos que más aportan al margen este mes"
+                           styleClass="card-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="btnVentas" text="Ventas y compras" styleClass="button-link"
+                            minWidth="-Infinity" onAction="#irVentas"/>
+                </HBox>
+                <VBox fx:id="productos" spacing="12"/>
+            </VBox>
         </VBox>
     </VBox>
 </ScrollPane>

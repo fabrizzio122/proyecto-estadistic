@@ -257,7 +257,9 @@ public class ValoracionController implements VistaModulo {
         mostrarSensibilidad(v);
 
         lectura.getChildren().clear();
-        for (String frase : v.lectura(moneda)) {
+        List<String> frases = v.lectura(moneda);
+        contexto.mostrarFrase(com.businessanalyzer.ui.Modulo.VALORACION, frases.isEmpty() ? null : frases.get(0));
+        for (String frase : frases) {
             Label punto = new Label("•  " + frase);
             punto.setWrapText(true);
             punto.getStyleClass().add("lectura");
@@ -320,6 +322,7 @@ public class ValoracionController implements VistaModulo {
         gridSensibilidad.getChildren().clear();
         graficoMetodos.getChildren().clear();
         lectura.getChildren().setAll(texto(mensaje, "muted"));
+        contexto.mostrarFrase(com.businessanalyzer.ui.Modulo.VALORACION, null);
         lblSupuestos.setText("");
     }
 

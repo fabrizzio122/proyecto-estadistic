@@ -208,6 +208,7 @@ public class AnalisisFinancieroController implements VistaModulo {
         contenedorEquilibrio.getChildren().clear();
         margenes.getChildren().clear();
         lectura.getChildren().clear();
+        contexto.mostrarFrase(com.businessanalyzer.ui.Modulo.ANALISIS_FINANCIERO, null);
         gridEquilibrio.getChildren().clear();
         lblComparacion.setText("");
     }
@@ -271,7 +272,9 @@ public class AnalisisFinancieroController implements VistaModulo {
         contenedorEvolucion.getChildren().setAll(Graficos.visor(Graficos.evolucionMensual(a.evolucion(), moneda)));
 
         lectura.getChildren().clear();
-        for (String frase : LecturaFinanciera.generar(a, moneda)) {
+        List<String> frases = LecturaFinanciera.generar(a, moneda);
+        contexto.mostrarFrase(com.businessanalyzer.ui.Modulo.ANALISIS_FINANCIERO, frases.isEmpty() ? null : frases.get(0));
+        for (String frase : frases) {
             Label punto = new Label("•  " + frase);
             punto.setWrapText(true);
             punto.getStyleClass().add("lectura");

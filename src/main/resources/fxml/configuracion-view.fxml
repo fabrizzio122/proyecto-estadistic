@@ -118,9 +118,9 @@
                         <Label text="Carpeta predeterminada de los informes" styleClass="form-label"/>
                         <Label fx:id="lblCarpetaInformes" styleClass="info-value" wrapText="true" minHeight="-Infinity"/>
                         <Button text="Cambiar…" styleClass="button-secondary" onAction="#cambiarCarpetaInformes"/>
-                        <Label text="Tema de la interfaz" styleClass="form-label"/>
-                        <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
-                               text="Oscuro. La arquitectura de estilos ya separa los colores en variables para incorporar un tema claro en una versión futura."/>
+                    </VBox>
+                    <VBox fx:id="cajaApariencia" styleClass="card" spacing="12" prefWidth="380" minWidth="320">
+                        <Label text="Apariencia" styleClass="card-title"/>
                     </VBox>
                 </HBox>
             </ScrollPane>

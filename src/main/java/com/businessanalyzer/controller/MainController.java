@@ -15,6 +15,7 @@ import com.businessanalyzer.ui.Notificador;
 import com.businessanalyzer.ui.Ventana;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
@@ -23,6 +24,7 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import org.kordamp.ikonli.javafx.FontIcon;
@@ -60,6 +62,14 @@ public class MainController {
     @FXML private Label estadoVersion;
     @FXML private MenuButton menuUsuario;
     @FXML private MenuButton selectorEmpresa;
+    @FXML private Label kickerModulo;
+    @FXML private Label chipPeriodo;
+    @FXML private Button btnAccionPrincipal;
+    @FXML private HBox franjaFrase;
+    @FXML private Label lblFrase;
+
+    /** Contador de alertas pendientes junto a «Diagnóstico empresarial». */
+    private final Label contadorAlertas = new Label();
 
     public MainController(AppContext contexto, Ventana ventana) {
         this.contexto = contexto;
@@ -68,6 +78,8 @@ public class MainController {
                 abrir(m);
             }
         });
+        contexto.alActualizarAlertas(this::mostrarAlertas);
+        contexto.alMostrarFrase(this::mostrarFrase);
         this.ventana = ventana;
     }
 
@@ -119,28 +131,109 @@ public class MainController {
             boton.getStyleClass().add("sidebar-item");
             boton.setMaxWidth(Double.MAX_VALUE);
             boton.setAlignment(Pos.CENTER_LEFT);
+            boton.setWrapText(true);
             if (!modulo.disponible()) {
                 boton.setTooltip(new Tooltip("Disponible en la Fase " + modulo.fase()));
             }
             boton.setOnAction(e -> abrir(modulo));
             botones.put(modulo, boton);
-            menu.getChildren().add(boton);
+            if (modulo == Modulo.DIAGNOSTICO) {
+                // El contador va encima del botón, a la derecha, y no intercepta los clics.
+                contadorAlertas.getStyleClass().add("contador-alertas");
+                contadorAlertas.setVisible(false);
+                contadorAlertas.setMouseTransparent(true);
+                StackPane conContador = new StackPane(boton, contadorAlertas);
+                conContador.getStyleClass().add("con-contador");
+                StackPane.setAlignment(contadorAlertas, Pos.CENTER_RIGHT);
+                StackPane.setMargin(contadorAlertas, new javafx.geometry.Insets(0, 10, 0, 0));
+                boton.managedProperty().addListener((o, a, gestionado) -> conContador.setManaged(gestionado));
+                boton.visibleProperty().addListener((o, a, visible) -> conContador.setVisible(visible));
+                menu.getChildren().add(conContador);
+            } else {
+                menu.getChildren().add(boton);
+            }
         }
+    }
+
+    private void mostrarFrase(Modulo modulo, String frase) {
+        boolean mostrar = frase != null && !frase.isBlank() && modulo != null && modulo == moduloActual;
+        if (modulo != null && modulo != moduloActual) {
+            return;
+        }
+        lblFrase.setText(mostrar ? frase : "");
+        visible(franjaFrase, mostrar);
+        if (mostrar) {
+            com.businessanalyzer.ui.Animaciones.aparecer(franjaFrase, 6, javafx.util.Duration.millis(350));
+        }
+    }
+
+    private void mostrarAlertas(int cantidad) {
+        contadorAlertas.setText(String.valueOf(cantidad));
+        contadorAlertas.setVisible(cantidad > 0);
+        Tooltip.install(contadorAlertas, new Tooltip(cantidad == 1 ? "1 indicador por atender"
+                : cantidad + " indicadores por atender"));
     }
 
     private void abrir(Modulo modulo) {
         botones.get(modulo).setSelected(true);
-        tituloModulo.setText(modulo.titulo());
-        descripcionModulo.setText(modulo.descripcion());
+        mostrarFrase(null, null);
+        mostrarEncabezado(modulo);
         try {
             navegador.mostrar(modulo);
             moduloActual = modulo;
+            com.businessanalyzer.ui.Estilos.encabezadosTabla(contenido);
         } catch (Exception e) {
             log.error("No se pudo abrir el modulo {}", modulo, e);
             Notificador.error("No se pudo abrir el módulo " + modulo.titulo());
             return;
         }
         recordarUltimoModulo(modulo);
+    }
+
+    /**
+     * Encabezado de la pantalla. En el Dashboard: la empresa en una línea tenue, un saludo según la hora,
+     * el período del mes en curso y el botón «Registrar venta». En los demás módulos: título y descripción.
+     */
+    private void mostrarEncabezado(Modulo modulo) {
+        boolean inicio = modulo == Modulo.DASHBOARD;
+        Optional<Empresa> empresa = contexto.sesion().empresaActiva();
+        visible(kickerModulo, inicio && empresa.isPresent());
+        visible(chipPeriodo, inicio && empresa.isPresent());
+        visible(descripcionModulo, !inicio);
+        boolean puedeVender = inicio && empresa.isPresent()
+                && contexto.sesion().tienePermiso(com.businessanalyzer.model.Permiso.OPERACIONES_GESTIONAR)
+                && botones.containsKey(Modulo.VENTAS_COMPRAS);
+        visible(btnAccionPrincipal, puedeVender);
+        if (!inicio) {
+            tituloModulo.setText(modulo.titulo());
+            descripcionModulo.setText(modulo.descripcion());
+            return;
+        }
+        String nombre = contexto.sesion().usuario().nombreCompleto().strip().split("\\s+")[0];
+        int hora = java.time.LocalTime.now().getHour();
+        tituloModulo.setText((hora < 12 ? "Buenos días" : hora < 19 ? "Buenas tardes" : "Buenas noches") + ", " + nombre);
+        empresa.ifPresent(e -> kickerModulo.setText(e.nombreVisible() + "  ·  " + e.tamano().descripcion()
+                + "  ·  " + e.moneda().nombre() + " (" + e.moneda().simbolo() + ")"));
+        java.time.LocalDate hoy = java.time.LocalDate.now();
+        chipPeriodo.setText("1 – " + hoy.getDayOfMonth() + " de "
+                + com.businessanalyzer.util.Fechas.nombreMes(hoy.getMonthValue()).toLowerCase() + " " + hoy.getYear());
+        btnAccionPrincipal.setText("Registrar venta");
+        btnAccionPrincipal.setOnAction(e -> registrarVenta());
+    }
+
+    /** Abre «Ventas y compras» con el formulario de nueva venta. */
+    private void registrarVenta() {
+        abrir(Modulo.VENTAS_COMPRAS);
+        javafx.application.Platform.runLater(() -> {
+            if (contenido.lookup("#btnNueva") instanceof javafx.scene.control.Button nueva && !nueva.isDisabled()) {
+                nueva.fire();
+            }
+        });
+    }
+
+    private static void visible(javafx.scene.Node nodo, boolean visible) {
+        nodo.setVisible(visible);
+        nodo.setManaged(visible);
     }
 
     // ------------------------------------------------------------------ empresa activa
@@ -199,6 +292,11 @@ public class MainController {
 
     private void empresaCambiada(Optional<Empresa> empresa) {
         mostrarEmpresa(empresa);
+        mostrarAlertas(0);
+        mostrarFrase(null, null);
+        if (moduloActual != null) {
+            mostrarEncabezado(moduloActual);
+        }
         if (aplicarSector(empresa)) {
             return;
         }
@@ -247,10 +345,26 @@ public class MainController {
         cuenta.setDisable(true);
         MenuItem cambiarPassword = new MenuItem("Cambiar contraseña", new FontIcon("fth-key"));
         cambiarPassword.setOnAction(e -> cambiarPassword());
+        MenuItem apariencia = new MenuItem("Apariencia…", new FontIcon("fth-droplet"));
+        apariencia.setOnAction(e -> mostrarApariencia());
         MenuItem cerrarSesion = new MenuItem("Cerrar sesión", new FontIcon("fth-log-out"));
         cerrarSesion.setOnAction(e -> cerrarSesion());
 
-        menuUsuario.getItems().setAll(cuenta, new SeparatorMenuItem(), cambiarPassword, cerrarSesion);
+        menuUsuario.getItems().setAll(cuenta, new SeparatorMenuItem(), apariencia, cambiarPassword, cerrarSesion);
+    }
+
+    /** Color de acento y «Reducir animaciones», disponible para cualquier rol. */
+    private void mostrarApariencia() {
+        javafx.scene.control.Dialog<Void> dialogo = new javafx.scene.control.Dialog<>();
+        dialogo.initOwner(ventana.stage());
+        dialogo.setTitle("Apariencia");
+        dialogo.setHeaderText("Elige cómo se ve Business Analyzer para ti");
+        com.businessanalyzer.ui.PanelApariencia panel = new com.businessanalyzer.ui.PanelApariencia(contexto.preferencias());
+        panel.setPrefWidth(400);
+        dialogo.getDialogPane().setContent(panel);
+        dialogo.getDialogPane().getButtonTypes().add(javafx.scene.control.ButtonType.CLOSE);
+        com.businessanalyzer.ui.Estilos.aplicar(dialogo.getDialogPane());
+        dialogo.showAndWait();
     }
 
     private void cambiarPassword() {

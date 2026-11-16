@@ -87,6 +87,7 @@ public class DiagnosticoController implements VistaModulo {
         lblPuntaje.setText("—");
         lblNivel.setText("");
         resumen.getChildren().setAll(frase(mensaje));
+        contexto.mostrarFrase(com.businessanalyzer.ui.Modulo.DIAGNOSTICO, null);
         areas.getChildren().clear();
         indicadores.getChildren().clear();
         recomendaciones.getChildren().clear();
@@ -109,6 +110,8 @@ public class DiagnosticoController implements VistaModulo {
         lblNivel.setText(d.nivel().descripcion());
         colorear(lblNivel, d.nivel().color());
         resumen.getChildren().setAll(d.resumen().stream().skip(1).map(DiagnosticoController::frase).toList());
+        contexto.mostrarFrase(com.businessanalyzer.ui.Modulo.DIAGNOSTICO, d.resumen().get(0));
+        contexto.mostrarAlertasDiagnostico(d.recomendaciones().size());
 
         areas.getChildren().clear();
         for (Area area : Area.values()) {

@@ -122,7 +122,7 @@
                         <GridPane fx:id="gridCorrelacion" hgap="4" vgap="4"/>
                     </ScrollPane>
                     <Label styleClass="hint" wrapText="true"
-                           text="r va de −1 a +1. Azul: suben juntas; rojo: cuando una sube la otra baja. Más intenso = relación más fuerte (|r| ≥ 0.7 fuerte, ≥ 0.4 moderada)."/>
+                           text="r va de −1 a +1. Verde: suben juntas; coral: cuando una sube la otra baja. Más intenso = relación más fuerte (|r| ≥ 0.7 fuerte, ≥ 0.4 moderada)."/>
                 </VBox>
                 <VBox styleClass="card" spacing="8" prefWidth="360" minWidth="300">
                     <Label text="Lo más destacado" styleClass="card-title"/>

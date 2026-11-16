@@ -53,16 +53,25 @@ import java.util.Locale;
  */
 public final class Graficos {
 
-    public static final Color AZUL = new Color(0x38, 0xbd, 0xf8);
-    public static final Color VERDE = new Color(0x22, 0xc5, 0x5e);
-    public static final Color AMBAR = new Color(0xf5, 0x9e, 0x0b);
-    public static final Color ROJO = new Color(0xef, 0x44, 0x44);
+    /**
+     * Color principal de las series: el color de acento que eligió el usuario (se actualiza al cambiarlo,
+     * ver {@link Estilos#cambiarAcento}). Conserva el nombre histórico.
+     */
+    public static volatile Color AZUL = ColorAcento.PREDETERMINADO.awt();
+    /** Positivo, utilidad, saludable. */
+    public static final Color VERDE = new Color(0x63, 0xd6, 0xa4);
+    /** Series secundarias y líneas de referencia (tendencias, escenarios pesimistas). */
+    public static final Color AMBAR = new Color(0xd5, 0xde, 0xd9);
+    /** Alerta o pérdida. */
+    public static final Color ROJO = new Color(0xff, 0x8f, 0x73);
+    /** Barras de contexto, sin protagonismo. */
+    public static final Color NEUTRO = new Color(0x3a, 0x4d, 0x46);
 
-    private static final Color FONDO = new Color(0x14, 0x1e, 0x34);
-    private static final Color GRILLA = new Color(0x22, 0x30, 0x4d);
-    private static final Color TEXTO = new Color(0x8d, 0x9b, 0xb5);
-    private static final Color TEXTO_FUERTE = new Color(0xe6, 0xeb, 0xf5);
-    private static final Font FUENTE = new Font("Segoe UI", Font.PLAIN, 11);
+    private static final Color FONDO = new Color(0x15, 0x1e, 0x1b);
+    private static final Color GRILLA = new Color(0x26, 0x33, 0x2f);
+    private static final Color TEXTO = new Color(0x9d, 0xb0, 0xa8);
+    private static final Color TEXTO_FUERTE = new Color(0xed, 0xf2, 0xee);
+    private static final Font FUENTE = new Font("Inter", Font.PLAIN, 11);
     private static final BasicStroke LINEA_GRUESA = new BasicStroke(2.5f);
     private static final BasicStroke LINEA_PUNTEADA = new BasicStroke(1.5f, BasicStroke.CAP_ROUND,
             BasicStroke.JOIN_ROUND, 1f, new float[]{6f, 5f}, 0f);
@@ -399,7 +408,10 @@ public final class Graficos {
 
     // ------------------------------------------------------------------ impresión (Fase 12)
 
-    private static final Color[] PALETA = {AZUL, VERDE, AMBAR, new Color(0xa7, 0x8b, 0xfa), ROJO, new Color(0x2d, 0xd4, 0xbf)};
+    /** Colores para varias series: el acento primero y luego colores que se distinguen sobre el fondo. */
+    private static Color[] paleta() {
+        return new Color[]{AZUL, VERDE, AMBAR, new Color(0xb4, 0xa7, 0xf5), ROJO, new Color(0x6f, 0xc7, 0xc0)};
+    }
 
     /** Una línea por serie (por ejemplo, animales de cada especie al cierre de cada mes). */
     public static JFreeChart lineasMensuales(List<YearMonth> meses, java.util.Map<String, double[]> series, String formato) {
@@ -411,7 +423,7 @@ public final class Graficos {
         });
         LineAndShapeRenderer lineas = new LineAndShapeRenderer(true, false);
         for (int i = 0; i < series.size(); i++) {
-            lineas.setSeriesPaint(i, PALETA[i % PALETA.length]);
+            lineas.setSeriesPaint(i, paleta()[i % paleta().length]);
             lineas.setSeriesStroke(i, LINEA_GRUESA);
         }
         CategoryAxis ejeMeses = new CategoryAxis();
@@ -561,7 +573,7 @@ public final class Graficos {
         barras.setBarPainter(new StandardBarPainter());
         barras.setShadowVisible(false);
         barras.setItemMargin(0.05);
-        Color[] colores = {TEXTO, AZUL, AMBAR, VERDE, new Color(0xa7, 0x8b, 0xfa), ROJO};
+        Color[] colores = {TEXTO, AZUL, AMBAR, VERDE, new Color(0xb4, 0xa7, 0xf5), ROJO};
         for (int i = 0; i < nombres.size(); i++) {
             barras.setSeriesPaint(i, colores[i % colores.length]);
         }
