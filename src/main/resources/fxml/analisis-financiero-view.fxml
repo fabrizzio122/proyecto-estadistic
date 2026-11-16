@@ -16,55 +16,55 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.businessanalyzer.controller.AnalisisFinancieroController"
+      fx:controller="com.businessanalyzer.controller.AnalisisFinancieroControllerFGEM"
       spacing="14" styleClass="page">
 
     <!-- Período y comparación -->
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="Período" styleClass="form-label"/>
-        <DatePicker fx:id="dpDesde" prefWidth="135"/>
+        <DatePicker fx:id="dpDesdeFGEM" prefWidth="135"/>
         <Label text="al" styleClass="form-label"/>
-        <DatePicker fx:id="dpHasta" prefWidth="135"/>
-        <Button text="Este mes" styleClass="button-secondary" minWidth="-Infinity" onAction="#esteMes"/>
-        <Button text="Mes anterior" styleClass="button-secondary" minWidth="-Infinity" onAction="#mesAnterior"/>
-        <Button text="Este año" styleClass="button-secondary" minWidth="-Infinity" onAction="#esteAnio"/>
-        <ProgressIndicator fx:id="progreso" prefWidth="22" prefHeight="22" visible="false"/>
+        <DatePicker fx:id="dpHastaFGEM" prefWidth="135"/>
+        <Button text="Este mes" styleClass="button-secondary" minWidth="-Infinity" onAction="#esteMesFGEM"/>
+        <Button text="Mes anterior" styleClass="button-secondary" minWidth="-Infinity" onAction="#mesAnteriorFGEM"/>
+        <Button text="Este año" styleClass="button-secondary" minWidth="-Infinity" onAction="#esteAnioFGEM"/>
+        <ProgressIndicator fx:id="progresoFGEM" prefWidth="22" prefHeight="22" visible="false"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Label fx:id="lblComparacion" styleClass="muted"/>
+        <Label fx:id="lblComparacionFGEM" styleClass="muted"/>
     </HBox>
 
     <!-- Indicadores clave -->
-    <HBox fx:id="indicadores" spacing="16"/>
+    <HBox fx:id="indicadoresFGEM" spacing="16"/>
 
-    <TabPane fx:id="pestanas" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
+    <TabPane fx:id="pestanasFGEM" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
 
         <!-- 1. Estado de resultados -->
         <Tab text="Estado de resultados">
             <HBox spacing="16" styleClass="tab-contenido">
                 <VBox spacing="10" HBox.hgrow="ALWAYS" prefWidth="560">
-                    <TableView fx:id="tablaEstado" VBox.vgrow="ALWAYS" styleClass="tabla-compacta">
+                    <TableView fx:id="tablaEstadoFGEM" VBox.vgrow="ALWAYS" styleClass="tabla-compacta">
                         <columns>
-                            <TableColumn fx:id="colConcepto" text="Concepto" prefWidth="215" sortable="false"/>
-                            <TableColumn fx:id="colActual" text="Período" prefWidth="110" sortable="false" styleClass="col-numero"/>
-                            <TableColumn fx:id="colPorcentaje" text="\% ventas" prefWidth="75" sortable="false" styleClass="col-numero"/>
-                            <TableColumn fx:id="colAnterior" text="Anterior" prefWidth="110" sortable="false" styleClass="col-numero"/>
-                            <TableColumn fx:id="colVariacionPct" text="Variación" prefWidth="85" sortable="false" styleClass="col-numero"/>
+                            <TableColumn fx:id="colConceptoFGEM" text="Concepto" prefWidth="215" sortable="false"/>
+                            <TableColumn fx:id="colActualFGEM" text="Período" prefWidth="110" sortable="false" styleClass="col-numero"/>
+                            <TableColumn fx:id="colPorcentajeFGEM" text="\% ventas" prefWidth="75" sortable="false" styleClass="col-numero"/>
+                            <TableColumn fx:id="colAnteriorFGEM" text="Anterior" prefWidth="110" sortable="false" styleClass="col-numero"/>
+                            <TableColumn fx:id="colVariacionPctFGEM" text="Variación" prefWidth="85" sortable="false" styleClass="col-numero"/>
                         </columns>
                         <columnResizePolicy>
                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
                         </columnResizePolicy>
                     </TableView>
-                    <HBox fx:id="margenes" spacing="10"/>
+                    <HBox fx:id="margenesFGEM" spacing="10"/>
                 </VBox>
                 <VBox spacing="12" prefWidth="380" minWidth="320">
                     <VBox styleClass="card" spacing="6" VBox.vgrow="ALWAYS">
                         <Label text="Evolución de los últimos 12 meses" styleClass="card-title"/>
-                        <StackPane fx:id="contenedorEvolucion" VBox.vgrow="ALWAYS" minHeight="180"/>
+                        <StackPane fx:id="contenedorEvolucionFGEM" VBox.vgrow="ALWAYS" minHeight="180"/>
                     </VBox>
                     <VBox styleClass="card" spacing="8" prefHeight="190" minHeight="150">
                         <Label text="Lectura rápida" styleClass="card-title"/>
                         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="dialog-scroll" VBox.vgrow="ALWAYS">
-                            <VBox fx:id="lectura" spacing="6"/>
+                            <VBox fx:id="lecturaFGEM" spacing="6"/>
                         </ScrollPane>
                     </VBox>
                 </VBox>
@@ -76,13 +76,13 @@
             <HBox spacing="16" styleClass="tab-contenido">
                 <VBox styleClass="card" spacing="12" prefWidth="390" minWidth="340">
                     <Label text="Cómo se calcula" styleClass="card-title"/>
-                    <GridPane fx:id="gridEquilibrio" hgap="12" vgap="8"/>
+                    <GridPane fx:id="gridEquilibrioFGEM" hgap="12" vgap="8"/>
                     <Label styleClass="hint" wrapText="true"
                            text="El margen de contribución es lo que queda de cada venta después de pagar sus costos variables; con él se cubren los costos fijos. El punto de equilibrio es el nivel de ventas en el que no se gana ni se pierde. Supone que la mezcla de productos vendidos se mantiene y no incluye el impuesto a la renta."/>
                 </VBox>
                 <VBox styleClass="card" spacing="6" HBox.hgrow="ALWAYS">
                     <Label text="Ingresos frente a costos" styleClass="card-title"/>
-                    <StackPane fx:id="contenedorEquilibrio" VBox.vgrow="ALWAYS" minHeight="200"/>
+                    <StackPane fx:id="contenedorEquilibrioFGEM" VBox.vgrow="ALWAYS" minHeight="200"/>
                 </VBox>
             </HBox>
         </Tab>
@@ -90,15 +90,15 @@
         <!-- 3. Rentabilidad por producto -->
         <Tab text="Rentabilidad por producto">
             <HBox spacing="16" styleClass="tab-contenido">
-                <TableView fx:id="tablaProductos" HBox.hgrow="ALWAYS" styleClass="tabla-compacta">
+                <TableView fx:id="tablaProductosFGEM" HBox.hgrow="ALWAYS" styleClass="tabla-compacta">
                     <columns>
-                        <TableColumn fx:id="colProdCodigo" text="Código" prefWidth="70"/>
-                        <TableColumn fx:id="colProdNombre" text="Producto o servicio" prefWidth="170"/>
-                        <TableColumn fx:id="colProdCantidad" text="Cant." prefWidth="60" styleClass="col-numero"/>
-                        <TableColumn fx:id="colProdVentas" text="Ventas" prefWidth="95" styleClass="col-numero"/>
-                        <TableColumn fx:id="colProdMargen" text="Margen" prefWidth="95" styleClass="col-numero"/>
-                        <TableColumn fx:id="colProdMargenPct" text="Margen %" prefWidth="85" styleClass="col-numero"/>
-                        <TableColumn fx:id="colProdAporte" text="Aporte" prefWidth="75" styleClass="col-numero"/>
+                        <TableColumn fx:id="colProdCodigoFGEM" text="Código" prefWidth="70"/>
+                        <TableColumn fx:id="colProdNombreFGEM" text="Producto o servicio" prefWidth="170"/>
+                        <TableColumn fx:id="colProdCantidadFGEM" text="Cant." prefWidth="60" styleClass="col-numero"/>
+                        <TableColumn fx:id="colProdVentasFGEM" text="Ventas" prefWidth="95" styleClass="col-numero"/>
+                        <TableColumn fx:id="colProdMargenFGEM" text="Margen" prefWidth="95" styleClass="col-numero"/>
+                        <TableColumn fx:id="colProdMargenPctFGEM" text="Margen %" prefWidth="85" styleClass="col-numero"/>
+                        <TableColumn fx:id="colProdAporteFGEM" text="Aporte" prefWidth="75" styleClass="col-numero"/>
                     </columns>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
@@ -106,7 +106,7 @@
                 </TableView>
                 <VBox styleClass="card" spacing="6" prefWidth="320" minWidth="280">
                     <Label text="Los que más aportan al margen" styleClass="card-title"/>
-                    <StackPane fx:id="contenedorProductos" VBox.vgrow="ALWAYS" minHeight="200"/>
+                    <StackPane fx:id="contenedorProductosFGEM" VBox.vgrow="ALWAYS" minHeight="200"/>
                 </VBox>
             </HBox>
         </Tab>

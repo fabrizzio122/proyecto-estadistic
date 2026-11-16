@@ -2,7 +2,7 @@
 !include estilo.iuml
 title Business Analyzer Desktop 1.2 — Estados de una campaña agrícola
 
-[*] --> EN_CURSO : registrarCampania()\n[parcela activa]
+[*] --> EN_CURSO : registrarCampaniaFGEM()\n[parcela activa]
 
 state "En curso" as EN_CURSO
 EN_CURSO : costos y cosechas se registran,\ncorrigen o anulan
@@ -18,12 +18,12 @@ PERDIDA : causa obligatoria\n(helada, granizo, sequía…)
 state "Anulada" as ANULADA
 ANULADA : no cuenta en resultados\nni en el balance
 
-EN_CURSO --> COSECHADA : cerrarCampania(COSECHADA)\n[al menos una cosecha]
-EN_CURSO --> PERDIDA : cerrarCampania(PERDIDA, causa)
-COSECHADA --> EN_CURSO : reabrirCampania()
-PERDIDA --> EN_CURSO : reabrirCampania()
-EN_CURSO --> ANULADA : anularCampania(motivo)
-COSECHADA --> ANULADA : anularCampania(motivo)
-PERDIDA --> ANULADA : anularCampania(motivo)
+EN_CURSO --> COSECHADA : cerrarCampaniaFGEM(COSECHADA)\n[al menos una cosecha]
+EN_CURSO --> PERDIDA : cerrarCampaniaFGEM(PERDIDA, causa)
+COSECHADA --> EN_CURSO : reabrirCampaniaFGEM()
+PERDIDA --> EN_CURSO : reabrirCampaniaFGEM()
+EN_CURSO --> ANULADA : anularCampaniaFGEM(motivo)
+COSECHADA --> ANULADA : anularCampaniaFGEM(motivo)
+PERDIDA --> ANULADA : anularCampaniaFGEM(motivo)
 ANULADA --> [*]
 @enduml

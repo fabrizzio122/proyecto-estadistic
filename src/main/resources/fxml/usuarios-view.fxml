@@ -15,40 +15,40 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <TabPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-         fx:controller="com.businessanalyzer.controller.UsuariosController"
+         fx:controller="com.businessanalyzer.controller.UsuariosControllerFGEM"
          tabClosingPolicy="UNAVAILABLE">
 
     <!-- Pestaña 1: cuentas de usuario -->
     <Tab text="Usuarios">
         <VBox spacing="14" styleClass="page">
             <HBox spacing="10" alignment="CENTER_LEFT">
-                <TextField fx:id="txtBuscar" promptText="Buscar por usuario, nombre, correo o rol"
+                <TextField fx:id="txtBuscarFGEM" promptText="Buscar por usuario, nombre, correo o rol"
                            prefWidth="320" minWidth="180"/>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="btnEditar" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
-                        onAction="#editar">
+                <Button fx:id="btnEditarFGEM" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
+                        onAction="#editarFGEM">
                     <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
                 </Button>
-                <MenuButton fx:id="menuAcciones" text="Acciones" styleClass="button-secondary" minWidth="-Infinity">
+                <MenuButton fx:id="menuAccionesFGEM" text="Acciones" styleClass="button-secondary" minWidth="-Infinity">
                     <items>
-                        <MenuItem fx:id="itemEstado" text="Desactivar" onAction="#cambiarEstado"/>
-                        <MenuItem fx:id="itemRestablecer" text="Restablecer contraseña" onAction="#restablecerPassword"/>
-                        <MenuItem fx:id="itemDesbloquear" text="Desbloquear cuenta" onAction="#desbloquear"/>
+                        <MenuItem fx:id="itemEstadoFGEM" text="Desactivar" onAction="#cambiarEstadoFGEM"/>
+                        <MenuItem fx:id="itemRestablecerFGEM" text="Restablecer contraseña" onAction="#restablecerPasswordFGEM"/>
+                        <MenuItem fx:id="itemDesbloquearFGEM" text="Desbloquear cuenta" onAction="#desbloquearFGEM"/>
                     </items>
                 </MenuButton>
-                <Button text="Nuevo usuario" styleClass="button-primary" minWidth="-Infinity" onAction="#nuevo">
+                <Button text="Nuevo usuario" styleClass="button-primary" minWidth="-Infinity" onAction="#nuevoFGEM">
                     <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
                 </Button>
             </HBox>
 
-            <TableView fx:id="tablaUsuarios" VBox.vgrow="ALWAYS">
+            <TableView fx:id="tablaUsuariosFGEM" VBox.vgrow="ALWAYS">
                 <columns>
-                    <TableColumn fx:id="colUsuario" text="Usuario" prefWidth="140"/>
-                    <TableColumn fx:id="colNombre" text="Nombre completo" prefWidth="220"/>
-                    <TableColumn fx:id="colEmail" text="Correo" prefWidth="200"/>
-                    <TableColumn fx:id="colRol" text="Rol" prefWidth="120"/>
-                    <TableColumn fx:id="colEstado" text="Estado" prefWidth="110"/>
-                    <TableColumn fx:id="colUltimoAcceso" text="Último acceso" prefWidth="140"/>
+                    <TableColumn fx:id="colUsuarioFGEM" text="Usuario" prefWidth="140"/>
+                    <TableColumn fx:id="colNombreFGEM" text="Nombre completo" prefWidth="220"/>
+                    <TableColumn fx:id="colEmailFGEM" text="Correo" prefWidth="200"/>
+                    <TableColumn fx:id="colRolFGEM" text="Rol" prefWidth="120"/>
+                    <TableColumn fx:id="colEstadoFGEM" text="Estado" prefWidth="110"/>
+                    <TableColumn fx:id="colUltimoAccesoFGEM" text="Último acceso" prefWidth="140"/>
                 </columns>
                 <columnResizePolicy>
                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
@@ -60,8 +60,8 @@
     <!-- Pestaña 2: matriz de roles y permisos -->
     <Tab text="Roles y permisos">
         <VBox spacing="14" styleClass="page">
-            <VBox fx:id="listaRoles" spacing="6"/>
-            <TableView fx:id="tablaPermisos" VBox.vgrow="ALWAYS">
+            <VBox fx:id="listaRolesFGEM" spacing="6"/>
+            <TableView fx:id="tablaPermisosFGEM" VBox.vgrow="ALWAYS">
                 <columnResizePolicy>
                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
                 </columnResizePolicy>
@@ -73,18 +73,18 @@
     <Tab text="Registro de accesos">
         <VBox spacing="14" styleClass="page">
             <HBox spacing="10" alignment="CENTER_LEFT">
-                <Label fx:id="lblAccesos" styleClass="muted"/>
+                <Label fx:id="lblAccesosFGEM" styleClass="muted"/>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button text="Actualizar" styleClass="button-secondary" onAction="#cargarAccesos">
+                <Button text="Actualizar" styleClass="button-secondary" onAction="#cargarAccesosFGEM">
                     <graphic><FontIcon iconLiteral="fth-refresh-cw"/></graphic>
                 </Button>
             </HBox>
-            <TableView fx:id="tablaAccesos" VBox.vgrow="ALWAYS">
+            <TableView fx:id="tablaAccesosFGEM" VBox.vgrow="ALWAYS">
                 <columns>
-                    <TableColumn fx:id="colAccFecha" text="Fecha" prefWidth="140"/>
-                    <TableColumn fx:id="colAccUsuario" text="Usuario" prefWidth="140"/>
-                    <TableColumn fx:id="colAccEvento" text="Evento" prefWidth="300"/>
-                    <TableColumn fx:id="colAccResponsable" text="Realizado por" prefWidth="140"/>
+                    <TableColumn fx:id="colAccFechaFGEM" text="Fecha" prefWidth="140"/>
+                    <TableColumn fx:id="colAccUsuarioFGEM" text="Usuario" prefWidth="140"/>
+                    <TableColumn fx:id="colAccEventoFGEM" text="Evento" prefWidth="300"/>
+                    <TableColumn fx:id="colAccResponsableFGEM" text="Realizado por" prefWidth="140"/>
                 </columns>
                 <columnResizePolicy>
                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>

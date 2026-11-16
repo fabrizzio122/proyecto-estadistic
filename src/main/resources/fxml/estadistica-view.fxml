@@ -17,42 +17,42 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.businessanalyzer.controller.EstadisticaController"
+      fx:controller="com.businessanalyzer.controller.EstadisticaControllerFGEM"
       spacing="14" styleClass="page">
 
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="Período" styleClass="form-label"/>
-        <DatePicker fx:id="dpDesde" prefWidth="135"/>
+        <DatePicker fx:id="dpDesdeFGEM" prefWidth="135"/>
         <Label text="al" styleClass="form-label"/>
-        <DatePicker fx:id="dpHasta" prefWidth="135"/>
-        <Button text="Últimos 3 meses" styleClass="button-secondary" minWidth="-Infinity" onAction="#ultimos3"/>
-        <Button text="Últimos 6 meses" styleClass="button-secondary" minWidth="-Infinity" onAction="#ultimos6"/>
-        <Button text="Últimos 12 meses" styleClass="button-secondary" minWidth="-Infinity" onAction="#ultimos12"/>
-        <ProgressIndicator fx:id="progreso" prefWidth="22" prefHeight="22" visible="false"/>
+        <DatePicker fx:id="dpHastaFGEM" prefWidth="135"/>
+        <Button text="Últimos 3 meses" styleClass="button-secondary" minWidth="-Infinity" onAction="#ultimos3FGEM"/>
+        <Button text="Últimos 6 meses" styleClass="button-secondary" minWidth="-Infinity" onAction="#ultimos6FGEM"/>
+        <Button text="Últimos 12 meses" styleClass="button-secondary" minWidth="-Infinity" onAction="#ultimos12FGEM"/>
+        <ProgressIndicator fx:id="progresoFGEM" prefWidth="22" prefHeight="22" visible="false"/>
         <Region HBox.hgrow="ALWAYS"/>
     </HBox>
 
-    <HBox fx:id="indicadores" spacing="16"/>
+    <HBox fx:id="indicadoresFGEM" spacing="16"/>
 
-    <TabPane fx:id="pestanas" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
+    <TabPane fx:id="pestanasFGEM" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
 
         <!-- 1. Estadística descriptiva -->
         <Tab text="Resumen descriptivo">
             <HBox spacing="16" styleClass="tab-contenido">
                 <VBox styleClass="card" spacing="10" prefWidth="290" minWidth="270">
                     <Label text="Monto por venta" styleClass="card-title"/>
-                    <GridPane fx:id="gridTicket" hgap="12" vgap="6"/>
+                    <GridPane fx:id="gridTicketFGEM" hgap="12" vgap="6"/>
                 </VBox>
                 <VBox styleClass="card" spacing="10" prefWidth="290" minWidth="270">
                     <Label text="Ventas por día" styleClass="card-title"/>
-                    <GridPane fx:id="gridDiarias" hgap="12" vgap="6"/>
+                    <GridPane fx:id="gridDiariasFGEM" hgap="12" vgap="6"/>
                 </VBox>
                 <VBox spacing="12" HBox.hgrow="ALWAYS">
                     <VBox styleClass="card" spacing="6" VBox.vgrow="ALWAYS">
                         <Label text="¿De cuánto suelen ser las ventas?" styleClass="card-title"/>
-                        <StackPane fx:id="contenedorHistograma" VBox.vgrow="ALWAYS" minHeight="160"/>
+                        <StackPane fx:id="contenedorHistogramaFGEM" VBox.vgrow="ALWAYS" minHeight="160"/>
                     </VBox>
-                    <VBox fx:id="lecturaResumen" styleClass="card" spacing="6"/>
+                    <VBox fx:id="lecturaResumenFGEM" styleClass="card" spacing="6"/>
                 </VBox>
             </HBox>
         </Tab>
@@ -62,12 +62,12 @@
             <HBox spacing="16" styleClass="tab-contenido">
                 <VBox styleClass="card" spacing="6" HBox.hgrow="ALWAYS">
                     <Label text="Ventas mensuales y recta de tendencia" styleClass="card-title"/>
-                    <StackPane fx:id="contenedorTendencia" VBox.vgrow="ALWAYS" minHeight="200"/>
+                    <StackPane fx:id="contenedorTendenciaFGEM" VBox.vgrow="ALWAYS" minHeight="200"/>
                 </VBox>
                 <VBox styleClass="card" spacing="12" prefWidth="340" minWidth="300">
                     <Label text="Regresión lineal" styleClass="card-title"/>
-                    <GridPane fx:id="gridTendencia" hgap="12" vgap="6"/>
-                    <VBox fx:id="lecturaTendencia" spacing="6"/>
+                    <GridPane fx:id="gridTendenciaFGEM" hgap="12" vgap="6"/>
+                    <VBox fx:id="lecturaTendenciaFGEM" spacing="6"/>
                 </VBox>
             </HBox>
         </Tab>
@@ -77,12 +77,12 @@
             <HBox spacing="16" styleClass="tab-contenido">
                 <VBox styleClass="card" spacing="6" HBox.hgrow="ALWAYS">
                     <Label text="Venta promedio por día de la semana" styleClass="card-title"/>
-                    <StackPane fx:id="contenedorDias" VBox.vgrow="ALWAYS" minHeight="200"/>
+                    <StackPane fx:id="contenedorDiasFGEM" VBox.vgrow="ALWAYS" minHeight="200"/>
                 </VBox>
                 <VBox styleClass="card" spacing="12" prefWidth="340" minWidth="300">
                     <Label text="Índice estacional" styleClass="card-title"/>
-                    <GridPane fx:id="gridDias" hgap="12" vgap="6"/>
-                    <VBox fx:id="lecturaDias" spacing="6"/>
+                    <GridPane fx:id="gridDiasFGEM" hgap="12" vgap="6"/>
+                    <VBox fx:id="lecturaDiasFGEM" spacing="6"/>
                 </VBox>
             </HBox>
         </Tab>
@@ -91,24 +91,24 @@
         <Tab text="Análisis ABC">
             <HBox spacing="16" styleClass="tab-contenido">
                 <VBox spacing="10" HBox.hgrow="ALWAYS">
-                    <FlowPane fx:id="resumenAbc" hgap="10" vgap="8"/>
-                    <TableView fx:id="tablaAbc" VBox.vgrow="ALWAYS" styleClass="tabla-compacta">
+                    <FlowPane fx:id="resumenAbcFGEM" hgap="10" vgap="8"/>
+                    <TableView fx:id="tablaAbcFGEM" VBox.vgrow="ALWAYS" styleClass="tabla-compacta">
                         <columns>
-                            <TableColumn fx:id="colAbcClase" text="Clase" prefWidth="60" sortable="false"/>
-                            <TableColumn fx:id="colAbcNombre" text="Producto o servicio" prefWidth="190" sortable="false"/>
-                            <TableColumn fx:id="colAbcVentas" text="Ventas" prefWidth="100" sortable="false" styleClass="col-numero"/>
-                            <TableColumn fx:id="colAbcParticipacion" text="Participación" prefWidth="95" sortable="false" styleClass="col-numero"/>
-                            <TableColumn fx:id="colAbcAcumulado" text="Acumulado" prefWidth="90" sortable="false" styleClass="col-numero"/>
+                            <TableColumn fx:id="colAbcClaseFGEM" text="Clase" prefWidth="60" sortable="false"/>
+                            <TableColumn fx:id="colAbcNombreFGEM" text="Producto o servicio" prefWidth="190" sortable="false"/>
+                            <TableColumn fx:id="colAbcVentasFGEM" text="Ventas" prefWidth="100" sortable="false" styleClass="col-numero"/>
+                            <TableColumn fx:id="colAbcParticipacionFGEM" text="Participación" prefWidth="95" sortable="false" styleClass="col-numero"/>
+                            <TableColumn fx:id="colAbcAcumuladoFGEM" text="Acumulado" prefWidth="90" sortable="false" styleClass="col-numero"/>
                         </columns>
                         <columnResizePolicy>
                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
                         </columnResizePolicy>
                     </TableView>
-                    <VBox fx:id="lecturaAbc" spacing="4"/>
+                    <VBox fx:id="lecturaAbcFGEM" spacing="4"/>
                 </VBox>
                 <VBox styleClass="card" spacing="6" prefWidth="380" minWidth="300">
                     <Label text="Diagrama de Pareto" styleClass="card-title"/>
-                    <StackPane fx:id="contenedorPareto" VBox.vgrow="ALWAYS" minHeight="200"/>
+                    <StackPane fx:id="contenedorParetoFGEM" VBox.vgrow="ALWAYS" minHeight="200"/>
                 </VBox>
             </HBox>
         </Tab>
@@ -119,14 +119,14 @@
                 <VBox styleClass="card" spacing="12" HBox.hgrow="ALWAYS">
                     <Label text="Matriz de correlación (Pearson) entre variables mensuales" styleClass="card-title"/>
                     <ScrollPane fitToWidth="true" styleClass="dialog-scroll" VBox.vgrow="ALWAYS">
-                        <GridPane fx:id="gridCorrelacion" hgap="4" vgap="4"/>
+                        <GridPane fx:id="gridCorrelacionFGEM" hgap="4" vgap="4"/>
                     </ScrollPane>
                     <Label styleClass="hint" wrapText="true"
                            text="r va de −1 a +1. Verde: suben juntas; coral: cuando una sube la otra baja. Más intenso = relación más fuerte (|r| ≥ 0.7 fuerte, ≥ 0.4 moderada)."/>
                 </VBox>
                 <VBox styleClass="card" spacing="8" prefWidth="360" minWidth="300">
                     <Label text="Lo más destacado" styleClass="card-title"/>
-                    <VBox fx:id="lecturaCorrelaciones" spacing="6"/>
+                    <VBox fx:id="lecturaCorrelacionesFGEM" spacing="6"/>
                 </VBox>
             </HBox>
         </Tab>

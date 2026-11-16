@@ -13,56 +13,56 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.businessanalyzer.controller.ValoracionController"
+      fx:controller="com.businessanalyzer.controller.ValoracionControllerFGEM"
       spacing="14" styleClass="page">
 
     <!-- Supuestos -->
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="Tasa de descuento" styleClass="form-label" minWidth="-Infinity"/>
-        <TextField fx:id="txtTasa" prefWidth="70" promptText="20"/>
+        <TextField fx:id="txtTasaFGEM" prefWidth="70" promptText="20"/>
         <Label text="\%" styleClass="muted"/>
         <Label text="Crecimiento anual" styleClass="form-label" minWidth="-Infinity"/>
-        <TextField fx:id="txtCrecimiento" prefWidth="70" promptText="0"/>
+        <TextField fx:id="txtCrecimientoFGEM" prefWidth="70" promptText="0"/>
         <Label text="\%" styleClass="muted"/>
-        <Button text="Calcular" styleClass="button-primary" minWidth="-Infinity" onAction="#calcular">
+        <Button text="Calcular" styleClass="button-primary" minWidth="-Infinity" onAction="#calcularFGEM">
             <graphic><FontIcon iconLiteral="fth-refresh-cw"/></graphic>
         </Button>
-        <Button text="Valores sugeridos" styleClass="button-secondary" minWidth="-Infinity" onAction="#usarSugeridos"/>
-        <ProgressIndicator fx:id="progreso" prefWidth="22" prefHeight="22" visible="false"/>
+        <Button text="Valores sugeridos" styleClass="button-secondary" minWidth="-Infinity" onAction="#usarSugeridosFGEM"/>
+        <ProgressIndicator fx:id="progresoFGEM" prefWidth="22" prefHeight="22" visible="false"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button fx:id="btnExportar" text="Informe PDF" styleClass="button-secondary" minWidth="-Infinity"
-                onAction="#exportar">
+        <Button fx:id="btnExportarFGEM" text="Informe PDF" styleClass="button-secondary" minWidth="-Infinity"
+                onAction="#exportarFGEM">
             <graphic><FontIcon iconLiteral="fth-file-text"/></graphic>
         </Button>
     </HBox>
-    <Label fx:id="lblSupuestos" styleClass="hint" wrapText="true" minHeight="-Infinity"/>
+    <Label fx:id="lblSupuestosFGEM" styleClass="hint" wrapText="true" minHeight="-Infinity"/>
 
     <!-- Indicadores principales -->
-    <HBox fx:id="indicadores" spacing="16"/>
+    <HBox fx:id="indicadoresFGEM" spacing="16"/>
 
     <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="dialog-scroll" VBox.vgrow="ALWAYS">
         <VBox spacing="16">
             <HBox spacing="16">
                 <VBox styleClass="card" spacing="10" HBox.hgrow="ALWAYS" prefWidth="420">
                     <Label text="Métodos de valoración" styleClass="card-title"/>
-                    <GridPane fx:id="gridMetodos" hgap="12" vgap="8"/>
-                    <StackPane fx:id="graficoMetodos" minHeight="200" prefHeight="200"/>
+                    <GridPane fx:id="gridMetodosFGEM" hgap="12" vgap="8"/>
+                    <StackPane fx:id="graficoMetodosFGEM" minHeight="200" prefHeight="200"/>
                 </VBox>
                 <VBox spacing="16" prefWidth="420" minWidth="360">
                     <VBox styleClass="card" spacing="10">
                         <Label text="Proyección de flujos para el dueño" styleClass="card-title"/>
-                        <GridPane fx:id="gridProyeccion" hgap="14" vgap="6"/>
+                        <GridPane fx:id="gridProyeccionFGEM" hgap="14" vgap="6"/>
                     </VBox>
                     <VBox styleClass="card" spacing="10">
                         <Label text="Sensibilidad (flujos descontados)" styleClass="card-title"/>
                         <Label text="Cómo cambia el valor si la tasa o el crecimiento son distintos." styleClass="hint" wrapText="true"/>
-                        <GridPane fx:id="gridSensibilidad" hgap="14" vgap="6"/>
+                        <GridPane fx:id="gridSensibilidadFGEM" hgap="14" vgap="6"/>
                     </VBox>
                 </VBox>
             </HBox>
             <VBox styleClass="card" spacing="8">
                 <Label text="Lectura" styleClass="card-title"/>
-                <VBox fx:id="lectura" spacing="6"/>
+                <VBox fx:id="lecturaFGEM" spacing="6"/>
                 <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
                        text="La tasa de descuento es la rentabilidad anual que exigiría alguien por invertir en este negocio: cuanto más riesgoso, más alta (20 % es habitual en una micro o pequeña empresa). Es una estimación con los datos registrados; no reemplaza una tasación profesional."/>
             </VBox>

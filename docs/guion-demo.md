@@ -42,9 +42,9 @@ Mostrar `02-arquitectura.png`.
 
 - Aplicación de escritorio **Java 17 + JavaFX 21**, base de datos **SQLite** local.
 - **Arquitectura en capas**: controladores (pantalla) → servicios (reglas y permisos) → repositorios (SQL).
-- El paquete **analytics** son cálculos puros, sin base de datos: por eso se prueban fácil (273 pruebas JUnit 5).
-- **Sin frameworks pesados**: JDBC puro y composición manual en `AppContext`, para entender cada capa.
-- El esquema se versiona con **12 migraciones** que se aplican solas al iniciar.
+- El paquete **analytics** son cálculos puros, sin base de datos: por eso se prueban fácil (302 pruebas JUnit 5).
+- **Sin frameworks pesados**: JDBC puro y composición manual en `AppContextFGEM`, para entender cada capa.
+- El esquema se versiona con **14 migraciones** que se aplican solas al iniciar.
 
 ### 2:30 – 4:00 · Seguridad y roles
 
@@ -128,8 +128,8 @@ Cambiar la empresa activa a **Fundo Demo** (sector Agropecuario): aparece la sec
 | Pregunta | Respuesta corta |
 |---|---|
 | ¿Por qué SQLite y no MySQL/PostgreSQL? | Es una app de escritorio para un negocio pequeño: un archivo local, sin servidor ni instalación, con transacciones ACID. Las copias de seguridad son copiar un archivo (`VACUUM INTO`). |
-| ¿Por qué no usaron Spring ni JPA? | Requisito del proyecto: JDBC puro para controlar el SQL y mostrar cada capa. La inyección de dependencias se hace por constructor en `AppContext`. |
-| ¿Cómo guardan el dinero sin errores de redondeo? | `BigDecimal` en Java y enteros ×10 000 en SQLite (`util.Montos`). Nunca `double` para dinero. |
+| ¿Por qué no usaron Spring ni JPA? | Requisito del proyecto: JDBC puro para controlar el SQL y mostrar cada capa. La inyección de dependencias se hace por constructor en `AppContextFGEM`. |
+| ¿Cómo guardan el dinero sin errores de redondeo? | `BigDecimal` en Java y enteros ×10 000 en SQLite (`util.MontosFGEM`). Nunca `double` para dinero. |
 | ¿Cómo eligen el método de predicción? | Validación *rolling-origin*: cada método pronostica meses que ya ocurrieron y se elige el de menor error medio absoluto (MAE). |
 | ¿Qué pasa si dos personas usan el sistema? | Cada usuario tiene su rol y solo ve las empresas asignadas. Es monousuario por equipo; una versión en red sería trabajo futuro. |
 | ¿Cómo protegen las contraseñas? | PBKDF2-HMAC-SHA256 con sal, política de contraseñas, bloqueo tras 5 intentos y registro de accesos. |

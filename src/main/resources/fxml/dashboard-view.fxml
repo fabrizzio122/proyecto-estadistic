@@ -11,32 +11,32 @@
 <!-- Dashboard: el mes en curso en una frase y cuatro indicadores, la salud del negocio, los últimos
      12 meses, lo que viene y los productos que más aportan. El contenido lo arma DashboardController. -->
 <ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.businessanalyzer.controller.DashboardController"
+            fx:controller="com.businessanalyzer.controller.DashboardControllerFGEM"
             fitToWidth="true" styleClass="page-scroll">
 
     <VBox spacing="20" styleClass="page">
 
         <!-- Aviso cuando no hay empresa activa o el rol no incluye los análisis -->
-        <HBox fx:id="bannerEmpresa" styleClass="banner" spacing="14" alignment="CENTER_LEFT"
+        <HBox fx:id="bannerEmpresaFGEM" styleClass="banner" spacing="14" alignment="CENTER_LEFT"
               visible="false" managed="false">
-            <FontIcon fx:id="iconoBanner" iconLiteral="fth-info" styleClass="banner-icon"/>
+            <FontIcon fx:id="iconoBannerFGEM" iconLiteral="fth-info" styleClass="banner-icon"/>
             <VBox spacing="2" HBox.hgrow="ALWAYS">
-                <Label fx:id="lblBannerTitulo" styleClass="step-title"/>
-                <Label fx:id="lblBannerDetalle" wrapText="true"/>
+                <Label fx:id="lblBannerTituloFGEM" styleClass="step-title"/>
+                <Label fx:id="lblBannerDetalleFGEM" wrapText="true"/>
             </VBox>
         </HBox>
 
-        <VBox fx:id="contenido" spacing="20">
+        <VBox fx:id="contenidoFGEM" spacing="20">
             <HBox spacing="20">
-                <VBox fx:id="tarjetaMes" styleClass="card" spacing="16" HBox.hgrow="ALWAYS" prefWidth="640"/>
+                <VBox fx:id="tarjetaMesFGEM" styleClass="card" spacing="16" HBox.hgrow="ALWAYS" prefWidth="640"/>
                 <VBox styleClass="card" spacing="14" prefWidth="360" minWidth="330" maxWidth="400">
                     <HBox alignment="CENTER_LEFT" spacing="8">
                         <Label text="Salud del negocio" styleClass="card-title"/>
                         <Region HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="btnDiagnostico" text="Ver diagnóstico" styleClass="button-link"
-                                minWidth="-Infinity" onAction="#irDiagnostico"/>
+                        <Button fx:id="btnDiagnosticoFGEM" text="Ver diagnóstico" styleClass="button-link"
+                                minWidth="-Infinity" onAction="#irDiagnosticoFGEM"/>
                     </HBox>
-                    <VBox fx:id="salud" spacing="14"/>
+                    <VBox fx:id="saludFGEM" spacing="14"/>
                 </VBox>
             </HBox>
 
@@ -45,31 +45,31 @@
                     <HBox alignment="CENTER_LEFT" spacing="8">
                         <Label text="Ventas y utilidad, últimos 12 meses" styleClass="card-title"/>
                         <Region HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="btnAnalisis" text="Análisis financiero" styleClass="button-link"
-                                minWidth="-Infinity" onAction="#irAnalisis"/>
+                        <Button fx:id="btnAnalisisFGEM" text="Análisis financiero" styleClass="button-link"
+                                minWidth="-Infinity" onAction="#irAnalisisFGEM"/>
                     </HBox>
-                    <VBox fx:id="evolucion"/>
+                    <VBox fx:id="evolucionFGEM"/>
                 </VBox>
                 <VBox styleClass="card" spacing="12" prefWidth="360" minWidth="330" maxWidth="400">
                     <HBox alignment="CENTER_LEFT" spacing="8">
                         <Label text="Lo que viene" styleClass="card-title"/>
                         <Region HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="btnPredicciones" text="Ver predicciones" styleClass="button-link"
-                                minWidth="-Infinity" onAction="#irPredicciones"/>
+                        <Button fx:id="btnPrediccionesFGEM" text="Ver predicciones" styleClass="button-link"
+                                minWidth="-Infinity" onAction="#irPrediccionesFGEM"/>
                     </HBox>
-                    <VBox fx:id="proximo" spacing="10"/>
+                    <VBox fx:id="proximoFGEM" spacing="10"/>
                 </VBox>
             </HBox>
 
             <VBox styleClass="card" spacing="14">
                 <HBox alignment="CENTER_LEFT" spacing="8">
-                    <Label fx:id="lblTituloProductos" text="Productos que más aportan al margen este mes"
+                    <Label fx:id="lblTituloProductosFGEM" text="Productos que más aportan al margen este mes"
                            styleClass="card-title"/>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="btnVentas" text="Ventas y compras" styleClass="button-link"
-                            minWidth="-Infinity" onAction="#irVentas"/>
+                    <Button fx:id="btnVentasFGEM" text="Ventas y compras" styleClass="button-link"
+                            minWidth="-Infinity" onAction="#irVentasFGEM"/>
                 </HBox>
-                <VBox fx:id="productos" spacing="12"/>
+                <VBox fx:id="productosFGEM" spacing="12"/>
             </VBox>
         </VBox>
     </VBox>

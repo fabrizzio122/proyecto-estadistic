@@ -14,54 +14,54 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.businessanalyzer.controller.EmpresasController"
+      fx:controller="com.businessanalyzer.controller.EmpresasControllerFGEM"
       spacing="14" styleClass="page">
 
     <HBox spacing="10" alignment="CENTER_LEFT">
-        <TextField fx:id="txtBuscar" promptText="Buscar por nombre, razón social o RUC"
+        <TextField fx:id="txtBuscarFGEM" promptText="Buscar por nombre, razón social o RUC"
                    prefWidth="300" minWidth="180"/>
-        <CheckBox fx:id="chkArchivadas" text="Mostrar archivadas" onAction="#cargar"/>
+        <CheckBox fx:id="chkArchivadasFGEM" text="Mostrar archivadas" onAction="#cargarFGEM"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Button fx:id="btnUsar" text="Trabajar con esta" styleClass="button-secondary" minWidth="-Infinity"
-                onAction="#usarSeleccionada">
+        <Button fx:id="btnUsarFGEM" text="Trabajar con esta" styleClass="button-secondary" minWidth="-Infinity"
+                onAction="#usarSeleccionadaFGEM">
             <graphic><FontIcon iconLiteral="fth-check-circle"/></graphic>
         </Button>
-        <Button fx:id="btnEditar" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
-                onAction="#editar">
+        <Button fx:id="btnEditarFGEM" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
+                onAction="#editarFGEM">
             <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
         </Button>
-        <MenuButton fx:id="menuAcciones" text="Acciones" styleClass="button-secondary" minWidth="-Infinity">
+        <MenuButton fx:id="menuAccionesFGEM" text="Acciones" styleClass="button-secondary" minWidth="-Infinity">
             <items>
-                <MenuItem fx:id="itemEstado" text="Archivar" onAction="#cambiarEstado"/>
-                <MenuItem fx:id="itemAccesos" text="Usuarios con acceso…" onAction="#gestionarAccesos"/>
+                <MenuItem fx:id="itemEstadoFGEM" text="Archivar" onAction="#cambiarEstadoFGEM"/>
+                <MenuItem fx:id="itemAccesosFGEM" text="Usuarios con acceso…" onAction="#gestionarAccesosFGEM"/>
             </items>
         </MenuButton>
-        <MenuButton fx:id="btnDemo" text="Empresa de demostración" styleClass="button-secondary" minWidth="-Infinity">
+        <MenuButton fx:id="btnDemoFGEM" text="Empresa de demostración" styleClass="button-secondary" minWidth="-Infinity">
             <graphic><FontIcon iconLiteral="fth-play-circle"/></graphic>
             <items>
-                <MenuItem text="Bodega (comercio)" onAction="#crearDemo"/>
-                <MenuItem text="Fundo ganadero (agropecuario)" onAction="#crearFundoDemo"/>
+                <MenuItem text="Bodega (comercio)" onAction="#crearDemoFGEM"/>
+                <MenuItem text="Fundo ganadero (agropecuario)" onAction="#crearFundoDemoFGEM"/>
             </items>
         </MenuButton>
-        <Button fx:id="btnNueva" text="Nueva empresa" styleClass="button-primary" minWidth="-Infinity"
-                onAction="#nueva">
+        <Button fx:id="btnNuevaFGEM" text="Nueva empresa" styleClass="button-primary" minWidth="-Infinity"
+                onAction="#nuevaFGEM">
             <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
         </Button>
     </HBox>
 
-    <TableView fx:id="tabla" VBox.vgrow="ALWAYS">
+    <TableView fx:id="tablaFGEM" VBox.vgrow="ALWAYS">
         <columns>
-            <TableColumn fx:id="colNombre" text="Nombre comercial" prefWidth="190"/>
-            <TableColumn fx:id="colRazon" text="Razón social" prefWidth="220"/>
-            <TableColumn fx:id="colRuc" text="RUC / Id. fiscal" prefWidth="120"/>
-            <TableColumn fx:id="colSector" text="Sector" prefWidth="150"/>
-            <TableColumn fx:id="colMoneda" text="Moneda" prefWidth="80"/>
-            <TableColumn fx:id="colEstado" text="Estado" prefWidth="170"/>
+            <TableColumn fx:id="colNombreFGEM" text="Nombre comercial" prefWidth="190"/>
+            <TableColumn fx:id="colRazonFGEM" text="Razón social" prefWidth="220"/>
+            <TableColumn fx:id="colRucFGEM" text="RUC / Id. fiscal" prefWidth="120"/>
+            <TableColumn fx:id="colSectorFGEM" text="Sector" prefWidth="150"/>
+            <TableColumn fx:id="colMonedaFGEM" text="Moneda" prefWidth="80"/>
+            <TableColumn fx:id="colEstadoFGEM" text="Estado" prefWidth="170"/>
         </columns>
         <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
         </columnResizePolicy>
     </TableView>
 
-    <Label fx:id="lblResumen" styleClass="muted"/>
+    <Label fx:id="lblResumenFGEM" styleClass="muted"/>
 </VBox>

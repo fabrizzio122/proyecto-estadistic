@@ -18,7 +18,7 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.businessanalyzer.controller.ConfiguracionController"
+      fx:controller="com.businessanalyzer.controller.ConfiguracionControllerFGEM"
       spacing="14" styleClass="page">
 
     <TabPane VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
@@ -30,41 +30,41 @@
                     <VBox spacing="14">
                         <VBox styleClass="card" spacing="10">
                             <Label text="Última copia" styleClass="card-title"/>
-                            <Label fx:id="lblUltima" styleClass="info-value" wrapText="true" minHeight="-Infinity"/>
-                            <Label fx:id="lblCarpeta" styleClass="hint" wrapText="true" minHeight="-Infinity"/>
+                            <Label fx:id="lblUltimaFGEM" styleClass="info-value" wrapText="true" minHeight="-Infinity"/>
+                            <Label fx:id="lblCarpetaFGEM" styleClass="hint" wrapText="true" minHeight="-Infinity"/>
                             <HBox spacing="8" alignment="CENTER_LEFT">
-                                <Button fx:id="btnCrear" text="Crear copia ahora" styleClass="button-primary"
-                                        minWidth="-Infinity" onAction="#crearCopia">
+                                <Button fx:id="btnCrearFGEM" text="Crear copia ahora" styleClass="button-primary"
+                                        minWidth="-Infinity" onAction="#crearCopiaFGEM">
                                     <graphic><FontIcon iconLiteral="fth-save"/></graphic>
                                 </Button>
-                                <ProgressIndicator fx:id="progreso" prefWidth="22" prefHeight="22" visible="false"/>
+                                <ProgressIndicator fx:id="progresoFGEM" prefWidth="22" prefHeight="22" visible="false"/>
                             </HBox>
                             <FlowPane hgap="8" vgap="8">
-                                <Button text="Cambiar carpeta…" styleClass="button-secondary" onAction="#cambiarCarpeta">
+                                <Button text="Cambiar carpeta…" styleClass="button-secondary" onAction="#cambiarCarpetaFGEM">
                                     <graphic><FontIcon iconLiteral="fth-folder-plus"/></graphic>
                                 </Button>
-                                <Button text="Abrir carpeta" styleClass="button-secondary" onAction="#abrirCarpetaCopias">
+                                <Button text="Abrir carpeta" styleClass="button-secondary" onAction="#abrirCarpetaCopiasFGEM">
                                     <graphic><FontIcon iconLiteral="fth-folder"/></graphic>
                                 </Button>
                             </FlowPane>
                         </VBox>
                         <VBox styleClass="card" spacing="10">
                             <Label text="Copia automática" styleClass="card-title"/>
-                            <CheckBox fx:id="chkAutomatica" wrapText="true"
+                            <CheckBox fx:id="chkAutomaticaFGEM" wrapText="true"
                                       text="Crear una copia al iniciar la aplicación (como máximo una vez al día)"/>
                             <HBox spacing="10" alignment="CENTER_LEFT">
                                 <Label text="Copias a conservar" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                                <Spinner fx:id="spnConservar" prefWidth="95" minWidth="95" editable="true"/>
+                                <Spinner fx:id="spnConservarFGEM" prefWidth="95" minWidth="95" editable="true"/>
                             </HBox>
                             <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
                                    text="Se conservan las copias automáticas más recientes. Las manuales y las previas a una restauración nunca se borran solas."/>
-                            <Button text="Guardar preferencias" styleClass="button-secondary" onAction="#guardarAutomatica"/>
+                            <Button text="Guardar preferencias" styleClass="button-secondary" onAction="#guardarAutomaticaFGEM"/>
                         </VBox>
                         <VBox styleClass="card" spacing="10">
                             <Label text="Restaurar" styleClass="card-title"/>
                             <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
                                    text="Reemplaza todos los datos por los de una copia. Antes se guarda una copia del estado actual y la aplicación se reinicia. Las copias (.zip) incluyen las fotos de las visitas; las copias antiguas (.db) restauran solo los datos."/>
-                            <Button text="Restaurar desde un archivo…" styleClass="button-secondary" onAction="#restaurarDesdeArchivo">
+                            <Button text="Restaurar desde un archivo…" styleClass="button-secondary" onAction="#restaurarDesdeArchivoFGEM">
                                 <graphic><FontIcon iconLiteral="fth-upload"/></graphic>
                             </Button>
                         </VBox>
@@ -74,17 +74,17 @@
                     <HBox spacing="8" alignment="CENTER_LEFT">
                         <Label text="Copias guardadas" styleClass="card-title"/>
                         <Region HBox.hgrow="ALWAYS"/>
-                        <Button fx:id="btnRestaurar" text="Restaurar esta copia" styleClass="button-secondary"
-                                minWidth="-Infinity" onAction="#restaurarSeleccionada"/>
-                        <Button fx:id="btnEliminar" text="Eliminar" styleClass="button-secondary" minWidth="-Infinity"
-                                onAction="#eliminarCopia"/>
+                        <Button fx:id="btnRestaurarFGEM" text="Restaurar esta copia" styleClass="button-secondary"
+                                minWidth="-Infinity" onAction="#restaurarSeleccionadaFGEM"/>
+                        <Button fx:id="btnEliminarFGEM" text="Eliminar" styleClass="button-secondary" minWidth="-Infinity"
+                                onAction="#eliminarCopiaFGEM"/>
                     </HBox>
-                    <TableView fx:id="tablaCopias" VBox.vgrow="ALWAYS" styleClass="tabla-compacta">
+                    <TableView fx:id="tablaCopiasFGEM" VBox.vgrow="ALWAYS" styleClass="tabla-compacta">
                         <columns>
-                            <TableColumn fx:id="colFecha" text="Fecha" prefWidth="130" minWidth="120"/>
-                            <TableColumn fx:id="colTipo" text="Tipo" prefWidth="130" minWidth="110"/>
-                            <TableColumn fx:id="colTamano" text="Tamaño" prefWidth="80" minWidth="70" styleClass="col-numero"/>
-                            <TableColumn fx:id="colArchivo" text="Archivo" prefWidth="300"/>
+                            <TableColumn fx:id="colFechaFGEM" text="Fecha" prefWidth="130" minWidth="120"/>
+                            <TableColumn fx:id="colTipoFGEM" text="Tipo" prefWidth="130" minWidth="110"/>
+                            <TableColumn fx:id="colTamanoFGEM" text="Tamaño" prefWidth="80" minWidth="70" styleClass="col-numero"/>
+                            <TableColumn fx:id="colArchivoFGEM" text="Archivo" prefWidth="300"/>
                         </columns>
                         <columnResizePolicy>
                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
@@ -100,15 +100,15 @@
                 <HBox spacing="16" styleClass="tab-contenido">
                     <VBox styleClass="card" spacing="12" HBox.hgrow="ALWAYS">
                         <Label text="Información del sistema" styleClass="card-title"/>
-                        <GridPane fx:id="gridSistema" hgap="16" vgap="10"/>
+                        <GridPane fx:id="gridSistemaFGEM" hgap="16" vgap="10"/>
                         <FlowPane hgap="8" vgap="8">
-                            <Button text="Abrir carpeta de datos" styleClass="button-secondary" onAction="#abrirCarpetaDatos">
+                            <Button text="Abrir carpeta de datos" styleClass="button-secondary" onAction="#abrirCarpetaDatosFGEM">
                                 <graphic><FontIcon iconLiteral="fth-folder"/></graphic>
                             </Button>
-                            <Button text="Abrir registros (logs)" styleClass="button-secondary" onAction="#abrirRegistros">
+                            <Button text="Abrir registros (logs)" styleClass="button-secondary" onAction="#abrirRegistrosFGEM">
                                 <graphic><FontIcon iconLiteral="fth-file-text"/></graphic>
                             </Button>
-                            <Button text="Verificar la base de datos" styleClass="button-secondary" onAction="#verificarIntegridad">
+                            <Button text="Verificar la base de datos" styleClass="button-secondary" onAction="#verificarIntegridadFGEM">
                                 <graphic><FontIcon iconLiteral="fth-check-square"/></graphic>
                             </Button>
                         </FlowPane>
@@ -116,10 +116,10 @@
                     <VBox styleClass="card" spacing="12" prefWidth="380" minWidth="320">
                         <Label text="Preferencias" styleClass="card-title"/>
                         <Label text="Carpeta predeterminada de los informes" styleClass="form-label"/>
-                        <Label fx:id="lblCarpetaInformes" styleClass="info-value" wrapText="true" minHeight="-Infinity"/>
-                        <Button text="Cambiar…" styleClass="button-secondary" onAction="#cambiarCarpetaInformes"/>
+                        <Label fx:id="lblCarpetaInformesFGEM" styleClass="info-value" wrapText="true" minHeight="-Infinity"/>
+                        <Button text="Cambiar…" styleClass="button-secondary" onAction="#cambiarCarpetaInformesFGEM"/>
                     </VBox>
-                    <VBox fx:id="cajaApariencia" styleClass="card" spacing="12" prefWidth="380" minWidth="320">
+                    <VBox fx:id="cajaAparienciaFGEM" styleClass="card" spacing="12" prefWidth="380" minWidth="320">
                         <Label text="Apariencia" styleClass="card-title"/>
                     </VBox>
                 </HBox>
