@@ -14,6 +14,7 @@ import com.businessanalyzer.util.Fechas;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
+import javafx.scene.layout.VBox;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -56,6 +57,7 @@ public class ConfiguracionController implements VistaModulo {
     @FXML private TableColumn<CopiaSeguridad, String> colArchivo;
     @FXML private GridPane gridSistema;
     @FXML private Label lblCarpetaInformes;
+    @FXML private VBox cajaApariencia;
 
     public ConfiguracionController(AppContext contexto) {
         this.contexto = contexto;
@@ -63,6 +65,7 @@ public class ConfiguracionController implements VistaModulo {
 
     @FXML
     private void initialize() {
+        cajaApariencia.getChildren().add(new com.businessanalyzer.ui.PanelApariencia(contexto.preferencias()));
         spnConservar.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(
                 1, CopiaSeguridadService.CONSERVAR_MAXIMO, CopiaSeguridadService.CONSERVAR_PREDETERMINADO));
         colFecha.setCellValueFactory(c -> texto(Fechas.paraMostrar(c.getValue().fecha())));

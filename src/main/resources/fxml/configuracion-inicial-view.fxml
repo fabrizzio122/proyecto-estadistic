@@ -1,70 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.businessanalyzer.ui.PanelMarca?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import com.businessanalyzer.config.VersionApp?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<!-- Primer arranque: creacion de la cuenta de administrador. -->
-<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.businessanalyzer.controller.ConfiguracionInicialController"
-           styleClass="login-bg">
+<!-- Primer arranque: creación de la cuenta de administrador, con el mismo panel de marca del inicio de sesión. -->
+<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.businessanalyzer.controller.ConfiguracionInicialController"
+      styleClass="pantalla-acceso">
 
-    <VBox styleClass="login-card" spacing="14" maxWidth="460" maxHeight="-Infinity">
-        <HBox styleClass="login-brand">
-            <FontIcon iconLiteral="fth-bar-chart-2" styleClass="brand-icon"/>
-            <VBox>
-                <Label text="Business Analyzer" styleClass="brand-title"/>
-                <Label styleClass="brand-subtitle">
-                    <text><VersionApp fx:constant="SUBTITULO"/></text>
-                </Label>
+    <PanelMarca HBox.hgrow="ALWAYS" prefWidth="640"/>
+
+    <StackPane HBox.hgrow="ALWAYS" prefWidth="640" minWidth="460" styleClass="acceso-formulario">
+        <padding><Insets top="40" right="48" bottom="40" left="48"/></padding>
+
+        <VBox spacing="16" maxWidth="420" maxHeight="-Infinity">
+            <VBox spacing="6">
+                <Label text="Bienvenido" styleClass="acceso-titulo"/>
+                <Label styleClass="acceso-subtitulo" wrapText="true"
+                       text="Es la primera vez que se usa el sistema. Crea la cuenta de administrador, que podrá registrar al resto de usuarios."/>
             </VBox>
-        </HBox>
 
-        <VBox spacing="4">
-            <Label text="Bienvenido" styleClass="login-title"/>
-            <Label styleClass="muted" wrapText="true"
-                   text="Es la primera vez que se usa el sistema. Crea la cuenta de administrador, que podrá registrar al resto de usuarios."/>
-        </VBox>
-
-        <VBox spacing="6">
-            <Label text="Usuario" styleClass="form-label"/>
-            <TextField fx:id="txtUsuario" promptText="Ej.: admin"/>
-        </VBox>
-        <VBox spacing="6">
-            <Label text="Nombre completo" styleClass="form-label"/>
-            <TextField fx:id="txtNombre" promptText="Nombre y apellidos"/>
-        </VBox>
-        <VBox spacing="6">
-            <Label text="Correo electrónico (opcional)" styleClass="form-label"/>
-            <TextField fx:id="txtEmail" promptText="correo@empresa.com"/>
-        </VBox>
-        <HBox spacing="12">
-            <VBox spacing="6" HBox.hgrow="ALWAYS">
-                <Label text="Contraseña" styleClass="form-label"/>
-                <PasswordField fx:id="txtPassword"/>
+            <VBox spacing="8">
+                <Label text="Usuario" styleClass="form-label"/>
+                <TextField fx:id="txtUsuario" promptText="Ej.: admin" styleClass="campo-acceso"/>
             </VBox>
-            <VBox spacing="6" HBox.hgrow="ALWAYS">
-                <Label text="Confirmar contraseña" styleClass="form-label"/>
-                <PasswordField fx:id="txtConfirmacion" onAction="#crear"/>
+            <VBox spacing="8">
+                <Label text="Nombre completo" styleClass="form-label"/>
+                <TextField fx:id="txtNombre" promptText="Nombre y apellidos" styleClass="campo-acceso"/>
             </VBox>
-        </HBox>
-        <Label fx:id="lblPolitica" styleClass="hint" wrapText="true"/>
+            <VBox spacing="8">
+                <Label text="Correo electrónico (opcional)" styleClass="form-label"/>
+                <TextField fx:id="txtEmail" promptText="correo@empresa.com" styleClass="campo-acceso"/>
+            </VBox>
+            <HBox spacing="12">
+                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                    <Label text="Contraseña" styleClass="form-label"/>
+                    <PasswordField fx:id="txtPassword" styleClass="campo-acceso"/>
+                </VBox>
+                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                    <Label text="Confirmar contraseña" styleClass="form-label"/>
+                    <PasswordField fx:id="txtConfirmacion" onAction="#crear" styleClass="campo-acceso"/>
+                </VBox>
+            </HBox>
+            <Label fx:id="lblPolitica" styleClass="hint" wrapText="true"/>
 
-        <Label fx:id="lblError" styleClass="form-error" wrapText="true" maxWidth="1.7976931348623157E308"
-               visible="false" managed="false"/>
+            <Label fx:id="lblError" styleClass="form-error" wrapText="true" maxWidth="1.7976931348623157E308"
+                   visible="false" managed="false"/>
 
-        <HBox spacing="12" alignment="CENTER_LEFT">
-            <Button fx:id="btnCrear" text="Crear administrador e ingresar" styleClass="button-primary, login-button"
-                    defaultButton="true" HBox.hgrow="ALWAYS" maxWidth="1.7976931348623157E308"
-                    onAction="#crear"/>
-            <ProgressIndicator fx:id="progreso" prefWidth="26" prefHeight="26" visible="false" managed="false"/>
-        </HBox>
-    </VBox>
-</StackPane>
+            <StackPane>
+                <Button fx:id="btnCrear" text="Crear administrador e ingresar" styleClass="button-primary, acceso-boton"
+                        defaultButton="true" maxWidth="1.7976931348623157E308" onAction="#crear"/>
+                <ProgressIndicator fx:id="progreso" prefWidth="24" prefHeight="24" visible="false" managed="false"
+                                   StackPane.alignment="CENTER_RIGHT">
+                    <StackPane.margin><Insets right="16"/></StackPane.margin>
+                </ProgressIndicator>
+            </StackPane>
+        </VBox>
+    </StackPane>
+</HBox>

@@ -196,6 +196,24 @@ public class UsuarioRepository {
         }
     }
 
+    /** Color de acento elegido por el usuario; vacío si usa el predeterminado. */
+    public Optional<String> colorAcento(Connection c, long id) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT color_acento FROM usuario WHERE id = ?")) {
+            ps.setLong(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Optional.ofNullable(rs.getString(1)) : Optional.empty();
+            }
+        }
+    }
+
+    public void guardarColorAcento(Connection c, long id, String color) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("UPDATE usuario SET color_acento = ? WHERE id = ?")) {
+            ps.setString(1, color);
+            ps.setLong(2, id);
+            exigirUnaFila(ps.executeUpdate());
+        }
+    }
+
     public void registrarAccesoExitoso(Connection c, long id, LocalDateTime ahora) throws SQLException {
         try (PreparedStatement ps = c.prepareStatement("""
                 UPDATE usuario

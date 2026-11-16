@@ -175,6 +175,8 @@ public class EstadisticaController implements VistaModulo {
     }
 
     private void mostrar(AnalisisEstadistico a) {
+        List<String> resumen = LecturaEstadistica.resumen(a, moneda);
+        contexto.mostrarFrase(com.businessanalyzer.ui.Modulo.ESTADISTICA, resumen.isEmpty() ? null : resumen.get(0));
         mostrarIndicadores(a);
         mostrarResumen(a);
         mostrarTendencia(a);
@@ -337,7 +339,7 @@ public class EstadisticaController implements VistaModulo {
         celda.getStyleClass().add("celda-correlacion");
         if (!Double.isNaN(r)) {
             double opacidad = diagonal ? 0.12 : 0.15 + 0.65 * Math.abs(r);
-            String color = r >= 0 ? "56,189,248" : "239,68,68";
+            String color = r >= 0 ? "99,214,164" : "255,143,115";
             celda.setStyle("-fx-background-color: rgba(" + color + "," + String.format(Locale.US, "%.2f", opacidad) + ");");
             if (!diagonal) {
                 celda.setTooltip(new Tooltip("Relación " + MatrizCorrelacion.fuerza(r) + " (valor p " + valorP(p) + ")"));

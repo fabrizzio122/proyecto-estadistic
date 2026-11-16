@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
 <?import com.businessanalyzer.config.VersionApp?>
+<?import com.businessanalyzer.ui.Logo?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
@@ -16,14 +18,14 @@
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.businessanalyzer.controller.MainController">
     <left>
-        <VBox styleClass="sidebar" prefWidth="250" minWidth="250">
+        <VBox styleClass="sidebar" prefWidth="236" minWidth="236">
             <HBox styleClass="brand">
-                <FontIcon iconLiteral="fth-bar-chart-2" styleClass="brand-icon"/>
+                <Logo fx:factory="nuevo"/>
                 <VBox>
                     <Label text="Business Analyzer" styleClass="brand-title"/>
                     <Label styleClass="brand-subtitle">
-                    <text><VersionApp fx:constant="SUBTITULO"/></text>
-                </Label>
+                        <text><VersionApp fx:constant="SUBTITULO"/></text>
+                    </Label>
                 </VBox>
             </HBox>
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="sidebar-scroll"
@@ -36,21 +38,32 @@
     <center>
         <VBox>
             <HBox styleClass="topbar" spacing="12">
-                <VBox spacing="2">
+                <VBox spacing="3">
+                    <Label fx:id="kickerModulo" styleClass="topbar-kicker" visible="false" managed="false"/>
                     <Label fx:id="tituloModulo" styleClass="topbar-title"/>
                     <Label fx:id="descripcionModulo" styleClass="topbar-subtitle"/>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="chipPeriodo" styleClass="chip-periodo" minWidth="-Infinity" visible="false" managed="false"/>
                 <MenuButton fx:id="selectorEmpresa" styleClass="company-selector" text="Sin empresa seleccionada">
                     <graphic>
                         <FontIcon iconLiteral="fth-briefcase"/>
                     </graphic>
                 </MenuButton>
+                <Button fx:id="btnAccionPrincipal" styleClass="button-primary" minWidth="-Infinity"
+                        visible="false" managed="false"/>
                 <MenuButton fx:id="menuUsuario" styleClass="user-menu">
                     <graphic>
                         <FontIcon iconLiteral="fth-user"/>
                     </graphic>
                 </MenuButton>
+            </HBox>
+
+            <!-- Frase resumen de las pantallas de análisis (la llena cada módulo al cargar) -->
+            <HBox fx:id="franjaFrase" styleClass="franja-frase" visible="false" managed="false">
+                <Region styleClass="franja-frase-marca" minWidth="4" maxWidth="4"/>
+                <Label fx:id="lblFrase" styleClass="franja-frase-texto" wrapText="true" HBox.hgrow="ALWAYS"
+                       maxWidth="Infinity" minHeight="-Infinity"/>
             </HBox>
 
             <StackPane fx:id="contenido" styleClass="content" VBox.vgrow="ALWAYS"/>
