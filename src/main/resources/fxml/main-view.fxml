@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.businessanalyzer.config.VersionApp?>
-<?import com.businessanalyzer.ui.Logo?>
+<?import com.businessanalyzer.config.VersionAppFGEM?>
+<?import com.businessanalyzer.ui.LogoFGEM?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
@@ -16,21 +16,21 @@
 <!-- Ventana principal: menu lateral | barra superior + contenido + barra de estado.
      Las notificaciones flotantes las aloja la clase Ventana, por encima de esta vista. -->
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.businessanalyzer.controller.MainController">
+            fx:controller="com.businessanalyzer.controller.MainControllerFGEM">
     <left>
         <VBox styleClass="sidebar" prefWidth="236" minWidth="236">
             <HBox styleClass="brand">
-                <Logo fx:factory="nuevo"/>
+                <LogoFGEM fx:factory="nuevoFGEM"/>
                 <VBox>
                     <Label text="Business Analyzer" styleClass="brand-title"/>
                     <Label styleClass="brand-subtitle">
-                        <text><VersionApp fx:constant="SUBTITULO"/></text>
+                        <text><VersionAppFGEM fx:constant="SUBTITULO_FGEM"/></text>
                     </Label>
                 </VBox>
             </HBox>
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="sidebar-scroll"
                         VBox.vgrow="ALWAYS">
-                <VBox fx:id="menu" styleClass="sidebar-menu"/>
+                <VBox fx:id="menuFGEM" styleClass="sidebar-menu"/>
             </ScrollPane>
         </VBox>
     </left>
@@ -39,20 +39,20 @@
         <VBox>
             <HBox styleClass="topbar" spacing="12">
                 <VBox spacing="3">
-                    <Label fx:id="kickerModulo" styleClass="topbar-kicker" visible="false" managed="false"/>
-                    <Label fx:id="tituloModulo" styleClass="topbar-title"/>
-                    <Label fx:id="descripcionModulo" styleClass="topbar-subtitle"/>
+                    <Label fx:id="kickerModuloFGEM" styleClass="topbar-kicker" visible="false" managed="false"/>
+                    <Label fx:id="tituloModuloFGEM" styleClass="topbar-title"/>
+                    <Label fx:id="descripcionModuloFGEM" styleClass="topbar-subtitle"/>
                 </VBox>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Label fx:id="chipPeriodo" styleClass="chip-periodo" minWidth="-Infinity" visible="false" managed="false"/>
-                <MenuButton fx:id="selectorEmpresa" styleClass="company-selector" text="Sin empresa seleccionada">
+                <Label fx:id="chipPeriodoFGEM" styleClass="chip-periodo" minWidth="-Infinity" visible="false" managed="false"/>
+                <MenuButton fx:id="selectorEmpresaFGEM" styleClass="company-selector" text="Sin empresa seleccionada">
                     <graphic>
                         <FontIcon iconLiteral="fth-briefcase"/>
                     </graphic>
                 </MenuButton>
-                <Button fx:id="btnAccionPrincipal" styleClass="button-primary" minWidth="-Infinity"
+                <Button fx:id="btnAccionPrincipalFGEM" styleClass="button-primary" minWidth="-Infinity"
                         visible="false" managed="false"/>
-                <MenuButton fx:id="menuUsuario" styleClass="user-menu">
+                <MenuButton fx:id="menuUsuarioFGEM" styleClass="user-menu">
                     <graphic>
                         <FontIcon iconLiteral="fth-user"/>
                     </graphic>
@@ -60,18 +60,18 @@
             </HBox>
 
             <!-- Frase resumen de las pantallas de análisis (la llena cada módulo al cargar) -->
-            <HBox fx:id="franjaFrase" styleClass="franja-frase" visible="false" managed="false">
+            <HBox fx:id="franjaFraseFGEM" styleClass="franja-frase" visible="false" managed="false">
                 <Region styleClass="franja-frase-marca" minWidth="4" maxWidth="4"/>
-                <Label fx:id="lblFrase" styleClass="franja-frase-texto" wrapText="true" HBox.hgrow="ALWAYS"
+                <Label fx:id="lblFraseFGEM" styleClass="franja-frase-texto" wrapText="true" HBox.hgrow="ALWAYS"
                        maxWidth="Infinity" minHeight="-Infinity"/>
             </HBox>
 
-            <StackPane fx:id="contenido" styleClass="content" VBox.vgrow="ALWAYS"/>
+            <StackPane fx:id="contenidoFGEM" styleClass="content" VBox.vgrow="ALWAYS"/>
 
             <HBox styleClass="statusbar">
-                <Label fx:id="estadoBaseDatos"/>
+                <Label fx:id="estadoBaseDatosFGEM"/>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Label fx:id="estadoVersion"/>
+                <Label fx:id="estadoVersionFGEM"/>
             </HBox>
         </VBox>
     </center>

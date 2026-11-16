@@ -16,39 +16,39 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.businessanalyzer.controller.PatrimonioController"
+      fx:controller="com.businessanalyzer.controller.PatrimonioControllerFGEM"
       spacing="14" styleClass="page">
 
     <!-- Indicadores principales -->
-    <HBox fx:id="indicadores" spacing="16"/>
+    <HBox fx:id="indicadoresFGEM" spacing="16"/>
 
-    <TabPane fx:id="pestanas" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
+    <TabPane fx:id="pestanasFGEM" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
 
         <!-- 1. Balance general -->
         <Tab text="Balance general">
             <HBox spacing="16" styleClass="tab-contenido">
                 <VBox spacing="8" HBox.hgrow="ALWAYS" prefWidth="520">
-                    <TableView fx:id="tablaBalance" VBox.vgrow="ALWAYS" styleClass="tabla-compacta">
+                    <TableView fx:id="tablaBalanceFGEM" VBox.vgrow="ALWAYS" styleClass="tabla-compacta">
                         <columns>
-                            <TableColumn fx:id="colBalConcepto" text="Concepto" prefWidth="260" sortable="false"/>
-                            <TableColumn fx:id="colBalMonto" text="Monto" prefWidth="130" sortable="false" styleClass="col-numero"/>
-                            <TableColumn fx:id="colBalPorcentaje" text="\% del activo" prefWidth="100" sortable="false" styleClass="col-numero"/>
+                            <TableColumn fx:id="colBalConceptoFGEM" text="Concepto" prefWidth="260" sortable="false"/>
+                            <TableColumn fx:id="colBalMontoFGEM" text="Monto" prefWidth="130" sortable="false" styleClass="col-numero"/>
+                            <TableColumn fx:id="colBalPorcentajeFGEM" text="\% del activo" prefWidth="100" sortable="false" styleClass="col-numero"/>
                         </columns>
                         <columnResizePolicy>
                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
                         </columnResizePolicy>
                     </TableView>
-                    <Label fx:id="lblCorte" styleClass="hint" wrapText="true" minHeight="-Infinity"/>
+                    <Label fx:id="lblCorteFGEM" styleClass="hint" wrapText="true" minHeight="-Infinity"/>
                 </VBox>
                 <VBox spacing="12" prefWidth="400" minWidth="340">
                     <VBox styleClass="card" spacing="10">
                         <Label text="Indicadores" styleClass="card-title"/>
-                        <GridPane fx:id="gridIndicadores" hgap="12" vgap="7"/>
+                        <GridPane fx:id="gridIndicadoresFGEM" hgap="12" vgap="7"/>
                     </VBox>
                     <VBox styleClass="card" spacing="8" VBox.vgrow="ALWAYS" minHeight="100">
                         <Label text="Lectura rápida" styleClass="card-title"/>
                         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="dialog-scroll" VBox.vgrow="ALWAYS">
-                            <VBox fx:id="lectura" spacing="6"/>
+                            <VBox fx:id="lecturaFGEM" spacing="6"/>
                         </ScrollPane>
                     </VBox>
                 </VBox>
@@ -59,32 +59,32 @@
         <Tab text="Activos">
             <VBox spacing="10" styleClass="tab-contenido">
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <TextField fx:id="txtBuscarActivo" promptText="Buscar activo" prefWidth="220" minWidth="140"/>
-                    <CheckBox fx:id="chkBajas" text="Incluir dados de baja" minWidth="-Infinity" onAction="#cargar"/>
+                    <TextField fx:id="txtBuscarActivoFGEM" promptText="Buscar activo" prefWidth="220" minWidth="140"/>
+                    <CheckBox fx:id="chkBajasFGEM" text="Incluir dados de baja" minWidth="-Infinity" onAction="#cargarFGEM"/>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="btnEditarActivo" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
-                            onAction="#editarActivo">
+                    <Button fx:id="btnEditarActivoFGEM" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#editarActivoFGEM">
                         <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
                     </Button>
-                    <Button fx:id="btnBajaActivo" text="Dar de baja" styleClass="button-secondary" minWidth="-Infinity"
-                            onAction="#darDeBaja">
+                    <Button fx:id="btnBajaActivoFGEM" text="Dar de baja" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#darDeBajaFGEM">
                         <graphic><FontIcon iconLiteral="fth-archive"/></graphic>
                     </Button>
-                    <Button fx:id="btnNuevoActivo" text="Nuevo activo" styleClass="button-primary" minWidth="-Infinity"
-                            onAction="#nuevoActivo">
+                    <Button fx:id="btnNuevoActivoFGEM" text="Nuevo activo" styleClass="button-primary" minWidth="-Infinity"
+                            onAction="#nuevoActivoFGEM">
                         <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
                     </Button>
                 </HBox>
-                <TableView fx:id="tablaActivos" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tablaActivosFGEM" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colActTipo" text="Tipo" prefWidth="150"/>
-                        <TableColumn fx:id="colActDescripcion" text="Descripción" prefWidth="190"/>
-                        <TableColumn fx:id="colActFecha" text="Fecha" prefWidth="90"/>
-                        <TableColumn fx:id="colActValor" text="Valor" prefWidth="105" styleClass="col-numero"/>
-                        <TableColumn fx:id="colActVida" text="Vida útil" prefWidth="80" styleClass="col-numero"/>
-                        <TableColumn fx:id="colActMensual" text="Por mes" prefWidth="85" styleClass="col-numero"/>
-                        <TableColumn fx:id="colActDepreciacion" text="Dep. acumulada" prefWidth="110" styleClass="col-numero"/>
-                        <TableColumn fx:id="colActLibros" text="Valor actual" prefWidth="110" styleClass="col-numero"/>
+                        <TableColumn fx:id="colActTipoFGEM" text="Tipo" prefWidth="150"/>
+                        <TableColumn fx:id="colActDescripcionFGEM" text="Descripción" prefWidth="190"/>
+                        <TableColumn fx:id="colActFechaFGEM" text="Fecha" prefWidth="90"/>
+                        <TableColumn fx:id="colActValorFGEM" text="Valor" prefWidth="105" styleClass="col-numero"/>
+                        <TableColumn fx:id="colActVidaFGEM" text="Vida útil" prefWidth="80" styleClass="col-numero"/>
+                        <TableColumn fx:id="colActMensualFGEM" text="Por mes" prefWidth="85" styleClass="col-numero"/>
+                        <TableColumn fx:id="colActDepreciacionFGEM" text="Dep. acumulada" prefWidth="110" styleClass="col-numero"/>
+                        <TableColumn fx:id="colActLibrosFGEM" text="Valor actual" prefWidth="110" styleClass="col-numero"/>
                     </columns>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
@@ -99,41 +99,41 @@
         <Tab text="Deudas">
             <VBox spacing="10" styleClass="tab-contenido">
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <TextField fx:id="txtBuscarDeuda" promptText="Buscar acreedor" prefWidth="220" minWidth="140"/>
-                    <CheckBox fx:id="chkAnuladas" text="Incluir anuladas" minWidth="-Infinity" onAction="#cargar"/>
+                    <TextField fx:id="txtBuscarDeudaFGEM" promptText="Buscar acreedor" prefWidth="220" minWidth="140"/>
+                    <CheckBox fx:id="chkAnuladasFGEM" text="Incluir anuladas" minWidth="-Infinity" onAction="#cargarFGEM"/>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="btnVerPagos" text="Ver pagos" styleClass="button-secondary" minWidth="-Infinity"
-                            onAction="#verPagos">
+                    <Button fx:id="btnVerPagosFGEM" text="Ver pagos" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#verPagosFGEM">
                         <graphic><FontIcon iconLiteral="fth-list"/></graphic>
                     </Button>
-                    <Button fx:id="btnEditarDeuda" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
-                            onAction="#editarDeuda">
+                    <Button fx:id="btnEditarDeudaFGEM" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#editarDeudaFGEM">
                         <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
                     </Button>
-                    <Button fx:id="btnAnularDeuda" text="Anular" styleClass="button-secondary" minWidth="-Infinity"
-                            onAction="#anularDeuda">
+                    <Button fx:id="btnAnularDeudaFGEM" text="Anular" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#anularDeudaFGEM">
                         <graphic><FontIcon iconLiteral="fth-x-circle"/></graphic>
                     </Button>
-                    <Button fx:id="btnPagar" text="Registrar pago" styleClass="button-secondary" minWidth="-Infinity"
-                            onAction="#registrarPago">
+                    <Button fx:id="btnPagarFGEM" text="Registrar pago" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#registrarPagoFGEM">
                         <graphic><FontIcon iconLiteral="fth-check-circle"/></graphic>
                     </Button>
-                    <Button fx:id="btnNuevaDeuda" text="Nueva deuda" styleClass="button-primary" minWidth="-Infinity"
-                            onAction="#nuevaDeuda">
+                    <Button fx:id="btnNuevaDeudaFGEM" text="Nueva deuda" styleClass="button-primary" minWidth="-Infinity"
+                            onAction="#nuevaDeudaFGEM">
                         <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
                     </Button>
                 </HBox>
-                <TableView fx:id="tablaDeudas" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tablaDeudasFGEM" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colDeuAcreedor" text="Acreedor" prefWidth="150"/>
-                        <TableColumn fx:id="colDeuTipo" text="Tipo" prefWidth="150"/>
-                        <TableColumn fx:id="colDeuFecha" text="Inicio" prefWidth="85"/>
-                        <TableColumn fx:id="colDeuMonto" text="Monto" prefWidth="100" styleClass="col-numero"/>
-                        <TableColumn fx:id="colDeuSaldo" text="Saldo" prefWidth="100" styleClass="col-numero"/>
-                        <TableColumn fx:id="colDeuCuota" text="Cuota" prefWidth="90" styleClass="col-numero"/>
-                        <TableColumn fx:id="colDeuTasa" text="Tasa" prefWidth="70" styleClass="col-numero"/>
-                        <TableColumn fx:id="colDeuVence" text="Vence" prefWidth="85"/>
-                        <TableColumn fx:id="colDeuEstado" text="Estado" prefWidth="80"/>
+                        <TableColumn fx:id="colDeuAcreedorFGEM" text="Acreedor" prefWidth="150"/>
+                        <TableColumn fx:id="colDeuTipoFGEM" text="Tipo" prefWidth="150"/>
+                        <TableColumn fx:id="colDeuFechaFGEM" text="Inicio" prefWidth="85"/>
+                        <TableColumn fx:id="colDeuMontoFGEM" text="Monto" prefWidth="100" styleClass="col-numero"/>
+                        <TableColumn fx:id="colDeuSaldoFGEM" text="Saldo" prefWidth="100" styleClass="col-numero"/>
+                        <TableColumn fx:id="colDeuCuotaFGEM" text="Cuota" prefWidth="90" styleClass="col-numero"/>
+                        <TableColumn fx:id="colDeuTasaFGEM" text="Tasa" prefWidth="70" styleClass="col-numero"/>
+                        <TableColumn fx:id="colDeuVenceFGEM" text="Vence" prefWidth="85"/>
+                        <TableColumn fx:id="colDeuEstadoFGEM" text="Estado" prefWidth="80"/>
                     </columns>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>

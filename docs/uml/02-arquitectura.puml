@@ -4,34 +4,34 @@ title Business Analyzer Desktop 1.2 — Arquitectura en capas
 
 package "Presentación (JavaFX 21)" as P {
   component "Vistas FXML + CSS\n(resources/fxml, css)" as FXML
-  component "controller\n23 controladores\n(MainController, DashboardController,\nOperacionesController, …)" as CTRL
-  component "ui\nNavegador, Dialogos, Formularios,\nGraficos (JFreeChart), Tareas" as UI
+  component "controller\n23 controladores\n(MainControllerFGEM, DashboardControllerFGEM,\nOperacionesControllerFGEM, …)" as CTRL
+  component "ui\nNavegadorFGEM, DialogosFGEM, FormulariosFGEM,\nGraficosFGEM (JFreeChart), TareasFGEM" as UI
 }
 
 package "Lógica de negocio" as N {
-  component "service\n23 servicios + validadores\n(OperacionService, DiagnosticoService, …)" as SRV
-  component "seguridad\nSesion, PasswordHasher\n(PBKDF2), PoliticaPassword" as SEG
+  component "service\n23 servicios + validadores\n(OperacionServiceFGEM, DiagnosticoServiceFGEM, …)" as SRV
+  component "seguridad\nSesionFGEM, PasswordHasherFGEM\n(PBKDF2), PoliticaPasswordFGEM" as SEG
   component "analytics\ncálculos puros, sin BD:\nfinanciero, estadística, predicción,\nsimulación, diagnóstico, patrimonio,\nganadería, agricultura, valoración" as ANA
-  component "informes\nContenidoInforme, GeneradorPdf\n(JasperReports), LibroExcel (POI)" as INF
+  component "informes\nContenidoInformeFGEM, GeneradorPdfFGEM\n(JasperReports), LibroExcelFGEM (POI)" as INF
 }
 
 package "Datos" as D {
   component "repository\n18 repositorios\nJDBC puro (PreparedStatement)" as REPO
-  component "config\nAppContext (composición),\nDatabase (transacciones),\nMigrador V1…V13" as CFG
+  component "config\nAppContextFGEM (composición),\nDatabaseFGEM (transacciones),\nMigradorFGEM V1…V14" as CFG
   database "SQLite\nbusiness-analyzer.db" as DB
 }
 
-component "model\nrecords y enums\n(Operacion, Empresa, Campania, …)" as MOD
-component "exception\nValidacionException,\nAccesoDenegadoException, …" as EXC
+component "model\nrecords y enums\n(OperacionFGEM, EmpresaFGEM, CampaniaFGEM, …)" as MOD
+component "exception\nValidacionExceptionFGEM,\nAccesoDenegadoExceptionFGEM, …" as EXC
 
 FXML --> CTRL : fx:controller
 CTRL --> UI
-CTRL --> SRV : llama en segundo plano\n(Tareas.ejecutar)
-SRV --> SEG : sesion.requerir(Permiso)
+CTRL --> SRV : llama en segundo plano\n(TareasFGEM.ejecutar)
+SRV --> SEG : sesion.requerirFGEM(PermisoFGEM)
 SRV --> ANA : datos ya leídos
 SRV --> INF
 SRV --> REPO : Connection de la\ntransacción
-SRV --> CFG : database.enTransaccion(...)
+SRV --> CFG : database.enTransaccionFGEM(...)
 REPO --> DB : SQL
 CFG --> DB : migraciones al iniciar
 
@@ -48,7 +48,7 @@ note right of ANA
 end note
 
 note bottom of CFG
-  AppContext crea una sola vez todos los
+  AppContextFGEM crea una sola vez todos los
   repositorios y servicios (inyección por
   constructor, sin Spring).
 end note

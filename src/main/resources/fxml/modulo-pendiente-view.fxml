@@ -7,13 +7,13 @@
 
 <!-- Pantalla comun para los modulos que todavia no se implementan. -->
 <StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.businessanalyzer.controller.ModuloPendienteController"
+           fx:controller="com.businessanalyzer.controller.ModuloPendienteControllerFGEM"
            styleClass="page">
     <VBox styleClass="empty-state" alignment="CENTER" spacing="12"
           maxWidth="520" maxHeight="-Infinity">
-        <FontIcon fx:id="icono" styleClass="empty-icon"/>
-        <Label fx:id="titulo" styleClass="empty-title"/>
-        <Label fx:id="descripcion" styleClass="empty-text" wrapText="true"/>
-        <Label fx:id="fase" styleClass="chip"/>
+        <FontIcon fx:id="iconoFGEM" styleClass="empty-icon"/>
+        <Label fx:id="tituloFGEM" styleClass="empty-title"/>
+        <Label fx:id="descripcionFGEM" styleClass="empty-text" wrapText="true"/>
+        <Label fx:id="faseFGEM" styleClass="chip"/>
     </VBox>
 </StackPane>

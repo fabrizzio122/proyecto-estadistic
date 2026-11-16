@@ -17,7 +17,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <main.class>com.businessanalyzer.Launcher</main.class>
+        <main.class>com.businessanalyzer.LauncherFGEM</main.class>
 
         <!-- Versiones de dependencias. Apache POI y JasperReports se agregan en la
              fase que las utiliza. -->
@@ -175,6 +175,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
+                <configuration>
+                    <!-- Las clases de prueba llevan las iniciales del autor al final: FraseMesTestFGEM -->
+                    <includes>
+                        <include>**/*TestFGEM.java</include>
+                    </includes>
+                </configuration>
             </plugin>
             <!-- Empaquetado (Fase 13): jar ejecutable y dependencias en target/lib para jpackage -->
             <plugin>

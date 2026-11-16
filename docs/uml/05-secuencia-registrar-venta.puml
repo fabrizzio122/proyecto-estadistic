@@ -4,51 +4,51 @@ title Business Analyzer Desktop 1.2 — Registrar una venta
 autonumber
 
 actor Operador
-participant ":OperacionesController" as CTRL
-participant "Tareas" as T
-participant ":OperacionService" as SRV
-participant ":Sesion" as SES
-participant ":EmpresaService" as EMP
-participant "ValidadorOperacion" as VAL
-participant ":Database" as DB
-participant ":ProductoRepository" as PR
-participant "CalculadoraOperacion" as CALC
-participant ":OperacionRepository" as OR
+participant ":OperacionesControllerFGEM" as CTRL
+participant "TareasFGEM" as T
+participant ":OperacionServiceFGEM" as SRV
+participant ":SesionFGEM" as SES
+participant ":EmpresaServiceFGEM" as EMP
+participant "ValidadorOperacionFGEM" as VAL
+participant ":DatabaseFGEM" as DB
+participant ":ProductoRepositoryFGEM" as PR
+participant "CalculadoraOperacionFGEM" as CALC
+participant ":OperacionRepositoryFGEM" as OR
 database "SQLite" as SQL
 
 Operador -> CTRL : completa el formulario\ny pulsa «Registrar»
-CTRL -> T : ejecutar(tarea)
+CTRL -> T : ejecutarFGEM(tarea)
 activate T
-T -> SRV : registrar(datos, permitirStockNegativo = false)
+T -> SRV : registrarFGEM(datos, permitirStockNegativo = false)
 activate SRV
-SRV -> SES : requerir(OPERACIONES_GESTIONAR)
-SRV -> EMP : empresaDeTrabajo()
+SRV -> SES : requerirFGEM(OPERACIONES_GESTIONAR)
+SRV -> EMP : empresaDeTrabajoFGEM()
 EMP --> SRV : empresa activa (acceso verificado)
-SRV -> VAL : normalizar(datos, hoy)
+SRV -> VAL : normalizarFGEM(datos, hoy)
 VAL --> SRV : datos válidos
-SRV -> DB : enTransaccion(c -> registrarEn(...))
+SRV -> DB : enTransaccionFGEM(c -> registrarEnFGEM(...))
 activate DB
 DB -> SQL : BEGIN
 loop por cada línea
-  SRV -> PR : buscarPorId(c, productoId)
+  SRV -> PR : buscarPorIdFGEM(c, productoId)
   PR -> SQL : SELECT … (stock calculado)
   PR --> SRV : producto
 end
 alt stock insuficiente
-  SRV --> DB : StockInsuficienteException
+  SRV --> DB : StockInsuficienteExceptionFGEM
   DB -> SQL : ROLLBACK
   DB --> T : excepción
   T --> CTRL : alFallar(excepción)
   CTRL -> Operador : «¿Registrar de todos modos?»
   note right : si confirma, se repite con\npermitirStockNegativo = true
 else stock suficiente
-  SRV -> CALC : calcular(líneas, tasaImpuesto)
+  SRV -> CALC : calcularFGEM(líneas, tasaImpuesto)
   CALC --> SRV : subtotal, IGV, total, costo
-  SRV -> OR : siguienteNumero(c, empresa, VENTA)
-  SRV -> OR : insertar(c, operación)
+  SRV -> OR : siguienteNumeroFGEM(c, empresa, VENTA)
+  SRV -> OR : insertarFGEM(c, operación)
   OR -> SQL : INSERT operacion
   loop por cada línea
-    SRV -> OR : insertarLinea(c, …, costo congelado)
+    SRV -> OR : insertarLineaFGEM(c, …, costo congelado)
     OR -> SQL : INSERT operacion_linea
   end
   DB -> SQL : COMMIT

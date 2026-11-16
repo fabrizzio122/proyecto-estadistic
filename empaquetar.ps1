@@ -81,7 +81,7 @@ $comunes = @(
     '--copyright', 'Business Analyzer Desktop 1.0',
     '--input', $entrada,
     '--main-jar', 'business-analyzer.jar',
-    '--main-class', 'com.businessanalyzer.Launcher',
+    '--main-class', 'com.businessanalyzer.LauncherFGEM',
     '--icon', (Join-Path $raiz 'src\main\packaging\business-analyzer.ico'),
     '--add-modules', $modulos,
     '--jlink-options', '--strip-debug --no-man-pages --no-header-files',

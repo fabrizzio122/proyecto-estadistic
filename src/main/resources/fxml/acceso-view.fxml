@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.businessanalyzer.ui.PanelMarca?>
+<?import com.businessanalyzer.ui.PanelMarcaFGEM?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
@@ -14,56 +14,56 @@
 
 <!-- Inicio de sesión: a la izquierda el panel de marca con la lámpara; a la derecha el formulario. -->
 <HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.businessanalyzer.controller.AccesoController"
+      fx:controller="com.businessanalyzer.controller.AccesoControllerFGEM"
       styleClass="pantalla-acceso">
 
-    <PanelMarca fx:id="panelMarca" HBox.hgrow="ALWAYS" prefWidth="640"/>
+    <PanelMarcaFGEM fx:id="panelMarcaFGEM" HBox.hgrow="ALWAYS" prefWidth="640"/>
 
     <StackPane HBox.hgrow="ALWAYS" prefWidth="640" minWidth="440" styleClass="acceso-formulario">
         <padding><Insets top="40" right="48" bottom="40" left="48"/></padding>
 
-        <VBox fx:id="formulario" spacing="20" maxWidth="380" maxHeight="-Infinity">
+        <VBox fx:id="formularioFGEM" spacing="20" maxWidth="380" maxHeight="-Infinity">
             <VBox spacing="6">
                 <Label text="Hola de nuevo" styleClass="acceso-titulo"/>
-                <Label fx:id="lblSubtitulo" text="Elige tu usuario para continuar." styleClass="acceso-subtitulo"/>
+                <Label fx:id="lblSubtituloFGEM" text="Elige tu usuario para continuar." styleClass="acceso-subtitulo"/>
             </VBox>
 
-            <VBox fx:id="listaUsuarios" spacing="10"/>
+            <VBox fx:id="listaUsuariosFGEM" spacing="10"/>
 
-            <VBox fx:id="campoUsuario" spacing="8">
+            <VBox fx:id="campoUsuarioFGEM" spacing="8">
                 <Label text="Usuario" styleClass="form-label"/>
-                <TextField fx:id="txtUsuario" promptText="Nombre de usuario" onAction="#enfocarPassword"
+                <TextField fx:id="txtUsuarioFGEM" promptText="Nombre de usuario" onAction="#enfocarPasswordFGEM"
                            styleClass="campo-acceso"/>
             </VBox>
 
             <VBox spacing="8">
                 <Label text="Contraseña" styleClass="form-label"/>
                 <StackPane alignment="CENTER_RIGHT">
-                    <PasswordField fx:id="txtPassword" onAction="#ingresar" styleClass="campo-acceso, campo-con-boton"/>
-                    <TextField fx:id="txtPasswordVisible" onAction="#ingresar" styleClass="campo-acceso, campo-con-boton"
+                    <PasswordField fx:id="txtPasswordFGEM" onAction="#ingresarFGEM" styleClass="campo-acceso, campo-con-boton"/>
+                    <TextField fx:id="txtPasswordVisibleFGEM" onAction="#ingresarFGEM" styleClass="campo-acceso, campo-con-boton"
                                visible="false"/>
-                    <Button fx:id="btnMostrar" text="Mostrar" styleClass="boton-mostrar" onAction="#alternarPassword"
+                    <Button fx:id="btnMostrarFGEM" text="Mostrar" styleClass="boton-mostrar" onAction="#alternarPasswordFGEM"
                             focusTraversable="false">
                         <StackPane.margin><Insets right="8"/></StackPane.margin>
                     </Button>
                 </StackPane>
             </VBox>
 
-            <CheckBox fx:id="chkRecordar" text="Recordarme en este equipo"/>
+            <CheckBox fx:id="chkRecordarFGEM" text="Recordarme en este equipo"/>
 
-            <Label fx:id="lblError" styleClass="form-error" wrapText="true" maxWidth="1.7976931348623157E308"
+            <Label fx:id="lblErrorFGEM" styleClass="form-error" wrapText="true" maxWidth="1.7976931348623157E308"
                    visible="false" managed="false"/>
 
             <StackPane>
-                <Button fx:id="btnIngresar" text="Ingresar" styleClass="button-primary, acceso-boton"
-                        defaultButton="true" maxWidth="1.7976931348623157E308" onAction="#ingresar"/>
-                <ProgressIndicator fx:id="progreso" prefWidth="24" prefHeight="24" visible="false"
+                <Button fx:id="btnIngresarFGEM" text="Ingresar" styleClass="button-primary, acceso-boton"
+                        defaultButton="true" maxWidth="1.7976931348623157E308" onAction="#ingresarFGEM"/>
+                <ProgressIndicator fx:id="progresoFGEM" prefWidth="24" prefHeight="24" visible="false"
                                    StackPane.alignment="CENTER_RIGHT">
                     <StackPane.margin><Insets right="16"/></StackPane.margin>
                 </ProgressIndicator>
             </StackPane>
 
-            <Label fx:id="lblVersion" styleClass="acceso-version" maxWidth="1.7976931348623157E308"/>
+            <Label fx:id="lblVersionFGEM" styleClass="acceso-version" maxWidth="1.7976931348623157E308"/>
         </VBox>
     </StackPane>
 </HBox>

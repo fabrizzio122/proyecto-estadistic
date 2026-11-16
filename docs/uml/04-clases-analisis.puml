@@ -4,86 +4,86 @@ title Business Analyzer Desktop 1.2 — Motor de análisis (paquete analytics)
 hide empty members
 
 package service {
-  class AnalisisService
-  class EstadisticaService
-  class PrediccionService
-  class SimulacionService
-  class DiagnosticoService
-  class ValoracionService
-  class TesoreriaService
-  class ConsultaMensual <<utilidad>> {
-    {static} porMes(c, operaciones, movimientos, empresaId, …) : List<Mes>
+  class AnalisisServiceFGEM
+  class EstadisticaServiceFGEM
+  class PrediccionServiceFGEM
+  class SimulacionServiceFGEM
+  class DiagnosticoServiceFGEM
+  class ValoracionServiceFGEM
+  class TesoreriaServiceFGEM
+  class ConsultaMensualFGEM <<utilidad>> {
+    {static} porMesFGEM(cFGEM, operacionesFGEM, movimientosFGEM, empresaIdFGEM, …) : List<MesFGEM>
   }
 }
 
 package analytics {
-  class EstadoResultados {
-    ventas, costoVentas, utilidadBruta
-    gastosOperativos, utilidadNeta
+  class EstadoResultadosFGEM {
+    ventasFGEM, costoVentasFGEM, utilidadBrutaFGEM
+    gastosOperativosFGEM, utilidadNetaFGEM
   }
-  class PuntoEquilibrio {
-    ventasEquilibrio : BigDecimal
-    margenSeguridad : BigDecimal
+  class PuntoEquilibrioFGEM {
+    ventasEquilibrioFGEM : BigDecimal
+    margenSeguridadFGEM : BigDecimal
   }
-  class Periodo {
-    desde, hasta : LocalDate
-    anterior() : Periodo
+  class PeriodoFGEM {
+    desdeFGEM, hastaFGEM : LocalDate
+    anteriorFGEM() : PeriodoFGEM
   }
-  class RentabilidadProducto
+  class RentabilidadProductoFGEM
 }
 
 package analytics.estadistica {
-  class EstadisticaDescriptiva
-  class Tendencia {
-    pendiente, r2
+  class EstadisticaDescriptivaFGEM
+  class TendenciaFGEM {
+    pendienteFGEM, r2FGEM
     «SimpleRegression»
   }
-  class AnalisisAbc
-  class MatrizCorrelacion
-  class EstacionalidadSemanal
+  class AnalisisAbcFGEM
+  class MatrizCorrelacionFGEM
+  class EstacionalidadSemanalFGEM
 }
 
 package analytics.prediccion {
-  interface MetodoPronostico {
-    nombre() : String
-    pronosticar(historia : double[], horizonte : int) : double[]
+  interface MetodoPronosticoFGEM {
+    nombreFGEM() : String
+    pronosticarFGEM(historiaFGEM : double[], horizonteFGEM : int) : double[]
   }
-  class TendenciaLineal
-  class PromedioMovil
-  class SuavizadoHolt
-  class Pronosticador {
-    {static} METODOS : List<MetodoPronostico>
-    {static} pronosticar(serie, historia, horizonte, noNegativo) : Pronostico
+  class TendenciaLinealFGEM
+  class PromedioMovilFGEM
+  class SuavizadoHoltFGEM
+  class PronosticadorFGEM {
+    {static} METODOS_FGEM : List<MetodoPronosticoFGEM>
+    {static} pronosticarFGEM(serieFGEM, historiaFGEM, horizonteFGEM, noNegativoFGEM) : PronosticoFGEM
     «valida rolling-origin, menor MAE»
   }
 }
 
 package analytics.simulacion {
-  class BaseSimulacion
-  class Supuestos
-  class Simulador {
-    {static} simular(base, supuestos) : ResultadoEscenario
-    {static} sensibilidad(base, supuestos) : ±10 %
-    {static} cambioPrecioParaMeta(base, supuestos, meta)
+  class BaseSimulacionFGEM
+  class SupuestosFGEM
+  class SimuladorFGEM {
+    {static} simularFGEM(baseFGEM, supuestosFGEM) : ResultadoEscenarioFGEM
+    {static} sensibilidadFGEM(baseFGEM, supuestosFGEM) : ±10 %
+    {static} cambioPrecioParaMetaFGEM(baseFGEM, supuestosFGEM, metaFGEM)
   }
 }
 
 package analytics.diagnostico {
-  class MotorDiagnostico {
-    {static} evaluar(DatosDiagnostico) : Diagnostico
+  class MotorDiagnosticoFGEM {
+    {static} evaluarFGEM(DatosDiagnosticoFGEM) : DiagnosticoFGEM
   }
-  class DatosDiagnostico
-  class Diagnostico {
-    nivel : NivelSalud
-    puntaje : int
+  class DatosDiagnosticoFGEM
+  class DiagnosticoFGEM {
+    nivelFGEM : NivelSaludFGEM
+    puntajeFGEM : int
   }
-  class Hallazgo {
-    tipo : TipoIndicador
-    semaforo : Semaforo
-    lectura : String
-    recomendacion : String
+  class HallazgoFGEM {
+    tipoFGEM : TipoIndicadorFGEM
+    semaforoFGEM : SemaforoFGEM
+    lecturaFGEM : String
+    recomendacionFGEM : String
   }
-  enum Semaforo {
+  enum SemaforoFGEM {
     VERDE
     AMARILLO
     ROJO
@@ -91,64 +91,64 @@ package analytics.diagnostico {
 }
 
 package analytics.valoracion {
-  class ValoracionNegocio {
-    {static} calcular(supuestos, patrimonial, utilidadAnual, …)
+  class ValoracionNegocioFGEM {
+    {static} calcularFGEM(supuestosFGEM, patrimonialFGEM, utilidadAnualFGEM, …)
   }
 }
 
 package analytics.tesoreria {
-  class FlujoDinero <<record>> {
-    fecha, cuentaId, monto, rubro
+  class FlujoDineroFGEM <<record>> {
+    fechaFGEM, cuentaIdFGEM, montoFGEM, rubroFGEM
   }
-  class SaldoCuenta {
-    {static} de(cuentas, flujos, corte)
+  class SaldoCuentaFGEM {
+    {static} deFGEM(cuentasFGEM, flujosFGEM, corteFGEM)
   }
-  class FlujoEfectivo {
-    saldoInicial, porRubro, saldoFinal
-    neto(Actividad) : BigDecimal
+  class FlujoEfectivoFGEM {
+    saldoInicialFGEM, porRubroFGEM, saldoFinalFGEM
+    netoFGEM(ActividadFGEM) : BigDecimal
   }
-  class ProyeccionCaja {
-    {static} calcular(hoy, saldo, historia, deudas)
-    primerNegativo : YearMonth
+  class ProyeccionCajaFGEM {
+    {static} calcularFGEM(hoyFGEM, saldoFGEM, historiaFGEM, deudasFGEM)
+    primerNegativoFGEM : YearMonth
   }
 }
 
-MetodoPronostico <|.. TendenciaLineal
-MetodoPronostico <|.. PromedioMovil
-MetodoPronostico <|.. SuavizadoHolt
-Pronosticador o--> "3" MetodoPronostico
+MetodoPronosticoFGEM <|.. TendenciaLinealFGEM
+MetodoPronosticoFGEM <|.. PromedioMovilFGEM
+MetodoPronosticoFGEM <|.. SuavizadoHoltFGEM
+PronosticadorFGEM o--> "3" MetodoPronosticoFGEM
 
-Simulador ..> BaseSimulacion
-Simulador ..> Supuestos
-MotorDiagnostico ..> DatosDiagnostico
-MotorDiagnostico ..> Simulador : cifras de las\nrecomendaciones
-MotorDiagnostico --> Diagnostico
-Diagnostico "1" *-- "15..19" Hallazgo
-SaldoCuenta ..> FlujoDinero
-FlujoEfectivo ..> FlujoDinero
-ProyeccionCaja ..> Pronosticador : flujo de operación
-MotorDiagnostico ..> ProyeccionCaja : caja proyectada
-TesoreriaService ..> FlujoEfectivo
-TesoreriaService ..> ProyeccionCaja
-Hallazgo --> Semaforo
-PuntoEquilibrio ..> EstadoResultados
+SimuladorFGEM ..> BaseSimulacionFGEM
+SimuladorFGEM ..> SupuestosFGEM
+MotorDiagnosticoFGEM ..> DatosDiagnosticoFGEM
+MotorDiagnosticoFGEM ..> SimuladorFGEM : cifras de las\nrecomendaciones
+MotorDiagnosticoFGEM --> DiagnosticoFGEM
+DiagnosticoFGEM "1" *-- "15..19" HallazgoFGEM
+SaldoCuentaFGEM ..> FlujoDineroFGEM
+FlujoEfectivoFGEM ..> FlujoDineroFGEM
+ProyeccionCajaFGEM ..> PronosticadorFGEM : flujo de operación
+MotorDiagnosticoFGEM ..> ProyeccionCajaFGEM : caja proyectada
+TesoreriaServiceFGEM ..> FlujoEfectivoFGEM
+TesoreriaServiceFGEM ..> ProyeccionCajaFGEM
+HallazgoFGEM --> SemaforoFGEM
+PuntoEquilibrioFGEM ..> EstadoResultadosFGEM
 
-AnalisisService ..> EstadoResultados
-AnalisisService ..> PuntoEquilibrio
-AnalisisService ..> RentabilidadProducto
-EstadisticaService ..> EstadisticaDescriptiva
-EstadisticaService ..> Tendencia
-EstadisticaService ..> AnalisisAbc
-PrediccionService ..> Pronosticador
-SimulacionService ..> Simulador
-DiagnosticoService ..> MotorDiagnostico
-DiagnosticoService ..> ConsultaMensual
-EstadisticaService ..> ConsultaMensual
-PrediccionService ..> ConsultaMensual
-ValoracionService ..> ValoracionNegocio
-ValoracionService ..> Tendencia : crecimiento\nsugerido
+AnalisisServiceFGEM ..> EstadoResultadosFGEM
+AnalisisServiceFGEM ..> PuntoEquilibrioFGEM
+AnalisisServiceFGEM ..> RentabilidadProductoFGEM
+EstadisticaServiceFGEM ..> EstadisticaDescriptivaFGEM
+EstadisticaServiceFGEM ..> TendenciaFGEM
+EstadisticaServiceFGEM ..> AnalisisAbcFGEM
+PrediccionServiceFGEM ..> PronosticadorFGEM
+SimulacionServiceFGEM ..> SimuladorFGEM
+DiagnosticoServiceFGEM ..> MotorDiagnosticoFGEM
+DiagnosticoServiceFGEM ..> ConsultaMensualFGEM
+EstadisticaServiceFGEM ..> ConsultaMensualFGEM
+PrediccionServiceFGEM ..> ConsultaMensualFGEM
+ValoracionServiceFGEM ..> ValoracionNegocioFGEM
+ValoracionServiceFGEM ..> TendenciaFGEM : crecimiento\nsugerido
 
-note bottom of Pronosticador
+note bottom of PronosticadorFGEM
   Patrón Estrategia: los tres métodos se
   prueban con los últimos meses reales y
   se queda el de menor error (MAE).

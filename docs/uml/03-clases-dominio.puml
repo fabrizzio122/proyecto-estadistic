@@ -4,22 +4,22 @@ title Business Analyzer Desktop 1.2 — Modelo de dominio (paquete model)
 hide empty methods
 
 package "Seguridad" {
-  class Usuario <<record>> {
-    nombreUsuario : String
-    nombreCompleto : String
-    activo : boolean
-    intentosFallidos : int
-    bloqueadoHasta : LocalDateTime
+  class UsuarioFGEM <<record>> {
+    nombreUsuarioFGEM : String
+    nombreCompletoFGEM : String
+    activoFGEM : boolean
+    intentosFallidosFGEM : int
+    bloqueadoHastaFGEM : LocalDateTime
     --
-    tiene(Permiso) : boolean
-    bloqueadoEn(LocalDateTime) : boolean
+    tieneFGEM(PermisoFGEM) : boolean
+    bloqueadoEnFGEM(LocalDateTime) : boolean
   }
-  class Rol <<record>> {
-    codigo : String
-    nombre : String
-    permisos : Set<Permiso>
+  class RolFGEM <<record>> {
+    codigoFGEM : String
+    nombreFGEM : String
+    permisosFGEM : Set<PermisoFGEM>
   }
-  enum Permiso {
+  enum PermisoFGEM {
     DASHBOARD_VER
     OPERACIONES_GESTIONAR
     ANALISIS_VER
@@ -30,170 +30,170 @@ package "Seguridad" {
 }
 
 package "Empresa y catálogo" {
-  class Empresa <<record>> {
-    razonSocial : String
-    identificacionFiscal : String
-    sector : Sector
-    tamano : TamanoEmpresa
-    moneda : Moneda
-    mesInicioEjercicio : int
+  class EmpresaFGEM <<record>> {
+    razonSocialFGEM : String
+    identificacionFiscalFGEM : String
+    sectorFGEM : SectorFGEM
+    tamanoFGEM : TamanoEmpresaFGEM
+    monedaFGEM : MonedaFGEM
+    mesInicioEjercicioFGEM : int
   }
-  enum Sector {
+  enum SectorFGEM {
     COMERCIO
     RESTAURANTE
     SERVICIOS
     AGROPECUARIO
     …
   }
-  class Categoria <<record>>
-  class Producto <<record>> {
-    tipo : TipoItem
-    codigo : String
-    costoUnitario : BigDecimal
-    precioVenta : BigDecimal
-    stock : BigDecimal  «calculado»
+  class CategoriaFGEM <<record>>
+  class ProductoFGEM <<record>> {
+    tipoFGEM : TipoItemFGEM
+    codigoFGEM : String
+    costoUnitarioFGEM : BigDecimal
+    precioVentaFGEM : BigDecimal
+    stockFGEM : BigDecimal  «calculado»
   }
 }
 
 package "Operaciones y finanzas" {
-  class Operacion <<record>> {
-    tipo : TipoOperacion  «VENTA / COMPRA»
-    numero : String
-    fecha : LocalDate
-    subtotal, impuesto, total : BigDecimal
-    costoTotal : BigDecimal
-    estado : EstadoOperacion
-    condicion : CondicionPago  «CONTADO / CREDITO»
-    vencimiento : LocalDate
+  class OperacionFGEM <<record>> {
+    tipoFGEM : TipoOperacionFGEM  «VENTA / COMPRA»
+    numeroFGEM : String
+    fechaFGEM : LocalDate
+    subtotalFGEM, impuestoFGEM, totalFGEM : BigDecimal
+    costoTotalFGEM : BigDecimal
+    estadoFGEM : EstadoOperacionFGEM
+    condicionFGEM : CondicionPagoFGEM  «CONTADO / CREDITO»
+    vencimientoFGEM : LocalDate
     --
-    margenBruto() : BigDecimal
-    pendiente() : BigDecimal
-    anulada() : boolean
+    margenBrutoFGEM() : BigDecimal
+    pendienteFGEM() : BigDecimal
+    anuladaFGEM() : boolean
   }
-  class LineaOperacion <<record>> {
-    cantidad : BigDecimal
-    precioUnitario : BigDecimal
-    costoUnitario : BigDecimal  «congelado»
+  class LineaOperacionFGEM <<record>> {
+    cantidadFGEM : BigDecimal
+    precioUnitarioFGEM : BigDecimal
+    costoUnitarioFGEM : BigDecimal  «congelado»
   }
-  class MovimientoFinanciero <<record>> {
-    tipo : TipoMovimiento  «INGRESO / GASTO»
-    categoria : CategoriaFinanciera
-    comportamiento : Comportamiento  «FIJO / VARIABLE»
-    monto : BigDecimal
+  class MovimientoFinancieroFGEM <<record>> {
+    tipoFGEM : TipoMovimientoFGEM  «INGRESO / GASTO»
+    categoriaFGEM : CategoriaFinancieraFGEM
+    comportamientoFGEM : ComportamientoFGEM  «FIJO / VARIABLE»
+    montoFGEM : BigDecimal
   }
-  class Activo <<record>> {
-    categoria : CategoriaActivo
-    valor : BigDecimal
-    vidaUtilAnios : Integer
+  class ActivoFGEM <<record>> {
+    categoriaFGEM : CategoriaActivoFGEM
+    valorFGEM : BigDecimal
+    vidaUtilAniosFGEM : Integer
   }
-  class Deuda <<record>> {
-    acreedor : String
-    monto : BigDecimal
-    tasaAnual : BigDecimal
+  class DeudaFGEM <<record>> {
+    acreedorFGEM : String
+    montoFGEM : BigDecimal
+    tasaAnualFGEM : BigDecimal
   }
-  class PagoDeuda <<record>> {
-    monto : BigDecimal  «capital»
-    interes : BigDecimal
+  class PagoDeudaFGEM <<record>> {
+    montoFGEM : BigDecimal  «capital»
+    interesFGEM : BigDecimal
   }
-  class Escenario <<record>>
-  class InformeGenerado <<record>>
+  class EscenarioFGEM <<record>>
+  class InformeGeneradoFGEM <<record>>
 }
 
 package "Tesorería" {
-  class CuentaDinero <<record>> {
-    nombre : String
-    tipo : TipoCuenta  «CAJA / BANCO / BILLETERA»
-    saldoInicial : BigDecimal
-    activa : boolean
+  class CuentaDineroFGEM <<record>> {
+    nombreFGEM : String
+    tipoFGEM : TipoCuentaFGEM  «CAJA / BANCO / BILLETERA»
+    saldoInicialFGEM : BigDecimal
+    activaFGEM : boolean
   }
-  class PagoOperacion <<record>> {
-    fecha : LocalDate
-    monto : BigDecimal
+  class PagoOperacionFGEM <<record>> {
+    fechaFGEM : LocalDate
+    montoFGEM : BigDecimal
   }
-  class MovimientoTesoreria <<record>> {
-    tipo : TipoMovimientoTesoreria
+  class MovimientoTesoreriaFGEM <<record>> {
+    tipoFGEM : TipoMovimientoTesoreriaFGEM
     «TRANSFERENCIA / APORTE / RETIRO»
-    monto : BigDecimal
+    montoFGEM : BigDecimal
   }
 }
 
 package "Agropecuario" {
-  class MovimientoGanado <<record>> {
-    tipo : TipoMovimientoGanado
-    categoria : CategoriaGanado
-    cantidad : int
+  class MovimientoGanadoFGEM <<record>> {
+    tipoFGEM : TipoMovimientoGanadoFGEM
+    categoriaFGEM : CategoriaGanadoFGEM
+    cantidadFGEM : int
   }
-  class ProduccionGanadera <<record>> {
-    especie : Especie
-    producto : ProductoGanadero
-    cantidad : BigDecimal
+  class ProduccionGanaderaFGEM <<record>> {
+    especieFGEM : EspecieFGEM
+    productoFGEM : ProductoGanaderoFGEM
+    cantidadFGEM : BigDecimal
   }
-  class Parcela <<record>> {
-    area : BigDecimal  «ha»
-    tenencia : Tenencia
-    riego : boolean
+  class ParcelaFGEM <<record>> {
+    areaFGEM : BigDecimal  «ha»
+    tenenciaFGEM : TenenciaFGEM
+    riegoFGEM : boolean
   }
-  class Campania <<record>> {
-    cultivo : Cultivo
-    fechaSiembra : LocalDate
-    estado : EstadoCampania
+  class CampaniaFGEM <<record>> {
+    cultivoFGEM : CultivoFGEM
+    fechaSiembraFGEM : LocalDate
+    estadoFGEM : EstadoCampaniaFGEM
   }
-  class CostoCampania <<record>>
-  class Cosecha <<record>> {
-    cantidad : BigDecimal  «kg»
-    destino : DestinoCosecha
+  class CostoCampaniaFGEM <<record>>
+  class CosechaFGEM <<record>> {
+    cantidadFGEM : BigDecimal  «kg»
+    destinoFGEM : DestinoCosechaFGEM
   }
-  class Visita <<record>> {
-    tipo : TipoVisita
-    inspector : String
-    conclusion : ConclusionVisita
+  class VisitaFGEM <<record>> {
+    tipoFGEM : TipoVisitaFGEM
+    inspectorFGEM : String
+    conclusionFGEM : ConclusionVisitaFGEM
   }
-  class Compromiso <<record>> {
-    estado : EstadoCompromiso
+  class CompromisoFGEM <<record>> {
+    estadoFGEM : EstadoCompromisoFGEM
   }
-  class FotoVisita <<record>>
+  class FotoVisitaFGEM <<record>>
 }
 
-Usuario "*" --> "1" Rol
-Rol "*" --> "*" Permiso
-Usuario "*" -- "*" Empresa : acceso >
-Empresa --> Sector
+UsuarioFGEM "*" --> "1" RolFGEM
+RolFGEM "*" --> "*" PermisoFGEM
+UsuarioFGEM "*" -- "*" EmpresaFGEM : acceso >
+EmpresaFGEM --> SectorFGEM
 
-Empresa "1" *-- "*" Categoria
-Empresa "1" *-- "*" Producto
-Categoria "0..1" <-- "*" Producto
-Empresa "1" *-- "*" Operacion
-Operacion "1" *-- "1..*" LineaOperacion
-LineaOperacion "*" --> "1" Producto
-Empresa "1" *-- "*" MovimientoFinanciero
-Empresa "1" *-- "*" Activo
-Empresa "1" *-- "*" Deuda
-Deuda "1" *-- "*" PagoDeuda
-PagoDeuda "0..1" --> "0..1" MovimientoFinanciero : intereses >
+EmpresaFGEM "1" *-- "*" CategoriaFGEM
+EmpresaFGEM "1" *-- "*" ProductoFGEM
+CategoriaFGEM "0..1" <-- "*" ProductoFGEM
+EmpresaFGEM "1" *-- "*" OperacionFGEM
+OperacionFGEM "1" *-- "1..*" LineaOperacionFGEM
+LineaOperacionFGEM "*" --> "1" ProductoFGEM
+EmpresaFGEM "1" *-- "*" MovimientoFinancieroFGEM
+EmpresaFGEM "1" *-- "*" ActivoFGEM
+EmpresaFGEM "1" *-- "*" DeudaFGEM
+DeudaFGEM "1" *-- "*" PagoDeudaFGEM
+PagoDeudaFGEM "0..1" --> "0..1" MovimientoFinancieroFGEM : intereses >
 
-Empresa "1" *-- "1..*" CuentaDinero
-Operacion "1" *-- "*" PagoOperacion : cobros / pagos >
-PagoOperacion "*" --> "1" CuentaDinero
-Operacion "*" --> "0..1" CuentaDinero : al contado >
-MovimientoFinanciero "*" --> "0..1" CuentaDinero
-Activo "*" --> "0..1" CuentaDinero : pagado desde >
-Deuda "*" --> "0..1" CuentaDinero : ingresó a >
-PagoDeuda "*" --> "0..1" CuentaDinero
-MovimientoTesoreria "*" --> "0..2" CuentaDinero : origen / destino >
-Empresa "1" *-- "*" MovimientoTesoreria
-Empresa "1" *-- "*" Escenario
-Empresa "1" *-- "*" InformeGenerado
+EmpresaFGEM "1" *-- "1..*" CuentaDineroFGEM
+OperacionFGEM "1" *-- "*" PagoOperacionFGEM : cobros / pagos >
+PagoOperacionFGEM "*" --> "1" CuentaDineroFGEM
+OperacionFGEM "*" --> "0..1" CuentaDineroFGEM : al contado >
+MovimientoFinancieroFGEM "*" --> "0..1" CuentaDineroFGEM
+ActivoFGEM "*" --> "0..1" CuentaDineroFGEM : pagado desde >
+DeudaFGEM "*" --> "0..1" CuentaDineroFGEM : ingresó a >
+PagoDeudaFGEM "*" --> "0..1" CuentaDineroFGEM
+MovimientoTesoreriaFGEM "*" --> "0..2" CuentaDineroFGEM : origen / destino >
+EmpresaFGEM "1" *-- "*" MovimientoTesoreriaFGEM
+EmpresaFGEM "1" *-- "*" EscenarioFGEM
+EmpresaFGEM "1" *-- "*" InformeGeneradoFGEM
 
-Empresa "1" *-- "*" MovimientoGanado
-Empresa "1" *-- "*" ProduccionGanadera
-Empresa "1" *-- "*" Parcela
-Parcela "1" *-- "*" Campania
-Campania "1" *-- "*" CostoCampania
-Campania "1" *-- "*" Cosecha
-Empresa "1" *-- "*" Visita
-Visita "1" *-- "*" Compromiso
-Visita "1" *-- "*" FotoVisita
+EmpresaFGEM "1" *-- "*" MovimientoGanadoFGEM
+EmpresaFGEM "1" *-- "*" ProduccionGanaderaFGEM
+EmpresaFGEM "1" *-- "*" ParcelaFGEM
+ParcelaFGEM "1" *-- "*" CampaniaFGEM
+CampaniaFGEM "1" *-- "*" CostoCampaniaFGEM
+CampaniaFGEM "1" *-- "*" CosechaFGEM
+EmpresaFGEM "1" *-- "*" VisitaFGEM
+VisitaFGEM "1" *-- "*" CompromisoFGEM
+VisitaFGEM "1" *-- "*" FotoVisitaFGEM
 
 note "Los módulos agropecuarios solo se\nmuestran si sector = AGROPECUARIO." as N1
-N1 .. Sector
+N1 .. SectorFGEM
 @enduml

@@ -24,7 +24,7 @@ empresas: rentabilidad, punto de equilibrio, tendencias, predicciones, escenario
 ```
 
 En IntelliJ IDEA: abrir la carpeta como proyecto Maven y ejecutar
-`com.businessanalyzer.Launcher` (o el goal Maven `javafx:run`).
+`com.businessanalyzer.LauncherFGEM` (o el goal Maven `javafx:run`).
 
 ## Datos locales
 
@@ -278,7 +278,7 @@ Se calcula con **Apache Commons Math**:
 - **Libro de Excel** (Apache POI) con seis hojas: Resumen, Evolución mensual, Productos, Ventas, Compras, e Ingresos y gastos.
   - Montos, fechas y porcentajes se guardan como números con formato.
   - Cada hoja tiene filtros automáticos, encabezados inmovilizados y totales con fórmulas (`SUMIF`/`SUMIFS`) que excluyen lo anulado.
-- **Plantilla única:** `src/main/resources/informes/informe.jrxml`. Cada informe es una lista de bloques (`ContenidoInforme`), así todos comparten el mismo diseño.
+- **Plantilla única:** `src/main/resources/informes/informe.jrxml`. Cada informe es una lista de bloques (`ContenidoInformeFGEM`), así todos comparten el mismo diseño.
 - **Archivos seguros:** se escriben primero en un temporal; si el destino está abierto en otro programa, se avisa sin dejar el archivo a medias.
 - **Historial** de informes generados por empresa (migración V8), con «Abrir» y «Mostrar en la carpeta».
 - **Permiso:** `INFORMES_GENERAR` (Administrador, Gerente y Analista).
@@ -323,7 +323,7 @@ La versión se define **solo** en `pom.xml` (`<version>x.y.z</version>`). La lee
 Numeración: `1.1.1` para correcciones, `1.2.0` para funciones nuevas compatibles y `2.0.0` para cambios grandes.
 
 1. Cambia `<version>` en `pom.xml`, por ejemplo a `1.1.1`.
-2. Si el cambio modifica la base de datos, agrega una migración nueva (la siguiente es `V13__descripcion.sql`) y regístrala en `Migrador`. Nunca modifiques una migración ya publicada.
+2. Si el cambio modifica la base de datos, agrega una migración nueva (la siguiente es `V15__descripcion.sql`) y regístrala en `MigradorFGEM`. Nunca modifiques una migración ya publicada.
 3. Ejecuta `.\empaquetar.ps1`: corre las pruebas y genera `Business Analyzer-1.1.1.exe` y el `.zip` portable.
 4. Haz commit, crea la etiqueta (`git tag -a v1.1.1 -m "..."`) y súbela con `git push --follow-tags`.
 5. Publica la release:

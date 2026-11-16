@@ -18,68 +18,68 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.businessanalyzer.controller.AgriculturaController"
+      fx:controller="com.businessanalyzer.controller.AgriculturaControllerFGEM"
       spacing="14" styleClass="page">
 
     <!-- Indicadores principales -->
-    <HBox fx:id="indicadores" spacing="16"/>
+    <HBox fx:id="indicadoresFGEM" spacing="16"/>
 
-    <TabPane fx:id="pestanas" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
+    <TabPane fx:id="pestanasFGEM" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
 
         <!-- 1. Campañas -->
         <Tab text="Campañas">
             <VBox spacing="10" styleClass="tab-contenido">
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <ComboBox fx:id="cmbFiltro" prefWidth="150" minWidth="130"/>
-                    <CheckBox fx:id="chkAnuladas" text="Incluir anuladas" minWidth="-Infinity" onAction="#cargar"/>
+                    <ComboBox fx:id="cmbFiltroFGEM" prefWidth="150" minWidth="130"/>
+                    <CheckBox fx:id="chkAnuladasFGEM" text="Incluir anuladas" minWidth="-Infinity" onAction="#cargarFGEM"/>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="btnCosto" text="Costo" styleClass="button-secondary" minWidth="-Infinity"
-                            onAction="#registrarCosto">
+                    <Button fx:id="btnCostoFGEM" text="Costo" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#registrarCostoFGEM">
                         <graphic><FontIcon iconLiteral="fth-minus-circle"/></graphic>
                     </Button>
-                    <Button fx:id="btnCosecha" text="Cosecha" styleClass="button-secondary" minWidth="-Infinity"
-                            onAction="#registrarCosecha">
+                    <Button fx:id="btnCosechaFGEM" text="Cosecha" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#registrarCosechaFGEM">
                         <graphic><FontIcon iconLiteral="fth-package"/></graphic>
                     </Button>
-                    <Button fx:id="btnCerrar" text="Cerrar campaña" styleClass="button-secondary" minWidth="-Infinity"
-                            onAction="#cerrarCampania">
+                    <Button fx:id="btnCerrarFGEM" text="Cerrar campaña" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#cerrarCampaniaFGEM">
                         <graphic><FontIcon iconLiteral="fth-check-square"/></graphic>
                     </Button>
-                    <Button fx:id="btnRegistros" text="Registros" styleClass="button-secondary" minWidth="-Infinity"
-                            onAction="#verRegistros">
+                    <Button fx:id="btnRegistrosFGEM" text="Registros" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#verRegistrosFGEM">
                         <graphic><FontIcon iconLiteral="fth-list"/></graphic>
                     </Button>
-                    <MenuButton fx:id="menuMas" text="Más" styleClass="button-secondary" minWidth="-Infinity">
+                    <MenuButton fx:id="menuMasFGEM" text="Más" styleClass="button-secondary" minWidth="-Infinity">
                         <items>
-                            <MenuItem fx:id="itemEditar" text="Editar campaña…" onAction="#editarCampania"/>
-                            <MenuItem fx:id="itemReabrir" text="Reabrir campaña" onAction="#reabrirCampania"/>
-                            <MenuItem fx:id="itemAnular" text="Anular campaña…" onAction="#anularCampania"/>
+                            <MenuItem fx:id="itemEditarFGEM" text="Editar campaña…" onAction="#editarCampaniaFGEM"/>
+                            <MenuItem fx:id="itemReabrirFGEM" text="Reabrir campaña" onAction="#reabrirCampaniaFGEM"/>
+                            <MenuItem fx:id="itemAnularFGEM" text="Anular campaña…" onAction="#anularCampaniaFGEM"/>
                         </items>
                     </MenuButton>
-                    <Button fx:id="btnNuevaCampania" text="Nueva campaña" styleClass="button-primary" minWidth="-Infinity"
-                            onAction="#nuevaCampania">
+                    <Button fx:id="btnNuevaCampaniaFGEM" text="Nueva campaña" styleClass="button-primary" minWidth="-Infinity"
+                            onAction="#nuevaCampaniaFGEM">
                         <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
                     </Button>
                 </HBox>
                 <HBox spacing="16" VBox.vgrow="ALWAYS">
-                    <TableView fx:id="tablaCampanias" HBox.hgrow="ALWAYS">
+                    <TableView fx:id="tablaCampaniasFGEM" HBox.hgrow="ALWAYS">
                         <columns>
-                            <TableColumn fx:id="colCamCultivo" text="Cultivo" prefWidth="175"/>
-                            <TableColumn fx:id="colCamSiembra" text="Siembra" prefWidth="90"/>
-                            <TableColumn fx:id="colCamArea" text="Área" prefWidth="60" styleClass="col-numero"/>
-                            <TableColumn fx:id="colCamEstado" text="Estado" prefWidth="90"/>
-                            <TableColumn fx:id="colCamCosto" text="Costo" prefWidth="95" styleClass="col-numero"/>
-                            <TableColumn fx:id="colCamRendimiento" text="kg/ha" prefWidth="75" styleClass="col-numero"/>
-                            <TableColumn fx:id="colCamMargen" text="Margen" prefWidth="95" styleClass="col-numero"/>
+                            <TableColumn fx:id="colCamCultivoFGEM" text="Cultivo" prefWidth="175"/>
+                            <TableColumn fx:id="colCamSiembraFGEM" text="Siembra" prefWidth="90"/>
+                            <TableColumn fx:id="colCamAreaFGEM" text="Área" prefWidth="60" styleClass="col-numero"/>
+                            <TableColumn fx:id="colCamEstadoFGEM" text="Estado" prefWidth="90"/>
+                            <TableColumn fx:id="colCamCostoFGEM" text="Costo" prefWidth="95" styleClass="col-numero"/>
+                            <TableColumn fx:id="colCamRendimientoFGEM" text="kg/ha" prefWidth="75" styleClass="col-numero"/>
+                            <TableColumn fx:id="colCamMargenFGEM" text="Margen" prefWidth="95" styleClass="col-numero"/>
                         </columns>
                         <columnResizePolicy>
                             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
                         </columnResizePolicy>
                     </TableView>
                     <VBox styleClass="card" spacing="10" prefWidth="310" minWidth="290">
-                        <Label fx:id="lblDetalleTitulo" text="Resultado de la campaña" styleClass="card-title" wrapText="true"/>
+                        <Label fx:id="lblDetalleTituloFGEM" text="Resultado de la campaña" styleClass="card-title" wrapText="true"/>
                         <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="dialog-scroll" VBox.vgrow="ALWAYS">
-                            <VBox fx:id="detalle" spacing="10"/>
+                            <VBox fx:id="detalleFGEM" spacing="10"/>
                         </ScrollPane>
                     </VBox>
                 </HBox>
@@ -91,16 +91,16 @@
             <VBox spacing="12" styleClass="tab-contenido">
                 <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
                        text="Campañas cerradas (cosechadas o perdidas) agrupadas por cultivo. Los promedios se ponderan por la superficie sembrada."/>
-                <TableView fx:id="tablaComparacion" prefHeight="235" minHeight="190">
+                <TableView fx:id="tablaComparacionFGEM" prefHeight="235" minHeight="190">
                     <columns>
-                        <TableColumn fx:id="colCmpCultivo" text="Cultivo" prefWidth="160"/>
-                        <TableColumn fx:id="colCmpCampanias" text="Campañas" prefWidth="80" styleClass="col-numero"/>
-                        <TableColumn fx:id="colCmpArea" text="Área (ha)" prefWidth="75" styleClass="col-numero"/>
-                        <TableColumn fx:id="colCmpRendimiento" text="kg/ha" prefWidth="80" styleClass="col-numero"/>
-                        <TableColumn fx:id="colCmpAvance" text="\% referencia" prefWidth="95" styleClass="col-numero"/>
-                        <TableColumn fx:id="colCmpCosto" text="Costo/ha" prefWidth="100" styleClass="col-numero"/>
-                        <TableColumn fx:id="colCmpMargen" text="Margen/ha" prefWidth="100" styleClass="col-numero"/>
-                        <TableColumn fx:id="colCmpMejor" text="Mejor campaña" prefWidth="170"/>
+                        <TableColumn fx:id="colCmpCultivoFGEM" text="Cultivo" prefWidth="160"/>
+                        <TableColumn fx:id="colCmpCampaniasFGEM" text="Campañas" prefWidth="80" styleClass="col-numero"/>
+                        <TableColumn fx:id="colCmpAreaFGEM" text="Área (ha)" prefWidth="75" styleClass="col-numero"/>
+                        <TableColumn fx:id="colCmpRendimientoFGEM" text="kg/ha" prefWidth="80" styleClass="col-numero"/>
+                        <TableColumn fx:id="colCmpAvanceFGEM" text="\% referencia" prefWidth="95" styleClass="col-numero"/>
+                        <TableColumn fx:id="colCmpCostoFGEM" text="Costo/ha" prefWidth="100" styleClass="col-numero"/>
+                        <TableColumn fx:id="colCmpMargenFGEM" text="Margen/ha" prefWidth="100" styleClass="col-numero"/>
+                        <TableColumn fx:id="colCmpMejorFGEM" text="Mejor campaña" prefWidth="170"/>
                     </columns>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
@@ -108,7 +108,7 @@
                 </TableView>
                 <VBox styleClass="card" spacing="6" VBox.vgrow="ALWAYS">
                     <Label text="Rendimiento de cada campaña frente a su referencia (kg/ha)" styleClass="card-title"/>
-                    <StackPane fx:id="graficoCampanias" minHeight="200" VBox.vgrow="ALWAYS"/>
+                    <StackPane fx:id="graficoCampaniasFGEM" minHeight="200" VBox.vgrow="ALWAYS"/>
                 </VBox>
             </VBox>
         </Tab>
@@ -117,28 +117,28 @@
         <Tab text="Parcelas">
             <VBox spacing="10" styleClass="tab-contenido">
                 <HBox spacing="10" alignment="CENTER_LEFT">
-                    <CheckBox fx:id="chkInactivas" text="Incluir desactivadas" minWidth="-Infinity" onAction="#cargar"/>
+                    <CheckBox fx:id="chkInactivasFGEM" text="Incluir desactivadas" minWidth="-Infinity" onAction="#cargarFGEM"/>
                     <Region HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="btnEditarParcela" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
-                            onAction="#editarParcela">
+                    <Button fx:id="btnEditarParcelaFGEM" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#editarParcelaFGEM">
                         <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
                     </Button>
-                    <Button fx:id="btnEstadoParcela" text="Desactivar" styleClass="button-secondary" minWidth="-Infinity"
-                            onAction="#cambiarEstadoParcela">
+                    <Button fx:id="btnEstadoParcelaFGEM" text="Desactivar" styleClass="button-secondary" minWidth="-Infinity"
+                            onAction="#cambiarEstadoParcelaFGEM">
                         <graphic><FontIcon iconLiteral="fth-archive"/></graphic>
                     </Button>
-                    <Button fx:id="btnNuevaParcela" text="Nueva parcela" styleClass="button-primary" minWidth="-Infinity"
-                            onAction="#nuevaParcela">
+                    <Button fx:id="btnNuevaParcelaFGEM" text="Nueva parcela" styleClass="button-primary" minWidth="-Infinity"
+                            onAction="#nuevaParcelaFGEM">
                         <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
                     </Button>
                 </HBox>
-                <TableView fx:id="tablaParcelas" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tablaParcelasFGEM" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colParNombre" text="Parcela" prefWidth="180"/>
-                        <TableColumn fx:id="colParArea" text="Superficie" prefWidth="90" styleClass="col-numero"/>
-                        <TableColumn fx:id="colParTenencia" text="Tenencia" prefWidth="140"/>
-                        <TableColumn fx:id="colParRiego" text="Agua" prefWidth="80"/>
-                        <TableColumn fx:id="colParUbicacion" text="Ubicación" prefWidth="220"/>
+                        <TableColumn fx:id="colParNombreFGEM" text="Parcela" prefWidth="180"/>
+                        <TableColumn fx:id="colParAreaFGEM" text="Superficie" prefWidth="90" styleClass="col-numero"/>
+                        <TableColumn fx:id="colParTenenciaFGEM" text="Tenencia" prefWidth="140"/>
+                        <TableColumn fx:id="colParRiegoFGEM" text="Agua" prefWidth="80"/>
+                        <TableColumn fx:id="colParUbicacionFGEM" text="Ubicación" prefWidth="220"/>
                     </columns>
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN"/>
