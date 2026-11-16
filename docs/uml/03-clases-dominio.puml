@@ -1,6 +1,6 @@
 @startuml 03-clases-dominio
 !include estilo.iuml
-title Business Analyzer Desktop 1.1 — Modelo de dominio (paquete model)
+title Business Analyzer Desktop 1.2 — Modelo de dominio (paquete model)
 hide empty methods
 
 package "Seguridad" {
@@ -63,8 +63,11 @@ package "Operaciones y finanzas" {
     subtotal, impuesto, total : BigDecimal
     costoTotal : BigDecimal
     estado : EstadoOperacion
+    condicion : CondicionPago  «CONTADO / CREDITO»
+    vencimiento : LocalDate
     --
     margenBruto() : BigDecimal
+    pendiente() : BigDecimal
     anulada() : boolean
   }
   class LineaOperacion <<record>> {
@@ -88,9 +91,30 @@ package "Operaciones y finanzas" {
     monto : BigDecimal
     tasaAnual : BigDecimal
   }
-  class PagoDeuda <<record>>
+  class PagoDeuda <<record>> {
+    monto : BigDecimal  «capital»
+    interes : BigDecimal
+  }
   class Escenario <<record>>
   class InformeGenerado <<record>>
+}
+
+package "Tesorería" {
+  class CuentaDinero <<record>> {
+    nombre : String
+    tipo : TipoCuenta  «CAJA / BANCO / BILLETERA»
+    saldoInicial : BigDecimal
+    activa : boolean
+  }
+  class PagoOperacion <<record>> {
+    fecha : LocalDate
+    monto : BigDecimal
+  }
+  class MovimientoTesoreria <<record>> {
+    tipo : TipoMovimientoTesoreria
+    «TRANSFERENCIA / APORTE / RETIRO»
+    monto : BigDecimal
+  }
 }
 
 package "Agropecuario" {
@@ -145,6 +169,18 @@ Empresa "1" *-- "*" MovimientoFinanciero
 Empresa "1" *-- "*" Activo
 Empresa "1" *-- "*" Deuda
 Deuda "1" *-- "*" PagoDeuda
+PagoDeuda "0..1" --> "0..1" MovimientoFinanciero : intereses >
+
+Empresa "1" *-- "1..*" CuentaDinero
+Operacion "1" *-- "*" PagoOperacion : cobros / pagos >
+PagoOperacion "*" --> "1" CuentaDinero
+Operacion "*" --> "0..1" CuentaDinero : al contado >
+MovimientoFinanciero "*" --> "0..1" CuentaDinero
+Activo "*" --> "0..1" CuentaDinero : pagado desde >
+Deuda "*" --> "0..1" CuentaDinero : ingresó a >
+PagoDeuda "*" --> "0..1" CuentaDinero
+MovimientoTesoreria "*" --> "0..2" CuentaDinero : origen / destino >
+Empresa "1" *-- "*" MovimientoTesoreria
 Empresa "1" *-- "*" Escenario
 Empresa "1" *-- "*" InformeGenerado
 

@@ -7,6 +7,7 @@ import com.businessanalyzer.analytics.ResumenOperaciones;
 import com.businessanalyzer.analytics.patrimonio.BalanceGeneral;
 import com.businessanalyzer.analytics.patrimonio.IndicadoresPatrimonio;
 import com.businessanalyzer.analytics.patrimonio.SituacionPatrimonial;
+import com.businessanalyzer.analytics.tesoreria.ProyeccionCaja;
 import com.businessanalyzer.model.Activo;
 import com.businessanalyzer.model.CategoriaActivo;
 import com.businessanalyzer.model.CategoriaDeuda;
@@ -112,6 +113,35 @@ class MotorDiagnosticoTest {
         return new DatosDiagnostico(base.sector(), base.moneda(), base.periodo(), 3, base.operaciones(), base.finanzas(),
                 base.operacionesAnteriores(), base.meses(), base.ventasMensuales(), base.utilidadMensual(),
                 base.productos(), s);
+    }
+
+    @Test
+    void laCajaProyectadaAvisaCuandoElDineroNoAlcanza() {
+        DatosDiagnostico base = datos("21000", "30000", crecientes(12), productosSanos());
+        LocalDate hoy = LocalDate.of(2026, 1, 31);
+
+        // Sin historia en tesorería no se evalúa.
+        assertEquals(Semaforo.SIN_DATOS, hallazgo(MotorDiagnostico.evaluar(base), TipoIndicador.CAJA_PROYECTADA).semaforo());
+
+        // La operación pierde 400 al mes y hay 1 000 en las cuentas: falta dinero en abril.
+        ProyeccionCaja pierde = ProyeccionCaja.calcular(hoy, bd("1000"),
+                new double[]{-400, -400, -400, -400, -400, -400}, List.of());
+        Hallazgo rojo = hallazgo(MotorDiagnostico.evaluar(conCaja(base, pierde)), TipoIndicador.CAJA_PROYECTADA);
+        assertEquals(Semaforo.ROJO, rojo.semaforo());
+        assertTrue(rojo.valor().contains("abril 2026"), rojo.valor());
+        assertTrue(rojo.recomendacion().contains("adicionales"), rojo.recomendacion());
+
+        // Flujos positivos y estables: alcanza incluso en el escenario pesimista.
+        ProyeccionCaja gana = ProyeccionCaja.calcular(hoy, bd("1000"),
+                new double[]{800, 810, 790, 805, 800, 795}, List.of());
+        assertEquals(Semaforo.VERDE,
+                hallazgo(MotorDiagnostico.evaluar(conCaja(base, gana)), TipoIndicador.CAJA_PROYECTADA).semaforo());
+    }
+
+    private static DatosDiagnostico conCaja(DatosDiagnostico base, ProyeccionCaja caja) {
+        return new DatosDiagnostico(base.sector(), base.moneda(), base.periodo(), 3, base.operaciones(), base.finanzas(),
+                base.operacionesAnteriores(), base.meses(), base.ventasMensuales(), base.utilidadMensual(),
+                base.productos(), null, null, caja);
     }
 
     private static Activo activo(CategoriaActivo categoria, String valor) {

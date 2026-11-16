@@ -43,7 +43,7 @@ final class ValidadorPatrimonio {
                 }
             }
         }
-        return new DatosActivo(d.categoria(), descripcion, fecha, valor, vida, residual);
+        return new DatosActivo(d.categoria(), descripcion, fecha, valor, vida, residual, d.cuentaId());
     }
 
     static DatosDeuda deuda(DatosDeuda d, LocalDate hoy) {
@@ -79,7 +79,8 @@ final class ValidadorPatrimonio {
         if (vencimiento != null && vencimiento.isAfter(fecha.plusYears(50))) {
             throw new ValidacionException("El plazo de la deuda no puede superar 50 años.");
         }
-        return new DatosDeuda(d.categoria(), acreedor, descripcion, fecha, monto, tasa, cuota, vencimiento);
+        return new DatosDeuda(d.categoria(), acreedor, descripcion, fecha, monto, tasa, cuota, vencimiento,
+                d.cuentaId());
     }
 
     static BigDecimal montoPago(BigDecimal monto, BigDecimal saldo) {
@@ -91,6 +92,11 @@ final class ValidadorPatrimonio {
             throw new ValidacionException("El pago no puede superar el saldo pendiente.");
         }
         return limpio;
+    }
+
+    /** Intereses de la cuota: opcionales (cero si no se indican). */
+    static BigDecimal interes(BigDecimal interes) {
+        return interes == null ? BigDecimal.ZERO : ValidadorCatalogo.monto(interes, "Intereses");
     }
 
     static LocalDate fecha(LocalDate fecha, String campo, LocalDate hoy) {

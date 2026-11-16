@@ -5,6 +5,7 @@ import com.businessanalyzer.analytics.RentabilidadProducto;
 import com.businessanalyzer.analytics.ResumenFinanciero;
 import com.businessanalyzer.analytics.ResumenOperaciones;
 import com.businessanalyzer.analytics.patrimonio.SituacionPatrimonial;
+import com.businessanalyzer.analytics.tesoreria.ProyeccionCaja;
 import com.businessanalyzer.model.Moneda;
 import com.businessanalyzer.model.Sector;
 
@@ -23,13 +24,24 @@ import java.util.List;
  *                         endeudamiento quedan sin evaluar)
  * @param agro             datos del hato, las campañas y las inspecciones; {@code null} si la empresa no
  *                         es agropecuaria (sus indicadores no se incluyen)
+ * @param caja             proyección del dinero disponible (tesorería); {@code null} si no se dispone
  */
 public record DatosDiagnostico(Sector sector, Moneda moneda, Periodo periodo, int mesesPeriodo,
                                ResumenOperaciones operaciones, ResumenFinanciero finanzas,
                                ResumenOperaciones operacionesAnteriores,
                                List<YearMonth> meses, double[] ventasMensuales, double[] utilidadMensual,
                                List<RentabilidadProducto> productos, SituacionPatrimonial patrimonio,
-                               DatosAgro agro) {
+                               DatosAgro agro, ProyeccionCaja caja) {
+
+    /** Sin proyección de caja. */
+    public DatosDiagnostico(Sector sector, Moneda moneda, Periodo periodo, int mesesPeriodo,
+                            ResumenOperaciones operaciones, ResumenFinanciero finanzas,
+                            ResumenOperaciones operacionesAnteriores,
+                            List<YearMonth> meses, double[] ventasMensuales, double[] utilidadMensual,
+                            List<RentabilidadProducto> productos, SituacionPatrimonial patrimonio, DatosAgro agro) {
+        this(sector, moneda, periodo, mesesPeriodo, operaciones, finanzas, operacionesAnteriores, meses,
+                ventasMensuales, utilidadMensual, productos, patrimonio, agro, null);
+    }
 
     /**
      * Período con el que se comparan las ventas: el trimestre anterior o, en un productor agropecuario,

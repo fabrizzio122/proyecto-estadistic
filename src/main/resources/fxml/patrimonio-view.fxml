@@ -91,7 +91,7 @@
                     </columnResizePolicy>
                 </TableView>
                 <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
-                       text="Montos sin impuestos. Los activos fijos se deprecian en línea recta por meses completos: valor actual = valor − depreciación acumulada. El inventario de mercadería no se registra aquí: se calcula solo con el stock y el costo de los productos."/>
+                       text="Montos sin impuestos. Los activos fijos se deprecian en línea recta por meses completos: valor actual = valor − depreciación acumulada. El inventario no se registra aquí (se calcula con el stock y el costo de los productos) y el dinero tampoco: está en «Tesorería»."/>
             </VBox>
         </Tab>
 
@@ -140,7 +140,7 @@
                     </columnResizePolicy>
                 </TableView>
                 <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
-                       text="Los pagos registrados aquí son de capital y reducen el saldo. Los intereses se registran como gasto en Gestión financiera (categoría «Intereses de préstamos»). La parte que vence en los próximos 12 meses cuenta como deuda de corto plazo."/>
+                       text="Al registrar un pago se indica el capital (baja el saldo) y los intereses (se registran solos como gasto financiero), y la cuenta de la que salió el dinero. La parte que vence en los próximos 12 meses cuenta como deuda de corto plazo. Las compras al crédito a proveedores se ven en «Tesorería → Por cobrar y por pagar»."/>
             </VBox>
         </Tab>
     </TabPane>

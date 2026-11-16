@@ -5,6 +5,7 @@ import com.businessanalyzer.analytics.ResumenOperaciones;
 import com.businessanalyzer.config.AppContext;
 import com.businessanalyzer.exception.StockInsuficienteException;
 import com.businessanalyzer.exception.ValidacionException;
+import com.businessanalyzer.model.CondicionPago;
 import com.businessanalyzer.model.DatosOperacion;
 import com.businessanalyzer.model.DatosOperacion.DatosLinea;
 import com.businessanalyzer.model.Empresa;
@@ -21,6 +22,7 @@ import com.businessanalyzer.ui.Dialogos;
 import com.businessanalyzer.ui.Errores;
 import com.businessanalyzer.ui.Formularios;
 import com.businessanalyzer.ui.Notificador;
+import com.businessanalyzer.ui.SelectorCuenta;
 import com.businessanalyzer.ui.TarjetaIndicador;
 import com.businessanalyzer.ui.VistaModulo;
 import com.businessanalyzer.util.Fechas;
@@ -95,6 +97,7 @@ public class OperacionesController implements VistaModulo {
     @FXML private TableColumn<Operacion, BigDecimal> colImpuesto;
     @FXML private TableColumn<Operacion, BigDecimal> colTotal;
     @FXML private TableColumn<Operacion, BigDecimal> colMargen;
+    @FXML private TableColumn<Operacion, Operacion> colPago;
     @FXML private TableColumn<Operacion, Operacion> colEstado;
     @FXML private Button btnDetalle;
     @FXML private Button btnAnular;
@@ -351,6 +354,23 @@ public class OperacionesController implements VistaModulo {
         configurarMonto(colImpuesto, Operacion::impuesto);
         configurarMonto(colTotal, Operacion::total);
         configurarMonto(colMargen, Operacion::margenBruto);
+        colPago.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
+        colPago.setSortable(false);
+        colPago.setCellFactory(col -> new TableCell<>() {
+            @Override
+            protected void updateItem(Operacion o, boolean vacio) {
+                super.updateItem(o, vacio);
+                getStyleClass().remove("margen-negativo");
+                if (vacio || o == null) {
+                    setText(null);
+                    return;
+                }
+                setText(o.anulada() ? "—" : textoPago(o).replace("Al contado · ", ""));
+                if (!o.anulada() && o.vencidaEn(LocalDate.now())) {
+                    getStyleClass().add("margen-negativo");
+                }
+            }
+        });
         colEstado.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
         colEstado.setSortable(false);
         colEstado.setCellFactory(col -> new TableCell<>() {
@@ -427,7 +447,9 @@ public class OperacionesController implements VistaModulo {
         agregarDato(datos, 2, 1, "Documento", Objects.requireNonNullElse(o.documentoContraparte(), "—"));
         agregarDato(datos, 0, 2, "Comprobante", Objects.requireNonNullElse(o.comprobante(), "—"));
         agregarDato(datos, 2, 2, "Registrado por", o.registradoPor() + " · " + Fechas.paraMostrar(o.registradoEn()));
-        int fila = 3;
+        agregarDato(datos, 0, 3, "Pago", textoPago(o));
+        agregarDato(datos, 2, 3, "Vence", o.alCredito() ? Fechas.paraMostrar(o.vencimiento()) : "—");
+        int fila = 4;
         if (o.observaciones() != null) {
             agregarDato(datos, 0, fila++, "Observaciones", o.observaciones());
         }
@@ -448,6 +470,21 @@ public class OperacionesController implements VistaModulo {
         VBox totales = bloqueTotales(o.subtotal(), o.tasaImpuesto(), o.impuesto(), o.total(),
                 o.tipo() == TipoOperacion.VENTA ? o.margenBruto() : null);
         return new VBox(14, datos, lineas, totales);
+    }
+
+    /** «Al contado · Caja», «Debe S/ 118.00 (vencida)», «Al crédito · pagada»… */
+    private String textoPago(Operacion o) {
+        if (!o.alCredito()) {
+            return o.cuenta() == null ? "Al contado" : "Al contado · " + o.cuenta();
+        }
+        if (o.anulada()) {
+            return "Al crédito";
+        }
+        if (o.pendiente().signum() == 0) {
+            return "Al crédito · pagada";
+        }
+        return (o.tipo() == TipoOperacion.VENTA ? "Por cobrar " : "Por pagar ") + Montos.formatear(o.pendiente(), moneda)
+                + (o.vencidaEn(LocalDate.now()) ? " (vencida)" : "");
     }
 
     private static void agregarDato(GridPane grilla, int columna, int fila, String etiqueta, String valor) {
@@ -564,6 +601,10 @@ public class OperacionesController implements VistaModulo {
         private final TextField txtDocumento = new TextField();
         private final TextField txtComprobante = new TextField();
         private final TextField txtObservaciones = new TextField();
+        private final ComboBox<CondicionPago> cmbCondicion =
+                new ComboBox<>(FXCollections.observableArrayList(CondicionPago.values()));
+        private final SelectorCuenta cmbCuenta = new SelectorCuenta(contexto.tesoreria().cuentasActivas(), null, null);
+        private final DatePicker dpVencimiento = CamposFecha.nuevo(null);
         private final CheckBox chkActualizarCostos = new CheckBox("Usar estos precios como nuevo costo del catálogo");
         private final TextField txtFiltro = new TextField();
         private final ComboBox<Producto> cmbProducto = new ComboBox<>();
@@ -583,6 +624,20 @@ public class OperacionesController implements VistaModulo {
             txtDocumento.setPromptText("RUC o DNI (opcional)");
             txtComprobante.setPromptText("Ej.: F001-000123");
             txtObservaciones.setPromptText("Opcional");
+            dpVencimiento.setPromptText("Fecha límite (opcional)");
+            // Al contado el dinero entra o sale de una cuenta; al crédito queda pendiente hasta su vencimiento.
+            cmbCondicion.valueProperty().addListener((o, a, condicion) -> {
+                boolean credito = condicion == CondicionPago.CREDITO;
+                cmbCuenta.setDisable(credito);
+                dpVencimiento.setDisable(!credito);
+                if (credito && dpVencimiento.getValue() == null && dpFecha.getValue() != null) {
+                    dpVencimiento.setValue(dpFecha.getValue().plusDays(30));
+                }
+                if (!credito) {
+                    dpVencimiento.setValue(null);
+                }
+            });
+            cmbCondicion.setValue(CondicionPago.CONTADO);
             chkActualizarCostos.setSelected(true);
             txtFiltro.setPromptText("Filtrar productos…");
             txtCantidad.setPrefWidth(80);
@@ -622,6 +677,12 @@ public class OperacionesController implements VistaModulo {
             txtDocumento.setText(o.documentoContraparte() == null ? "" : o.documentoContraparte());
             txtComprobante.setText(o.comprobante() == null ? "" : o.comprobante());
             txtObservaciones.setText(o.observaciones() == null ? "" : o.observaciones());
+            cmbCondicion.setValue(o.condicion());
+            if (o.cuentaId() != null) {
+                cmbCuenta.getItems().stream().filter(x -> o.cuentaId().equals(x.id())).findFirst()
+                        .ifPresent(cmbCuenta::setValue);
+            }
+            dpVencimiento.setValue(o.vencimiento());
             chkActualizarCostos.setSelected(false);
             for (LineaOperacion linea : o.lineas()) {
                 Producto producto = catalogo.stream().filter(p -> p.id() == linea.productoId()).findFirst()
@@ -646,6 +707,15 @@ public class OperacionesController implements VistaModulo {
             campoCabecera(cabecera, 2, 1, "Documento", txtDocumento);
             campoCabecera(cabecera, 0, 2, "Comprobante", txtComprobante);
             campoCabecera(cabecera, 2, 2, "Observaciones", txtObservaciones);
+            campoCabecera(cabecera, 0, 3, "Pago *", cmbCondicion);
+            campoCabecera(cabecera, 2, 3, tipo == TipoOperacion.VENTA ? "Entra a" : "Sale de", cmbCuenta);
+            campoCabecera(cabecera, 0, 4, "Vence", dpVencimiento);
+            Label ayudaPago = new Label(tipo == TipoOperacion.VENTA
+                    ? "Al crédito, la venta queda por cobrar en «Tesorería» hasta que registres los cobros."
+                    : "Al crédito, la compra queda por pagar en «Tesorería» hasta que registres los pagos.");
+            ayudaPago.getStyleClass().add("hint");
+            ayudaPago.setWrapText(true);
+            cabecera.add(ayudaPago, 2, 4, 2, 1);
 
             Button agregar = new Button("Agregar", new org.kordamp.ikonli.javafx.FontIcon("fth-plus"));
             agregar.getStyleClass().add("button-secondary");
@@ -770,9 +840,12 @@ public class OperacionesController implements VistaModulo {
             for (LineaFormulario l : lineas) {
                 datosLineas.add(new DatosLinea(l.producto.id(), l.cantidad, l.precio));
             }
+            CondicionPago condicion = cmbCondicion.getValue();
             return new DatosOperacion(tipo, fecha, txtContraparte.getText(), txtDocumento.getText(),
                     txtComprobante.getText(), tasa, txtObservaciones.getText(), datosLineas,
-                    tipo == TipoOperacion.COMPRA && chkActualizarCostos.isSelected());
+                    tipo == TipoOperacion.COMPRA && chkActualizarCostos.isSelected(), condicion,
+                    condicion == CondicionPago.CONTADO ? cmbCuenta.cuentaId() : null,
+                    CamposFecha.leer(dpVencimiento, "vencimiento"));
         }
 
         private void mostrarErrorLinea(String mensaje) {

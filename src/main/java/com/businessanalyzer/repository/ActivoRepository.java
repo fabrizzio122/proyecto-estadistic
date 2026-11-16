@@ -25,7 +25,8 @@ public class ActivoRepository {
 
     private static final String CONSULTA = """
             SELECT id, empresa_id, categoria, descripcion, fecha, valor, vida_util_anios, valor_residual,
-                   estado, fecha_baja, motivo_baja, registrado_por, registrado_en, actualizado_por, actualizado_en
+                   estado, fecha_baja, motivo_baja, registrado_por, registrado_en, actualizado_por, actualizado_en,
+                   cuenta_id
             FROM activo""";
 
     public List<Activo> listar(Connection c, long empresaId, boolean incluirBajas) throws SQLException {
@@ -50,12 +51,12 @@ public class ActivoRepository {
             throws SQLException {
         try (PreparedStatement ps = c.prepareStatement("""
                 INSERT INTO activo (categoria, descripcion, fecha, valor, vida_util_anios, valor_residual,
-                                    empresa_id, registrado_por, registrado_en)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS)) {
+                                    cuenta_id, empresa_id, registrado_por, registrado_en)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS)) {
             asignarDatos(ps, d);
-            ps.setLong(7, empresaId);
-            ps.setString(8, usuario);
-            ps.setString(9, Fechas.aTexto(ahora));
+            ps.setLong(8, empresaId);
+            ps.setString(9, usuario);
+            ps.setString(10, Fechas.aTexto(ahora));
             ps.executeUpdate();
             try (ResultSet claves = ps.getGeneratedKeys()) {
                 if (!claves.next()) {
@@ -71,12 +72,12 @@ public class ActivoRepository {
         try (PreparedStatement ps = c.prepareStatement("""
                 UPDATE activo
                 SET categoria = ?, descripcion = ?, fecha = ?, valor = ?, vida_util_anios = ?, valor_residual = ?,
-                    actualizado_por = ?, actualizado_en = ?
+                    cuenta_id = ?, actualizado_por = ?, actualizado_en = ?
                 WHERE id = ? AND estado = 'VIGENTE'""")) {
             asignarDatos(ps, d);
-            ps.setString(7, usuario);
-            ps.setString(8, Fechas.aTexto(ahora));
-            ps.setLong(9, id);
+            ps.setString(8, usuario);
+            ps.setString(9, Fechas.aTexto(ahora));
+            ps.setLong(10, id);
             exigirUnaFila(ps.executeUpdate());
         }
     }
@@ -107,6 +108,7 @@ public class ActivoRepository {
             ps.setInt(5, d.vidaUtilAnios());
         }
         ps.setLong(6, Montos.aEntero(d.valorResidual()));
+        Sql.enteroOpcional(ps, 7, d.cuentaId());
     }
 
     private static List<Activo> mapear(PreparedStatement ps) throws SQLException {
@@ -131,7 +133,8 @@ public class ActivoRepository {
                         rs.getString("registrado_por"),
                         Fechas.desdeTexto(rs.getString("registrado_en")),
                         rs.getString("actualizado_por"),
-                        Fechas.desdeTexto(rs.getString("actualizado_en"))));
+                        Fechas.desdeTexto(rs.getString("actualizado_en")),
+                        Sql.enteroOpcional(rs, "cuenta_id")));
             }
         }
         return activos;

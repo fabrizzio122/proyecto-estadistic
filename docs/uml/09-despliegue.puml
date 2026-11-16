@@ -1,6 +1,6 @@
 @startuml 09-despliegue
 !include estilo.iuml
-title Business Analyzer Desktop 1.1 — Despliegue
+title Business Analyzer Desktop 1.2 — Despliegue
 
 node "PC con Windows 10/11 (64 bits)" as PC {
   node "Business Analyzer\n(instalado con el .exe o portable .zip)" as APP {

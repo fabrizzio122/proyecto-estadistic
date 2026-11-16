@@ -24,7 +24,10 @@ import com.businessanalyzer.model.EstadoCampania;
 import com.businessanalyzer.model.Parcela;
 import com.businessanalyzer.model.RubroCosto;
 import com.businessanalyzer.model.Tenencia;
+import com.businessanalyzer.analytics.tesoreria.SaldoCuenta;
 import com.businessanalyzer.model.DatosActivo;
+import com.businessanalyzer.model.DatosCuenta;
+import com.businessanalyzer.model.TipoCuenta;
 import com.businessanalyzer.model.DatosDeuda;
 import com.businessanalyzer.model.DatosEmpresa;
 import com.businessanalyzer.model.DatosMovimientoGanado;
@@ -64,12 +67,14 @@ public class DatosDemoAgroService {
     private final VisitaService visitas;
     private final FinanzasService finanzas;
     private final PatrimonioService patrimonio;
+    private final TesoreriaService tesoreria;
     private final Sesion sesion;
     private final Clock reloj;
 
     public DatosDemoAgroService(EmpresaService empresas, GanaderiaService ganaderia, AgriculturaService agricultura,
                                 PatrimonioService patrimonio, Sesion sesion, Clock reloj, VisitaService visitas,
-                                FinanzasService finanzas) {
+                                FinanzasService finanzas, TesoreriaService tesoreria) {
+        this.tesoreria = tesoreria;
         this.finanzas = finanzas;
         this.visitas = visitas;
         this.empresas = empresas;
@@ -155,8 +160,6 @@ public class DatosDemoAgroService {
         precios.putAll(Map.of(OVEJA, bd("300"), BORREGA, bd("220"), CORDERO, bd("120"), CARNERO, bd("500")));
         ganaderia.guardarPrecios(precios);
 
-        patrimonio.registrarActivo(new DatosActivo(CategoriaActivo.CAJA_BANCOS, "Efectivo y cuenta de ahorros", hoy,
-                bd("3500"), null, null));
         patrimonio.registrarActivo(new DatosActivo(CategoriaActivo.MAQUINARIA, "Picadora de forraje y ordeñadora",
                 hoy.minusYears(3), bd("9000"), 10, bd("500")));
         patrimonio.registrarActivo(new DatosActivo(CategoriaActivo.EDIFICIOS, "Establo y cobertizo para alpacas",
@@ -166,7 +169,19 @@ public class DatosDemoAgroService {
         registrarAgricultura(inicio);
         registrarGastos(inicio, hoy);
         registrarVisitas(hoy);
+        ajustarCaja();
         return empresa;
+    }
+
+    /**
+     * Los gastos del año salieron de la caja del fundo; su saldo inicial se fija para que hoy le queden
+     * S/ 3 500 (efectivo y cuenta de ahorros). Las ventas agropecuarias aún no se registran por cuenta.
+     */
+    private void ajustarCaja() {
+        SaldoCuenta caja = tesoreria.listarCuentas(false).get(0);
+        BigDecimal movido = caja.saldo().subtract(caja.cuenta().saldoInicial());
+        tesoreria.actualizarCuenta(caja.cuenta().id(), new DatosCuenta(caja.cuenta().nombre(), TipoCuenta.CAJA, null,
+                bd("3500").subtract(movido)));
     }
 
     /** Una supervisión hace 3 meses con compromisos y una de seguimiento reciente que los verifica. */

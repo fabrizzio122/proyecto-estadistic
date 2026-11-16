@@ -8,6 +8,9 @@ import com.businessanalyzer.exception.ValidacionException;
 import com.businessanalyzer.model.Activo;
 import com.businessanalyzer.model.CategoriaActivo;
 import com.businessanalyzer.model.CategoriaDeuda;
+import com.businessanalyzer.model.CuentaDinero;
+import com.businessanalyzer.model.DatosCuenta;
+import com.businessanalyzer.model.TipoCuenta;
 import com.businessanalyzer.model.DatosActivo;
 import com.businessanalyzer.model.DatosDeuda;
 import com.businessanalyzer.model.DatosOperacion;
@@ -58,7 +61,9 @@ class PatrimonioServiceTest {
 
     @Test
     void elBalanceIncluyeActivosInventarioYDeudas() {
-        activo(CategoriaActivo.CAJA_BANCOS, "Caja", HOY, "5000", null, null);
+        // La caja empieza con 8 540; la compra de 3 540 (con IGV) sale de ella y quedan 5 000.
+        CuentaDinero caja = entorno.tesoreria.cuentasActivas().get(0);
+        entorno.tesoreria.actualizarCuenta(caja.id(), new DatosCuenta("Caja", TipoCuenta.CAJA, null, new BigDecimal("8540")));
         activo(CategoriaActivo.MAQUINARIA, "Cortadora", LocalDate.of(2025, 1, 15), "12000", 10, null);
         Producto clavos = entorno.catalogo.crearProducto(new DatosProducto(TipoItem.PRODUCTO, null, "Clavos 1 kg",
                 null, null, UnidadMedida.UNIDAD, new BigDecimal("6"), new BigDecimal("9")));
@@ -82,14 +87,16 @@ class PatrimonioServiceTest {
 
     @Test
     void validaLosActivos() {
-        assertInvalido(() -> activo(CategoriaActivo.CAJA_BANCOS, "Caja", HOY.plusDays(1), "10", null, null));
+        assertInvalido(() -> activo(CategoriaActivo.CUENTAS_POR_COBRAR, "Préstamo a un tercero", HOY.plusDays(1), "10", null, null));
         assertInvalido(() -> activo(CategoriaActivo.VEHICULOS, "Moto", HOY, "0", 5, null));
         assertInvalido(() -> activo(CategoriaActivo.VEHICULOS, "Moto", HOY, "5000", 0, null));
         assertInvalido(() -> activo(CategoriaActivo.VEHICULOS, "Moto", HOY, "5000", 5, "6000"));
         assertInvalido(() -> activo(null, "Moto", HOY, "5000", 5, null));
 
         // En los activos corrientes y terrenos se ignoran la vida útil y el valor residual.
-        Activo caja = activo(CategoriaActivo.CAJA_BANCOS, "Caja", HOY, "0", 5, "10");
+        Activo caja = activo(CategoriaActivo.CUENTAS_POR_COBRAR, "Préstamo a un tercero", HOY, "0", 5, "10");
+        // El efectivo ya no es un activo escrito a mano: se registra en «Tesorería».
+        assertInvalido(() -> activo(CategoriaActivo.CAJA_BANCOS, "Caja", HOY, "100", null, null));
         assertNull(caja.vidaUtilAnios());
         igual("0", caja.valorResidual());
         assertNull(activo(CategoriaActivo.TERRENOS, "Lote", HOY, "50000", 20, null).vidaUtilAnios());
@@ -179,7 +186,7 @@ class PatrimonioServiceTest {
     @Test
     void losDatosSonDeLaEmpresaActiva() {
         Deuda d = servicio.registrarDeuda(deuda(CategoriaDeuda.OTRAS, "Banco", HOY, "100", null, null));
-        Activo a = activo(CategoriaActivo.CAJA_BANCOS, "Caja", HOY, "50", null, null);
+        Activo a = activo(CategoriaActivo.CUENTAS_POR_COBRAR, "Adelanto a proveedor", HOY, "50", null, null);
         entorno.crearEmpresaActiva("Otra empresa");
 
         assertEquals(0, servicio.listarDeudas(true).size());
@@ -191,7 +198,7 @@ class PatrimonioServiceTest {
 
     @Test
     void respetaLosPermisos() {
-        activo(CategoriaActivo.CAJA_BANCOS, "Caja", HOY, "50", null, null);
+        activo(CategoriaActivo.CUENTAS_POR_COBRAR, "Adelanto a proveedor", HOY, "50", null, null);
         Usuario analista = entorno.crearUsuario("analista", "ANALISTA");
         entorno.empresaService.asignarAccesos(empresa.id(), Set.of(analista.id()));
         entorno.entrarComo("analista", "Temporal123");
@@ -200,7 +207,7 @@ class PatrimonioServiceTest {
         assertEquals(1, servicio.listarActivos(false).size());
         igual("50", servicio.situacion().balance().totalActivo());
         assertThrows(AccesoDenegadoException.class,
-                () -> activo(CategoriaActivo.CAJA_BANCOS, "Caja 2", HOY, "50", null, null));
+                () -> activo(CategoriaActivo.CUENTAS_POR_COBRAR, "Adelanto a proveedor 2", HOY, "50", null, null));
         assertThrows(AccesoDenegadoException.class,
                 () -> servicio.registrarDeuda(deuda(CategoriaDeuda.OTRAS, "Banco", HOY, "100", null, null)));
     }

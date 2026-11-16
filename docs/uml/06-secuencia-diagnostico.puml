@@ -1,6 +1,6 @@
 @startuml 06-secuencia-diagnostico
 !include estilo.iuml
-title Business Analyzer Desktop 1.1 — Diagnóstico empresarial
+title Business Analyzer Desktop 1.2 — Diagnóstico empresarial
 autonumber
 
 actor Analista
@@ -28,7 +28,7 @@ end
 deactivate DB
 SRV -> MOTOR : evaluar(DatosDiagnostico)
 activate MOTOR
-loop por cada indicador (14 generales + 4 agro)
+loop por cada indicador (15 generales + 4 agro)
   MOTOR -> MOTOR : valor vs. umbrales del sector\n→ VERDE / AMARILLO / ROJO
 end
 MOTOR -> MOTOR : puntaje ponderado → NivelSalud\n(tope «En riesgo» si un indicador clave está en rojo)

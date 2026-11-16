@@ -1,6 +1,6 @@
 @startuml 07-estados-campania
 !include estilo.iuml
-title Business Analyzer Desktop 1.1 — Estados de una campaña agrícola
+title Business Analyzer Desktop 1.2 — Estados de una campaña agrícola
 
 [*] --> EN_CURSO : registrarCampania()\n[parcela activa]
 

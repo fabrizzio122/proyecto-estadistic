@@ -17,6 +17,7 @@ import com.businessanalyzer.ui.Dialogos;
 import com.businessanalyzer.ui.Errores;
 import com.businessanalyzer.ui.Formularios;
 import com.businessanalyzer.ui.Notificador;
+import com.businessanalyzer.ui.SelectorCuenta;
 import com.businessanalyzer.ui.TarjetaIndicador;
 import com.businessanalyzer.ui.VistaModulo;
 import com.businessanalyzer.util.Fechas;
@@ -90,6 +91,7 @@ public class FinanzasController implements VistaModulo {
     @FXML private TableColumn<MovimientoFinanciero, String> colCategoria;
     @FXML private TableColumn<MovimientoFinanciero, String> colDescripcion;
     @FXML private TableColumn<MovimientoFinanciero, String> colComportamiento;
+    @FXML private TableColumn<MovimientoFinanciero, String> colCuenta;
     @FXML private TableColumn<MovimientoFinanciero, MovimientoFinanciero> colMonto;
     @FXML private VBox desglose;
 
@@ -253,6 +255,10 @@ public class FinanzasController implements VistaModulo {
         if (m == null || m.anulado() || !contexto.sesion().tienePermiso(Permiso.FINANZAS_GESTIONAR)) {
             return;
         }
+        if (m.dePagoDeuda()) {
+            Notificador.info("Este gasto lo generó el pago de una deuda: corrígelo desde el pago, en «Activos y deudas».");
+            return;
+        }
         FormularioMovimiento formulario = new FormularioMovimiento(m.tipo(), m);
         boolean ok = Dialogos.formulario(ventana(), "Editar " + m.tipo().descripcion().toLowerCase(), null,
                 formulario.contenido(), "Guardar cambios", () -> servicio().actualizar(m.id(), formulario.datos()));
@@ -325,6 +331,7 @@ public class FinanzasController implements VistaModulo {
                 + (c.getValue().anulado() ? "  (anulado)" : "")));
         colComportamiento.setCellValueFactory(c -> texto(c.getValue().comportamiento() == null
                 ? "Ingreso" : c.getValue().comportamiento().descripcion()));
+        colCuenta.setCellValueFactory(c -> texto(c.getValue().cuenta() == null ? "—" : c.getValue().cuenta()));
 
         colMonto.setCellValueFactory(c -> new ReadOnlyObjectWrapper<>(c.getValue()));
         colMonto.setComparator(Comparator.comparing(MovimientoFinanciero::monto));
@@ -371,7 +378,8 @@ public class FinanzasController implements VistaModulo {
 
     private void actualizarAcciones() {
         MovimientoFinanciero m = seleccionado();
-        boolean deshabilitar = m == null || m.anulado();
+        // Los intereses que generó el pago de una deuda se corrigen desde ese pago.
+        boolean deshabilitar = m == null || m.anulado() || m.dePagoDeuda();
         btnEditar.setDisable(deshabilitar);
         btnAnular.setDisable(deshabilitar);
     }
@@ -412,9 +420,14 @@ public class FinanzasController implements VistaModulo {
         private final TextField txtDescripcion = new TextField();
         private final TextField txtMonto = new TextField();
         private final TextField txtComprobante = new TextField();
+        private final SelectorCuenta cmbCuenta;
 
         FormularioMovimiento(TipoMovimiento tipo, MovimientoFinanciero m) {
             this.tipo = tipo;
+            // Los registros anteriores a la tesorería pueden quedarse sin cuenta al corregirlos.
+            boolean antiguo = m != null && m.cuentaId() == null;
+            cmbCuenta = new SelectorCuenta(contexto.tesoreria().cuentasActivas(),
+                    antiguo ? "Sin cuenta (registro anterior a Tesorería)" : null, m == null ? null : m.cuentaId());
             cmbCategoria = new ComboBox<>(FXCollections.observableArrayList(CategoriaFinanciera.de(tipo)));
             cmbCategoria.setPromptText("Selecciona la categoría");
             cmbCategoria.setVisibleRowCount(12);
@@ -453,6 +466,7 @@ public class FinanzasController implements VistaModulo {
             Formularios.fila(grilla, "Fecha *", dpFecha);
             Formularios.fila(grilla, "Descripción *", txtDescripcion);
             Formularios.fila(grilla, "Monto (" + moneda.simbolo() + ") *", txtMonto);
+            Formularios.fila(grilla, tipo == TipoMovimiento.GASTO ? "Pagado desde *" : "Cobrado en *", cmbCuenta);
             Formularios.fila(grilla, "Comprobante", txtComprobante);
             return grilla;
         }
@@ -462,7 +476,7 @@ public class FinanzasController implements VistaModulo {
             return new DatosMovimiento(tipo, cmbCategoria.getValue(),
                     tipo == TipoMovimiento.GASTO ? cmbComportamiento.getValue() : null,
                     fecha, txtDescripcion.getText(), Montos.leer(txtMonto.getText(), "Monto"),
-                    txtComprobante.getText());
+                    txtComprobante.getText(), cmbCuenta.cuentaId());
         }
     }
 }

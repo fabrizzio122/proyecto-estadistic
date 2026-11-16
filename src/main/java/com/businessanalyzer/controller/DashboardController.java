@@ -17,6 +17,7 @@ import com.businessanalyzer.model.Moneda;
 import com.businessanalyzer.model.Permiso;
 import com.businessanalyzer.ui.Errores;
 import com.businessanalyzer.ui.Graficos;
+import com.businessanalyzer.service.TesoreriaService;
 import com.businessanalyzer.ui.Modulo;
 import com.businessanalyzer.ui.Tareas;
 import com.businessanalyzer.ui.TarjetaIndicador;
@@ -28,6 +29,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -74,10 +76,11 @@ public class DashboardController implements VistaModulo {
     private final TarjetaIndicador kpiUtilidad = new TarjetaIndicador("Utilidad neta del mes", "fth-dollar-sign");
     private final TarjetaIndicador kpiMargen = new TarjetaIndicador("Margen neto", "fth-percent");
     private final TarjetaIndicador kpiEquilibrio = new TarjetaIndicador("Punto de equilibrio", "fth-target");
+    private final TarjetaIndicador kpiDinero = new TarjetaIndicador("Dinero disponible", "fth-credit-card");
 
     /** Lo que muestra el panel; cada parte puede faltar (sin permiso o sin datos). */
     private record Panel(AnalisisFinanciero analisis, Diagnostico diagnostico, ResultadoPrediccion prediccion,
-                         String errorDiagnostico, String errorPrediccion) {
+                         String errorDiagnostico, String errorPrediccion, TesoreriaService.Resumen tesoreria) {
     }
 
     public DashboardController(AppContext contexto) {
@@ -86,7 +89,10 @@ public class DashboardController implements VistaModulo {
 
     @FXML
     private void initialize() {
-        indicadores.getChildren().addAll(kpiVentas, kpiUtilidad, kpiMargen, kpiEquilibrio);
+        indicadores.getChildren().addAll(kpiVentas, kpiUtilidad, kpiMargen, kpiEquilibrio, kpiDinero);
+        kpiDinero.setOnMouseClicked(e -> contexto.abrirModulo(Modulo.TESORERIA));
+        kpiDinero.setStyle("-fx-cursor: hand;");
+        Tooltip.install(kpiDinero, new Tooltip("Abrir «Tesorería»"));
         boolean analisis = contexto.sesion().tienePermiso(Permiso.ANALISIS_VER);
         for (Button b : List.of(btnAnalisis, btnDiagnostico, btnPredicciones)) {
             b.setVisible(analisis);
@@ -138,7 +144,13 @@ public class DashboardController implements VistaModulo {
         } catch (RuntimeException e) {
             errorPrediccion = Errores.mensaje(e);
         }
-        return new Panel(analisis, diagnostico, prediccion, errorDiagnostico, errorPrediccion);
+        TesoreriaService.Resumen tesoreria = null;
+        try {
+            tesoreria = contexto.tesoreria().resumen();
+        } catch (RuntimeException e) {
+            // Sin permiso de finanzas o sin cuentas: la tarjeta queda vacía.
+        }
+        return new Panel(analisis, diagnostico, prediccion, errorDiagnostico, errorPrediccion, tesoreria);
     }
 
     // ------------------------------------------------------------------ presentación
@@ -147,6 +159,16 @@ public class DashboardController implements VistaModulo {
         contenido.setVisible(true);
         contenido.setManaged(true);
         mostrarIndicadores(p.analisis(), moneda);
+        TesoreriaService.Resumen t = p.tesoreria();
+        if (t == null) {
+            kpiDinero.actualizar(TarjetaIndicador.SIN_VALOR, "");
+        } else {
+            kpiDinero.actualizar(Montos.formatear(t.disponible(), moneda), t.cuentasNegativas() > 0
+                    ? "¡Hay cuentas en negativo!"
+                    : t.porCobrarVencido().signum() > 0
+                    ? "Cobros vencidos: " + Montos.formatear(t.porCobrarVencido(), moneda)
+                    : "Por cobrar: " + Montos.formatear(t.porCobrar(), moneda));
+        }
         graficoEvolucion.getChildren().setAll(p.analisis().evolucion().isEmpty()
                 ? vacio("Aún no hay meses con movimientos.")
                 : Graficos.visor(Graficos.evolucionMensual(p.analisis().evolucion(), moneda)));
@@ -279,7 +301,7 @@ public class DashboardController implements VistaModulo {
 
     private void limpiar(String mensaje) {
         lblPeriodo.setText("");
-        for (TarjetaIndicador t : List.of(kpiVentas, kpiUtilidad, kpiMargen, kpiEquilibrio)) {
+        for (TarjetaIndicador t : List.of(kpiVentas, kpiUtilidad, kpiMargen, kpiEquilibrio, kpiDinero)) {
             t.actualizar(TarjetaIndicador.SIN_VALOR, mensaje.length() > 40 ? "" : mensaje);
         }
         contenido.setVisible(false);

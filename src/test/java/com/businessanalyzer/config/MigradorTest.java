@@ -8,6 +8,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Path;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,6 +75,47 @@ class MigradorTest {
 
         assertThrows(IllegalArgumentException.class, () -> new Migrador(database, desordenadas));
         assertThrows(IllegalArgumentException.class, () -> new Migrador(database, repetidas));
+    }
+
+    @Test
+    void laTesoreriaConvierteCajaYBancosEnLaCuentaCaja() {
+        // Base de la versión 1.1 (esquema V12) con una empresa que tenía su efectivo como activo.
+        new Migrador(database, Migrador.MIGRACIONES.subList(0, 12)).migrar();
+        database.enTransaccion(c -> {
+            try (Statement st = c.createStatement()) {
+                st.executeUpdate("""
+                        INSERT INTO empresa (id, razon_social, sector, tamano, moneda, creado_en, actualizado_en)
+                        VALUES (1, 'Bodega Antigua', 'COMERCIO', 'MICRO', 'PEN', '2026-01-01T00:00:00',
+                                '2026-01-01T00:00:00')""");
+                st.executeUpdate("""
+                        INSERT INTO activo (empresa_id, categoria, descripcion, fecha, valor, registrado_por, registrado_en)
+                        VALUES (1, 'CAJA_BANCOS', 'Caja', '2026-01-01', 52500000, 'admin', '2026-01-01T00:00:00'),
+                               (1, 'CAJA_BANCOS', 'Banco', '2026-01-01', 10000000, 'admin', '2026-01-01T00:00:00'),
+                               (1, 'MOBILIARIO', 'Vitrina', '2026-01-01', 20000000, 'admin', '2026-01-01T00:00:00')""");
+            }
+            return null;
+        });
+
+        assertEquals(ULTIMA_VERSION, new Migrador(database).migrar());
+
+        assertEquals(1, contarFilas("cuenta_dinero"));
+        long saldoInicial = database.conConexion(c -> {
+            try (PreparedStatement ps = c.prepareStatement(
+                    "SELECT saldo_inicial FROM cuenta_dinero WHERE empresa_id = 1 AND nombre = 'Caja'");
+                 ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getLong(1) : -1L;
+            }
+        });
+        assertEquals(62_500_000L, saldoInicial, "S/ 6 250 = 5 250 de caja + 1 000 de banco");
+        int vigentesCaja = database.conConexion(c -> {
+            try (PreparedStatement ps = c.prepareStatement(
+                    "SELECT COUNT(*) FROM activo WHERE categoria = 'CAJA_BANCOS' AND estado = 'VIGENTE'");
+                 ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt(1) : -1;
+            }
+        });
+        assertEquals(0, vigentesCaja, "«Caja y bancos» pasa a la cuenta Caja");
+        assertEquals(3, contarFilas("activo"), "Los activos se conservan como historial");
     }
 
     @Test

@@ -1,5 +1,25 @@
 # Cambios
 
+## 1.2.0 — sin publicar
+
+### Nuevo
+- **Tesorería**: cuentas de dinero (caja, bancos, billeteras digitales) cuyo saldo se calcula solo, transferencias
+  entre cuentas y aportes o retiros del dueño.
+- **Ventas y compras al crédito**: quedan por cobrar o por pagar, con fecha de vencimiento y cobros o pagos parciales.
+- Cada venta, compra, ingreso, gasto, compra de activo, préstamo y pago de deuda indica la cuenta por la que se movió
+  el dinero.
+- **Pago de cuotas con capital e intereses**: los intereses se registran solos como gasto financiero.
+- **Estado de flujo de efectivo** (método directo) y evolución mensual de entradas, salidas y dinero disponible.
+- **Proyección de caja** a 6 meses, con escenario pesimista y aviso del mes en que faltaría dinero.
+- Diagnóstico: nuevo indicador «Caja proyectada». Dashboard: tarjeta «Dinero disponible».
+
+### Mejorado
+- El balance general toma el efectivo de las cuentas y suma las ventas y compras al crédito pendientes.
+- La Bodega Demo usa caja, banco y Yape, deposita la venta dos veces al mes y tiene ventas y compras al crédito.
+
+### Base de datos
+- Migración V13 (tesorería). «Caja y bancos» pasa a una cuenta «Caja» con el mismo saldo; los datos existentes se conservan.
+
 ## 1.1.0 — 2026-11-15
 
 ### Nuevo

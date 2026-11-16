@@ -28,13 +28,15 @@ public class DeudaRepository {
     private static final String CONSULTA = """
             SELECT d.id, d.empresa_id, d.categoria, d.acreedor, d.descripcion, d.fecha, d.monto, d.tasa_anual,
                    d.cuota_mensual, d.vencimiento, d.estado, d.motivo_anulacion, d.registrado_por, d.registrado_en,
-                   d.actualizado_por, d.actualizado_en,
+                   d.actualizado_por, d.actualizado_en, d.cuenta_id,
                    (SELECT COALESCE(SUM(p.monto), 0) FROM pago_deuda p
                     WHERE p.deuda_id = d.id AND p.estado = 'REGISTRADO') AS pagado
             FROM deuda d""";
 
     private static final String CONSULTA_PAGOS = """
-            SELECT id, deuda_id, fecha, monto, nota, estado, registrado_por, registrado_en, anulado_por, anulado_en
+            SELECT id, deuda_id, fecha, monto, nota, estado, registrado_por, registrado_en, anulado_por, anulado_en,
+                   interes, cuenta_id,
+                   (SELECT cd.nombre FROM cuenta_dinero cd WHERE cd.id = pago_deuda.cuenta_id) AS cuenta
             FROM pago_deuda""";
 
     public List<Deuda> listar(Connection c, long empresaId, boolean incluirAnuladas) throws SQLException {
@@ -59,12 +61,12 @@ public class DeudaRepository {
             throws SQLException {
         try (PreparedStatement ps = c.prepareStatement("""
                 INSERT INTO deuda (categoria, acreedor, descripcion, fecha, monto, tasa_anual, cuota_mensual,
-                                   vencimiento, empresa_id, registrado_por, registrado_en)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS)) {
+                                   vencimiento, cuenta_id, empresa_id, registrado_por, registrado_en)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS)) {
             asignarDatos(ps, d);
-            ps.setLong(9, empresaId);
-            ps.setString(10, usuario);
-            ps.setString(11, Fechas.aTexto(ahora));
+            ps.setLong(10, empresaId);
+            ps.setString(11, usuario);
+            ps.setString(12, Fechas.aTexto(ahora));
             ps.executeUpdate();
             return claveGenerada(ps, "la deuda");
         }
@@ -75,12 +77,12 @@ public class DeudaRepository {
         try (PreparedStatement ps = c.prepareStatement("""
                 UPDATE deuda
                 SET categoria = ?, acreedor = ?, descripcion = ?, fecha = ?, monto = ?, tasa_anual = ?,
-                    cuota_mensual = ?, vencimiento = ?, actualizado_por = ?, actualizado_en = ?
+                    cuota_mensual = ?, vencimiento = ?, cuenta_id = ?, actualizado_por = ?, actualizado_en = ?
                 WHERE id = ? AND estado = 'VIGENTE'""")) {
             asignarDatos(ps, d);
-            ps.setString(9, usuario);
-            ps.setString(10, Fechas.aTexto(ahora));
-            ps.setLong(11, id);
+            ps.setString(10, usuario);
+            ps.setString(11, Fechas.aTexto(ahora));
+            ps.setLong(12, id);
             exigirUnaFila(ps.executeUpdate(), "La deuda ya no existe o está anulada. Actualiza la lista.");
         }
     }
@@ -127,20 +129,57 @@ public class DeudaRepository {
         }
     }
 
-    public long insertarPago(Connection c, long deudaId, LocalDate fecha, BigDecimal monto, String nota,
-                             String usuario, LocalDateTime ahora) throws SQLException {
+    /**
+     * @param capital      lo que baja el saldo de la deuda
+     * @param interes      intereses de la cuota (cero si no hay)
+     * @param cuentaId     cuenta de la que salió el pago
+     * @param movimientoId gasto financiero con el que se registraron los intereses; {@code null} si no hay
+     */
+    public long insertarPago(Connection c, long deudaId, LocalDate fecha, BigDecimal capital, BigDecimal interes,
+                             Long cuentaId, Long movimientoId, String nota, String usuario, LocalDateTime ahora)
+            throws SQLException {
         try (PreparedStatement ps = c.prepareStatement("""
-                INSERT INTO pago_deuda (deuda_id, fecha, monto, nota, registrado_por, registrado_en)
-                VALUES (?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS)) {
+                INSERT INTO pago_deuda (deuda_id, fecha, monto, interes, cuenta_id, movimiento_id, nota,
+                                        registrado_por, registrado_en)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS)) {
             ps.setLong(1, deudaId);
             ps.setString(2, Fechas.fechaATexto(fecha));
-            ps.setLong(3, Montos.aEntero(monto));
-            ps.setString(4, nota);
-            ps.setString(5, usuario);
-            ps.setString(6, Fechas.aTexto(ahora));
+            ps.setLong(3, Montos.aEntero(capital));
+            ps.setLong(4, Montos.aEntero(interes));
+            Sql.enteroOpcional(ps, 5, cuentaId);
+            Sql.enteroOpcional(ps, 6, movimientoId);
+            ps.setString(7, nota);
+            ps.setString(8, usuario);
+            ps.setString(9, Fechas.aTexto(ahora));
             ps.executeUpdate();
             return claveGenerada(ps, "el pago");
         }
+    }
+
+    /** Gasto financiero (intereses) que se generó con el pago; vacío si el pago no tuvo intereses. */
+    public Optional<Long> movimientoDelPago(Connection c, long pagoId) throws SQLException {
+        try (PreparedStatement ps = c.prepareStatement("SELECT movimiento_id FROM pago_deuda WHERE id = ?")) {
+            ps.setLong(1, pagoId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Optional.ofNullable(Sql.enteroOpcional(rs, "movimiento_id")) : Optional.empty();
+            }
+        }
+    }
+
+    /** Gastos financieros (intereses) de los pagos vigentes de la deuda. */
+    public List<Long> movimientosDeLaDeuda(Connection c, long deudaId) throws SQLException {
+        List<Long> ids = new ArrayList<>();
+        try (PreparedStatement ps = c.prepareStatement("""
+                SELECT movimiento_id FROM pago_deuda
+                WHERE deuda_id = ? AND estado = 'REGISTRADO' AND movimiento_id IS NOT NULL""")) {
+            ps.setLong(1, deudaId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ids.add(rs.getLong(1));
+                }
+            }
+        }
+        return ids;
     }
 
     public void anularPago(Connection c, long id, String usuario, LocalDateTime ahora) throws SQLException {
@@ -165,6 +204,7 @@ public class DeudaRepository {
         montoOpcional(ps, 6, d.tasaAnual());
         montoOpcional(ps, 7, d.cuotaMensual());
         ps.setString(8, Fechas.fechaATexto(d.vencimiento()));
+        Sql.enteroOpcional(ps, 9, d.cuentaId());
     }
 
     private static void montoOpcional(PreparedStatement ps, int indice, BigDecimal valor) throws SQLException {
@@ -210,7 +250,8 @@ public class DeudaRepository {
                         rs.getString("registrado_por"),
                         Fechas.desdeTexto(rs.getString("registrado_en")),
                         rs.getString("actualizado_por"),
-                        Fechas.desdeTexto(rs.getString("actualizado_en"))));
+                        Fechas.desdeTexto(rs.getString("actualizado_en")),
+                        Sql.enteroOpcional(rs, "cuenta_id")));
             }
         }
         return deudas;
@@ -230,7 +271,10 @@ public class DeudaRepository {
                         rs.getString("registrado_por"),
                         Fechas.desdeTexto(rs.getString("registrado_en")),
                         rs.getString("anulado_por"),
-                        Fechas.desdeTexto(rs.getString("anulado_en"))));
+                        Fechas.desdeTexto(rs.getString("anulado_en")),
+                        Montos.desdeEntero(rs.getLong("interes")),
+                        Sql.enteroOpcional(rs, "cuenta_id"),
+                        rs.getString("cuenta")));
             }
         }
         return pagos;

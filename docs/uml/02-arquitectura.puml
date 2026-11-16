@@ -1,23 +1,23 @@
 @startuml 02-arquitectura
 !include estilo.iuml
-title Business Analyzer Desktop 1.1 — Arquitectura en capas
+title Business Analyzer Desktop 1.2 — Arquitectura en capas
 
 package "Presentación (JavaFX 21)" as P {
   component "Vistas FXML + CSS\n(resources/fxml, css)" as FXML
-  component "controller\n22 controladores\n(MainController, DashboardController,\nOperacionesController, …)" as CTRL
+  component "controller\n23 controladores\n(MainController, DashboardController,\nOperacionesController, …)" as CTRL
   component "ui\nNavegador, Dialogos, Formularios,\nGraficos (JFreeChart), Tareas" as UI
 }
 
 package "Lógica de negocio" as N {
-  component "service\n22 servicios + validadores\n(OperacionService, DiagnosticoService, …)" as SRV
+  component "service\n23 servicios + validadores\n(OperacionService, DiagnosticoService, …)" as SRV
   component "seguridad\nSesion, PasswordHasher\n(PBKDF2), PoliticaPassword" as SEG
   component "analytics\ncálculos puros, sin BD:\nfinanciero, estadística, predicción,\nsimulación, diagnóstico, patrimonio,\nganadería, agricultura, valoración" as ANA
   component "informes\nContenidoInforme, GeneradorPdf\n(JasperReports), LibroExcel (POI)" as INF
 }
 
 package "Datos" as D {
-  component "repository\n17 repositorios\nJDBC puro (PreparedStatement)" as REPO
-  component "config\nAppContext (composición),\nDatabase (transacciones),\nMigrador V1…V12" as CFG
+  component "repository\n18 repositorios\nJDBC puro (PreparedStatement)" as REPO
+  component "config\nAppContext (composición),\nDatabase (transacciones),\nMigrador V1…V13" as CFG
   database "SQLite\nbusiness-analyzer.db" as DB
 }
 

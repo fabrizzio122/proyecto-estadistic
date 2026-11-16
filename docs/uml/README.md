@@ -1,4 +1,4 @@
-# Diagramas UML — Business Analyzer Desktop 1.1
+# Diagramas UML — Business Analyzer Desktop 1.2
 
 Los diagramas están escritos en [PlantUML](https://plantuml.com) (`.puml`), así que se versionan
 junto al código. Las imágenes están en `png/` (para diapositivas) y `svg/` (para el informe escrito).
@@ -12,7 +12,7 @@ junto al código. Las imágenes están en `png/` (para diapositivas) y `svg/` (p
 | 05 | [Registrar una venta](05-secuencia-registrar-venta.puml) | Secuencia | Permisos, validación, transacción, stock insuficiente y corrección |
 | 06 | [Diagnóstico](06-secuencia-diagnostico.puml) | Secuencia | Cómo se reúnen los datos y se evalúan los indicadores |
 | 07 | [Estados de una campaña](07-estados-campania.puml) | Máquina de estados | En curso, cosechada, perdida y anulada |
-| 08 | [Modelo de datos](08-modelo-datos.puml) | Entidad-relación | Las 30 tablas de SQLite (migraciones V1–V12) |
+| 08 | [Modelo de datos](08-modelo-datos.puml) | Entidad-relación | Las 33 tablas de SQLite (migraciones V1–V13) |
 | 09 | [Despliegue](09-despliegue.puml) | Despliegue | Instalación en Windows y carpeta de datos |
 
 ## Regenerar las imágenes

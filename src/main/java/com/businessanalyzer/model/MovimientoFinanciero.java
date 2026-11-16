@@ -9,6 +9,10 @@ import java.time.LocalDateTime;
  *
  * @param comportamiento fijo o variable en gastos; {@code null} en ingresos
  * @param monto          importe sin impuestos, siempre positivo
+ * @param cuentaId       cuenta donde entró o de donde salió el dinero; {@code null} en los registrados
+ *                       antes de la tesorería
+ * @param cuenta         nombre de esa cuenta
+ * @param dePagoDeuda    lo generó el pago de una deuda (intereses): se corrige desde ese pago
  */
 public record MovimientoFinanciero(
         long id,
@@ -27,5 +31,8 @@ public record MovimientoFinanciero(
         LocalDateTime actualizadoEn,
         String motivoAnulacion,
         String anuladoPor,
-        LocalDateTime anuladoEn) {
+        LocalDateTime anuladoEn,
+        Long cuentaId,
+        String cuenta,
+        boolean dePagoDeuda) {
 }

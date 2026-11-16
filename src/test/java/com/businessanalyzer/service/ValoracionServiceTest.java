@@ -39,7 +39,7 @@ class ValoracionServiceTest {
         servicio = entorno.valoracion;
         entorno.administradorConectado();
         bodega = new DatosDemoService(entorno.empresaService, entorno.catalogo, entorno.operaciones, entorno.finanzas,
-                entorno.patrimonio, entorno.sesion, entorno.reloj).crearEmpresaDemo();
+                entorno.patrimonio, entorno.tesoreria, entorno.sesion, entorno.reloj).crearEmpresaDemo();
     }
 
     @Test

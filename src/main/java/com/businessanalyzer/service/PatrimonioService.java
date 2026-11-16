@@ -4,8 +4,12 @@ import com.businessanalyzer.analytics.patrimonio.SituacionPatrimonial;
 import com.businessanalyzer.config.Database;
 import com.businessanalyzer.exception.ValidacionException;
 import com.businessanalyzer.model.Activo;
+import com.businessanalyzer.model.CategoriaActivo;
+import com.businessanalyzer.model.CategoriaFinanciera;
 import com.businessanalyzer.model.DatosActivo;
 import com.businessanalyzer.model.DatosDeuda;
+import com.businessanalyzer.model.DatosMovimiento;
+import com.businessanalyzer.model.TipoMovimiento;
 import com.businessanalyzer.model.Deuda;
 import com.businessanalyzer.model.Empresa;
 import com.businessanalyzer.model.PagoDeuda;
@@ -15,6 +19,7 @@ import com.businessanalyzer.repository.DeudaRepository;
 import com.businessanalyzer.repository.MovimientoRepository;
 import com.businessanalyzer.repository.OperacionRepository;
 import com.businessanalyzer.repository.ProductoRepository;
+import com.businessanalyzer.repository.TesoreriaRepository;
 import com.businessanalyzer.seguridad.Sesion;
 import com.businessanalyzer.util.Montos;
 import com.businessanalyzer.util.Validaciones;
@@ -40,7 +45,9 @@ public class PatrimonioService {
     private final Database database;
     private final ActivoRepository activos;
     private final DeudaRepository deudas;
+    private final MovimientoRepository movimientos;
     private final ConsultaPatrimonio consulta;
+    private final CuentasEmpresa cuentas = new CuentasEmpresa(new TesoreriaRepository());
     private final EmpresaService empresas;
     private final Sesion sesion;
     private final Clock reloj;
@@ -51,6 +58,7 @@ public class PatrimonioService {
         this.database = database;
         this.activos = activos;
         this.deudas = deudas;
+        this.movimientos = movimientos;
         this.consulta = new ConsultaPatrimonio(activos, deudas, productos, operaciones, movimientos);
         this.empresas = empresas;
         this.sesion = sesion;
@@ -77,12 +85,23 @@ public class PatrimonioService {
         sesion.requerir(Permiso.FINANZAS_GESTIONAR);
         Empresa empresa = empresas.empresaDeTrabajo();
         DatosActivo limpios = ValidadorPatrimonio.activo(datos, LocalDate.now(reloj));
+        exigirNoEsEfectivo(limpios, null);
         String usuario = sesion.usuario().nombreUsuario();
         LocalDateTime ahora = LocalDateTime.now(reloj);
         return database.enTransaccion(c -> {
+            cuentas.opcional(c, empresa.id(), limpios.cuentaId(), null);
             long id = activos.insertar(c, empresa.id(), limpios, usuario, ahora);
             return activos.buscarPorId(c, id).orElseThrow();
         });
+    }
+
+    /** El dinero se registra en «Tesorería» (cuentas con saldo calculado), ya no como un activo escrito a mano. */
+    private static void exigirNoEsEfectivo(DatosActivo d, Activo actual) {
+        if (d.categoria() == CategoriaActivo.CAJA_BANCOS
+                && (actual == null || actual.categoria() != CategoriaActivo.CAJA_BANCOS)) {
+            throw new ValidacionException("El efectivo y las cuentas bancarias se registran en «Tesorería»: "
+                    + "crea allí la cuenta con su saldo inicial.");
+        }
     }
 
     public Activo actualizarActivo(long id, DatosActivo datos) {
@@ -96,6 +115,8 @@ public class PatrimonioService {
             if (actual.dadoDeBaja()) {
                 throw new ValidacionException("Un activo dado de baja no se puede modificar.");
             }
+            exigirNoEsEfectivo(limpios, actual);
+            cuentas.opcional(c, empresa.id(), limpios.cuentaId(), actual.cuentaId());
             activos.actualizar(c, id, limpios, usuario, ahora);
             return activos.buscarPorId(c, id).orElseThrow();
         });
@@ -138,6 +159,7 @@ public class PatrimonioService {
         String usuario = sesion.usuario().nombreUsuario();
         LocalDateTime ahora = LocalDateTime.now(reloj);
         return database.enTransaccion(c -> {
+            cuentas.opcional(c, empresa.id(), limpios.cuentaId(), null);
             long id = deudas.insertar(c, empresa.id(), limpios, usuario, ahora);
             return deudas.buscarPorId(c, id).orElseThrow();
         });
@@ -162,12 +184,16 @@ public class PatrimonioService {
             if (primerPago != null && limpios.fecha().isAfter(primerPago)) {
                 throw new ValidacionException("La fecha de inicio no puede ser posterior al primer pago registrado.");
             }
+            cuentas.opcional(c, empresa.id(), limpios.cuentaId(), actual.cuentaId());
             deudas.actualizar(c, id, limpios, usuario, ahora);
             return deudas.buscarPorId(c, id).orElseThrow();
         });
     }
 
-    /** Quita la deuda del balance (por ejemplo, si se registró por error). Sus pagos se conservan. */
+    /**
+     * Quita la deuda del balance (por ejemplo, si se registró por error). Sus pagos se conservan como
+     * historial, pero dejan de mover las cuentas, y los intereses que generaron se anulan.
+     */
     public Deuda anularDeuda(long id, String motivo) {
         sesion.requerir(Permiso.FINANZAS_GESTIONAR);
         Empresa empresa = empresas.empresaDeTrabajo();
@@ -178,6 +204,9 @@ public class PatrimonioService {
             Deuda actual = exigirDeuda(c, id, empresa.id());
             if (actual.anulada()) {
                 throw new ValidacionException("La deuda ya está anulada.");
+            }
+            for (long movimientoId : deudas.movimientosDeLaDeuda(c, id)) {
+                anularInteres(c, movimientoId, "Deuda anulada: " + motivoLimpio, usuario, ahora);
             }
             deudas.anular(c, id, motivoLimpio, usuario, ahora);
             return deudas.buscarPorId(c, id).orElseThrow();
@@ -195,11 +224,25 @@ public class PatrimonioService {
         });
     }
 
-    /** Registra un pago de capital y devuelve la deuda con su nuevo saldo. */
+    /** Registra un pago de capital (sin intereses) desde la cuenta principal. */
     public Deuda registrarPago(long deudaId, LocalDate fecha, BigDecimal monto, String nota) {
+        return registrarPago(deudaId, fecha, monto, BigDecimal.ZERO, null, nota);
+    }
+
+    /**
+     * Registra el pago de una cuota y devuelve la deuda con su nuevo saldo.
+     *
+     * @param capital  lo que baja el saldo de la deuda
+     * @param interes  intereses de la cuota (opcional): se registran también como gasto financiero, para
+     *                 que entren en el estado de resultados
+     * @param cuentaId cuenta de la que sale el dinero; {@code null} = la cuenta principal
+     */
+    public Deuda registrarPago(long deudaId, LocalDate fecha, BigDecimal capital, BigDecimal interes, Long cuentaId,
+                               String nota) {
         sesion.requerir(Permiso.FINANZAS_GESTIONAR);
         Empresa empresa = empresas.empresaDeTrabajo();
         LocalDate fechaPago = ValidadorPatrimonio.fecha(fecha, "Fecha del pago", LocalDate.now(reloj));
+        BigDecimal intereses = ValidadorPatrimonio.interes(interes);
         String notaLimpia = Validaciones.opcional(nota, "Nota", 100);
         String usuario = sesion.usuario().nombreUsuario();
         LocalDateTime ahora = LocalDateTime.now(reloj);
@@ -214,10 +257,28 @@ public class PatrimonioService {
             if (fechaPago.isBefore(deuda.fecha())) {
                 throw new ValidacionException("El pago no puede ser anterior al inicio de la deuda.");
             }
-            BigDecimal montoPago = ValidadorPatrimonio.montoPago(monto, deuda.saldo());
-            deudas.insertarPago(c, deudaId, fechaPago, montoPago, notaLimpia, usuario, ahora);
+            BigDecimal montoPago = ValidadorPatrimonio.montoPago(capital, deuda.saldo());
+            long cuenta = cuentas.resolver(c, empresa.id(), cuentaId, null);
+            Long movimientoId = null;
+            if (intereses.signum() > 0) {
+                movimientoId = movimientos.insertar(c, empresa.id(), new DatosMovimiento(TipoMovimiento.GASTO,
+                        CategoriaFinanciera.INTERESES_PRESTAMOS,
+                        CategoriaFinanciera.INTERESES_PRESTAMOS.comportamientoSugerido(), fechaPago,
+                        recortar("Intereses: " + deuda.acreedor(), 150), intereses, null, cuenta), usuario, ahora);
+            }
+            deudas.insertarPago(c, deudaId, fechaPago, montoPago, intereses, cuenta, movimientoId, notaLimpia,
+                    usuario, ahora);
             return deudas.buscarPorId(c, deudaId).orElseThrow();
         });
+    }
+
+    /** Interés sugerido para la próxima cuota: saldo × tasa anual / 12; cero si no se indicó la tasa. */
+    public static BigDecimal interesSugerido(Deuda deuda) {
+        if (deuda.tasaAnual() == null || !deuda.pendiente()) {
+            return BigDecimal.ZERO;
+        }
+        return deuda.saldo().multiply(deuda.tasaAnual())
+                .divide(BigDecimal.valueOf(1200), 2, java.math.RoundingMode.HALF_UP);
     }
 
     /** Anula un pago registrado por error: el saldo de la deuda vuelve a subir. */
@@ -236,12 +297,27 @@ public class PatrimonioService {
             if (pago.anulado()) {
                 throw new ValidacionException("El pago ya está anulado.");
             }
+            Long movimientoId = deudas.movimientoDelPago(c, pagoId).orElse(null);
+            if (movimientoId != null) {
+                anularInteres(c, movimientoId, "Pago de la deuda anulado", usuario, ahora);
+            }
             deudas.anularPago(c, pagoId, usuario, ahora);
             return deudas.buscarPorId(c, deuda.id()).orElseThrow();
         });
     }
 
     // ------------------------------------------------------------------ utilidades
+
+    private void anularInteres(Connection c, long movimientoId, String motivo, String usuario, LocalDateTime ahora)
+            throws SQLException {
+        if (movimientos.buscarPorId(c, movimientoId).filter(m -> !m.anulado()).isPresent()) {
+            movimientos.anular(c, movimientoId, recortar(motivo, 200), usuario, ahora);
+        }
+    }
+
+    private static String recortar(String texto, int maximo) {
+        return texto.length() <= maximo ? texto : texto.substring(0, maximo);
+    }
 
     private Activo exigirActivo(Connection c, long id, long empresaId) throws SQLException {
         return activos.buscarPorId(c, id)
