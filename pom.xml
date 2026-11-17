@@ -182,6 +182,28 @@
                     </includes>
                 </configuration>
             </plugin>
+            <!-- Cobertura de pruebas (Fase 25): JaCoCo mide qué líneas ejecutan las pruebas.
+                 El informe queda en target/site/jacoco/index.html al correr "mvnw test". -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <executions>
+                    <execution>
+                        <id>preparar-agente</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>informe-cobertura</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Empaquetado (Fase 13): jar ejecutable y dependencias en target/lib para jpackage -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

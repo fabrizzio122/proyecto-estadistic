@@ -1,0 +1,56 @@
+# Integración continua (Fase 25): en cada push o pull request a main, GitHub compila el
+# proyecto, ejecuta las pruebas y publica la cobertura de JaCoCo en el resumen de la ejecución.
+name: Pruebas
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pruebas:
+    name: Compilar y probar (JDK 17)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Instalar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Compilar y ejecutar las pruebas (con cobertura)
+        shell: pwsh
+        run: ./mvnw.cmd -B -ntp test
+
+      - name: Resumen de cobertura
+        if: always()
+        shell: pwsh
+        run: |
+          if (Test-Path target/site/jacoco/jacoco.csv) {
+            ./.github/scripts/resumen-cobertura.ps1 -Markdown | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          }
+
+      - name: Guardar el informe de cobertura
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura-jacoco
+          path: target/site/jacoco/
+          if-no-files-found: ignore
+
+      - name: Guardar los resultados de las pruebas
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultados-pruebas
+          path: target/surefire-reports/
