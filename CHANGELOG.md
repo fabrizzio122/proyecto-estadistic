@@ -1,6 +1,19 @@
 # Cambios
 
-## 1.2.0 — sin publicar
+## Sin publicar
+
+### Corregido
+- **Simulación de escenarios**: con todos los supuestos en 0 % el escenario ahora da exactamente la utilidad de la
+  base (antes difería unos céntimos porque se releía la tasa de impuesto redondeada que muestra el campo).
+- Los textos de ayuda de los formularios bajan de línea en lugar de cortarse con «…», y las etiquetas largas
+  («Rendimiento de referencia», «Valor de adquisición») ya no se recortan.
+
+### Documentación
+- **Informe final** (`docs/informe-final.docx` / `.pdf`) y **Manual de usuario** (`docs/manual-usuario.docx` / `.pdf`)
+  con 66 capturas de la aplicación (`docs/manual/capturas`).
+- Guion de la demostración actualizado a la versión 1.2 (302 pruebas, 14 migraciones).
+
+## 1.2.0 — 16/11/2026
 
 ### Nuevo
 - **Tesorería**: cuentas de dinero (caja, bancos, billeteras digitales) cuyo saldo se calcula solo, transferencias

@@ -1,4 +1,4 @@
-# Guion de la demostración — Business Analyzer Desktop 1.1
+# Guion de la demostración — Business Analyzer Desktop 1.2
 
 Curso: Ingeniería de Software 2 · Duración: **15 minutos** + preguntas.
 
@@ -12,7 +12,7 @@ productor agropecuario y al ingeniero que lo inspecciona.
 
 | # | Tarea | Hecho |
 |---|---|---|
-| 1 | Instalar `Business Analyzer-1.1.0.exe` en la laptop de la presentación (o descomprimir el `.zip` portable). | ☐ |
+| 1 | Instalar `Business Analyzer-1.2.0.exe` en la laptop de la presentación (o descomprimir el `.zip` portable). | ☐ |
 | 2 | Abrir la app, crear el administrador y entrar. | ☐ |
 | 3 | En **Empresas** → **Empresa de demostración** → **Bodega (comercio)**: se crea **Bodega Demo** (12 meses, una venta por día). | ☐ |
 | 4 | En **Empresas** → **Empresa de demostración** → **Fundo ganadero (agropecuario)**: se crea **Fundo Demo**. | ☐ |
@@ -117,7 +117,7 @@ Cambiar la empresa activa a **Fundo Demo** (sector Agropecuario): aparece la sec
 
 ### 14:00 – 15:00 · Calidad y cierre
 
-- **273 pruebas automáticas**, 12 migraciones, copias de seguridad diarias con restauración en dos pasos.
+- **302 pruebas automáticas**, 14 migraciones, copias de seguridad diarias con restauración en dos pasos.
 - **Instalador** `.exe` con Java incluido: el usuario no instala nada más.
 - Cierre: «Business Analyzer convierte registros diarios en decisiones. Gracias.»
 
@@ -133,7 +133,7 @@ Cambiar la empresa activa a **Fundo Demo** (sector Agropecuario): aparece la sec
 | ¿Cómo eligen el método de predicción? | Validación *rolling-origin*: cada método pronostica meses que ya ocurrieron y se elige el de menor error medio absoluto (MAE). |
 | ¿Qué pasa si dos personas usan el sistema? | Cada usuario tiene su rol y solo ve las empresas asignadas. Es monousuario por equipo; una versión en red sería trabajo futuro. |
 | ¿Cómo protegen las contraseñas? | PBKDF2-HMAC-SHA256 con sal, política de contraseñas, bloqueo tras 5 intentos y registro de accesos. |
-| ¿Cómo probaron el sistema? | 273 pruebas JUnit 5: cálculos puros con datos en memoria y servicios con una base SQLite temporal y un reloj controlado. |
+| ¿Cómo probaron el sistema? | 302 pruebas JUnit 5: cálculos puros con datos en memoria y servicios con una base SQLite temporal y un reloj controlado. |
 | ¿Por qué no se pueden borrar ventas? | Por trazabilidad: se **anulan** con motivo y usuario; corregir = anular + registrar en una transacción. |
 | ¿Qué falta? | Fórmulas rurales específicas del ingeniero agrario, versión multiusuario en red y Holt-Winters estacional con 24+ meses de datos. |
 
