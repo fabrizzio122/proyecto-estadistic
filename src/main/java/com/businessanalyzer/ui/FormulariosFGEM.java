@@ -30,6 +30,7 @@ public final class FormulariosFGEM {
         int filaFGEM = grillaFGEM.getRowCount();
         Label labelFGEM = new Label(etiquetaFGEM);
         labelFGEM.getStyleClass().add("form-label");
+        labelFGEM.setMinWidth(Region.USE_PREF_SIZE); // la etiqueta nunca se corta con «…»
         grillaFGEM.add(labelFGEM, 0, filaFGEM);
         grillaFGEM.add(campoFGEM, 1, filaFGEM);
         if (campoFGEM instanceof Region regionFGEM) {
@@ -42,6 +43,10 @@ public final class FormulariosFGEM {
         Label notaFGEM = new Label(textoFGEM);
         notaFGEM.getStyleClass().add("hint");
         notaFGEM.setWrapText(true);
+        // Con un ancho de referencia y alto mínimo = preferido, el texto baja de línea en vez de cortarse.
+        notaFGEM.setPrefWidth(280);
+        notaFGEM.setMaxWidth(Double.MAX_VALUE);
+        notaFGEM.setMinHeight(Region.USE_PREF_SIZE);
         grillaFGEM.add(notaFGEM, 1, grillaFGEM.getRowCount());
     }
 }

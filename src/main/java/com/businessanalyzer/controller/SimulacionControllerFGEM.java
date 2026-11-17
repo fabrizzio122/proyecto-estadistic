@@ -76,6 +76,8 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
     private final Map<VariableFGEM, ControlCambioFGEM> controlesFGEM = new EnumMap<>(VariableFGEM.class);
     private final TextField txtCostoAdicionalFGEM = new TextField("0");
     private final TextField txtTasaFGEM = new TextField("0");
+    private BigDecimal tasaExactaFGEM;
+    private String textoTasaExactaFGEM;
     private final Label lblErrorSupuestosFGEM = new Label();
     private BaseSimulacionFGEM baseFGEM;
     private List<EscenarioFGEM> guardadosFGEM = List.of();
@@ -236,6 +238,10 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
         }
         txtCostoAdicionalFGEM.setText(MontosFGEM.paraEditarFGEM(sFGEM.costoFijoAdicionalFGEM()).replace(".00", ""));
         txtTasaFGEM.setText(textoPorcentajeFGEM(sFGEM.tasaImpuestoFGEM().movePointRight(2).doubleValue()));
+        // El campo muestra la tasa redondeada; mientras no se edite se usa la tasa exacta, para que
+        // un escenario sin cambios dé exactamente la utilidad de la base.
+        tasaExactaFGEM = sFGEM.tasaImpuestoFGEM();
+        textoTasaExactaFGEM = txtTasaFGEM.getText();
         cargandoFGEM = false;
         recalcularFGEM();
     }
@@ -247,9 +253,17 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
         }
     }
 
+    /** Tasa del campo de impuesto: la exacta si el usuario no cambió el texto mostrado. */
+    private BigDecimal tasaDelCampoFGEM() {
+        if (tasaExactaFGEM != null && txtTasaFGEM.getText().equals(textoTasaExactaFGEM)) {
+            return tasaExactaFGEM;
+        }
+        return MontosFGEM.leerFGEM(txtTasaFGEM.getText().replace("%", ""), "Impuesto a la renta").movePointLeft(2);
+    }
+
     private BigDecimal tasaActualFGEM() {
         try {
-            return MontosFGEM.leerFGEM(txtTasaFGEM.getText().replace("%", ""), "Impuesto").movePointLeft(2);
+            return tasaDelCampoFGEM();
         } catch (ValidacionExceptionFGEM eFGEM) {
             return baseFGEM == null ? BigDecimal.ZERO : baseFGEM.tasaImpuestoEfectivaFGEM();
         }
@@ -265,8 +279,7 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
                 controlesFGEM.get(VariableFGEM.COSTOS_FIJOS).fraccionFGEM(),
                 txtCostoAdicionalFGEM.getText().isBlank() ? BigDecimal.ZERO
                         : MontosFGEM.leerFGEM(txtCostoAdicionalFGEM.getText(), "Costo fijo adicional"),
-                txtTasaFGEM.getText().isBlank() ? BigDecimal.ZERO
-                        : MontosFGEM.leerFGEM(txtTasaFGEM.getText().replace("%", ""), "Impuesto a la renta").movePointLeft(2));
+                txtTasaFGEM.getText().isBlank() ? BigDecimal.ZERO : tasaDelCampoFGEM());
         SimulacionServiceFGEM.validarFGEM(sFGEM);
         return sFGEM;
     }

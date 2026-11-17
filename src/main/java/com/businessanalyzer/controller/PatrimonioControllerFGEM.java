@@ -879,6 +879,8 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
             FormulariosFGEM.filaFGEM(grillaFGEM, "Descripción *", txtDescripcionFGEM);
             lblFechaFGEM.getStyleClass().add("form-label");
             lblValorFGEM.getStyleClass().add("form-label");
+            lblFechaFGEM.setMinWidth(Region.USE_PREF_SIZE);
+            lblValorFGEM.setMinWidth(Region.USE_PREF_SIZE);
             int filaFGEM = grillaFGEM.getRowCount();
             grillaFGEM.add(lblFechaFGEM, 0, filaFGEM);
             grillaFGEM.add(dpFechaFGEM, 1, filaFGEM);

@@ -9,6 +9,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
@@ -84,8 +85,11 @@ public final class DialogosFGEM {
             Label textoFGEM = new Label(descripcionFGEM);
             textoFGEM.getStyleClass().add("muted");
             textoFGEM.setWrapText(true);
+            textoFGEM.setPrefWidth(anchoFGEM);
+            textoFGEM.setMinHeight(Region.USE_PREF_SIZE);
             cuerpoFGEM.getChildren().add(textoFGEM);
         }
+        errorFGEM.setMinHeight(Region.USE_PREF_SIZE);
         cuerpoFGEM.getChildren().addAll(contenidoFGEM, errorFGEM);
         cuerpoFGEM.setPrefWidth(anchoFGEM);
         dialogoFGEM.getDialogPane().setContent(cuerpoFGEM);
@@ -121,6 +125,8 @@ public final class DialogosFGEM {
             Label textoFGEM = new Label(descripcionFGEM);
             textoFGEM.getStyleClass().add("muted");
             textoFGEM.setWrapText(true);
+            textoFGEM.setPrefWidth(contenidoFGEM == null ? 460 : 640);
+            textoFGEM.setMinHeight(Region.USE_PREF_SIZE);
             cuerpoFGEM.getChildren().add(textoFGEM);
         }
         if (contenidoFGEM != null) {
