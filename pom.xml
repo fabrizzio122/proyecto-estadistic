@@ -9,7 +9,7 @@
     <artifactId>business-analyzer</artifactId>
     <!-- Versión de la aplicación: ÚNICO lugar donde se define. La leen la app (version.properties),
          los informes y empaquetar.ps1. Formato x.y.z (jpackage exige números). -->
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <name>Business Analyzer Desktop</name>
     <description>Analisis financiero, estadistico y predictivo para negocios y empresas</description>
 

@@ -1,6 +1,6 @@
 # Cambios
 
-## Sin publicar
+## 1.2.1 — 16/11/2026
 
 ### Corregido
 - **Simulación de escenarios**: con todos los supuestos en 0 % el escenario ahora da exactamente la utilidad de la
