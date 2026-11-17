@@ -1,5 +1,7 @@
 # Business Analyzer Desktop 1.2
 
+[![Pruebas](https://github.com/fabrizzio122/proyecto-estadistic/actions/workflows/pruebas.yml/badge.svg)](https://github.com/fabrizzio122/proyecto-estadistic/actions/workflows/pruebas.yml)
+
 Aplicación de escritorio para analizar la situación económica y financiera de negocios y
 empresas: rentabilidad, punto de equilibrio, tendencias, predicciones, escenarios y diagnóstico.
 
@@ -7,6 +9,8 @@ empresas: rentabilidad, punto de equilibrio, tendencias, predicciones, escenario
 
 | Documento | Contenido |
 |---|---|
+| [docs/informe-final.pdf](docs/informe-final.pdf) | Informe final del proyecto (también en `.docx`) |
+| [docs/manual-usuario.pdf](docs/manual-usuario.pdf) | Manual de usuario con capturas de todas las pantallas (también en `.docx`) |
 | [docs/uml](docs/uml/README.md) | 9 diagramas UML: casos de uso, arquitectura, clases, secuencia, estados, modelo de datos y despliegue |
 | [docs/guion-demo.md](docs/guion-demo.md) | Guion de la demostración (15 minutos) con preguntas frecuentes |
 | [CHANGELOG.md](CHANGELOG.md) | Cambios de cada versión |
@@ -25,6 +29,27 @@ empresas: rentabilidad, punto de equilibrio, tendencias, predicciones, escenario
 
 En IntelliJ IDEA: abrir la carpeta como proyecto Maven y ejecutar
 `com.businessanalyzer.LauncherFGEM` (o el goal Maven `javafx:run`).
+
+## Pruebas, cobertura e integración continua
+
+- **302 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
+  base SQLite temporal y un reloj controlado.
+- **Cobertura con JaCoCo**: `.\mvnw.cmd test` deja el informe en `target/site/jacoco/index.html`.
+  Resumen por capa: `.\.github\scripts\resumen-cobertura.ps1`.
+- **Integración continua con GitHub Actions** (`.github/workflows/pruebas.yml`): en cada push o pull
+  request a `main`, GitHub compila el proyecto en Windows con JDK 17, ejecuta las pruebas y publica la
+  cobertura en el resumen de la ejecución (pestaña *Actions*). El distintivo de arriba muestra el estado.
+
+| Capa | Cobertura de líneas |
+|---|---:|
+| Analítica (cálculos puros) | 93 % |
+| Servicios (reglas de negocio) | 93 % |
+| Repositorios (SQL) | 96 % |
+| Informes (PDF y Excel) | 93 % |
+| **Lógica de negocio (todo menos la interfaz)** | **92 %** |
+
+La interfaz JavaFX se verifica con capturas de la aplicación real, no con pruebas unitarias; por eso
+el total del proyecto, incluida la interfaz, es 47 %.
 
 ## Datos locales
 
@@ -82,6 +107,9 @@ automáticamente al iniciar y dentro de una transacción.
 20. Pulido para la presentación: editar registros, Dashboard nuevo, comparación del mes en curso y datos demo realistas ✅
 21. Material del curso: diagramas UML, guion de la demostración y versión 1.1.0 con instalador ✅
 22. Tesorería: cuentas de dinero, ventas y compras al crédito, flujo de efectivo y proyección de caja ✅
+23. Rediseño visual «pizarra de bodega»: tema nuevo, color de acento por usuario y Dashboard renovado ✅
+24. Iniciales del autor (FGEM) en todos los identificadores del código ✅
+25. Integración continua (GitHub Actions) y cobertura de pruebas (JaCoCo) ✅
 
 ## Seguridad
 

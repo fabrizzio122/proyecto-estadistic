@@ -1,5 +1,13 @@
 # Cambios
 
+## Sin publicar
+
+### Calidad
+- **Integración continua con GitHub Actions**: en cada push o pull request a `main` se compila el proyecto
+  en Windows con JDK 17 y se ejecutan las 302 pruebas; el estado se ve en el distintivo del README.
+- **Cobertura de pruebas con JaCoCo**: la lógica de negocio (todo menos la interfaz) tiene 92 % de líneas
+  cubiertas; informe en `target/site/jacoco/index.html` y resumen por capa en cada ejecución de GitHub.
+
 ## 1.2.1 — 16/11/2026
 
 ### Corregido
