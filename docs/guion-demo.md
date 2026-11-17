@@ -12,7 +12,7 @@ productor agropecuario y al ingeniero que lo inspecciona.
 
 | # | Tarea | Hecho |
 |---|---|---|
-| 1 | Instalar `Business Analyzer-1.2.0.exe` en la laptop de la presentación (o descomprimir el `.zip` portable). | ☐ |
+| 1 | Instalar `Business Analyzer-1.2.1.exe` en la laptop de la presentación (o descomprimir el `.zip` portable). | ☐ |
 | 2 | Abrir la app, crear el administrador y entrar. | ☐ |
 | 3 | En **Empresas** → **Empresa de demostración** → **Bodega (comercio)**: se crea **Bodega Demo** (12 meses, una venta por día). | ☐ |
 | 4 | En **Empresas** → **Empresa de demostración** → **Fundo ganadero (agropecuario)**: se crea **Fundo Demo**. | ☐ |
