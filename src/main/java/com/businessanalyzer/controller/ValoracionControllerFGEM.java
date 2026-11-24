@@ -231,7 +231,7 @@ public class ValoracionControllerFGEM implements VistaModuloFGEM {
                 vFGEM.baseFGEM() == ValoracionNegocioFGEM.BaseFGEM.RENTABILIDAD ? "Por lo que gana" : "Por lo que tiene");
         kpiPatrimonialFGEM.actualizarFGEM(MontosFGEM.formatearFGEM(vFGEM.patrimonialFGEM(), monedaFGEM), "Activos − deudas");
         kpiRentabilidadFGEM.actualizarFGEM(vFGEM.valorRentabilidadFGEM() == null ? TarjetaIndicadorFGEM.SIN_VALOR_FGEM
-                : MontosFGEM.formatearFGEM(vFGEM.valorRentabilidadFGEM(), monedaFGEM), "Utilidad anual " + MontosFGEM.formatearFGEM(vFGEM.utilidadAnualFGEM(), monedaFGEM));
+                : MontosFGEM.formatearFGEM(vFGEM.valorRentabilidadFGEM(), monedaFGEM), utilidadAnualizadaFGEM(vFGEM));
         kpiFondoFGEM.actualizarFGEM(vFGEM.fondoComercioFGEM() == null ? TarjetaIndicadorFGEM.SIN_VALOR_FGEM : MontosFGEM.formatearFGEM(vFGEM.fondoComercioFGEM(), monedaFGEM),
                 "Rentabilidad − patrimonio");
 
@@ -352,5 +352,17 @@ public class ValoracionControllerFGEM implements VistaModuloFGEM {
 
     private static String numeroFGEM(BigDecimal fraccionFGEM) {
         return fraccionFGEM.movePointRight(2).setScale(1, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
+    }
+
+    /**
+     * «Utilidad anualizada»: la de los meses con ventas llevada a 12, para que no se compare con la suma real
+     * del año. Si no son 12 meses, indica cuántos se usaron.
+     */
+    private String utilidadAnualizadaFGEM(ValoracionNegocioFGEM vFGEM) {
+        String montoFGEM = MontosFGEM.formatearFGEM(vFGEM.utilidadAnualFGEM(), monedaFGEM);
+        int mesesFGEM = vFGEM.mesesResultadosFGEM();
+        return mesesFGEM > 0 && mesesFGEM != 12
+                ? "Utilidad anualizada " + montoFGEM + " (" + mesesFGEM + (mesesFGEM == 1 ? " mes" : " meses") + " llevados a 12)"
+                : "Utilidad anualizada " + montoFGEM;
     }
 }

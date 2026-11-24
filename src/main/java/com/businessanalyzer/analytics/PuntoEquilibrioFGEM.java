@@ -40,9 +40,11 @@ public record PuntoEquilibrioFGEM(
         BigDecimal razonFGEM = ventasFGEM.signum() == 0
                 ? null
                 : margenFGEM.divide(ventasFGEM, MargenesFGEM.ESCALA_RATIO_FGEM, RoundingMode.HALF_UP);
-        BigDecimal equilibrioFGEM = razonFGEM == null || razonFGEM.signum() <= 0
+        // Fijos × ventas ÷ margen en una sola división: dividir entre la razón ya redondeada agrega error cuando
+        // el margen es pequeño.
+        BigDecimal equilibrioFGEM = razonFGEM == null || razonFGEM.signum() <= 0 || margenFGEM.signum() <= 0
                 ? null
-                : costosFijosFGEM.divide(razonFGEM, 2, RoundingMode.HALF_UP);
+                : costosFijosFGEM.multiply(ventasFGEM).divide(margenFGEM, 2, RoundingMode.HALF_UP);
         BigDecimal seguridadFGEM = equilibrioFGEM == null
                 ? null
                 : ventasFGEM.subtract(equilibrioFGEM).divide(ventasFGEM, MargenesFGEM.ESCALA_RATIO_FGEM, RoundingMode.HALF_UP);

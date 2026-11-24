@@ -250,9 +250,13 @@ public record BalanceGeneralFGEM(LocalDate corteFGEM,
         return !tieneActivosFGEM() && deudasPendientesFGEM == 0;
     }
 
-    /** Hay activos registrados o ganado valorizado (sin contar el inventario de mercadería). */
+    /**
+     * Hay activos registrados, ganado valorizado, dinero en las cuentas de tesorería (aunque estén en rojo) o
+     * ventas por cobrar. El inventario solo no cuenta: se calcula del catálogo aunque no se haya registrado nada más.
+     */
     public boolean tieneActivosFGEM() {
-        return activosRegistradosFGEM > 0 || ganadoFGEM.signum() > 0 || cultivosFGEM.signum() > 0;
+        return activosRegistradosFGEM > 0 || ganadoFGEM.signum() > 0 || cultivosFGEM.signum() > 0
+                || (efectivoFGEM != null && efectivoFGEM.signum() != 0) || (porCobrarFGEM != null && porCobrarFGEM.signum() > 0);
     }
 
     private static BigDecimal sumaFGEM(List<PartidaFGEM> partidasFGEM) {

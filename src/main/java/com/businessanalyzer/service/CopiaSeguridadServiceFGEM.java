@@ -64,7 +64,7 @@ public class CopiaSeguridadServiceFGEM {
     private static final String PREFIJO_FGEM = "business-analyzer_";
     private static final DateTimeFormatter FORMATO_NOMBRE_FGEM = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss");
     private static final Pattern NOMBRE_FGEM = Pattern.compile(
-            "business-analyzer_(\\d{4}-\\d{2}-\\d{2})_(\\d{6})_(manual|auto|previa)(-\\d+)?\\.(db|zip)");
+            "business-analyzer_(\\d{4}-\\d{2}-\\d{2})_(\\d{6})_(manual|auto|previa|importacion)(-\\d+)?\\.(db|zip)");
     private static final Duration INTERVALO_AUTOMATICA_FGEM = Duration.ofHours(20);
     private static final byte[] CABECERA_SQLITE_FGEM = "SQLite format 3\0".getBytes(StandardCharsets.US_ASCII);
 
@@ -131,6 +131,18 @@ public class CopiaSeguridadServiceFGEM {
     public CopiaSeguridadFGEM crearManualFGEM() {
         sesionFGEM.requerirFGEM(PermisoFGEM.CONFIGURACION_GESTIONAR);
         return crearFGEM(TipoFGEM.MANUAL);
+    }
+
+    /**
+     * Copia previa a una importación desde Excel, para poder volver atrás si se importó el archivo
+     * equivocado. Basta con poder registrar datos; como las manuales, nunca se borra sola.
+     */
+    public CopiaSeguridadFGEM crearAntesDeImportarFGEM() {
+        if (!sesionFGEM.tienePermisoFGEM(PermisoFGEM.PRODUCTOS_GESTIONAR) && !sesionFGEM.tienePermisoFGEM(PermisoFGEM.OPERACIONES_GESTIONAR)
+                && !sesionFGEM.tienePermisoFGEM(PermisoFGEM.FINANZAS_GESTIONAR)) {
+            sesionFGEM.requerirFGEM(PermisoFGEM.OPERACIONES_GESTIONAR);
+        }
+        return crearFGEM(TipoFGEM.PREVIA_IMPORTACION);
     }
 
     /**

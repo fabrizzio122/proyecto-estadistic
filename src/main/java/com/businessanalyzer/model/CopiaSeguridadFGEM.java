@@ -10,7 +10,8 @@ public record CopiaSeguridadFGEM(Path archivoFGEM, LocalDateTime fechaFGEM, Tipo
     public enum TipoFGEM {
         MANUAL("Manual", "manual"),
         AUTOMATICA("Automática", "auto"),
-        PREVIA_RESTAURACION("Antes de restaurar", "previa");
+        PREVIA_RESTAURACION("Antes de restaurar", "previa"),
+        PREVIA_IMPORTACION("Antes de importar", "importacion");
 
         private final String descripcionFGEM;
         private final String sufijoFGEM;

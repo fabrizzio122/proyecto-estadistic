@@ -54,8 +54,20 @@ public final class DatabaseFGEM {
         return dataSourceFGEM.getConnection();
     }
 
+    /**
+     * Conexión de la transacción abierta en este hilo, si la hay. Mientras exista, las llamadas
+     * anidadas a {@link #conConexionFGEM} y {@link #enTransaccionFGEM} la reutilizan: así una operación
+     * grande (como la importación desde Excel) puede llamar a los servicios normales y que todo se
+     * confirme o se revierta junto.
+     */
+    private final ThreadLocal<Connection> transaccionActualFGEM = new ThreadLocal<>();
+
     /** Ejecuta una operacion de lectura o una escritura simple (autocommit). */
     public <T> T conConexionFGEM(OperacionSqlFGEM<T> operacionFGEM) {
+        Connection compartidaFGEM = transaccionActualFGEM.get();
+        if (compartidaFGEM != null) {
+            return enCompartidaFGEM(compartidaFGEM, operacionFGEM, "Error al acceder a la base de datos: ");
+        }
         try (Connection conexionFGEM = abrirConexionFGEM()) {
             return operacionFGEM.ejecutarFGEM(conexionFGEM);
         } catch (SQLException eFGEM) {
@@ -68,8 +80,14 @@ public final class DatabaseFGEM {
      * todos los cambios. Usar siempre que se escriba en mas de una tabla.
      */
     public <T> T enTransaccionFGEM(OperacionSqlFGEM<T> operacionFGEM) {
+        Connection compartidaFGEM = transaccionActualFGEM.get();
+        if (compartidaFGEM != null) {
+            // Transacción anidada: forma parte de la exterior, que es la que confirma o revierte.
+            return enCompartidaFGEM(compartidaFGEM, operacionFGEM, "La operación falló: ");
+        }
         try (Connection conexionFGEM = abrirConexionFGEM()) {
             conexionFGEM.setAutoCommit(false);
+            transaccionActualFGEM.set(conexionFGEM);
             try {
                 T resultadoFGEM = operacionFGEM.ejecutarFGEM(conexionFGEM);
                 conexionFGEM.commit();
@@ -77,10 +95,20 @@ public final class DatabaseFGEM {
             } catch (SQLException | RuntimeException eFGEM) {
                 revertirFGEM(conexionFGEM, eFGEM);
                 throw eFGEM;
+            } finally {
+                transaccionActualFGEM.remove();
             }
         } catch (SQLException eFGEM) {
             throw new DataAccessExceptionFGEM("La operación falló y sus cambios fueron revertidos: "
                     + eFGEM.getMessage(), eFGEM);
+        }
+    }
+
+    private static <T> T enCompartidaFGEM(Connection conexionFGEM, OperacionSqlFGEM<T> operacionFGEM, String prefijoErrorFGEM) {
+        try {
+            return operacionFGEM.ejecutarFGEM(conexionFGEM);
+        } catch (SQLException eFGEM) {
+            throw new DataAccessExceptionFGEM(prefijoErrorFGEM + eFGEM.getMessage(), eFGEM);
         }
     }
 

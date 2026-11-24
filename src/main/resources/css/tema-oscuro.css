@@ -1842,3 +1842,25 @@
     -fx-text-fill: -ba-texto-claro;
     -fx-padding: 2 0;
 }
+
+/* ---------- Importar desde Excel (Fase 26) ---------- */
+.aviso-importacion {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 10 12;
+}
+.aviso-importacion-ok {
+    -fx-background-color: -ba-exito-fondo;
+    -fx-text-fill: -ba-exito-texto;
+    -fx-border-color: -ba-exito-apagado;
+}
+.aviso-importacion-error {
+    -fx-background-color: -ba-error-fondo;
+    -fx-text-fill: -ba-error-texto;
+    -fx-border-color: derive(-ba-error, -45%);
+}
+.aviso-importacion-advertencia {
+    -fx-background-color: -ba-advertencia-fondo;
+    -fx-text-fill: -ba-advertencia;
+    -fx-border-color: derive(-ba-advertencia, -45%);
+}

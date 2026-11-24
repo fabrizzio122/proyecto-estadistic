@@ -113,6 +113,33 @@ class SimuladorTestFGEM {
                 .compareTo(bdFGEM("700")) > 0);
     }
 
+    /**
+     * Con un margen de contribución pequeño (como una bodega que pierde dinero), redondear los promedios mensuales
+     * a céntimos movía el punto de equilibrio varios soles. El simulador debe coincidir con el cálculo directo
+     * sobre los totales del período.
+     */
+    @Test
+    void conMargenPequenoCoincideAlCentimoConElCalculoDirectoFGEM() {
+        // Totales de 3 meses: el promedio mensual tiene decimales infinitos (÷ 3).
+        BigDecimal ventasFGEM = bdFGEM("7362.01");
+        BigDecimal variablesFGEM = bdFGEM("7110.43");
+        BigDecimal fijosFGEM = bdFGEM("2728.07");
+        BigDecimal tresFGEM = BigDecimal.valueOf(3);
+        java.math.MathContext mcFGEM = new java.math.MathContext(30);
+        BaseSimulacionFGEM baseFGEM = new BaseSimulacionFGEM(PeriodoFGEM.mesFGEM(YearMonth.of(2026, 1)), 3,
+                ventasFGEM.divide(tresFGEM, mcFGEM), variablesFGEM.divide(tresFGEM, mcFGEM), BigDecimal.ZERO,
+                fijosFGEM.divide(tresFGEM, mcFGEM), BigDecimal.ZERO, BigDecimal.ZERO);
+
+        ResultadoEscenarioFGEM rFGEM = SimuladorFGEM.simularFGEM(baseFGEM, SupuestosFGEM.neutrosFGEM(BigDecimal.ZERO));
+
+        // Directo: (ventas − variables − fijos) ÷ 3 y punto de equilibrio mensual = fijos × ventas ÷ margen ÷ 3.
+        BigDecimal utilidadFGEM = ventasFGEM.subtract(variablesFGEM).subtract(fijosFGEM).divide(tresFGEM, 2, java.math.RoundingMode.HALF_UP);
+        BigDecimal equilibrioFGEM = fijosFGEM.multiply(ventasFGEM).divide(ventasFGEM.subtract(variablesFGEM), mcFGEM)
+                .divide(tresFGEM, 2, java.math.RoundingMode.HALF_UP);
+        assertMontoFGEM(utilidadFGEM.toPlainString(), rFGEM.utilidadNetaFGEM().setScale(2, java.math.RoundingMode.HALF_UP));
+        assertMontoFGEM(equilibrioFGEM.toPlainString(), rFGEM.equilibrioFGEM().ventasEquilibrioFGEM());
+    }
+
     private static BigDecimal bdFGEM(String valorFGEM) {
         return new BigDecimal(valorFGEM);
     }

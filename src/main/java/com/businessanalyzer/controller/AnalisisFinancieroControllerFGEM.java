@@ -54,17 +54,29 @@ public class AnalisisFinancieroControllerFGEM implements VistaModuloFGEM {
     /**
      * Fila del estado de resultados.
      *
-     * @param esCostoFGEM si sube, empeora el resultado (se pinta en rojo)
+     * @param esCostoFGEM            si sube, empeora el resultado (se pinta en rojo)
+     * @param anteriorSobreVentasFGEM el monto del período anterior como fracción de sus ventas
+     * @param proporcionalFGEM       se mueve con las ventas (costo de ventas): se juzga por su % sobre las ventas y no
+     *                               por el monto, porque si se vende menos el costo baja sin que sea una mejora
      */
     private record FilaEstadoFGEM(String conceptoFGEM, BigDecimal actualFGEM, BigDecimal anteriorFGEM, BigDecimal sobreVentasFGEM,
-                              TipoFilaFGEM tipoFGEM, boolean esCostoFGEM) {
+                              BigDecimal anteriorSobreVentasFGEM, TipoFilaFGEM tipoFGEM, boolean esCostoFGEM, boolean proporcionalFGEM) {
         VariacionFGEM variacionFGEM() {
             return new VariacionFGEM(actualFGEM, anteriorFGEM);
         }
 
-        boolean mejoraFGEM() {
+        /** +1 mejora, −1 empeora, 0 sin cambio (o sin base para comparar). */
+        int tendenciaFGEM() {
+            if (proporcionalFGEM) {
+                if (sobreVentasFGEM == null || anteriorSobreVentasFGEM == null) {
+                    return 0;
+                }
+                // Menos de 0,05 puntos porcentuales se considera sin cambio.
+                BigDecimal puntosFGEM = sobreVentasFGEM.subtract(anteriorSobreVentasFGEM);
+                return puntosFGEM.abs().compareTo(new BigDecimal("0.0005")) < 0 ? 0 : -puntosFGEM.signum();
+            }
             int signoFGEM = variacionFGEM().absolutaFGEM().signum();
-            return esCostoFGEM ? signoFGEM < 0 : signoFGEM > 0;
+            return esCostoFGEM ? -signoFGEM : signoFGEM;
         }
     }
 
@@ -252,7 +264,7 @@ public class AnalisisFinancieroControllerFGEM implements VistaModuloFGEM {
         EstadoResultadosFGEM pFGEM = aFGEM.anteriorFGEM();
         List<FilaEstadoFGEM> filasFGEM = new ArrayList<>();
         filasFGEM.add(filaFGEM("Ventas netas", eFGEM, pFGEM, EstadoResultadosFGEM::ventasNetasFGEM, TipoFilaFGEM.DETALLE, false));
-        filasFGEM.add(filaFGEM("(−) Costo de ventas", eFGEM, pFGEM, EstadoResultadosFGEM::costoVentasFGEM, TipoFilaFGEM.DETALLE, true));
+        filasFGEM.add(filaFGEM("(−) Costo de ventas", eFGEM, pFGEM, EstadoResultadosFGEM::costoVentasFGEM, TipoFilaFGEM.DETALLE, true, true));
         filasFGEM.add(filaFGEM("= Utilidad bruta", eFGEM, pFGEM, EstadoResultadosFGEM::utilidadBrutaFGEM, TipoFilaFGEM.SUBTOTAL, false));
         filasFGEM.add(filaFGEM("(−) Gastos operativos", eFGEM, pFGEM, EstadoResultadosFGEM::gastosOperativosFGEM, TipoFilaFGEM.DETALLE, true));
         filasFGEM.add(filaFGEM("= Utilidad operativa", eFGEM, pFGEM, EstadoResultadosFGEM::utilidadOperativaFGEM, TipoFilaFGEM.SUBTOTAL, false));
@@ -284,8 +296,16 @@ public class AnalisisFinancieroControllerFGEM implements VistaModuloFGEM {
 
     private static FilaEstadoFGEM filaFGEM(String conceptoFGEM, EstadoResultadosFGEM actualFGEM, EstadoResultadosFGEM anteriorFGEM,
                                    Function<EstadoResultadosFGEM, BigDecimal> valorFGEM, TipoFilaFGEM tipoFGEM, boolean esCostoFGEM) {
+        return filaFGEM(conceptoFGEM, actualFGEM, anteriorFGEM, valorFGEM, tipoFGEM, esCostoFGEM, false);
+    }
+
+    private static FilaEstadoFGEM filaFGEM(String conceptoFGEM, EstadoResultadosFGEM actualFGEM, EstadoResultadosFGEM anteriorFGEM,
+                                   Function<EstadoResultadosFGEM, BigDecimal> valorFGEM, TipoFilaFGEM tipoFGEM, boolean esCostoFGEM,
+                                   boolean proporcionalFGEM) {
         BigDecimal montoFGEM = valorFGEM.apply(actualFGEM);
-        return new FilaEstadoFGEM(conceptoFGEM, montoFGEM, valorFGEM.apply(anteriorFGEM), actualFGEM.sobreVentasFGEM(montoFGEM), tipoFGEM, esCostoFGEM);
+        BigDecimal montoAnteriorFGEM = valorFGEM.apply(anteriorFGEM);
+        return new FilaEstadoFGEM(conceptoFGEM, montoFGEM, montoAnteriorFGEM, actualFGEM.sobreVentasFGEM(montoFGEM),
+                anteriorFGEM.sobreVentasFGEM(montoAnteriorFGEM), tipoFGEM, esCostoFGEM, proporcionalFGEM);
     }
 
     /** "Margen bruto 33.3 % (+2.1 pp)": pp = puntos porcentuales respecto al período anterior. */
@@ -324,10 +344,8 @@ public class AnalisisFinancieroControllerFGEM implements VistaModuloFGEM {
     }
 
     private String claseVariacionFGEM(FilaEstadoFGEM fFGEM) {
-        if (fFGEM.variacionFGEM().absolutaFGEM().signum() == 0) {
-            return null;
-        }
-        return fFGEM.mejoraFGEM() ? "margen-ok" : "margen-negativo";
+        int tendenciaFGEM = fFGEM.tendenciaFGEM();
+        return tendenciaFGEM == 0 ? null : tendenciaFGEM > 0 ? "margen-ok" : "margen-negativo";
     }
 
     private static void configurarCeldaFilaFGEM(TableColumn<FilaEstadoFGEM, FilaEstadoFGEM> columnaFGEM,

@@ -36,6 +36,9 @@ public enum ModuloFGEM {
     PATRIMONIO(SeccionFGEM.GESTION, "Activos y deudas",
             "Bienes, deudas, balance general y patrimonio", "fth-layers", 14,
             PermisoFGEM.FINANZAS_VER, "/fxml/patrimonio-view.fxml"),
+    IMPORTACION(SeccionFGEM.GESTION, "Importar desde Excel",
+            "Carga productos, ventas, compras y gastos desde una hoja de cálculo", "fth-upload", 26,
+            PermisoFGEM.OPERACIONES_GESTIONAR, "/fxml/importacion-view.fxml"),
 
     GANADERIA(SeccionFGEM.AGRO, "Ganadería",
             "Hato, nacimientos, mortalidad, producción y valor del ganado", "fth-feather", 15,

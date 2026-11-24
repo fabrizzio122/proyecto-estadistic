@@ -120,7 +120,8 @@ public final class SimuladorFGEM {
         return retenidoFGEM.signum() <= 0 ? null : metaUtilidadNetaFGEM.divide(retenidoFGEM, ESCALA_FGEM, RoundingMode.HALF_UP);
     }
 
+    /** Montos del escenario con precisión completa: se redondean a céntimos solo al mostrarlos. */
     private static BigDecimal dineroFGEM(BigDecimal valorFGEM) {
-        return valorFGEM.setScale(2, RoundingMode.HALF_UP);
+        return valorFGEM.setScale(BaseSimulacionFGEM.ESCALA_INTERNA_FGEM, RoundingMode.HALF_UP);
     }
 }

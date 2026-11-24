@@ -32,7 +32,7 @@ En IntelliJ IDEA: abrir la carpeta como proyecto Maven y ejecutar
 
 ## Pruebas, cobertura e integración continua
 
-- **302 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
+- **316 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
   base SQLite temporal y un reloj controlado.
 - **Cobertura con JaCoCo**: `.\mvnw.cmd test` deja el informe en `target/site/jacoco/index.html`.
   Resumen por capa: `.\.github\scripts\resumen-cobertura.ps1`.
@@ -74,6 +74,7 @@ com.businessanalyzer
 ├── analytics     cálculos puros (sin BD ni JavaFX): financiero, estadística, predicción, simulación,
 │                 diagnóstico, patrimonio, ganadería, agricultura y valoración
 ├── informes      contenido de los informes, PDF (JasperReports) y Excel (Apache POI)
+├── importacion   plantilla y lectura de los libros de Excel a importar (Fase 26)
 ├── util          montos (BigDecimal), fechas y validaciones
 ├── exception     errores de datos y de validación
 └── ui            navegación, notificaciones, diálogos y componentes visuales
@@ -110,6 +111,7 @@ automáticamente al iniciar y dentro de una transacción.
 23. Rediseño visual «pizarra de bodega»: tema nuevo, color de acento por usuario y Dashboard renovado ✅
 24. Iniciales del autor (FGEM) en todos los identificadores del código ✅
 25. Integración continua (GitHub Actions) y cobertura de pruebas (JaCoCo) ✅
+26. Importación desde Excel: plantilla, revisión previa sin guardar e importación de productos, ventas, compras y gastos ✅
 
 ## Seguridad
 
@@ -310,6 +312,34 @@ Se calcula con **Apache Commons Math**:
 - **Archivos seguros:** se escriben primero en un temporal; si el destino está abierto en otro programa, se avisa sin dejar el archivo a medias.
 - **Historial** de informes generados por empresa (migración V8), con «Abrir» y «Mostrar en la carpeta».
 - **Permiso:** `INFORMES_GENERAR` (Administrador, Gerente y Analista).
+
+## Importar desde Excel (Fase 26)
+
+Para cargar el historial de un negocio real sin escribirlo a mano (*Gestión → Importar desde Excel*):
+
+1. **Descargar la plantilla**: un libro con las hojas *Productos*, *Ventas*, *Compras* y *Gastos*, instrucciones y
+   listas desplegables. Hay una versión con **tres meses de ejemplo de una bodega** para probar.
+2. **Elegir el archivo**: se **revisa todo sin guardar nada** y se muestra qué se va a importar (productos, ventas,
+   compras, gastos y período) o la lista de errores con **hoja y fila**.
+3. **Importar**: antes se crea una copia de seguridad «Antes de importar».
+
+Reglas:
+
+- **Todo o nada**: la importación ocurre en una sola transacción; si una fila falla no se guarda ninguna.
+- Cada fila pasa por **los mismos servicios que el registro manual** (validaciones, permisos, numeración, historial de
+  precios, tesorería). La transacción de la importación envuelve a las de los servicios (`DatabaseFGEM` reutiliza la
+  conexión abierta en el hilo) y cada fila usa un *savepoint* para informar todos los errores de una vez.
+- Las columnas se reconocen **por su encabezado**, sin importar el orden, mayúsculas, tildes ni palabras como «N°»
+  o «de». Fechas como fecha de Excel o texto `dd/mm/aaaa`; montos con punto o coma decimal (`1.234,50`).
+- En *Ventas* y *Compras*, las filas con la **misma fecha y documento** forman una sola operación. El producto se
+  indica por **código o nombre**. Precio vacío = precio del catálogo; IGV vacío = el habitual de la empresa.
+- Las operaciones se registran **por orden de fecha** (compras antes que ventas del mismo día), así cada venta usa
+  el costo vigente ese día. Si una venta deja el stock en negativo, se importa y se avisa.
+- Los productos que ya existen (mismo código **o** mismo nombre) **no se modifican ni se duplican**: solo se usan.
+- **Volver a importar no duplica**: una boleta o comprobante ya registrado (misma fecha y número), un segundo
+  «Inventario inicial» o un gasto idéntico a uno ya registrado se marcan como error. Si la empresa ya tiene datos
+  importados, la revisión lo avisa (las filas sin documento no se pueden comprobar).
+- En *Gastos*, la categoría acepta el nombre de la lista o palabras comunes («luz», «sueldo», «alquiler»…).
 
 ## Configuración y copias de seguridad
 

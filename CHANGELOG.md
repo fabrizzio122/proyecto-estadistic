@@ -2,9 +2,32 @@
 
 ## Sin publicar
 
+### Nuevo
+- **Importar desde Excel** (*Gestión → Importar desde Excel*): plantilla con instrucciones y listas desplegables
+  (también con tres meses de ejemplo de una bodega), revisión completa del archivo sin guardar nada y luego
+  importación de productos, categorías, ventas, compras y gastos a la empresa activa. Si alguna fila tiene un
+  error no se guarda nada y se indica la hoja y la fila. Antes de importar se guarda una copia de seguridad.
+- Volver a importar un archivo (o una versión más completa) **no duplica datos**: las boletas y comprobantes ya
+  registrados, un segundo inventario inicial y los gastos idénticos se marcan como error, y los productos se
+  reconocen por código o por nombre.
+
+### Corregido
+- **Activos y deudas**: con el activo total en cero o negativo (por ejemplo, caja negativa porque no se registró el
+  aporte inicial) ya no se calculan la rentabilidad de los activos ni el endeudamiento, que daban valores engañosos
+  (una pérdida ÷ activos negativos salía como rentabilidad positiva). Se muestra «No aplica» (el motivo, en la ayuda)
+  y se oculta la columna «% del activo» del balance. La lectura rápida explica que la caja está en rojo y qué registrar.
+- **Diagnóstico**: la liquidez y el endeudamiento ya no dicen «Sin datos» cuando hay cuentas en Tesorería; el dinero de
+  las cuentas cuenta como activo. Con activos negativos muestran «No aplica» con la explicación.
+- **Simulación de escenarios**: los promedios mensuales y los resultados ya no se redondean a céntimos antes de
+  calcular; con márgenes pequeños eso movía el punto de equilibrio varios soles respecto del diagnóstico. El punto
+  de equilibrio se calcula en una sola división (fijos × ventas ÷ margen).
+- **Valoración**: la utilidad de la tarjeta dice «Utilidad anualizada» e indica cuántos meses se llevaron a 12.
+- **Análisis financiero**: el color de la variación del costo de ventas se juzga por su % sobre las ventas (si se
+  vende menos, el costo baja sin que sea una mejora). Las etiquetas de los meses en los gráficos ya no se enciman.
+
 ### Calidad
 - **Integración continua con GitHub Actions**: en cada push o pull request a `main` se compila el proyecto
-  en Windows con JDK 17 y se ejecutan las 302 pruebas; el estado se ve en el distintivo del README.
+  en Windows con JDK 17 y se ejecutan las pruebas (316); el estado se ve en el distintivo del README.
 - **Cobertura de pruebas con JaCoCo**: la lógica de negocio (todo menos la interfaz) tiene 92 % de líneas
   cubiertas; informe en `target/site/jacoco/index.html` y resumen por capa en cada ejecución de GitHub.
 

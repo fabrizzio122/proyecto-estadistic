@@ -12,10 +12,10 @@ import java.math.RoundingMode;
  * @param liquidezCorrienteFGEM     activo corriente ÷ pasivo corriente; {@code null} sin deudas de corto plazo
  * @param pruebaAcidaFGEM           (activo corriente − inventario) ÷ pasivo corriente; {@code null} sin deudas de corto plazo
  * @param capitalTrabajoFGEM        activo corriente − pasivo corriente
- * @param endeudamientoFGEM         pasivo total ÷ activo total; {@code null} si no hay activos
+ * @param endeudamientoFGEM         pasivo total ÷ activo total; {@code null} si el activo no es positivo
  * @param apalancamientoFGEM        pasivo total ÷ patrimonio; {@code null} si el patrimonio no es positivo
  * @param utilidadAnualFGEM         utilidad neta llevada a 12 meses; {@code null} sin resultados
- * @param rentabilidadActivosFGEM   utilidad anual ÷ activo total (ROA)
+ * @param rentabilidadActivosFGEM   utilidad anual ÷ activo total (ROA); {@code null} si el activo no es positivo
  * @param rentabilidadPatrimonioFGEM utilidad anual ÷ patrimonio (ROE); {@code null} si el patrimonio no es positivo
  * @param utilidadOperativaMensualFGEM utilidad operativa promedio de un mes; {@code null} sin resultados
  * @param coberturaCuotasFGEM       utilidad operativa mensual ÷ cuotas mensuales; {@code null} sin cuotas
@@ -57,10 +57,13 @@ public record IndicadoresPatrimonioFGEM(BigDecimal liquidezCorrienteFGEM,
         BigDecimal pasivoFGEM = bFGEM.totalPasivoFGEM();
         BigDecimal patrimonioFGEM = bFGEM.patrimonioFGEM();
         boolean patrimonioPositivoFGEM = patrimonioFGEM.signum() > 0;
+        // Con activos en cero o negativos (por ejemplo, caja negativa porque falta el aporte inicial) dividir entre el
+        // activo no tiene sentido: una pérdida ÷ activos negativos daría una rentabilidad positiva.
+        boolean activoPositivoFGEM = activoFGEM.signum() > 0;
 
         BigDecimal liquidezFGEM = dividirFGEM(acFGEM, pcFGEM);
         BigDecimal acidaFGEM = dividirFGEM(acFGEM.subtract(bFGEM.inventarioFGEM()), pcFGEM);
-        BigDecimal endeudamientoFGEM = dividirFGEM(pasivoFGEM, activoFGEM);
+        BigDecimal endeudamientoFGEM = activoPositivoFGEM ? dividirFGEM(pasivoFGEM, activoFGEM) : null;
         BigDecimal apalancamientoFGEM = patrimonioPositivoFGEM ? dividirFGEM(pasivoFGEM, patrimonioFGEM) : null;
 
         BigDecimal anualFGEM = null;
@@ -70,7 +73,7 @@ public record IndicadoresPatrimonioFGEM(BigDecimal liquidezCorrienteFGEM,
             anualFGEM = resultadosFGEM.utilidadNetaFGEM().multiply(BigDecimal.valueOf(12)).divide(mFGEM, 2, RoundingMode.HALF_UP);
             operativaMensualFGEM = resultadosFGEM.utilidadOperativaFGEM().divide(mFGEM, 2, RoundingMode.HALF_UP);
         }
-        BigDecimal roaFGEM = anualFGEM == null ? null : dividirFGEM(anualFGEM, activoFGEM);
+        BigDecimal roaFGEM = anualFGEM == null || !activoPositivoFGEM ? null : dividirFGEM(anualFGEM, activoFGEM);
         BigDecimal roeFGEM = anualFGEM == null || !patrimonioPositivoFGEM ? null : dividirFGEM(anualFGEM, patrimonioFGEM);
         BigDecimal coberturaFGEM = operativaMensualFGEM == null ? null : dividirFGEM(operativaMensualFGEM, bFGEM.cuotasMensualesFGEM());
 

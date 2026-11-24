@@ -104,8 +104,7 @@ public final class GraficosFGEM {
         barrasFGEM.setItemMargin(0);
         barrasFGEM.setMaximumBarWidth(0.05);
 
-        CategoryAxis ejeMesesFGEM = new CategoryAxis();
-        ejeMesesFGEM.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryAxis ejeMesesFGEM = nuevoEjeMesesFGEM();
         ejeMesesFGEM.setCategoryMargin(0.1);
         CategoryPlot plotFGEM = new CategoryPlot(ventasFGEM, ejeMesesFGEM, ejeMontoFGEM(monedaFGEM), barrasFGEM);
 
@@ -139,8 +138,7 @@ public final class GraficosFGEM {
         barrasFGEM.setItemMargin(0.02);
         barrasFGEM.setMaximumBarWidth(0.05);
 
-        CategoryAxis ejeMesesFGEM = new CategoryAxis();
-        ejeMesesFGEM.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryAxis ejeMesesFGEM = nuevoEjeMesesFGEM();
         CategoryPlot plotFGEM = new CategoryPlot(barrasDatosFGEM, ejeMesesFGEM, ejeMontoFGEM(monedaFGEM), barrasFGEM);
         LineAndShapeRenderer lineaFGEM = new LineAndShapeRenderer(true, true);
         lineaFGEM.setSeriesPaint(0, AZUL_FGEM);
@@ -166,8 +164,7 @@ public final class GraficosFGEM {
         lineasFGEM.setSeriesStroke(0, LINEA_GRUESA_FGEM);
         lineasFGEM.setSeriesStroke(1, new BasicStroke(2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, 1f,
                 new float[]{6f, 5f}, 0f));
-        CategoryAxis ejeMesesFGEM = new CategoryAxis();
-        ejeMesesFGEM.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryAxis ejeMesesFGEM = nuevoEjeMesesFGEM();
         CategoryPlot plotFGEM = new CategoryPlot(datosFGEM, ejeMesesFGEM, ejeMontoFGEM(monedaFGEM), lineasFGEM);
         plotFGEM.addRangeMarker(new ValueMarker(0, ROJO_FGEM, new BasicStroke(1.5f)));
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, true));
@@ -271,8 +268,7 @@ public final class GraficosFGEM {
                 rectaFGEM.addValue(tendenciaFGEM.valorAjustadoFGEM(tFGEM), "Tendencia", mesFGEM);
             }
         }
-        CategoryAxis ejeMesesFGEM = new CategoryAxis();
-        ejeMesesFGEM.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryAxis ejeMesesFGEM = nuevoEjeMesesFGEM();
         CategoryPlot plotFGEM = new CategoryPlot(ventasFGEM, ejeMesesFGEM, ejeMontoFGEM(monedaFGEM), barrasSimplesFGEM(AZUL_FGEM));
         LineAndShapeRenderer lineaFGEM = new LineAndShapeRenderer(true, false);
         lineaFGEM.setSeriesPaint(0, AMBAR_FGEM);
@@ -399,8 +395,7 @@ public final class GraficosFGEM {
             lineasFGEM.setSeriesStroke(serieFGEM, LINEA_PUNTEADA_FGEM);
             lineasFGEM.setSeriesShapesVisible(serieFGEM, false);
         }
-        CategoryAxis ejeMesesFGEM = new CategoryAxis();
-        ejeMesesFGEM.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryAxis ejeMesesFGEM = nuevoEjeMesesFGEM();
         CategoryPlot plotFGEM = new CategoryPlot(datosFGEM, ejeMesesFGEM, ejeMontoFGEM(monedaFGEM), lineasFGEM);
         plotFGEM.addRangeMarker(new ValueMarker(0, GRILLA_FGEM, new BasicStroke(1f)));
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, true));
@@ -426,8 +421,7 @@ public final class GraficosFGEM {
             lineasFGEM.setSeriesPaint(iFGEM, paletaFGEM()[iFGEM % paletaFGEM().length]);
             lineasFGEM.setSeriesStroke(iFGEM, LINEA_GRUESA_FGEM);
         }
-        CategoryAxis ejeMesesFGEM = new CategoryAxis();
-        ejeMesesFGEM.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryAxis ejeMesesFGEM = nuevoEjeMesesFGEM();
         CategoryPlot plotFGEM = new CategoryPlot(datosFGEM, ejeMesesFGEM, ejeNumeroFGEM(formatoFGEM), lineasFGEM);
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, seriesFGEM.size() > 1));
     }
@@ -453,8 +447,7 @@ public final class GraficosFGEM {
         for (int iFGEM = 0; iFGEM < seriesFGEM.size(); iFGEM++) {
             barrasFGEM.setSeriesPaint(iFGEM, coloresFGEM[iFGEM % coloresFGEM.length]);
         }
-        CategoryAxis ejeMesesFGEM = new CategoryAxis();
-        ejeMesesFGEM.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
+        CategoryAxis ejeMesesFGEM = nuevoEjeMesesFGEM();
         CategoryPlot plotFGEM = new CategoryPlot(datosFGEM, ejeMesesFGEM, ejeNumeroFGEM(formatoFGEM), barrasFGEM);
         if (tendenciaFGEM != null && !Double.isNaN(tendenciaFGEM.pendienteFGEM())) {
             DefaultCategoryDataset rectaFGEM = new DefaultCategoryDataset();
@@ -682,6 +675,18 @@ public final class GraficosFGEM {
     }
 
     /** "ene", "feb"... (se añade el año solo en enero para no saturar el eje). */
+    /**
+     * Eje de meses con las etiquetas horizontales: si no caben se parten en dos líneas («ene» / «26»). Giradas a 45°
+     * una etiqueta larga como «ene 26» se encimaba con la del mes anterior.
+     */
+    private static CategoryAxis nuevoEjeMesesFGEM() {
+        CategoryAxis ejeFGEM = new CategoryAxis();
+        ejeFGEM.setCategoryLabelPositions(CategoryLabelPositions.STANDARD);
+        ejeFGEM.setMaximumCategoryLabelLines(2);
+        ejeFGEM.setMaximumCategoryLabelWidthRatio(1.0f);
+        return ejeFGEM;
+    }
+
     private static String etiquetaMesFGEM(YearMonth mesFGEM) {
         String nombreFGEM = mesFGEM.getMonth().getDisplayName(TextStyle.SHORT, ESPANOL_FGEM).replace(".", "");
         return mesFGEM.getMonthValue() == 1 ? nombreFGEM + " " + String.valueOf(mesFGEM.getYear()).substring(2) : nombreFGEM;

@@ -284,9 +284,16 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
         filaFGEM = indicadorFGEM(filaFGEM, "Capital de trabajo", MontosFGEM.formatearFGEM(iFGEM.capitalTrabajoFGEM(), monedaFGEM),
                 iFGEM.capitalTrabajoFGEM().signum() < 0 ? "margen-negativo" : null,
                 "Activo corriente − pasivo corriente: el dinero que queda para operar después de pagar lo del año.");
-        filaFGEM = indicadorFGEM(filaFGEM, "Endeudamiento", MontosFGEM.porcentajeFGEM(iFGEM.endeudamientoFGEM()),
+        boolean activoNoPositivoFGEM = bFGEM.totalActivoFGEM().signum() <= 0;
+        // Texto corto en la celda; el motivo va en la ayuda (tooltip).
+        String noAplicaFGEM = "No aplica";
+        String motivoFGEM = !activoNoPositivoFGEM ? "" : bFGEM.totalActivoFGEM().signum() < 0
+                ? " No aplica: los activos son negativos porque la caja está en rojo. Registra el saldo inicial o el aporte del dueño en «Tesorería»."
+                : " No aplica: no hay activos.";
+        filaFGEM = indicadorFGEM(filaFGEM, "Endeudamiento",
+                activoNoPositivoFGEM ? noAplicaFGEM : MontosFGEM.porcentajeFGEM(iFGEM.endeudamientoFGEM()),
                 semaforoMenorFGEM(iFGEM.endeudamientoFGEM(), IndicadoresPatrimonioFGEM.ENDEUDAMIENTO_VERDE_FGEM, IndicadoresPatrimonioFGEM.ENDEUDAMIENTO_AMARILLO_FGEM),
-                "Deudas ÷ activos. Bien hasta 50 %; riesgo por encima de 70 %.");
+                "Deudas ÷ activos. Bien hasta 50 %; riesgo por encima de 70 %." + motivoFGEM);
         filaFGEM = indicadorFGEM(filaFGEM, "Deuda por cada 1 de patrimonio",
                 iFGEM.apalancamientoFGEM() == null ? (bFGEM.patrimonioFGEM().signum() <= 0 && bFGEM.totalPasivoFGEM().signum() > 0
                         ? "Patrimonio negativo" : "—") : IndicadoresPatrimonioFGEM.vecesFGEM(iFGEM.apalancamientoFGEM()),
@@ -297,8 +304,9 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
         filaFGEM = indicadorFGEM(filaFGEM, "Rentabilidad del patrimonio", MontosFGEM.porcentajeFGEM(iFGEM.rentabilidadPatrimonioFGEM()),
                 signoFGEM(iFGEM.rentabilidadPatrimonioFGEM()),
                 "Utilidad neta anual ÷ patrimonio" + mesesFGEM + ". Cuánto rinde al año lo invertido por los dueños.");
-        filaFGEM = indicadorFGEM(filaFGEM, "Rentabilidad de los activos", MontosFGEM.porcentajeFGEM(iFGEM.rentabilidadActivosFGEM()),
-                signoFGEM(iFGEM.rentabilidadActivosFGEM()), "Utilidad neta anual ÷ activos" + mesesFGEM + ".");
+        filaFGEM = indicadorFGEM(filaFGEM, "Rentabilidad de los activos",
+                activoNoPositivoFGEM && iFGEM.utilidadAnualFGEM() != null ? noAplicaFGEM : MontosFGEM.porcentajeFGEM(iFGEM.rentabilidadActivosFGEM()),
+                signoFGEM(iFGEM.rentabilidadActivosFGEM()), "Utilidad neta anual ÷ activos" + mesesFGEM + "." + motivoFGEM);
         filaFGEM = indicadorFGEM(filaFGEM, "Cuotas mensuales", bFGEM.cuotasMensualesFGEM().signum() == 0 ? "Sin cuotas"
                 : MontosFGEM.formatearFGEM(bFGEM.cuotasMensualesFGEM(), monedaFGEM), null, "Suma de las cuotas de las deudas pendientes.");
         filaFGEM = indicadorFGEM(filaFGEM, "Cobertura de cuotas", iFGEM.coberturaCuotasFGEM() == null ? "—"
@@ -621,7 +629,8 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
         colBalMontoFGEM.setCellFactory(colFGEM -> celdaBalanceFGEM(fFGEM -> fFGEM.montoFGEM() == null ? "" : MontosFGEM.formatearFGEM(fFGEM.montoFGEM(), monedaFGEM),
                 fFGEM -> fFGEM.montoFGEM() != null && fFGEM.montoFGEM().signum() < 0 ? "margen-negativo" : null));
         colBalPorcentajeFGEM.setCellValueFactory(cFGEM -> new ReadOnlyObjectWrapper<>(cFGEM.getValue()));
-        colBalPorcentajeFGEM.setCellFactory(colFGEM -> celdaBalanceFGEM(fFGEM -> fFGEM.montoFGEM() == null || totalActivoFGEM.signum() == 0 ? ""
+        // Con el activo total en cero o negativo, los porcentajes sobre el activo no tienen sentido: se ocultan.
+        colBalPorcentajeFGEM.setCellFactory(colFGEM -> celdaBalanceFGEM(fFGEM -> fFGEM.montoFGEM() == null || totalActivoFGEM.signum() <= 0 ? ""
                 : MontosFGEM.porcentajeFGEM(fFGEM.montoFGEM().divide(totalActivoFGEM, 6, RoundingMode.HALF_UP)), fFGEM -> null));
         tablaBalanceFGEM.setRowFactory(tFGEM -> new TableRow<>() {
             @Override

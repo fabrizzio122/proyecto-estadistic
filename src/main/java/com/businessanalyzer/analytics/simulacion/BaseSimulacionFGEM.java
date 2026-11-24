@@ -59,7 +59,14 @@ public record BaseSimulacionFGEM(
         return ventasFGEM.signum() == 0;
     }
 
+    /**
+     * Sin redondear a céntimos: con márgenes pequeños, un céntimo de diferencia en los promedios cambia el punto de
+     * equilibrio en varios soles. Se redondea solo al mostrar.
+     */
     private static BigDecimal mensualFGEM(BigDecimal totalFGEM, BigDecimal divisorFGEM) {
-        return totalFGEM.divide(divisorFGEM, 2, RoundingMode.HALF_UP);
+        return totalFGEM.divide(divisorFGEM, ESCALA_INTERNA_FGEM, RoundingMode.HALF_UP);
     }
+
+    /** Decimales con que se guardan los cálculos intermedios (los montos se muestran con 2). */
+    public static final int ESCALA_INTERNA_FGEM = 10;
 }

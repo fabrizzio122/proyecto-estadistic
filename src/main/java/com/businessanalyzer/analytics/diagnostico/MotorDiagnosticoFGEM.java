@@ -323,6 +323,19 @@ public final class MotorDiagnosticoFGEM {
         return Optional.ofNullable(datosFGEM.patrimonioFGEM()).filter(sFGEM -> sFGEM.balanceFGEM().tieneActivosFGEM());
     }
 
+    /**
+     * Con activos en cero o negativos (normalmente la caja en rojo porque falta el saldo inicial) los ratios sobre
+     * el activo no tienen sentido: no se califican y se explica qué registrar.
+     */
+    private HallazgoFGEM noAplicaFGEM(TipoIndicadorFGEM tipoFGEM, String criterioFGEM, BalanceGeneralFGEM bFGEM) {
+        String lecturaFGEM = bFGEM.efectivoFGEM() != null && bFGEM.efectivoFGEM().signum() < 0
+                ? "No aplica: los activos son negativos (" + dineroFGEM(bFGEM.totalActivoFGEM()) + ") porque la caja está en rojo ("
+                        + dineroFGEM(bFGEM.efectivoFGEM()) + ")."
+                : "No aplica: no hay activos con valor.";
+        return new HallazgoFGEM(tipoFGEM, SemaforoFGEM.SIN_DATOS, "No aplica", criterioFGEM, lecturaFGEM,
+                "Registra el saldo inicial de caja o el aporte del dueño en «Tesorería».");
+    }
+
     private HallazgoFGEM liquidezFGEM() {
         TipoIndicadorFGEM tipoFGEM = TipoIndicadorFGEM.LIQUIDEZ;
         Optional<SituacionPatrimonialFGEM> situacionFGEM = patrimonioFGEM();
@@ -332,6 +345,9 @@ public final class MotorDiagnosticoFGEM {
         IndicadoresPatrimonioFGEM iFGEM = situacionFGEM.get().indicadoresFGEM();
         String criterioFGEM = "Bien desde " + IndicadoresPatrimonioFGEM.vecesFGEM(IndicadoresPatrimonioFGEM.LIQUIDEZ_VERDE_FGEM)
                 + "; riesgo por debajo de " + IndicadoresPatrimonioFGEM.vecesFGEM(IndicadoresPatrimonioFGEM.LIQUIDEZ_AMARILLO_FGEM) + ".";
+        if (situacionFGEM.get().balanceFGEM().totalActivoFGEM().signum() <= 0) {
+            return noAplicaFGEM(tipoFGEM, criterioFGEM, situacionFGEM.get().balanceFGEM());
+        }
         BigDecimal liquidezFGEM = iFGEM.liquidezCorrienteFGEM();
         if (liquidezFGEM == null) {
             return new HallazgoFGEM(tipoFGEM, SemaforoFGEM.VERDE, "Sin deudas", criterioFGEM,
@@ -404,11 +420,15 @@ public final class MotorDiagnosticoFGEM {
         BigDecimal ratioFGEM = situacionFGEM.get().indicadoresFGEM().endeudamientoFGEM();
         String criterioFGEM = "Bien hasta " + pctFGEM(IndicadoresPatrimonioFGEM.ENDEUDAMIENTO_VERDE_FGEM) + "; riesgo por encima de "
                 + pctFGEM(IndicadoresPatrimonioFGEM.ENDEUDAMIENTO_AMARILLO_FGEM) + ".";
+        if (bFGEM.totalActivoFGEM().signum() <= 0) {
+            return noAplicaFGEM(tipoFGEM, criterioFGEM, bFGEM);
+        }
         if (bFGEM.totalPasivoFGEM().signum() == 0) {
             return new HallazgoFGEM(tipoFGEM, SemaforoFGEM.VERDE, "0 %", criterioFGEM, "El negocio no tiene deudas pendientes.", null);
         }
         if (ratioFGEM == null || bFGEM.patrimonioFGEM().signum() <= 0) {
-            return new HallazgoFGEM(tipoFGEM, SemaforoFGEM.ROJO, ratioFGEM == null ? "Sin activos" : pctFGEM(ratioFGEM), criterioFGEM,
+            return new HallazgoFGEM(tipoFGEM, SemaforoFGEM.ROJO, ratioFGEM == null
+                    ? (bFGEM.totalActivoFGEM().signum() < 0 ? "Activos negativos" : "Sin activos") : pctFGEM(ratioFGEM), criterioFGEM,
                     "Las deudas (" + dineroFGEM(bFGEM.totalPasivoFGEM()) + ") superan a los bienes del negocio ("
                             + dineroFGEM(bFGEM.totalActivoFGEM()) + "): el patrimonio es negativo.",
                     "No tomes nuevos préstamos, destina las utilidades a pagar primero las deudas más caras "

@@ -94,7 +94,9 @@ class SimulacionServiceTestFGEM {
 
         assertEquals(3, baseFGEM.mesesFGEM());
         assertEquals(LocalDate.of(2025, 10, 1), baseFGEM.periodoFGEM().desdeFGEM());
-        assertMontoFGEM("333.33", baseFGEM.ventasFGEM());
+        // 1000 ÷ 3 se guarda con precisión completa (333.3333…) y se redondea solo al mostrar.
+        assertMontoFGEM("333.33", baseFGEM.ventasFGEM().setScale(2, java.math.RoundingMode.HALF_UP));
+        assertTrue(baseFGEM.ventasFGEM().scale() > 2);
     }
 
     @Test

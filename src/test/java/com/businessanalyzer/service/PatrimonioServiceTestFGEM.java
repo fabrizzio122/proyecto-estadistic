@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -140,7 +141,11 @@ class PatrimonioServiceTestFGEM {
         assertTrue(canceladaFGEM.canceladaFGEM());
         assertEquals("Cancelada", canceladaFGEM.estadoTextoFGEM());
         assertInvalidoFGEM(() -> servicioFGEM.registrarPagoFGEM(prestamoFGEM.idFGEM(), HOY_FGEM, BigDecimal.ONE, null));
-        assertTrue(servicioFGEM.situacionFGEM().balanceFGEM().sinRegistrosFGEM());
+        // Sin deudas ni activos registrados, pero los pagos salieron de la caja de tesorería: el balance lo refleja.
+        var balanceFGEM = servicioFGEM.situacionFGEM().balanceFGEM();
+        assertEquals(0, balanceFGEM.deudasPendientesFGEM());
+        igualFGEM("-3000", balanceFGEM.efectivoFGEM());
+        assertFalse(balanceFGEM.sinRegistrosFGEM());
 
         // Anular un pago devuelve el saldo.
         PagoDeudaFGEM ultimoFGEM = servicioFGEM.listarPagosFGEM(prestamoFGEM.idFGEM()).get(0);

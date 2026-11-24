@@ -153,6 +153,24 @@ class BalanceGeneralTestFGEM {
         assertEquals(0, iFGEM.mesesResultadosFGEM());
     }
 
+    /**
+     * Caso real: caja muy negativa porque no se registró el aporte inicial y el negocio pierde dinero.
+     * Pérdida ÷ activos negativos daría una «rentabilidad» positiva (97 %): no debe calcularse.
+     */
+    @Test
+    void conActivosNegativosNoSeCalculanLaRentabilidadNiElEndeudamientoFGEM() {
+        BalanceGeneralFGEM bFGEM = BalanceGeneralFGEM.deFGEM(CORTE_FGEM, List.of(), new BigDecimal("10441.40"), BigDecimal.ZERO, BigDecimal.ZERO,
+                List.of(), new BigDecimal("-20456.25"), BigDecimal.ZERO, BigDecimal.ZERO);
+        igualFGEM("-10014.85", bFGEM.totalActivoFGEM());
+
+        IndicadoresPatrimonioFGEM iFGEM = IndicadoresPatrimonioFGEM.deFGEM(bFGEM, resultadosFGEM("-10014.85", "-10014.85"), 12);
+
+        igualFGEM("-10014.85", iFGEM.utilidadAnualFGEM());
+        assertNull(iFGEM.rentabilidadActivosFGEM());
+        assertNull(iFGEM.endeudamientoFGEM());
+        assertNull(iFGEM.rentabilidadPatrimonioFGEM());
+    }
+
     @Test
     void laLecturaAvisaDelPatrimonioNegativoYDeLaFaltaDeCapacidadDePagoFGEM() {
         BalanceGeneralFGEM bFGEM = BalanceGeneralFGEM.deFGEM(CORTE_FGEM, List.of(activoFGEM(CategoriaActivoFGEM.CAJA_BANCOS, "1000", CORTE_FGEM, null, "0")),

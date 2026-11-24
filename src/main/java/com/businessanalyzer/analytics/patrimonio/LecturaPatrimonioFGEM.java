@@ -29,7 +29,16 @@ public final class LecturaPatrimonioFGEM {
         }
 
         BigDecimal patrimonioFGEM = bFGEM.patrimonioFGEM();
-        if (patrimonioFGEM.signum() > 0) {
+        if (bFGEM.efectivoFGEM() != null && bFGEM.efectivoFGEM().signum() < 0) {
+            // Lo más frecuente: se registraron compras y gastos pero no el dinero con el que empezó el negocio.
+            frasesFGEM.add("La caja está en rojo (" + MontosFGEM.formatearFGEM(bFGEM.efectivoFGEM(), monedaFGEM) + ")"
+                    + (bFGEM.totalActivoFGEM().signum() < 0 ? " y por eso los activos son negativos" : "")
+                    + ": registra el saldo inicial o el aporte del dueño en «Tesorería».");
+        }
+        if (patrimonioFGEM.signum() <= 0 && bFGEM.totalPasivoFGEM().signum() == 0) {
+            frasesFGEM.add("No hay deudas, pero el patrimonio es negativo (" + MontosFGEM.formatearFGEM(patrimonioFGEM, monedaFGEM)
+                    + ") porque los activos lo son.");
+        } else if (patrimonioFGEM.signum() > 0) {
             frasesFGEM.add("El negocio tiene " + MontosFGEM.formatearFGEM(bFGEM.totalActivoFGEM(), monedaFGEM) + " en bienes y derechos y debe "
                     + MontosFGEM.formatearFGEM(bFGEM.totalPasivoFGEM(), monedaFGEM) + ": lo que realmente pertenece a los dueños es "
                     + MontosFGEM.formatearFGEM(patrimonioFGEM, monedaFGEM) + ".");
