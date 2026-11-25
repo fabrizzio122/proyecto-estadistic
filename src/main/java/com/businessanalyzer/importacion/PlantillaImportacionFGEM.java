@@ -85,7 +85,9 @@ public final class PlantillaImportacionFGEM {
                 colFGEM("Categoría", false, 18, "Ej.: Abarrotes, Bebidas. Se crea si no existe", "rubro", "familia", "linea"),
                 colFGEM("Unidad", false, 14, "Unidad, Kilogramo, Litro, Paquete… Vacío = Unidad", "unidad de medida", "um", "medida"),
                 colFGEM("Costo unitario", true, 15, "Obligatorio. Lo que te cuesta una unidad", "costo", "precio de compra", "costo sin igv"),
-                colFGEM("Precio de venta", true, 15, "Obligatorio. A cuánto vendes una unidad", "precio", "pvp", "precio sin igv"))),
+                colFGEM("Precio de venta", true, 15, "Obligatorio. A cuánto vendes una unidad", "precio", "pvp", "precio sin igv"),
+                colFGEM("Perecible", false, 11, "Sí si se vence pronto (pan, lácteos frescos, verduras). Vacío = No",
+                        "se vence", "vence", "perecedero"))),
         VENTAS("Ventas", "Una fila por producto vendido. Las filas con la misma fecha y documento forman una sola venta.", List.of(
                 colFGEM("Fecha", true, 12, "Obligatorio. dd/mm/aaaa", "dia"),
                 colFGEM("Documento", false, 15, "Boleta o número de ticket. Vacío = cada fila es una venta",
@@ -367,6 +369,9 @@ public final class PlantillaImportacionFGEM {
                 rowFGEM.createCell(4).setCellValue(pFGEM.unidadFGEM().descripcionFGEM());
                 rowFGEM.createCell(5).setCellValue(Double.parseDouble(pFGEM.costoFGEM()));
                 rowFGEM.createCell(6).setCellValue(Double.parseDouble(pFGEM.precioFGEM()));
+                if (pFGEM.unidadFGEM() != UnidadMedidaFGEM.PAQUETE && pFGEM.codigoFGEM().startsWith("PAN")) {
+                    rowFGEM.createCell(7).setCellValue("Sí");
+                }
             }
         }
 

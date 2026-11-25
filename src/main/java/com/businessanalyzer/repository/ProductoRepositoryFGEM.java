@@ -27,7 +27,7 @@ public class ProductoRepositoryFGEM {
 
     private static final String CONSULTA_FGEM = """
             SELECT p.id, p.empresa_id, p.categoria_id, c.nombre AS categoria_nombre, p.tipo, p.codigo,
-                   p.nombre, p.descripcion, p.unidad, p.costo_unitario, p.precio_venta, p.activo,
+                   p.nombre, p.descripcion, p.unidad, p.costo_unitario, p.precio_venta, p.activo, p.perecible,
                    p.creado_en, p.actualizado_en,
                    (SELECT COALESCE(SUM(CASE o.tipo WHEN 'COMPRA' THEN ol.cantidad ELSE -ol.cantidad END), 0)
                     FROM operacion_linea ol
@@ -89,12 +89,12 @@ public class ProductoRepositoryFGEM {
     public long insertarFGEM(Connection cFGEM, long empresaIdFGEM, DatosProductoFGEM dFGEM, LocalDateTime ahoraFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement("""
                 INSERT INTO producto (categoria_id, tipo, codigo, nombre, descripcion, unidad, costo_unitario,
-                                      precio_venta, empresa_id, creado_en, actualizado_en)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS)) {
+                                      precio_venta, perecible, empresa_id, creado_en, actualizado_en)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", Statement.RETURN_GENERATED_KEYS)) {
             asignarDatosFGEM(psFGEM, dFGEM);
-            psFGEM.setLong(9, empresaIdFGEM);
-            psFGEM.setString(10, FechasFGEM.aTextoFGEM(ahoraFGEM));
+            psFGEM.setLong(10, empresaIdFGEM);
             psFGEM.setString(11, FechasFGEM.aTextoFGEM(ahoraFGEM));
+            psFGEM.setString(12, FechasFGEM.aTextoFGEM(ahoraFGEM));
             psFGEM.executeUpdate();
             try (ResultSet clavesFGEM = psFGEM.getGeneratedKeys()) {
                 if (!clavesFGEM.next()) {
@@ -109,11 +109,11 @@ public class ProductoRepositoryFGEM {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement("""
                 UPDATE producto
                 SET categoria_id = ?, tipo = ?, codigo = ?, nombre = ?, descripcion = ?, unidad = ?,
-                    costo_unitario = ?, precio_venta = ?, actualizado_en = ?
+                    costo_unitario = ?, precio_venta = ?, perecible = ?, actualizado_en = ?
                 WHERE id = ?""")) {
             asignarDatosFGEM(psFGEM, dFGEM);
-            psFGEM.setString(9, FechasFGEM.aTextoFGEM(ahoraFGEM));
-            psFGEM.setLong(10, idFGEM);
+            psFGEM.setString(10, FechasFGEM.aTextoFGEM(ahoraFGEM));
+            psFGEM.setLong(11, idFGEM);
             exigirUnaFilaFGEM(psFGEM.executeUpdate());
         }
     }
@@ -190,6 +190,7 @@ public class ProductoRepositoryFGEM {
         psFGEM.setString(6, dFGEM.unidadFGEM().name());
         psFGEM.setLong(7, MontosFGEM.aEnteroFGEM(dFGEM.costoUnitarioFGEM()));
         psFGEM.setLong(8, MontosFGEM.aEnteroFGEM(dFGEM.precioVentaFGEM()));
+        psFGEM.setInt(9, dFGEM.perecibleFGEM() ? 1 : 0);
     }
 
     private static List<ProductoFGEM> mapearFGEM(PreparedStatement psFGEM) throws SQLException {
@@ -214,7 +215,8 @@ public class ProductoRepositoryFGEM {
                         tipoFGEM == TipoItemFGEM.PRODUCTO ? MontosFGEM.desdeEnteroFGEM(rsFGEM.getLong("stock")) : null,
                         rsFGEM.getInt("activo") == 1,
                         FechasFGEM.desdeTextoFGEM(rsFGEM.getString("creado_en")),
-                        FechasFGEM.desdeTextoFGEM(rsFGEM.getString("actualizado_en"))));
+                        FechasFGEM.desdeTextoFGEM(rsFGEM.getString("actualizado_en")),
+                        rsFGEM.getInt("perecible") == 1));
             }
         }
         return productosFGEM;

@@ -3,6 +3,16 @@
 ## Sin publicar
 
 ### Nuevo
+- **Sugerencias por producto** (*Análisis → Sugerencias*): qué precios ajustar (productos con pérdida o con menos
+  margen que el objetivo, con el precio sugerido y la ganancia extra al mes), qué reponer y cuánto comprar para dos
+  semanas según las ventas recientes, y qué productos tienen dinero inmovilizado porque no se venden.
+- **Productos perecibles**: nueva casilla en el producto (y columna «Perecible» al importar). En las sugerencias se
+  reponen para 3 días y, si tardarían más de 15 días en venderse, aparecen primero con la indicación de ofrecerlos
+  ya en promoción.
+- Sugerencias afinadas tras probarlas con una bodega real: la venta lenta se mide con 180 días y se separa de los
+  productos sin ventas, con el % del inventario; un producto agotado sin ventas recientes se repone según su
+  historial; los precios de productos que casi no se venden van al final en gris; la ganancia extra indica el
+  supuesto («si vendes la misma cantidad») y cuánto reduce la pérdida mensual; «1 día» y ritmos como «1 en 60 días».
 - **Importar desde Excel** (*Gestión → Importar desde Excel*): plantilla con instrucciones y listas desplegables
   (también con tres meses de ejemplo de una bodega), revisión completa del archivo sin guardar nada y luego
   importación de productos, categorías, ventas, compras y gastos a la empresa activa. Si alguna fila tiene un
@@ -27,7 +37,7 @@
 
 ### Calidad
 - **Integración continua con GitHub Actions**: en cada push o pull request a `main` se compila el proyecto
-  en Windows con JDK 17 y se ejecutan las pruebas (316); el estado se ve en el distintivo del README.
+  en Windows con JDK 17 y se ejecutan las pruebas (325); el estado se ve en el distintivo del README.
 - **Cobertura de pruebas con JaCoCo**: la lógica de negocio (todo menos la interfaz) tiene 92 % de líneas
   cubiertas; informe en `target/site/jacoco/index.html` y resumen por capa en cada ejecución de GitHub.
 

@@ -3,6 +3,7 @@ package com.businessanalyzer.service;
 import com.businessanalyzer.exception.ValidacionExceptionFGEM;
 import com.businessanalyzer.model.DatosCategoriaFGEM;
 import com.businessanalyzer.model.DatosProductoFGEM;
+import com.businessanalyzer.model.TipoItemFGEM;
 import com.businessanalyzer.util.MontosFGEM;
 import com.businessanalyzer.util.ValidacionesFGEM;
 
@@ -41,7 +42,8 @@ final class ValidadorCatalogoFGEM {
         }
         BigDecimal costoFGEM = montoFGEM(dFGEM.costoUnitarioFGEM(), "Costo unitario");
         BigDecimal precioFGEM = montoFGEM(dFGEM.precioVentaFGEM(), "Precio de venta");
-        return new DatosProductoFGEM(dFGEM.tipoFGEM(), codigoFGEM, nombreFGEM, descripcionFGEM, dFGEM.categoriaIdFGEM(), dFGEM.unidadFGEM(), costoFGEM, precioFGEM);
+        return new DatosProductoFGEM(dFGEM.tipoFGEM(), codigoFGEM, nombreFGEM, descripcionFGEM, dFGEM.categoriaIdFGEM(), dFGEM.unidadFGEM(), costoFGEM, precioFGEM,
+                dFGEM.tipoFGEM() == TipoItemFGEM.PRODUCTO && dFGEM.perecibleFGEM());
     }
 
     static DatosCategoriaFGEM categoriaFGEM(DatosCategoriaFGEM dFGEM) {

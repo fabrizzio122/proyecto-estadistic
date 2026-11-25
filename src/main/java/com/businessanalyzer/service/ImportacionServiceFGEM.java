@@ -365,7 +365,8 @@ public class ImportacionServiceFGEM {
                 Long categoriaFinalFGEM = categoriaIdFGEM;
                 intentarFGEM(hojaFGEM, fFGEM.filaFGEM(), () -> {
                     ProductoFGEM nuevoFGEM = catalogoFGEM.crearProductoFGEM(new DatosProductoFGEM(fFGEM.tipoFGEM(), fFGEM.codigoFGEM(),
-                            fFGEM.nombreFGEM(), null, categoriaFinalFGEM, fFGEM.unidadFGEM(), fFGEM.costoFGEM(), fFGEM.precioFGEM()));
+                            fFGEM.nombreFGEM(), null, categoriaFinalFGEM, fFGEM.unidadFGEM(), fFGEM.costoFGEM(), fFGEM.precioFGEM(),
+                            fFGEM.perecibleFGEM()));
                     recordarFGEM(nuevoFGEM);
                     productosNuevosFGEM++;
                     return null;

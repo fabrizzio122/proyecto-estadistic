@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.businessanalyzer.controller.SugerenciasControllerFGEM"
+      spacing="14" styleClass="page">
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Margen objetivo" styleClass="form-label" minWidth="-Infinity"/>
+        <Spinner fx:id="spnMargenFGEM" prefWidth="85" minWidth="85" editable="true"/>
+        <Label text="\%" styleClass="muted"/>
+        <Button text="Calcular" styleClass="button-primary" minWidth="-Infinity" onAction="#calcularFGEM">
+            <graphic><FontIcon iconLiteral="fth-refresh-cw"/></graphic>
+        </Button>
+        <ProgressIndicator fx:id="progresoFGEM" prefWidth="22" prefHeight="22" visible="false"/>
+        <Label styleClass="hint" wrapText="true" minHeight="-Infinity" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+               text="Ganancia que quieres sobre el precio de venta. En bodegas suele estar entre 15 % y 25 %."/>
+    </HBox>
+    <Label fx:id="lblPeriodoFGEM" styleClass="hint" wrapText="true" minHeight="-Infinity"/>
+
+    <HBox fx:id="indicadoresFGEM" spacing="16"/>
+
+    <TabPane VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
+        <Tab fx:id="tabPreciosFGEM" text="Precios">
+            <VBox spacing="8" styleClass="tab-contenido">
+                <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
+                       text="Productos que se venden con pérdida o con menos margen que el objetivo. La ganancia extra supone que vendes la misma cantidad: revisa los precios de la competencia antes de subirlos. En gris, los que casi no se venden: ahí subir el precio no es la prioridad."/>
+                <TableView fx:id="tablaPreciosFGEM" VBox.vgrow="ALWAYS" styleClass="tabla-compacta"/>
+            </VBox>
+        </Tab>
+        <Tab fx:id="tabReposicionFGEM" text="Reposición">
+            <VBox spacing="8" styleClass="tab-contenido">
+                <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
+                       text="Productos que se agotan en menos de dos semanas al ritmo de venta actual, y cuánto comprar para cubrir 14 días (3 días si es perecible). Un producto agotado que no se vendió últimamente usa sus ventas de antes de agotarse. Marca los perecibles en «Productos y servicios»."/>
+                <TableView fx:id="tablaReposicionFGEM" VBox.vgrow="ALWAYS" styleClass="tabla-compacta"/>
+            </VBox>
+        </Tab>
+        <Tab fx:id="tabSinMovimientoFGEM" text="Sin movimiento">
+            <VBox spacing="8" styleClass="tab-contenido">
+                <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
+                       text="Primero los perecibles que se vencerán antes de venderse; luego los productos sin ventas en 180 días y los que tardarían más de 180 días en venderse. En una bodega es normal que algunos productos se vendan pocas veces al mes."/>
+                <TableView fx:id="tablaSinMovimientoFGEM" VBox.vgrow="ALWAYS" styleClass="tabla-compacta"/>
+            </VBox>
+        </Tab>
+    </TabPane>
+</VBox>

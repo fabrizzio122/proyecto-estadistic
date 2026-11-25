@@ -303,6 +303,28 @@ public class OperacionRepositoryFGEM {
         return porMesFGEM;
     }
 
+    /** Fecha de la última venta registrada de cada producto en el período (producto → fecha). */
+    public Map<Long, LocalDate> ultimasVentasFGEM(Connection cFGEM, long empresaIdFGEM, LocalDate desdeFGEM, LocalDate hastaFGEM) throws SQLException {
+        Map<Long, LocalDate> ultimasFGEM = new java.util.HashMap<>();
+        try (PreparedStatement psFGEM = cFGEM.prepareStatement("""
+                SELECT ol.producto_id, MAX(o.fecha) AS ultima
+                FROM operacion_linea ol
+                JOIN operacion o ON o.id = ol.operacion_id
+                WHERE o.empresa_id = ? AND o.tipo = 'VENTA' AND o.estado = 'REGISTRADA'
+                  AND o.fecha BETWEEN ? AND ?
+                GROUP BY ol.producto_id""")) {
+            psFGEM.setLong(1, empresaIdFGEM);
+            psFGEM.setString(2, FechasFGEM.fechaATextoFGEM(desdeFGEM));
+            psFGEM.setString(3, FechasFGEM.fechaATextoFGEM(hastaFGEM));
+            try (ResultSet rsFGEM = psFGEM.executeQuery()) {
+                while (rsFGEM.next()) {
+                    ultimasFGEM.put(rsFGEM.getLong("producto_id"), FechasFGEM.fechaDesdeTextoFGEM(rsFGEM.getString("ultima")));
+                }
+            }
+        }
+        return ultimasFGEM;
+    }
+
     /** Líneas de las ventas registradas del período, para la rentabilidad por producto. */
     public List<RentabilidadProductoFGEM.VentaFGEM> lineasVendidasFGEM(Connection cFGEM, long empresaIdFGEM, LocalDate desdeFGEM,
                                                            LocalDate hastaFGEM) throws SQLException {

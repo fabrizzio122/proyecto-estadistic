@@ -996,6 +996,11 @@
     -fx-text-fill: -ba-exito;
 }
 
+/* Sugerencias no prioritarias (Fase 28) */
+.table-view .table-row-cell .table-cell.texto-tenue {
+    -fx-text-fill: -ba-texto-tenue;
+}
+
 .table-view .table-row-cell:archivado .table-cell {
     -fx-opacity: 0.5;
 }

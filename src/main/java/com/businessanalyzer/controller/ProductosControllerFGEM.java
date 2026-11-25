@@ -530,6 +530,7 @@ public class ProductosControllerFGEM implements VistaModuloFGEM {
         private final TextField txtPrecioFGEM = new TextField();
         private final Label lblMargenFGEM = new Label();
         private final TextArea txtDescripcionFGEM = new TextArea();
+        private final CheckBox chkPerecibleFGEM = new CheckBox("Se vence pronto (pan, lácteos frescos, verduras…)");
 
         FormularioProductoFGEM(ProductoFGEM pFGEM) {
             List<CategoriaFGEM> opcionesFGEM = new ArrayList<>();
@@ -559,7 +560,11 @@ public class ProductosControllerFGEM implements VistaModuloFGEM {
                 txtCostoFGEM.setText(MontosFGEM.paraEditarFGEM(pFGEM.costoUnitarioFGEM()));
                 txtPrecioFGEM.setText(MontosFGEM.paraEditarFGEM(pFGEM.precioVentaFGEM()));
                 txtDescripcionFGEM.setText(Objects.requireNonNullElse(pFGEM.descripcionFGEM(), ""));
+                chkPerecibleFGEM.setSelected(pFGEM.perecibleFGEM());
             }
+            // Solo un bien físico puede vencerse.
+            chkPerecibleFGEM.setWrapText(true);
+            chkPerecibleFGEM.disableProperty().bind(cmbTipoFGEM.valueProperty().isEqualTo(TipoItemFGEM.SERVICIO));
             // Un servicio nuevo se mide normalmente por servicio u hora.
             cmbTipoFGEM.valueProperty().addListener((oFGEM, anteriorFGEM, tipoFGEM) -> {
                 if (pFGEM == null && tipoFGEM == TipoItemFGEM.SERVICIO && cmbUnidadFGEM.getValue() == UnidadMedidaFGEM.UNIDAD) {
@@ -583,6 +588,7 @@ public class ProductosControllerFGEM implements VistaModuloFGEM {
             FormulariosFGEM.filaFGEM(grillaFGEM, "Costo unitario (" + monedaFGEM.simboloFGEM() + ") *", txtCostoFGEM);
             FormulariosFGEM.filaFGEM(grillaFGEM, "Precio de venta (" + monedaFGEM.simboloFGEM() + ") *", txtPrecioFGEM);
             FormulariosFGEM.filaFGEM(grillaFGEM, "", lblMargenFGEM);
+            FormulariosFGEM.filaFGEM(grillaFGEM, "Perecible", chkPerecibleFGEM);
             FormulariosFGEM.filaFGEM(grillaFGEM, "Descripción", txtDescripcionFGEM);
             return grillaFGEM;
         }
@@ -609,7 +615,8 @@ public class ProductosControllerFGEM implements VistaModuloFGEM {
                     categoriaFGEM == null || categoriaFGEM.idFGEM() == SIN_CATEGORIA_FGEM.idFGEM() ? null : categoriaFGEM.idFGEM(),
                     cmbUnidadFGEM.getValue(),
                     MontosFGEM.leerFGEM(txtCostoFGEM.getText(), "Costo unitario"),
-                    MontosFGEM.leerFGEM(txtPrecioFGEM.getText(), "Precio de venta"));
+                    MontosFGEM.leerFGEM(txtPrecioFGEM.getText(), "Precio de venta"),
+                    cmbTipoFGEM.getValue() == TipoItemFGEM.PRODUCTO && chkPerecibleFGEM.isSelected());
         }
     }
 }

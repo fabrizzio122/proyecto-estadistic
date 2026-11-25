@@ -21,7 +21,7 @@ public final class DatosImportacionFGEM {
 
     /** Una fila de la hoja «Productos». */
     public record FilaProductoFGEM(int filaFGEM, String codigoFGEM, String nombreFGEM, TipoItemFGEM tipoFGEM, String categoriaFGEM,
-                                   UnidadMedidaFGEM unidadFGEM, BigDecimal costoFGEM, BigDecimal precioFGEM) {
+                                   UnidadMedidaFGEM unidadFGEM, BigDecimal costoFGEM, BigDecimal precioFGEM, boolean perecibleFGEM) {
     }
 
     /**

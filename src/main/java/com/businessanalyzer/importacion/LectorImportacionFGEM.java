@@ -225,7 +225,16 @@ public final class LectorImportacionFGEM {
                 ? (tipoFGEM == TipoItemFGEM.SERVICIO ? UnidadMedidaFGEM.SERVICIO : UnidadMedidaFGEM.UNIDAD)
                 : unidadFGEM(unidadTextoFGEM);
         return new FilaProductoFGEM(fFGEM.numeroFGEM(), fFGEM.textoFGEM(0, false), nombreFGEM, tipoFGEM, fFGEM.textoFGEM(3, false), unidadFGEM,
-                fFGEM.decimalFGEM(5, true), fFGEM.decimalFGEM(6, true));
+                fFGEM.decimalFGEM(5, true), fFGEM.decimalFGEM(6, true), siNoFGEM(fFGEM.textoFGEM(7, false)));
+    }
+
+    /** «Sí», «si», «x», «1» o «perecible» = sí; vacío, «No» o «0» = no. */
+    static boolean siNoFGEM(String textoFGEM) {
+        return switch (PlantillaImportacionFGEM.normalizarFGEM(textoFGEM)) {
+            case "", "no", "n", "0", "falso", "false" -> false;
+            case "si", "s", "x", "1", "verdadero", "true", "perecible", "yes" -> true;
+            default -> throw new ValorInvalidoFGEM("«" + textoFGEM + "» no válido en «Perecible»: escribe Sí o No.");
+        };
     }
 
     private static FilaOperacionFGEM operacionFGEM(FilaExcelFGEM fFGEM, TipoOperacionFGEM tipoFGEM) {

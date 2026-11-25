@@ -32,7 +32,7 @@ En IntelliJ IDEA: abrir la carpeta como proyecto Maven y ejecutar
 
 ## Pruebas, cobertura e integración continua
 
-- **316 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
+- **325 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
   base SQLite temporal y un reloj controlado.
 - **Cobertura con JaCoCo**: `.\mvnw.cmd test` deja el informe en `target/site/jacoco/index.html`.
   Resumen por capa: `.\.github\scripts\resumen-cobertura.ps1`.
@@ -72,7 +72,7 @@ com.businessanalyzer
 ├── model         entidades: Usuario, Rol, Permiso, Empresa...
 ├── seguridad     hash de contraseñas (PBKDF2), política de contraseñas y sesión
 ├── analytics     cálculos puros (sin BD ni JavaFX): financiero, estadística, predicción, simulación,
-│                 diagnóstico, patrimonio, ganadería, agricultura y valoración
+│                 diagnóstico, patrimonio, ganadería, agricultura, valoración y sugerencias
 ├── informes      contenido de los informes, PDF (JasperReports) y Excel (Apache POI)
 ├── importacion   plantilla y lectura de los libros de Excel a importar (Fase 26)
 ├── util          montos (BigDecimal), fechas y validaciones
@@ -112,6 +112,8 @@ automáticamente al iniciar y dentro de una transacción.
 24. Iniciales del autor (FGEM) en todos los identificadores del código ✅
 25. Integración continua (GitHub Actions) y cobertura de pruebas (JaCoCo) ✅
 26. Importación desde Excel: plantilla, revisión previa sin guardar e importación de productos, ventas, compras y gastos ✅
+27. Sugerencias por producto: precios a ajustar, reposición y productos sin movimiento ✅
+28. Productos perecibles y sugerencias afinadas con datos reales: venta lenta con 180 días, agotados según su historial, ganancia en contexto ✅
 
 ## Seguridad
 
@@ -312,6 +314,22 @@ Se calcula con **Apache Commons Math**:
 - **Archivos seguros:** se escriben primero en un temporal; si el destino está abierto en otro programa, se avisa sin dejar el archivo a medias.
 - **Historial** de informes generados por empresa (migración V8), con «Abrir» y «Mostrar en la carpeta».
 - **Permiso:** `INFORMES_GENERAR` (Administrador, Gerente y Analista).
+
+## Sugerencias por producto (Fase 27)
+
+*Análisis → Sugerencias* convierte el análisis en acciones concretas, con las ventas de los últimos 60 días
+(o desde la primera venta, si es más reciente), y de los últimos 180 días para la venta lenta:
+
+| Pestaña | Qué muestra |
+|---|---|
+| **Precios** | Productos que se venden con pérdida o con menos margen que el objetivo (20 % por defecto, se recuerda por empresa). Precio sugerido = costo ÷ (1 − margen), redondeado hacia arriba a 10 céntimos, y la ganancia extra al mes si se vende la misma cantidad, comparada con la utilidad mensual del diagnóstico. Los productos que casi no se venden aparecen al final, en gris. |
+| **Reposición** | Productos que se agotan en menos de 14 días (3 si son perecibles) al ritmo de los últimos 60 días, y cuánto comprar. Un producto agotado sin ventas recientes usa su ritmo de los últimos 180 días: no se vendió porque no había. |
+| **Sin movimiento** | Perecibles que se vencerán antes de venderse (más de 15 días de stock), productos sin ventas en 180 días y productos que tardarían más de 180 días en venderse, con el % del inventario que representan. |
+
+Los productos se marcan como **perecibles** en su formulario o con la columna «Perecible» (Sí/No) de la hoja
+*Productos* al importar (migración V15).
+
+Los cálculos son puros (`analytics/sugerencias`) y se prueban sin base de datos.
 
 ## Importar desde Excel (Fase 26)
 

@@ -42,7 +42,8 @@ public final class MigradorFGEM {
             new MigracionFGEM(11, "Agricultura", "/db/migration/V11__agricultura.sql"),
             new MigracionFGEM(12, "Visitas de inspección", "/db/migration/V12__visitas_inspeccion.sql"),
             new MigracionFGEM(13, "Tesorería y flujo de caja", "/db/migration/V13__tesoreria.sql"),
-            new MigracionFGEM(14, "Preferencias de usuario", "/db/migration/V14__preferencias_usuario.sql")
+            new MigracionFGEM(14, "Preferencias de usuario", "/db/migration/V14__preferencias_usuario.sql"),
+            new MigracionFGEM(15, "Productos perecibles", "/db/migration/V15__producto_perecible.sql")
     );
 
     private static final Logger logFGEM = LoggerFactory.getLogger(MigradorFGEM.class);

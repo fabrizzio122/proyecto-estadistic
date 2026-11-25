@@ -40,6 +40,7 @@ import com.businessanalyzer.seguridad.SesionFGEM;
 import com.businessanalyzer.service.AutenticacionServiceFGEM;
 import com.businessanalyzer.service.CatalogoServiceFGEM;
 import com.businessanalyzer.service.ImportacionServiceFGEM;
+import com.businessanalyzer.service.SugerenciasServiceFGEM;
 import com.businessanalyzer.service.ConfiguracionServiceFGEM;
 import com.businessanalyzer.service.EmpresaServiceFGEM;
 import com.businessanalyzer.service.OperacionServiceFGEM;
@@ -86,6 +87,7 @@ public final class AppContextFGEM {
     private final PreferenciasServiceFGEM preferenciasServiceFGEM;
     private final CopiaSeguridadServiceFGEM copiaSeguridadServiceFGEM;
     private final ImportacionServiceFGEM importacionServiceFGEM;
+    private final SugerenciasServiceFGEM sugerenciasServiceFGEM;
     private final boolean restauracionAplicadaFGEM;
 
     private AppContextFGEM(AppConfigFGEM configFGEM, DatabaseFGEM databaseFGEM, int versionEsquemaFGEM, boolean restauracionAplicadaFGEM) {
@@ -145,6 +147,8 @@ public final class AppContextFGEM {
                 ganaderiaServiceFGEM, agriculturaServiceFGEM, patrimonioServiceFGEM, empresaServiceFGEM, sesionFGEM, relojFGEM);
         this.datosDemoServiceFGEM = new DatosDemoServiceFGEM(empresaServiceFGEM, catalogoServiceFGEM, operacionServiceFGEM,
                 finanzasServiceFGEM, patrimonioServiceFGEM, tesoreriaServiceFGEM, sesionFGEM, relojFGEM);
+        this.sugerenciasServiceFGEM = new SugerenciasServiceFGEM(databaseFGEM, productoRepositoryFGEM, operacionRepositoryFGEM,
+                movimientoRepositoryFGEM, empresaServiceFGEM, configuracionServiceFGEM, sesionFGEM, relojFGEM);
         this.importacionServiceFGEM = new ImportacionServiceFGEM(databaseFGEM, catalogoServiceFGEM, operacionServiceFGEM,
                 finanzasServiceFGEM, empresaServiceFGEM, sesionFGEM, relojFGEM);
         this.datosDemoAgroServiceFGEM = new DatosDemoAgroServiceFGEM(empresaServiceFGEM, ganaderiaServiceFGEM, agriculturaServiceFGEM, patrimonioServiceFGEM,
@@ -284,6 +288,10 @@ public final class AppContextFGEM {
 
     public DiagnosticoServiceFGEM diagnosticoFGEM() {
         return diagnosticoServiceFGEM;
+    }
+
+    public SugerenciasServiceFGEM sugerenciasFGEM() {
+        return sugerenciasServiceFGEM;
     }
 
     public ImportacionServiceFGEM importacionFGEM() {
