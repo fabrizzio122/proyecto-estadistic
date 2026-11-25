@@ -1,6 +1,6 @@
 # Cambios
 
-## Sin publicar
+## 1.3.0 — 25/11/2026
 
 ### Nuevo
 - **Inferencia estadística en Análisis estadístico**, dentro de las pestañas que ya existían: intervalo de confianza
