@@ -2,6 +2,10 @@ package com.businessanalyzer.controller;
 
 import com.businessanalyzer.analytics.PeriodoFGEM;
 import com.businessanalyzer.analytics.tesoreria.ActividadFGEM;
+import com.businessanalyzer.analytics.tesoreria.AntiguedadSaldosFGEM;
+import com.businessanalyzer.analytics.tesoreria.AntiguedadSaldosFGEM.SaldoContraparteFGEM;
+import com.businessanalyzer.analytics.tesoreria.AntiguedadSaldosFGEM.SaldoTramoFGEM;
+import com.businessanalyzer.analytics.tesoreria.AntiguedadSaldosFGEM.TramoFGEM;
 import com.businessanalyzer.analytics.tesoreria.FlujoEfectivoFGEM;
 import com.businessanalyzer.analytics.tesoreria.FlujoMensualFGEM;
 import com.businessanalyzer.analytics.tesoreria.ProyeccionCajaFGEM;
@@ -54,6 +58,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
@@ -65,6 +70,7 @@ import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -135,6 +141,12 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
     @FXML private TableColumn<OperacionFGEM, BigDecimal> colPenPendienteFGEM;
     @FXML private TableColumn<OperacionFGEM, LocalDate> colPenVenceFGEM;
     @FXML private TableColumn<OperacionFGEM, OperacionFGEM> colPenEstadoFGEM;
+    @FXML private HBox tramosFGEM;
+    @FXML private Label lblContrapartesFGEM;
+    @FXML private TableView<SaldoContraparteFGEM> tablaContrapartesFGEM;
+    @FXML private Button btnQuitarFiltroFGEM;
+    /** Todas las operaciones pendientes del tipo elegido (la tabla puede mostrar solo las de un cliente). */
+    private List<OperacionFGEM> pendientesFGEM = List.of();
     @FXML private Label lblPendientesFGEM;
 
     @FXML private DatePicker dpFlujoDesdeFGEM;
@@ -190,6 +202,7 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
         configurarTablaCuentasFGEM();
         configurarTablaMovimientosFGEM();
         configurarTablaPendientesFGEM();
+        configurarTablaContrapartesFGEM();
         configurarTablaFlujoFGEM();
         configurarTablaProyeccionFGEM();
 
@@ -288,21 +301,80 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
         }
         tablaPendientesFGEM.setPlaceholder(new Label(ventaFGEM ? "No hay ventas al crédito pendientes de cobro."
                 : "No hay compras al crédito pendientes de pago."));
+        lblContrapartesFGEM.setText(ventaFGEM ? "Por cliente" : "Por proveedor");
+        tablaContrapartesFGEM.setPlaceholder(new Label(ventaFGEM ? "Nadie te debe." : "No le debes a ningún proveedor."));
         try {
-            List<OperacionFGEM> pendientesFGEM = servicioFGEM().pendientesFGEM(tipoFGEM);
-            tablaPendientesFGEM.getItems().setAll(pendientesFGEM);
-            LocalDate hoyFGEM = LocalDate.now();
-            BigDecimal totalFGEM = pendientesFGEM.stream().map(OperacionFGEM::pendienteFGEM).reduce(BigDecimal.ZERO, BigDecimal::add);
-            BigDecimal vencidoFGEM = pendientesFGEM.stream().filter(oFGEM -> oFGEM.vencidaEnFGEM(hoyFGEM)).map(OperacionFGEM::pendienteFGEM)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-            lblPendientesFGEM.setText(pendientesFGEM.size() + (pendientesFGEM.size() == 1 ? " operación" : " operaciones")
-                    + " · pendiente " + MontosFGEM.formatearFGEM(totalFGEM, monedaFGEM) + " · vencido " + MontosFGEM.formatearFGEM(vencidoFGEM, monedaFGEM));
+            pendientesFGEM = servicioFGEM().pendientesFGEM(tipoFGEM);
+            AntiguedadSaldosFGEM.ResultadoFGEM antiguedadFGEM = AntiguedadSaldosFGEM.calcularFGEM(pendientesFGEM, LocalDate.now());
+            mostrarTramosFGEM(antiguedadFGEM, ventaFGEM);
+            tablaContrapartesFGEM.getItems().setAll(antiguedadFGEM.contrapartesFGEM());
+            mostrarPendientesFGEM(null);
         } catch (RuntimeException eFGEM) {
+            pendientesFGEM = List.of();
             tablaPendientesFGEM.getItems().clear();
+            tablaContrapartesFGEM.getItems().clear();
+            tramosFGEM.getChildren().clear();
             lblPendientesFGEM.setText("");
             NotificadorFGEM.errorFGEM(ErroresFGEM.mensajeFGEM(eFGEM));
         }
         actualizarAccionesFGEM();
+    }
+
+    /** Muestra las operaciones pendientes: todas o solo las de un cliente o proveedor. */
+    private void mostrarPendientesFGEM(SaldoContraparteFGEM filtroFGEM) {
+        LocalDate hoyFGEM = LocalDate.now();
+        List<OperacionFGEM> visiblesFGEM = filtroFGEM == null ? pendientesFGEM : pendientesFGEM.stream()
+                .filter(oFGEM -> claveContraparteFGEM(oFGEM.contraparteFGEM()).equals(claveContraparteFGEM(
+                        AntiguedadSaldosFGEM.SIN_NOMBRE_FGEM.equals(filtroFGEM.contraparteFGEM()) ? null : filtroFGEM.contraparteFGEM())))
+                .toList();
+        tablaPendientesFGEM.getItems().setAll(visiblesFGEM);
+        BigDecimal totalFGEM = visiblesFGEM.stream().map(OperacionFGEM::pendienteFGEM).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal vencidoFGEM = visiblesFGEM.stream().filter(oFGEM -> oFGEM.vencidaEnFGEM(hoyFGEM)).map(OperacionFGEM::pendienteFGEM)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        lblPendientesFGEM.setText((filtroFGEM == null ? "" : filtroFGEM.contraparteFGEM() + ": ")
+                + visiblesFGEM.size() + (visiblesFGEM.size() == 1 ? " operación" : " operaciones")
+                + " · pendiente " + MontosFGEM.formatearFGEM(totalFGEM, monedaFGEM) + " · vencido " + MontosFGEM.formatearFGEM(vencidoFGEM, monedaFGEM));
+        btnQuitarFiltroFGEM.setVisible(filtroFGEM != null);
+        btnQuitarFiltroFGEM.setManaged(filtroFGEM != null);
+    }
+
+    @FXML
+    private void quitarFiltroContraparteFGEM() {
+        tablaContrapartesFGEM.getSelectionModel().clearSelection();
+    }
+
+    /** Misma regla que la antigüedad de saldos: sin distinguir mayúsculas ni espacios repetidos. */
+    private static String claveContraparteFGEM(String nombreFGEM) {
+        return nombreFGEM == null || nombreFGEM.isBlank() ? "" : nombreFGEM.strip().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+    }
+
+    /** Cuatro recuadros: al día y los tres tramos de atraso, con el monto y su parte del total. */
+    private void mostrarTramosFGEM(AntiguedadSaldosFGEM.ResultadoFGEM aFGEM, boolean ventaFGEM) {
+        tramosFGEM.getChildren().clear();
+        for (SaldoTramoFGEM sFGEM : aFGEM.tramosFGEM()) {
+            Label nombreFGEM = new Label(sFGEM.tramoFGEM() == TramoFGEM.AL_DIA ? "Al día" : "Vencido " + sFGEM.tramoFGEM().nombreFGEM().toLowerCase(Locale.ROOT));
+            nombreFGEM.getStyleClass().add("indicador-titulo");
+            Label montoFGEM = new Label(MontosFGEM.formatearFGEM(sFGEM.montoFGEM(), monedaFGEM));
+            montoFGEM.getStyleClass().add("tramo-monto");
+            Label detalleFGEM = new Label(sFGEM.operacionesFGEM() == 0 ? "Ninguna operación"
+                    : sFGEM.operacionesFGEM() + (sFGEM.operacionesFGEM() == 1 ? " operación" : " operaciones") + " · "
+                    + MontosFGEM.porcentajeFGEM(sFGEM.porcentajeFGEM()));
+            detalleFGEM.getStyleClass().add("hint");
+            VBox recuadroFGEM = new VBox(2, nombreFGEM, montoFGEM, detalleFGEM);
+            recuadroFGEM.getStyleClass().add("tramo-antiguedad");
+            if (sFGEM.tramoFGEM() != TramoFGEM.AL_DIA && sFGEM.montoFGEM().signum() > 0) {
+                recuadroFGEM.getStyleClass().add(sFGEM.tramoFGEM() == TramoFGEM.VENCIDO_30 ? "tramo-medio" : "tramo-grave");
+            }
+            String ayudaFGEM = sFGEM.tramoFGEM().descripcionFGEM();
+            if (sFGEM.tramoFGEM() == TramoFGEM.VENCIDO_MAS_60) {
+                ayudaFGEM = ventaFGEM ? "Vencido hace más de 60 días: es difícil de cobrar. Llama al cliente o acuerda pagos en partes."
+                        : "Vencido hace más de 60 días: puede afectar tu relación con el proveedor.";
+            }
+            Tooltip.install(recuadroFGEM, new Tooltip(ayudaFGEM));
+            recuadroFGEM.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(recuadroFGEM, Priority.ALWAYS);
+            tramosFGEM.getChildren().add(recuadroFGEM);
+        }
     }
 
     private void cargarFlujoFGEM() {
@@ -784,6 +856,46 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
             });
             return filaFGEM;
         });
+    }
+
+    private void configurarTablaContrapartesFGEM() {
+        TableColumn<SaldoContraparteFGEM, String> nombreFGEM = new TableColumn<>("Nombre");
+        nombreFGEM.setPrefWidth(130);
+        nombreFGEM.setCellValueFactory(cFGEM -> textoFGEM(cFGEM.getValue().contraparteFGEM()
+                + (cFGEM.getValue().operacionesFGEM() > 1 ? " (" + cFGEM.getValue().operacionesFGEM() + ")" : "")));
+        TableColumn<SaldoContraparteFGEM, BigDecimal> pendienteFGEM = new TableColumn<>("Pendiente");
+        pendienteFGEM.setPrefWidth(95);
+        pendienteFGEM.getStyleClass().add("col-numero");
+        pendienteFGEM.setCellValueFactory(cFGEM -> new ReadOnlyObjectWrapper<>(cFGEM.getValue().pendienteFGEM()));
+        pendienteFGEM.setCellFactory(colFGEM -> celdaMontoFGEM(false));
+        TableColumn<SaldoContraparteFGEM, SaldoContraparteFGEM> vencidoFGEM = new TableColumn<>("Vencido");
+        vencidoFGEM.setPrefWidth(120);
+        vencidoFGEM.getStyleClass().add("col-numero");
+        vencidoFGEM.setCellValueFactory(cFGEM -> new ReadOnlyObjectWrapper<>(cFGEM.getValue()));
+        vencidoFGEM.setCellFactory(colFGEM -> new TableCell<>() {
+            @Override
+            protected void updateItem(SaldoContraparteFGEM sFGEM, boolean vacioFGEM) {
+                super.updateItem(sFGEM, vacioFGEM);
+                getStyleClass().removeAll("margen-negativo", "margen-bajo");
+                setTooltip(null);
+                if (vacioFGEM || sFGEM == null) {
+                    setText(null);
+                    return;
+                }
+                if (sFGEM.vencidoFGEM().signum() == 0) {
+                    setText("—");
+                    return;
+                }
+                setText(MontosFGEM.formatearFGEM(sFGEM.vencidoFGEM(), monedaFGEM));
+                getStyleClass().add(sFGEM.tramoFGEM() == TramoFGEM.VENCIDO_30 ? "margen-bajo" : "margen-negativo");
+                setTooltip(new Tooltip("La más atrasada venció hace " + sFGEM.mayorAtrasoFGEM()
+                        + (sFGEM.mayorAtrasoFGEM() == 1 ? " día" : " días")));
+            }
+        });
+        vencidoFGEM.setSortable(false);
+        tablaContrapartesFGEM.getColumns().setAll(List.of(nombreFGEM, pendienteFGEM, vencidoFGEM));
+        tablaContrapartesFGEM.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+        tablaContrapartesFGEM.getSelectionModel().selectedItemProperty().addListener((oFGEM, aFGEM, nFGEM) -> mostrarPendientesFGEM(nFGEM));
     }
 
     private void configurarTablaFlujoFGEM() {

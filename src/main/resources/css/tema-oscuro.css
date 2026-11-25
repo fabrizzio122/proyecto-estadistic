@@ -1333,6 +1333,33 @@
     -fx-opacity: 0.85;
 }
 
+/* Antigüedad de saldos (Tesorería → Por cobrar y por pagar) */
+.tramo-antiguedad {
+    -fx-background-color: -ba-tarjeta;
+    -fx-background-radius: 10;
+    -fx-border-color: -ba-borde;
+    -fx-border-radius: 10;
+    -fx-padding: 10 14;
+}
+
+.tramo-antiguedad.tramo-medio {
+    -fx-background-color: -ba-advertencia-fondo;
+    -fx-border-color: -ba-advertencia;
+}
+
+.tramo-antiguedad.tramo-grave {
+    -fx-background-color: -ba-error-fondo;
+    -fx-border-color: -ba-error;
+}
+
+.tramo-monto {
+    -fx-font-family: "Inter SemiBold";
+    -fx-font-size: 17px;
+}
+
+.tramo-medio .tramo-monto { -fx-text-fill: -ba-advertencia; }
+.tramo-grave .tramo-monto { -fx-text-fill: -ba-error; }
+
 /* ---------- Informes ---------- */
 
 .tarjeta-informe {

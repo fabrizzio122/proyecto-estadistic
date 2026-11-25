@@ -3,6 +3,10 @@
 ## Sin publicar
 
 ### Nuevo
+- **Antigüedad de saldos** (*Tesorería → Por cobrar y por pagar*): lo pendiente repartido en al día y vencido hace
+  1 a 30, 31 a 60 y más de 60 días, con el monto y el % de cada tramo (en amarillo o rojo si hay atraso). Al lado, el
+  resumen **por cliente o proveedor** (pendiente, vencido y días de la deuda más atrasada), primero quien tiene más
+  dinero vencido; al seleccionar uno, la tabla muestra solo sus operaciones.
 - **«Atender hoy» en el Dashboard**: una tarjeta con lo urgente de las sugerencias (productos agotados,
   perecibles por vencer, productos que se venden con pérdida y los que se agotan esta semana), con los primeros
   nombres de cada caso, la compra sugerida y la ganancia extra posible con los precios. «Ver sugerencias» abre el módulo.
@@ -43,7 +47,7 @@
 
 ### Calidad
 - **Integración continua con GitHub Actions**: en cada push o pull request a `main` se compila el proyecto
-  en Windows con JDK 17 y se ejecutan las pruebas (331); el estado se ve en el distintivo del README.
+  en Windows con JDK 17 y se ejecutan las pruebas (334); el estado se ve en el distintivo del README.
 - **Cobertura de pruebas con JaCoCo**: la lógica de negocio (todo menos la interfaz) tiene 92 % de líneas
   cubiertas; informe en `target/site/jacoco/index.html` y resumen por capa en cada ejecución de GitHub.
 

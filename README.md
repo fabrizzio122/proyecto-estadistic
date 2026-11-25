@@ -32,7 +32,7 @@ En IntelliJ IDEA: abrir la carpeta como proyecto Maven y ejecutar
 
 ## Pruebas, cobertura e integración continua
 
-- **331 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
+- **334 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
   base SQLite temporal y un reloj controlado.
 - **Cobertura con JaCoCo**: `.\mvnw.cmd test` deja el informe en `target/site/jacoco/index.html`.
   Resumen por capa: `.\.github\scripts\resumen-cobertura.ps1`.
@@ -116,6 +116,7 @@ automáticamente al iniciar y dentro de una transacción.
 28. Productos perecibles y sugerencias afinadas con datos reales: venta lenta con 180 días, agotados según su historial, ganancia en contexto ✅
 29. Lista de compras en PDF y Excel desde la reposición sugerida, agrupada por categoría ✅
 30. «Atender hoy» en el Dashboard: agotados, perecibles por vencer, productos con pérdida y compra sugerida ✅
+31. Antigüedad de saldos por cobrar y por pagar (al día, 1-30, 31-60 y más de 60 días) y resumen por cliente o proveedor ✅
 
 ## Seguridad
 
@@ -183,6 +184,7 @@ El dinero de la empresa vive en **cuentas**: la caja, cuentas bancarias y billet
 - **Estado de flujo de efectivo** (método directo, NIC 7): actividades de operación, inversión y financiamiento; dinero al inicio y al final del período.
 - **Proyección de caja** a 6 meses: flujo de operación pronosticado (el mejor método de la Fase 9) menos el capital de las cuotas; escenario base y pesimista, con aviso del primer mes en que faltaría dinero.
 - **Balance general**: el efectivo es el saldo de las cuentas; las ventas y compras al crédito pendientes son cuentas por cobrar y por pagar.
+- **Antigüedad de saldos** (Fase 31): en *Por cobrar y por pagar*, lo pendiente se reparte según los días desde el vencimiento (al día o sin fecha límite, 1-30, 31-60 y más de 60 días) y se resume por cliente o proveedor, ordenado por lo vencido. Se agrupa por nombre sin distinguir mayúsculas ni espacios; el cálculo es puro (`analytics/tesoreria/AntiguedadSaldosFGEM`).
 - **Diagnóstico**: nuevo indicador «Caja proyectada» en Solidez.
 - **Migración V13**: cada empresa recibe una cuenta «Caja» con el saldo que tenía como «Caja y bancos». Los registros anteriores se conservan en los análisis, pero no mueven el saldo (ya está incluido en el saldo inicial).
 - **Permisos**: ver con `FINANZAS_VER`; cuentas y movimientos con `FINANZAS_GESTIONAR`; cobros y pagos de ventas y compras con `OPERACIONES_GESTIONAR`.
