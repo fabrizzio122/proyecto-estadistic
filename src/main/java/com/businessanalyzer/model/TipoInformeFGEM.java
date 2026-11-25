@@ -19,7 +19,13 @@ public enum TipoInformeFGEM {
                     + "indicadores del hato, campañas, situación patrimonial y fotos. Se genera desde «Visitas»."),
     VALORACION("Valoración del negocio", FormatoFGEM.PDF, "fth-star",
             "Cuánto vale el negocio por su patrimonio, por capitalización de utilidades y por flujos descontados, "
-                    + "con sensibilidad. Se genera desde «Valoración del negocio».");
+                    + "con sensibilidad. Se genera desde «Valoración del negocio»."),
+    LISTA_COMPRAS("Lista de compras", FormatoFGEM.PDF, "fth-shopping-cart",
+            "Productos por reponer agrupados por categoría, con la cantidad a comprar y el costo aproximado, para "
+                    + "imprimir. Se genera desde «Sugerencias»."),
+    LISTA_COMPRAS_EXCEL("Lista de compras", FormatoFGEM.EXCEL, "fth-shopping-cart",
+            "Productos por reponer con la cantidad y el costo como fórmula, para ajustar antes de comprar. "
+                    + "Se genera desde «Sugerencias».");
 
     /** Formato del archivo generado. */
     public enum FormatoFGEM {
@@ -61,9 +67,9 @@ public enum TipoInformeFGEM {
         this.descripcionFGEM = descripcionFGEM;
     }
 
-    /** Se genera desde su propio módulo (visitas, valoración), no desde el módulo de informes. */
+    /** Se genera desde su propio módulo (visitas, valoración, sugerencias), no desde el módulo de informes. */
     public boolean desdeOtroModuloFGEM() {
-        return this == INFORME_TECNICO || this == VALORACION;
+        return this == INFORME_TECNICO || this == VALORACION || this == LISTA_COMPRAS || this == LISTA_COMPRAS_EXCEL;
     }
 
     public String tituloFGEM() {

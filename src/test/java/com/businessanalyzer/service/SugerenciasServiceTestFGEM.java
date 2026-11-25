@@ -22,7 +22,7 @@ class SugerenciasServiceTestFGEM {
     Path carpetaFGEM;
 
     @Test
-    void conLaBodegaDeEjemploSugierePreciosYRecuerdaElMargenFGEM() {
+    void conLaBodegaDeEjemploSugierePreciosYRecuerdaElMargenFGEM() throws Exception {
         EntornoPruebaFGEM entornoFGEM = new EntornoPruebaFGEM(carpetaFGEM);
         entornoFGEM.administradorConectadoFGEM();
         entornoFGEM.crearEmpresaActivaFGEM("Bodega de ejemplo");
@@ -32,7 +32,7 @@ class SugerenciasServiceTestFGEM {
         importacionFGEM.crearPlantillaFGEM(archivoFGEM, true);
         assertTrue(importacionFGEM.importarFGEM(archivoFGEM).aplicadoFGEM());
         SugerenciasServiceFGEM servicioFGEM = new SugerenciasServiceFGEM(entornoFGEM.databaseFGEM, new ProductoRepositoryFGEM(),
-                new OperacionRepositoryFGEM(), new com.businessanalyzer.repository.MovimientoRepositoryFGEM(), entornoFGEM.empresaServiceFGEM, entornoFGEM.configuracionFGEM, entornoFGEM.sesionFGEM,
+                new OperacionRepositoryFGEM(), new com.businessanalyzer.repository.MovimientoRepositoryFGEM(), new com.businessanalyzer.repository.InformeRepositoryFGEM(), entornoFGEM.empresaServiceFGEM, entornoFGEM.configuracionFGEM, entornoFGEM.sesionFGEM,
                 entornoFGEM.relojFGEM);
         assertEquals(0, SugerenciasProductoFGEM.MARGEN_OBJETIVO_PREDETERMINADO_FGEM.compareTo(servicioFGEM.margenObjetivoFGEM()));
 
@@ -50,5 +50,13 @@ class SugerenciasServiceTestFGEM {
         assertTrue(entornoFGEM.catalogoFGEM.listarProductosFGEM(false).stream()
                 .anyMatch(pFGEM -> pFGEM.nombreFGEM().equals("Pan francés") && pFGEM.perecibleFGEM()));
         assertThrows(ValidacionExceptionFGEM.class, () -> servicioFGEM.sugerenciasFGEM(new BigDecimal("0.95")));
+
+        // La lista de compras se guarda en PDF o en Excel según la extensión (sin extensión: PDF).
+        Path pdfFGEM = servicioFGEM.exportarListaComprasFGEM(new BigDecimal("0.25"), carpetaFGEM.resolve("lista"));
+        Path excelFGEM = servicioFGEM.exportarListaComprasFGEM(new BigDecimal("0.25"), carpetaFGEM.resolve("lista.xlsx"));
+        assertEquals("lista.pdf", pdfFGEM.getFileName().toString());
+        assertTrue(java.nio.file.Files.size(pdfFGEM) > 0 && java.nio.file.Files.size(excelFGEM) > 0);
+        assertThrows(ValidacionExceptionFGEM.class,
+                () -> servicioFGEM.exportarListaComprasFGEM(new BigDecimal("0.25"), carpetaFGEM.resolve("no-existe").resolve("lista.pdf")));
     }
 }

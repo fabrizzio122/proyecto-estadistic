@@ -148,7 +148,7 @@ public final class AppContextFGEM {
         this.datosDemoServiceFGEM = new DatosDemoServiceFGEM(empresaServiceFGEM, catalogoServiceFGEM, operacionServiceFGEM,
                 finanzasServiceFGEM, patrimonioServiceFGEM, tesoreriaServiceFGEM, sesionFGEM, relojFGEM);
         this.sugerenciasServiceFGEM = new SugerenciasServiceFGEM(databaseFGEM, productoRepositoryFGEM, operacionRepositoryFGEM,
-                movimientoRepositoryFGEM, empresaServiceFGEM, configuracionServiceFGEM, sesionFGEM, relojFGEM);
+                movimientoRepositoryFGEM, new InformeRepositoryFGEM(), empresaServiceFGEM, configuracionServiceFGEM, sesionFGEM, relojFGEM);
         this.importacionServiceFGEM = new ImportacionServiceFGEM(databaseFGEM, catalogoServiceFGEM, operacionServiceFGEM,
                 finanzasServiceFGEM, empresaServiceFGEM, sesionFGEM, relojFGEM);
         this.datosDemoAgroServiceFGEM = new DatosDemoAgroServiceFGEM(empresaServiceFGEM, ganaderiaServiceFGEM, agriculturaServiceFGEM, patrimonioServiceFGEM,

@@ -11,6 +11,8 @@ import com.businessanalyzer.analytics.sugerencias.SugerenciasProductoFGEM.Urgenc
 import com.businessanalyzer.config.AppContextFGEM;
 import com.businessanalyzer.model.EmpresaFGEM;
 import com.businessanalyzer.model.MonedaFGEM;
+import com.businessanalyzer.model.PermisoFGEM;
+import com.businessanalyzer.ui.DialogosFGEM;
 import com.businessanalyzer.ui.ErroresFGEM;
 import com.businessanalyzer.ui.ModuloFGEM;
 import com.businessanalyzer.ui.NotificadorFGEM;
@@ -21,6 +23,7 @@ import com.businessanalyzer.util.MontosFGEM;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
@@ -31,9 +34,14 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.stage.FileChooser;
 
+import java.awt.Desktop;
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -48,6 +56,7 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
 
     private static final DateTimeFormatter FECHA_FGEM = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final String TENUE_FGEM = "texto-tenue";
+    private static final String CLAVE_CARPETA_FGEM = "informes.carpeta";
     private static final List<String> CLASES_FGEM = List.of("margen-ok", "margen-negativo", TENUE_FGEM);
 
     private final AppContextFGEM contextoFGEM;
@@ -67,6 +76,7 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
     @FXML private TableView<PrecioFGEM> tablaPreciosFGEM;
     @FXML private TableView<ReposicionFGEM> tablaReposicionFGEM;
     @FXML private TableView<SinMovimientoFGEM> tablaSinMovimientoFGEM;
+    @FXML private MenuButton menuListaComprasFGEM;
 
     public SugerenciasControllerFGEM(AppContextFGEM contextoFGEM) {
         this.contextoFGEM = contextoFGEM;
@@ -84,6 +94,10 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         configurarPreciosFGEM();
         configurarReposicionFGEM();
         configurarSinMovimientoFGEM();
+        boolean informesFGEM = contextoFGEM.sesionFGEM().tienePermisoFGEM(PermisoFGEM.INFORMES_GENERAR);
+        menuListaComprasFGEM.setVisible(informesFGEM);
+        menuListaComprasFGEM.setManaged(informesFGEM);
+        menuListaComprasFGEM.setDisable(true);
     }
 
     @Override
@@ -134,6 +148,7 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
 
         tablaPreciosFGEM.getItems().setAll(rFGEM.preciosFGEM());
         tablaReposicionFGEM.getItems().setAll(rFGEM.reposicionFGEM());
+        menuListaComprasFGEM.setDisable(rFGEM.reposicionFGEM().isEmpty());
         tablaSinMovimientoFGEM.getItems().setAll(rFGEM.sinMovimientoFGEM());
         tabPreciosFGEM.setText("Precios (" + rFGEM.preciosFGEM().size() + ")");
         tabReposicionFGEM.setText("Reposición (" + rFGEM.reposicionFGEM().size() + ")");
@@ -204,6 +219,89 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         tablaPreciosFGEM.getItems().clear();
         tablaReposicionFGEM.getItems().clear();
         tablaSinMovimientoFGEM.getItems().clear();
+        menuListaComprasFGEM.setDisable(true);
+    }
+
+    // ------------------------------------------------------------------ lista de compras
+
+    @FXML
+    private void exportarListaPdfFGEM() {
+        exportarListaFGEM(false);
+    }
+
+    @FXML
+    private void exportarListaExcelFGEM() {
+        exportarListaFGEM(true);
+    }
+
+    /** Guarda la lista de compras con el margen que se ve en pantalla (la reposición no depende de él). */
+    private void exportarListaFGEM(boolean excelFGEM) {
+        EmpresaFGEM empresaFGEM = contextoFGEM.sesionFGEM().empresaActivaFGEM().orElse(null);
+        if (empresaFGEM == null) {
+            return;
+        }
+        FileChooser selectorFGEM = new FileChooser();
+        selectorFGEM.setTitle("Guardar lista de compras");
+        selectorFGEM.getExtensionFilters().add(excelFGEM
+                ? new FileChooser.ExtensionFilter("Libro de Excel (*.xlsx)", "*.xlsx")
+                : new FileChooser.ExtensionFilter("Documento PDF (*.pdf)", "*.pdf"));
+        String limpioFGEM = java.text.Normalizer.normalize(empresaFGEM.nombreVisibleFGEM(), java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "").replaceAll("[^A-Za-z0-9]+", "-").replaceAll("(^-|-$)", "");
+        selectorFGEM.setInitialFileName("Lista-de-compras-" + limpioFGEM + "-" + LocalDate.now() + (excelFGEM ? ".xlsx" : ".pdf"));
+        String guardadaFGEM = contextoFGEM.configuracionFGEM().obtenerFGEM(CLAVE_CARPETA_FGEM, null);
+        for (Path carpetaFGEM : new Path[]{guardadaFGEM == null ? null : Path.of(guardadaFGEM),
+                Path.of(System.getProperty("user.home"), "Documents"), Path.of(System.getProperty("user.home"))}) {
+            if (carpetaFGEM != null && Files.isDirectory(carpetaFGEM)) {
+                selectorFGEM.setInitialDirectory(carpetaFGEM.toFile());
+                break;
+            }
+        }
+        File archivoFGEM = selectorFGEM.showSaveDialog(menuListaComprasFGEM.getScene().getWindow());
+        if (archivoFGEM == null) {
+            return;
+        }
+        // Excel solo si el nombre termina en .xlsx; si el usuario borró la extensión, se agrega la elegida.
+        Path destinoFGEM = archivoFGEM.toPath();
+        String nombreFGEM = destinoFGEM.getFileName().toString().toLowerCase(java.util.Locale.ROOT);
+        String extensionFGEM = excelFGEM ? ".xlsx" : ".pdf";
+        if (!nombreFGEM.endsWith(extensionFGEM)) {
+            destinoFGEM = destinoFGEM.resolveSibling(destinoFGEM.getFileName() + extensionFGEM);
+        }
+        Path finalFGEM = destinoFGEM;
+        BigDecimal margenFGEM = BigDecimal.valueOf(spnMargenFGEM.getValue()).movePointLeft(2);
+        progresoFGEM.setVisible(true);
+        menuListaComprasFGEM.setDisable(true);
+        TareasFGEM.ejecutarFGEM(() -> contextoFGEM.sugerenciasFGEM().exportarListaComprasFGEM(margenFGEM, finalFGEM),
+                generadoFGEM -> {
+                    progresoFGEM.setVisible(false);
+                    menuListaComprasFGEM.setDisable(tablaReposicionFGEM.getItems().isEmpty());
+                    try {
+                        contextoFGEM.configuracionFGEM().guardarFGEM(CLAVE_CARPETA_FGEM, generadoFGEM.getParent().toString());
+                    } catch (RuntimeException eFGEM) {
+                        // No poder recordar la carpeta no impide seguir.
+                    }
+                    if (DialogosFGEM.confirmarFGEM(menuListaComprasFGEM.getScene().getWindow(), "Lista de compras guardada",
+                            "Se guardó «" + generadoFGEM.getFileName() + "».\n\n¿Quieres abrirla ahora?")) {
+                        abrirFGEM(generadoFGEM);
+                    }
+                },
+                errorFGEM -> {
+                    progresoFGEM.setVisible(false);
+                    menuListaComprasFGEM.setDisable(tablaReposicionFGEM.getItems().isEmpty());
+                    NotificadorFGEM.errorFGEM(ErroresFGEM.mensajeFGEM(errorFGEM));
+                });
+    }
+
+    private void abrirFGEM(Path rutaFGEM) {
+        if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
+            NotificadorFGEM.advertenciaFGEM("El sistema no permite abrir archivos desde la aplicación. Ruta: " + rutaFGEM);
+            return;
+        }
+        TareasFGEM.ejecutarFGEM(() -> {
+            Desktop.getDesktop().open(rutaFGEM.toFile());
+            return null;
+        }, okFGEM -> {
+        }, errorFGEM -> NotificadorFGEM.errorFGEM("No se pudo abrir el archivo: " + ErroresFGEM.mensajeFGEM(errorFGEM)));
     }
 
     // ------------------------------------------------------------------ tablas

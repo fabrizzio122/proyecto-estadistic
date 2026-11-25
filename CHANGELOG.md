@@ -3,6 +3,9 @@
 ## Sin publicar
 
 ### Nuevo
+- **Lista de compras** (*Sugerencias → Reposición → Lista de compras*): los productos por reponer agrupados por
+  categoría, con el estado, el stock, la cantidad a comprar y el costo aproximado, con subtotales y total. En PDF para
+  imprimir o en Excel para ajustar cantidades (el costo y el total se recalculan solos); queda en el historial de informes.
 - **Sugerencias por producto** (*Análisis → Sugerencias*): qué precios ajustar (productos con pérdida o con menos
   margen que el objetivo, con el precio sugerido y la ganancia extra al mes), qué reponer y cuánto comprar para dos
   semanas según las ventas recientes, y qué productos tienen dinero inmovilizado porque no se venden.
@@ -37,7 +40,7 @@
 
 ### Calidad
 - **Integración continua con GitHub Actions**: en cada push o pull request a `main` se compila el proyecto
-  en Windows con JDK 17 y se ejecutan las pruebas (325); el estado se ve en el distintivo del README.
+  en Windows con JDK 17 y se ejecutan las pruebas (329); el estado se ve en el distintivo del README.
 - **Cobertura de pruebas con JaCoCo**: la lógica de negocio (todo menos la interfaz) tiene 92 % de líneas
   cubiertas; informe en `target/site/jacoco/index.html` y resumen por capa en cada ejecución de GitHub.
 

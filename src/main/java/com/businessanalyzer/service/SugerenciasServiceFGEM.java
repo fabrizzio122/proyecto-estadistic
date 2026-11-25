@@ -8,33 +8,45 @@ import com.businessanalyzer.analytics.simulacion.SimuladorFGEM;
 import com.businessanalyzer.analytics.simulacion.SupuestosFGEM;
 import com.businessanalyzer.analytics.sugerencias.SugerenciasProductoFGEM;
 import com.businessanalyzer.analytics.sugerencias.SugerenciasProductoFGEM.PeriodoVentasFGEM;
+import com.businessanalyzer.analytics.sugerencias.SugerenciasProductoFGEM.ReposicionFGEM;
 import com.businessanalyzer.analytics.sugerencias.SugerenciasProductoFGEM.ResultadoFGEM;
 import com.businessanalyzer.config.DatabaseFGEM;
 import com.businessanalyzer.exception.ValidacionExceptionFGEM;
+import com.businessanalyzer.informes.GeneradorPdfFGEM;
+import com.businessanalyzer.informes.LibroExcelFGEM;
+import com.businessanalyzer.informes.ListaComprasFGEM;
 import com.businessanalyzer.model.EmpresaFGEM;
 import com.businessanalyzer.model.OperacionFGEM;
 import com.businessanalyzer.model.PermisoFGEM;
 import com.businessanalyzer.model.ProductoFGEM;
+import com.businessanalyzer.model.TipoInformeFGEM;
 import com.businessanalyzer.model.TipoOperacionFGEM;
+import com.businessanalyzer.repository.InformeRepositoryFGEM;
 import com.businessanalyzer.repository.MovimientoRepositoryFGEM;
 import com.businessanalyzer.repository.OperacionRepositoryFGEM;
 import com.businessanalyzer.repository.ProductoRepositoryFGEM;
 import com.businessanalyzer.seguridad.SesionFGEM;
+import com.businessanalyzer.util.FechasFGEM;
 
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Sugerencias por producto de la empresa activa: precios, reposición y productos sin movimiento.
- * El margen objetivo se recuerda por empresa.
+ * El margen objetivo se recuerda por empresa. Calcularlas requiere {@link PermisoFGEM#ANALISIS_VER}; exportar la lista
+ * de compras, además, {@link PermisoFGEM#INFORMES_GENERAR}.
  */
 public class SugerenciasServiceFGEM {
 
@@ -46,18 +58,20 @@ public class SugerenciasServiceFGEM {
     private final ProductoRepositoryFGEM productosFGEM;
     private final OperacionRepositoryFGEM operacionesFGEM;
     private final MovimientoRepositoryFGEM movimientosFGEM;
+    private final InformeRepositoryFGEM informesFGEM;
     private final EmpresaServiceFGEM empresasFGEM;
     private final ConfiguracionServiceFGEM configuracionFGEM;
     private final SesionFGEM sesionFGEM;
     private final Clock relojFGEM;
 
     public SugerenciasServiceFGEM(DatabaseFGEM databaseFGEM, ProductoRepositoryFGEM productosFGEM, OperacionRepositoryFGEM operacionesFGEM,
-                                  MovimientoRepositoryFGEM movimientosFGEM, EmpresaServiceFGEM empresasFGEM, ConfiguracionServiceFGEM configuracionFGEM,
+                                  MovimientoRepositoryFGEM movimientosFGEM, InformeRepositoryFGEM informesFGEM, EmpresaServiceFGEM empresasFGEM, ConfiguracionServiceFGEM configuracionFGEM,
                                   SesionFGEM sesionFGEM, Clock relojFGEM) {
         this.databaseFGEM = databaseFGEM;
         this.productosFGEM = productosFGEM;
         this.operacionesFGEM = operacionesFGEM;
         this.movimientosFGEM = movimientosFGEM;
+        this.informesFGEM = informesFGEM;
         this.empresasFGEM = empresasFGEM;
         this.configuracionFGEM = configuracionFGEM;
         this.sesionFGEM = sesionFGEM;
@@ -104,6 +118,50 @@ public class SugerenciasServiceFGEM {
             // Recordar el margen es solo una comodidad.
         }
         return resultadoFGEM;
+    }
+
+    /**
+     * Guarda la lista de compras (la reposición sugerida) en PDF o en Excel según la extensión de {@code destino}
+     * ({@code .xlsx} para Excel; cualquier otra, PDF). Queda en el historial de informes. Devuelve la ruta final.
+     */
+    public Path exportarListaComprasFGEM(BigDecimal margenObjetivoFGEM, Path destinoFGEM) {
+        sesionFGEM.requerirFGEM(PermisoFGEM.INFORMES_GENERAR);
+        if (destinoFGEM == null || destinoFGEM.getFileName() == null) {
+            throw new ValidacionExceptionFGEM("Elige dónde guardar la lista de compras.");
+        }
+        String nombreFGEM = destinoFGEM.getFileName().toString().toLowerCase(Locale.ROOT);
+        boolean excelFGEM = nombreFGEM.endsWith(".xlsx");
+        Path archivoFGEM = excelFGEM || nombreFGEM.endsWith(".pdf") ? destinoFGEM : destinoFGEM.resolveSibling(destinoFGEM.getFileName() + ".pdf");
+        if (archivoFGEM.getParent() == null || !Files.isDirectory(archivoFGEM.getParent())) {
+            throw new ValidacionExceptionFGEM("La carpeta de destino no existe.");
+        }
+        ResultadoFGEM resultadoFGEM = sugerenciasFGEM(margenObjetivoFGEM);
+        List<ReposicionFGEM> reposicionFGEM = resultadoFGEM.reposicionFGEM();
+        EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
+        LocalDateTime ahoraFGEM = LocalDateTime.now(relojFGEM);
+        LocalDate hoyFGEM = ahoraFGEM.toLocalDate();
+        String periodoFGEM = "según las ventas de los últimos " + resultadoFGEM.diasAnalizadosFGEM() + " días";
+        String generadoFGEM = "Generado el " + FechasFGEM.paraMostrarFGEM(ahoraFGEM.truncatedTo(ChronoUnit.MINUTES)) + " por "
+                + sesionFGEM.usuarioFGEM().nombreCompletoFGEM();
+        TipoInformeFGEM tipoFGEM = excelFGEM ? TipoInformeFGEM.LISTA_COMPRAS_EXCEL : TipoInformeFGEM.LISTA_COMPRAS;
+        if (excelFGEM) {
+            try (LibroExcelFGEM libroFGEM = ListaComprasFGEM.libroFGEM(reposicionFGEM, empresaFGEM.monedaFGEM(),
+                    "Lista de compras - " + empresaFGEM.nombreVisibleFGEM(),
+                    "Al " + FechasFGEM.paraMostrarFGEM(hoyFGEM) + ", " + periodoFGEM + ". " + generadoFGEM + ".")) {
+                libroFGEM.guardarFGEM(archivoFGEM);
+            }
+        } else {
+            GeneradorPdfFGEM.generarFGEM(new GeneradorPdfFGEM.EncabezadoFGEM(empresaFGEM.nombreVisibleFGEM(),
+                            empresaFGEM.razonSocialFGEM() + "  ·  " + empresaFGEM.sectorFGEM().descripcionFGEM(), tipoFGEM.tituloFGEM(),
+                            "Al " + FechasFGEM.paraMostrarFGEM(hoyFGEM), generadoFGEM),
+                    ListaComprasFGEM.contenidoFGEM(reposicionFGEM, empresaFGEM.monedaFGEM(), periodoFGEM), archivoFGEM);
+        }
+        String usuarioFGEM = sesionFGEM.usuarioFGEM().nombreUsuarioFGEM();
+        databaseFGEM.enTransaccionFGEM(cFGEM -> {
+            informesFGEM.registrarFGEM(cFGEM, empresaFGEM.idFGEM(), tipoFGEM, hoyFGEM, hoyFGEM, archivoFGEM, usuarioFGEM, ahoraFGEM);
+            return null;
+        });
+        return archivoFGEM;
     }
 
     private PeriodoVentasFGEM periodoFGEM(Connection cFGEM, EmpresaFGEM empresaFGEM, Set<Long> idsFGEM, LocalDate desdeFGEM, LocalDate hastaFGEM)

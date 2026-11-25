@@ -79,7 +79,7 @@ public class InformeServiceFGEM {
             throw new ValidacionExceptionFGEM("Elige el informe que quieres generar.");
         }
         if (tipoFGEM.desdeOtroModuloFGEM()) {
-            throw new ValidacionExceptionFGEM("Este informe se genera desde su propio módulo («Visitas» o «Valoración del negocio»).");
+            throw new ValidacionExceptionFGEM("Este informe se genera desde su propio módulo («Visitas», «Valoración del negocio» o «Sugerencias»).");
         }
         PeriodoFGEM periodoFGEM = new PeriodoFGEM(desdeFGEM, hastaFGEM);
         if (periodoFGEM.diasFGEM() > DIAS_MAXIMOS_FGEM) {

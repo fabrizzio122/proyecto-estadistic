@@ -32,7 +32,7 @@ En IntelliJ IDEA: abrir la carpeta como proyecto Maven y ejecutar
 
 ## Pruebas, cobertura e integración continua
 
-- **325 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
+- **329 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
   base SQLite temporal y un reloj controlado.
 - **Cobertura con JaCoCo**: `.\mvnw.cmd test` deja el informe en `target/site/jacoco/index.html`.
   Resumen por capa: `.\.github\scripts\resumen-cobertura.ps1`.
@@ -114,6 +114,7 @@ automáticamente al iniciar y dentro de una transacción.
 26. Importación desde Excel: plantilla, revisión previa sin guardar e importación de productos, ventas, compras y gastos ✅
 27. Sugerencias por producto: precios a ajustar, reposición y productos sin movimiento ✅
 28. Productos perecibles y sugerencias afinadas con datos reales: venta lenta con 180 días, agotados según su historial, ganancia en contexto ✅
+29. Lista de compras en PDF y Excel desde la reposición sugerida, agrupada por categoría ✅
 
 ## Seguridad
 
@@ -325,6 +326,11 @@ Se calcula con **Apache Commons Math**:
 | **Precios** | Productos que se venden con pérdida o con menos margen que el objetivo (20 % por defecto, se recuerda por empresa). Precio sugerido = costo ÷ (1 − margen), redondeado hacia arriba a 10 céntimos, y la ganancia extra al mes si se vende la misma cantidad, comparada con la utilidad mensual del diagnóstico. Los productos que casi no se venden aparecen al final, en gris. |
 | **Reposición** | Productos que se agotan en menos de 14 días (3 si son perecibles) al ritmo de los últimos 60 días, y cuánto comprar. Un producto agotado sin ventas recientes usa su ritmo de los últimos 180 días: no se vendió porque no había. |
 | **Sin movimiento** | Perecibles que se vencerán antes de venderse (más de 15 días de stock), productos sin ventas en 180 días y productos que tardarían más de 180 días en venderse, con el % del inventario que representan. |
+
+**Lista de compras** (Fase 29): desde la pestaña *Reposición*, el botón *Lista de compras* guarda los productos por
+reponer agrupados por categoría (los agotados y urgentes primero), con la cantidad y el costo aproximado:
+en **PDF** para imprimir, o en **Excel** con el costo como fórmula y una columna «Comprado» para marcar.
+Requiere el permiso `INFORMES_GENERAR` y queda en el historial de *Informes y reportes*.
 
 Los productos se marcan como **perecibles** en su formulario o con la columna «Perecible» (Sí/No) de la hoja
 *Productos* al importar (migración V15).
