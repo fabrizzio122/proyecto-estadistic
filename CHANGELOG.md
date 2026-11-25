@@ -3,6 +3,9 @@
 ## Sin publicar
 
 ### Nuevo
+- **Registrar la compra desde las sugerencias** (*Sugerencias → Reposición → Registrar compra*): abre una compra
+  nueva en «Ventas y compras» con los productos por reponer, la cantidad sugerida y su costo registrado (agotados y
+  urgentes primero), para ajustarla, completar el proveedor y registrarla. Los productos archivados se omiten con aviso.
 - **Antigüedad de saldos** (*Tesorería → Por cobrar y por pagar*): lo pendiente repartido en al día y vencido hace
   1 a 30, 31 a 60 y más de 60 días, con el monto y el % de cada tramo (en amarillo o rojo si hay atraso). Al lado, el
   resumen **por cliente o proveedor** (pendiente, vencido y días de la deuda más atrasada), primero quien tiene más
@@ -47,7 +50,7 @@
 
 ### Calidad
 - **Integración continua con GitHub Actions**: en cada push o pull request a `main` se compila el proyecto
-  en Windows con JDK 17 y se ejecutan las pruebas (334); el estado se ve en el distintivo del README.
+  en Windows con JDK 17 y se ejecutan las pruebas (335); el estado se ve en el distintivo del README.
 - **Cobertura de pruebas con JaCoCo**: la lógica de negocio (todo menos la interfaz) tiene 92 % de líneas
   cubiertas; informe en `target/site/jacoco/index.html` y resumen por capa en cada ejecución de GitHub.
 

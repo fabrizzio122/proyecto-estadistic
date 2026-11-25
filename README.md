@@ -32,7 +32,7 @@ En IntelliJ IDEA: abrir la carpeta como proyecto Maven y ejecutar
 
 ## Pruebas, cobertura e integración continua
 
-- **334 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
+- **335 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
   base SQLite temporal y un reloj controlado.
 - **Cobertura con JaCoCo**: `.\mvnw.cmd test` deja el informe en `target/site/jacoco/index.html`.
   Resumen por capa: `.\.github\scripts\resumen-cobertura.ps1`.
@@ -117,6 +117,7 @@ automáticamente al iniciar y dentro de una transacción.
 29. Lista de compras en PDF y Excel desde la reposición sugerida, agrupada por categoría ✅
 30. «Atender hoy» en el Dashboard: agotados, perecibles por vencer, productos con pérdida y compra sugerida ✅
 31. Antigüedad de saldos por cobrar y por pagar (al día, 1-30, 31-60 y más de 60 días) y resumen por cliente o proveedor ✅
+32. Registrar la compra sugerida: de la reposición a una compra lista para revisar en «Ventas y compras» ✅
 
 ## Seguridad
 
@@ -334,6 +335,9 @@ Se calcula con **Apache Commons Math**:
 reponer agrupados por categoría (los agotados y urgentes primero), con la cantidad y el costo aproximado:
 en **PDF** para imprimir, o en **Excel** con el costo como fórmula y una columna «Comprado» para marcar.
 Requiere el permiso `INFORMES_GENERAR` y queda en el historial de *Informes y reportes*.
+
+**Registrar compra** (Fase 32): abre una compra nueva en *Ventas y compras* con los mismos productos y cantidades, al
+costo registrado de cada uno, para revisarla, quitar lo que no se compre y registrarla (permiso `OPERACIONES_GESTIONAR`).
 
 Los productos se marcan como **perecibles** en su formulario o con la columna «Perecible» (Sí/No) de la hoja
 *Productos* al importar (migración V15).

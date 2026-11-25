@@ -175,6 +175,29 @@ public final class AppContextFGEM {
         irAModuloFGEM.accept(moduloFGEM);
     }
 
+    /** Compra armada en otro módulo (la reposición sugerida) para revisarla y registrarla en «Ventas y compras». */
+    public record CompraPropuestaFGEM(java.util.List<com.businessanalyzer.model.DatosOperacionFGEM.DatosLineaFGEM> lineasFGEM,
+                                      String observacionesFGEM) {
+        public CompraPropuestaFGEM {
+            lineasFGEM = java.util.List.copyOf(lineasFGEM);
+        }
+    }
+
+    private CompraPropuestaFGEM compraPropuestaFGEM;
+
+    /** Abre «Ventas y compras» con el formulario de nueva compra ya lleno con {@code propuesta}. */
+    public void proponerCompraFGEM(CompraPropuestaFGEM propuestaFGEM) {
+        this.compraPropuestaFGEM = propuestaFGEM;
+        abrirModuloFGEM(com.businessanalyzer.ui.ModuloFGEM.VENTAS_COMPRAS);
+    }
+
+    /** La compra propuesta pendiente, si hay; se entrega una sola vez. */
+    public java.util.Optional<CompraPropuestaFGEM> tomarCompraPropuestaFGEM() {
+        CompraPropuestaFGEM propuestaFGEM = compraPropuestaFGEM;
+        compraPropuestaFGEM = null;
+        return java.util.Optional.ofNullable(propuestaFGEM);
+    }
+
     private java.util.function.BiConsumer<com.businessanalyzer.ui.ModuloFGEM, String> fraseModuloFGEM = (mFGEM, fFGEM) -> { };
 
     /** La ventana principal indica cómo mostrar la frase resumen de una pantalla de análisis. */

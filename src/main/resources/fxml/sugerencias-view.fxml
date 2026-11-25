@@ -45,6 +45,10 @@
                 <HBox spacing="12" alignment="CENTER_LEFT">
                     <Label styleClass="hint" wrapText="true" minHeight="-Infinity" HBox.hgrow="ALWAYS" maxWidth="Infinity"
                            text="Productos que se agotan en menos de dos semanas al ritmo de venta actual, y cuánto comprar para cubrir 14 días (3 días si es perecible). Un producto agotado que no se vendió últimamente usa sus ventas de antes de agotarse. Marca los perecibles en «Productos y servicios»."/>
+                    <Button fx:id="btnRegistrarCompraFGEM" text="Registrar compra" styleClass="button-primary" minWidth="-Infinity"
+                            onAction="#registrarCompraFGEM">
+                        <graphic><FontIcon iconLiteral="fth-shopping-cart"/></graphic>
+                    </Button>
                     <MenuButton fx:id="menuListaComprasFGEM" text="Lista de compras" styleClass="button-secondary" minWidth="-Infinity">
                         <graphic><FontIcon iconLiteral="fth-download"/></graphic>
                         <items>

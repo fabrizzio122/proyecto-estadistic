@@ -182,6 +182,21 @@ class SugerenciasProductoTestFGEM {
         return SugerenciasProductoFGEM.calcularFGEM(productosFGEM, periodoFGEM, periodoFGEM, VEINTE_FGEM);
     }
 
+    @Test
+    void laCompraSugeridaPoneLoAgotadoPrimeroYUsaElCostoRegistradoFGEM() {
+        ProductoFGEM atunFGEM = productoFGEM(1, "Atún", "4.20", "5.50", "3");
+        ProductoFGEM arrozFGEM = productoFGEM(2, "Arroz", "3.80", "4.50", "0");
+        List<ReposicionFGEM> reposicionFGEM = List.of(
+                new ReposicionFGEM(atunFGEM, UrgenciaFGEM.PRONTO, bdFGEM("3"), bdFGEM("20"), 60, bdFGEM("0.3"), bdFGEM("9"), bdFGEM("2"), bdFGEM("8.40"), false),
+                new ReposicionFGEM(arrozFGEM, UrgenciaFGEM.AGOTADO, bdFGEM("0"), bdFGEM("60"), 60, bdFGEM("1"), bdFGEM("0"), bdFGEM("14"), bdFGEM("53.20"), false));
+
+        List<com.businessanalyzer.model.DatosOperacionFGEM.DatosLineaFGEM> lineasFGEM = SugerenciasProductoFGEM.lineasCompraFGEM(reposicionFGEM);
+
+        assertEquals(List.of(2L, 1L), lineasFGEM.stream().map(lFGEM -> lFGEM.productoIdFGEM()).toList());
+        assertEquals(0, bdFGEM("14").compareTo(lineasFGEM.get(0).cantidadFGEM()));
+        assertEquals(0, bdFGEM("3.80").compareTo(lineasFGEM.get(0).precioUnitarioFGEM()));
+    }
+
     private static ProductoFGEM productoFGEM(long idFGEM, String nombreFGEM, String costoFGEM, String precioFGEM, String stockFGEM) {
         return new ProductoFGEM(idFGEM, 1, null, null, TipoItemFGEM.PRODUCTO, "P-" + idFGEM, nombreFGEM, null, UnidadMedidaFGEM.UNIDAD,
                 bdFGEM(costoFGEM), bdFGEM(precioFGEM), bdFGEM(stockFGEM), true, null, null);

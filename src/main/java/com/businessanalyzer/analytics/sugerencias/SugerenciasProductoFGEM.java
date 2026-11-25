@@ -2,6 +2,7 @@ package com.businessanalyzer.analytics.sugerencias;
 
 import com.businessanalyzer.analytics.MargenesFGEM;
 import com.businessanalyzer.analytics.RentabilidadProductoFGEM.VentaFGEM;
+import com.businessanalyzer.model.DatosOperacionFGEM.DatosLineaFGEM;
 import com.businessanalyzer.model.ProductoFGEM;
 import com.businessanalyzer.model.TipoItemFGEM;
 
@@ -237,6 +238,19 @@ public final class SugerenciasProductoFGEM {
     }
 
     private SugerenciasProductoFGEM() {
+    }
+
+    /**
+     * Líneas de una compra con la reposición sugerida: cada producto con la cantidad a comprar y su costo unitario
+     * registrado como precio. Primero los agotados y los urgentes, para revisarlos antes.
+     */
+    public static List<DatosLineaFGEM> lineasCompraFGEM(List<ReposicionFGEM> reposicionFGEM) {
+        return reposicionFGEM.stream()
+                .filter(rFGEM -> rFGEM.cantidadFGEM().signum() > 0)
+                .sorted(Comparator.comparing((ReposicionFGEM rFGEM) -> rFGEM.urgenciaFGEM().ordinal())
+                        .thenComparing(rFGEM -> rFGEM.productoFGEM().nombreFGEM()))
+                .map(rFGEM -> new DatosLineaFGEM(rFGEM.productoFGEM().idFGEM(), rFGEM.cantidadFGEM(), rFGEM.productoFGEM().costoUnitarioFGEM()))
+                .toList();
     }
 
     /**

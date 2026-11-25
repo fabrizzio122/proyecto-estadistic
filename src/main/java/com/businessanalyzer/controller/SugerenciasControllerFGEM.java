@@ -22,6 +22,7 @@ import com.businessanalyzer.ui.VistaModuloFGEM;
 import com.businessanalyzer.util.MontosFGEM;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.ProgressIndicator;
@@ -77,6 +78,7 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
     @FXML private TableView<ReposicionFGEM> tablaReposicionFGEM;
     @FXML private TableView<SinMovimientoFGEM> tablaSinMovimientoFGEM;
     @FXML private MenuButton menuListaComprasFGEM;
+    @FXML private Button btnRegistrarCompraFGEM;
 
     public SugerenciasControllerFGEM(AppContextFGEM contextoFGEM) {
         this.contextoFGEM = contextoFGEM;
@@ -98,6 +100,10 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         menuListaComprasFGEM.setVisible(informesFGEM);
         menuListaComprasFGEM.setManaged(informesFGEM);
         menuListaComprasFGEM.setDisable(true);
+        boolean comprasFGEM = contextoFGEM.sesionFGEM().tienePermisoFGEM(PermisoFGEM.OPERACIONES_GESTIONAR);
+        btnRegistrarCompraFGEM.setVisible(comprasFGEM);
+        btnRegistrarCompraFGEM.setManaged(comprasFGEM);
+        btnRegistrarCompraFGEM.setDisable(true);
     }
 
     @Override
@@ -149,6 +155,7 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         tablaPreciosFGEM.getItems().setAll(rFGEM.preciosFGEM());
         tablaReposicionFGEM.getItems().setAll(rFGEM.reposicionFGEM());
         menuListaComprasFGEM.setDisable(rFGEM.reposicionFGEM().isEmpty());
+        btnRegistrarCompraFGEM.setDisable(rFGEM.reposicionFGEM().isEmpty());
         tablaSinMovimientoFGEM.getItems().setAll(rFGEM.sinMovimientoFGEM());
         tabPreciosFGEM.setText("Precios (" + rFGEM.preciosFGEM().size() + ")");
         tabReposicionFGEM.setText("Reposición (" + rFGEM.reposicionFGEM().size() + ")");
@@ -220,6 +227,20 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         tablaReposicionFGEM.getItems().clear();
         tablaSinMovimientoFGEM.getItems().clear();
         menuListaComprasFGEM.setDisable(true);
+        btnRegistrarCompraFGEM.setDisable(true);
+    }
+
+    // ------------------------------------------------------------------ registrar la compra
+
+    /** Abre una compra nueva en «Ventas y compras» con los productos y las cantidades de la reposición. */
+    @FXML
+    private void registrarCompraFGEM() {
+        List<ReposicionFGEM> reposicionFGEM = List.copyOf(tablaReposicionFGEM.getItems());
+        if (reposicionFGEM.isEmpty()) {
+            return;
+        }
+        contextoFGEM.proponerCompraFGEM(new AppContextFGEM.CompraPropuestaFGEM(SugerenciasProductoFGEM.lineasCompraFGEM(reposicionFGEM),
+                "Reposición sugerida del " + FECHA_FGEM.format(LocalDate.now())));
     }
 
     // ------------------------------------------------------------------ lista de compras

@@ -142,6 +142,14 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
 
     @Override
     public void alMostrarFGEM() {
+        AppContextFGEM.CompraPropuestaFGEM propuestaFGEM = contextoFGEM.tomarCompraPropuestaFGEM().orElse(null);
+        if (propuestaFGEM != null && btnNuevaFGEM.isVisible()) {
+            tglComprasFGEM.setSelected(true);
+            cargarFGEM();
+            // Después de mostrar la pantalla, para que el formulario se abra sobre ella.
+            javafx.application.Platform.runLater(() -> abrirNuevaFGEM(propuestaFGEM));
+            return;
+        }
         cargarFGEM();
     }
 
@@ -224,17 +232,30 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
 
     @FXML
     private void nuevaFGEM() {
-        TipoOperacionFGEM tipoFGEM = tipoFGEM();
+        abrirNuevaFGEM(null);
+    }
+
+    /** Formulario de nueva operación; con {@code propuesta}, una compra ya llena con la reposición sugerida. */
+    private void abrirNuevaFGEM(AppContextFGEM.CompraPropuestaFGEM propuestaFGEM) {
+        TipoOperacionFGEM tipoFGEM = propuestaFGEM != null ? TipoOperacionFGEM.COMPRA : tipoFGEM();
         FormularioOperacionFGEM formularioFGEM;
+        String avisoFGEM = "Precios unitarios sin impuestos. El número se asigna al registrar.";
         try {
             formularioFGEM = new FormularioOperacionFGEM(tipoFGEM, servicioFGEM().productosDisponiblesFGEM(), servicioFGEM().tasaImpuestoSugeridaFGEM());
+            if (propuestaFGEM != null) {
+                int faltantesFGEM = formularioFGEM.cargarPropuestaFGEM(propuestaFGEM);
+                avisoFGEM = "Compra armada con la reposición sugerida, al costo registrado de cada producto. Revisa las cantidades y los "
+                        + "precios del proveedor, quita lo que no vayas a comprar y completa el proveedor."
+                        + (faltantesFGEM > 0 ? " " + faltantesFGEM + (faltantesFGEM == 1 ? " producto no se agregó porque está archivado."
+                        : " productos no se agregaron porque están archivados.") : "");
+            }
         } catch (RuntimeException eFGEM) {
             NotificadorFGEM.errorFGEM(ErroresFGEM.mensajeFGEM(eFGEM));
             return;
         }
         OperacionFGEM[] registradaFGEM = new OperacionFGEM[1];
         boolean okFGEM = DialogosFGEM.formularioFGEM(ventanaFGEM(), "Nueva " + tipoFGEM.descripcionFGEM().toLowerCase(),
-                "Precios unitarios sin impuestos. El número se asigna al registrar.",
+                avisoFGEM,
                 formularioFGEM.contenidoFGEM(), "Registrar " + tipoFGEM.descripcionFGEM().toLowerCase(), 860, () -> {
                     DatosOperacionFGEM datosFGEM = formularioFGEM.datosFGEM();
                     try {
@@ -691,6 +712,25 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
                 lineasFGEM.add(new LineaFormularioFGEM(productoFGEM, lineaFGEM.cantidadFGEM(), lineaFGEM.precioUnitarioFGEM()));
             }
             recalcularFGEM();
+        }
+
+        /** Rellena una compra nueva con la propuesta; devuelve cuántos productos no están en el catálogo activo. */
+        int cargarPropuestaFGEM(AppContextFGEM.CompraPropuestaFGEM propuestaFGEM) {
+            int faltantesFGEM = 0;
+            for (DatosLineaFGEM lineaFGEM : propuestaFGEM.lineasFGEM()) {
+                ProductoFGEM productoFGEM = catalogoFGEM.stream().filter(pFGEM -> pFGEM.idFGEM() == lineaFGEM.productoIdFGEM()).findFirst()
+                        .orElse(null);
+                if (productoFGEM == null) {
+                    faltantesFGEM++;
+                    continue;
+                }
+                lineasFGEM.add(new LineaFormularioFGEM(productoFGEM, lineaFGEM.cantidadFGEM(), lineaFGEM.precioUnitarioFGEM()));
+            }
+            if (propuestaFGEM.observacionesFGEM() != null) {
+                txtObservacionesFGEM.setText(propuestaFGEM.observacionesFGEM());
+            }
+            recalcularFGEM();
+            return faltantesFGEM;
         }
 
         VBox contenidoFGEM() {
