@@ -12,7 +12,7 @@ mismo motor sirve a un productor agropecuario.
 
 | # | Tarea | Hecho |
 |---|---|---|
-| 1 | **Usar la versión actual del código**: el instalador 1.2.1 publicado no tiene las fases 25 a 33. Ejecutar `.\mvnw.cmd javafx:run` o generar un instalador nuevo con `.\empaquetar.ps1`. | ☐ |
+| 1 | Instalar `Business.Analyzer-1.3.0.exe` (release v1.3.0 en GitHub, con las fases 25 a 33) en la laptop de la presentación, o descomprimir `BusinessAnalyzer-1.3.0-portable.zip`. Las versiones 1.2.x no tienen las últimas fases. | ☐ |
 | 2 | Abrir la app, crear el administrador y entrar. | ☐ |
 | 3 | En **Empresas** → **Empresa de demostración** → **Bodega (comercio)**: se crea **Bodega Demo** (12 meses, una venta por día). | ☐ |
 | 4 | En **Empresas** → **Empresa de demostración** → **Fundo ganadero (agropecuario)**: se crea **Fundo Demo**. | ☐ |
@@ -22,7 +22,7 @@ mismo motor sirve a un productor agropecuario.
 | 8 | Generar una vez cada informe que se va a mostrar (la primera compilación de JasperReports tarda unos segundos; después es inmediata). | ☐ |
 | 9 | Dejar abiertos en otra ventana los diagramas `docs/uml/png/02-arquitectura.png` y `04-clases-analisis.png`. | ☐ |
 | 10 | Pantalla: resolución 1920×1080 o menor, escala 100–125 %; cerrar notificaciones de Windows. | ☐ |
-| 11 | **Plan B**: grabar la demo completa en video y llevar una copia de seguridad de la base preparada en una USB. | ☐ |
+| 11 | **Plan B**: grabar la demo completa en video y llevar en una USB el `.zip` portable 1.3.0 y una copia de seguridad de la base preparada. | ☐ |
 
 > La aplicación no necesita Internet ni servidor: todo funciona desde la laptop.
 
@@ -131,7 +131,7 @@ inspección con **informe técnico en PDF**). «Lo validamos con un ingeniero ag
 | ¿Cómo calculan cuánto reponer? | Venta diaria = vendido ÷ días; se repone lo que alcanza para menos de 14 días (3 si es perecible) y se compra venta diaria × días − stock. |
 | ¿Cómo probaron el sistema? | 340 pruebas JUnit 5 que corren en cada cambio con GitHub Actions: cálculos puros con datos en memoria y servicios con una base SQLite temporal y un reloj controlado. |
 | ¿Por qué no se pueden borrar ventas? | Por trazabilidad: se **anulan** con motivo y usuario; corregir = anular + registrar en una transacción. |
-| ¿Qué falta? | Versión multiusuario en red, series de tiempo para la inferencia, fórmulas rurales del ingeniero agrario y publicar la versión 1.3.0. |
+| ¿Qué falta? | Versión multiusuario en red, series de tiempo para la inferencia y fórmulas rurales del ingeniero agrario. |
 
 ---
 
@@ -139,7 +139,7 @@ inspección con **informe técnico en PDF**). «Lo validamos con un ingeniero ag
 
 | Problema | Qué hacer |
 |---|---|
-| La app no abre | Ejecutar desde el código con `.\mvnw.cmd javafx:run` (requiere `JAVA_HOME` apuntando al JDK 17). |
+| La app no abre | Usar el `.zip` portable de la USB (descomprimir y abrir `Business Analyzer.exe`) o ejecutar desde el código con `.\mvnw.cmd javafx:run`. |
 | Reposición sale vacía | Es correcto si hay stock para dos semanas: explicarlo y mostrar la captura del manual (capítulo Sugerencias). |
 | El informe PDF tarda | Es la primera compilación; seguir hablando, aparece en segundos (por eso el paso 8 de la preparación). |
 | Se olvidó la contraseña | Entrar con otro administrador → **Usuarios y permisos** → restablecer contraseña. |
