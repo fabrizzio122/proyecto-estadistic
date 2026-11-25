@@ -64,6 +64,9 @@
   inferencia, pruebas por área, cobertura y métricas); en el manual, los capítulos nuevos «Importar desde Excel» y
   «Sugerencias», la tarjeta «Atender hoy», la antigüedad de saldos, los productos perecibles y la inferencia, con 10
   capturas nuevas o actualizadas; casos de uso, arquitectura, clases y modelo de datos regenerados.
+- **Entregables con las plantillas del docente** (`docs/entregables/`, en Word y PDF): guía para ejecutar, manual de uso
+  resumido con capturas marcadas (números, flechas y leyenda de colores) y código fuente con las clases principales.
+- **Informe final**: se quitó el capítulo de convención de nombres; los capítulos siguientes se renumeraron.
 
 ### Calidad
 - **Integración continua con GitHub Actions**: en cada push o pull request a `main` se compila el proyecto
