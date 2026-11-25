@@ -126,6 +126,24 @@ class EstadisticaServiceTestFGEM {
     }
 
     @Test
+    void laInferenciaUsaLasVentasDiariasYElPeriodoAnteriorFGEM() {
+        AnalisisEstadisticoFGEM aFGEM = servicioFGEM.analizarFGEM(DESDE_FGEM, HASTA_FGEM);
+
+        // Intervalo de confianza con los 168 días; contiene la media diaria.
+        assertEquals(168, aFGEM.intervaloDiarioFGEM().nFGEM());
+        assertTrue(aFGEM.intervaloDiarioFGEM().inferiorFGEM() < aFGEM.ventasDiariasFGEM().mediaFGEM()
+                && aFGEM.ventasDiariasFGEM().mediaFGEM() < aFGEM.intervaloDiarioFGEM().superiorFGEM());
+        // ANOVA con los siete días de la semana (24 semanas).
+        assertEquals(7, aFGEM.anovaDiasFGEM().gruposFGEM());
+        assertTrue(aFGEM.anovaDiasFGEM().calculadoFGEM());
+        // Feb–jul 2025 es el período anterior, pero el negocio empezó a vender en agosto: no hay con qué comparar.
+        assertEquals(LocalDate.of(2025, 2, 1), aFGEM.periodoAnteriorFGEM().desdeFGEM());
+        assertTrue(!aFGEM.comparacionFGEM().calculadoFGEM());
+        assertTrue(LecturaEstadisticaFGEM.comparacionFGEM(aFGEM, MonedaFGEM.PEN).get(0).startsWith("No hay ventas suficientes"));
+        assertTrue(LecturaEstadisticaFGEM.intervaloFGEM(aFGEM, MonedaFGEM.PEN).get(0).startsWith("Con 95 % de confianza"));
+    }
+
+    @Test
     void lasLecturasExplicanLosResultadosFGEM() {
         AnalisisEstadisticoFGEM aFGEM = servicioFGEM.analizarFGEM(DESDE_FGEM, HASTA_FGEM);
 

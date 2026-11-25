@@ -3,6 +3,10 @@
 ## Sin publicar
 
 ### Nuevo
+- **Inferencia estadística en Análisis estadístico**, dentro de las pestañas que ya existían: intervalo de confianza
+  al 95 % de la venta diaria promedio (t de Student) en *Resumen descriptivo*; ANOVA de un factor por día de la semana
+  (F, valor p y η²) en *Días de la semana*; y prueba t de Welch contra el período anterior en *Tendencia*. Cada
+  resultado trae su conclusión en lenguaje sencillo.
 - **Registrar la compra desde las sugerencias** (*Sugerencias → Reposición → Registrar compra*): abre una compra
   nueva en «Ventas y compras» con los productos por reponer, la cantidad sugerida y su costo registrado (agotados y
   urgentes primero), para ajustarla, completar el proveedor y registrarla. Los productos archivados se omiten con aviso.
@@ -50,7 +54,7 @@
 
 ### Calidad
 - **Integración continua con GitHub Actions**: en cada push o pull request a `main` se compila el proyecto
-  en Windows con JDK 17 y se ejecutan las pruebas (335); el estado se ve en el distintivo del README.
+  en Windows con JDK 17 y se ejecutan las pruebas (340); el estado se ve en el distintivo del README.
 - **Cobertura de pruebas con JaCoCo**: la lógica de negocio (todo menos la interfaz) tiene 92 % de líneas
   cubiertas; informe en `target/site/jacoco/index.html` y resumen por capa en cada ejecución de GitHub.
 

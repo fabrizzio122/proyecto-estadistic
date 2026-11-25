@@ -86,6 +86,52 @@ public final class LecturaEstadisticaFGEM {
         return frasesFGEM;
     }
 
+    /** Intervalo de confianza de la venta diaria promedio. */
+    public static List<String> intervaloFGEM(AnalisisEstadisticoFGEM aFGEM, MonedaFGEM monedaFGEM) {
+        InferenciaFGEM.IntervaloConfianzaFGEM iFGEM = aFGEM.intervaloDiarioFGEM();
+        if (!iFGEM.calculadoFGEM() || aFGEM.ticketFGEM().vaciaFGEM()) {
+            return List.of();
+        }
+        return List.of("Con 95 % de confianza, la venta diaria promedio del negocio está entre "
+                + dineroFGEM(Math.max(0, iFGEM.inferiorFGEM()), monedaFGEM) + " y " + dineroFGEM(iFGEM.superiorFGEM(), monedaFGEM)
+                + " (intervalo t de Student con " + iFGEM.nFGEM() + " días). Mientras más días, más angosto el intervalo.");
+    }
+
+    /** ANOVA por día de la semana: confirma (o no) que la diferencia entre días es real. */
+    public static List<String> anovaFGEM(AnalisisEstadisticoFGEM aFGEM) {
+        InferenciaFGEM.AnovaFGEM anFGEM = aFGEM.anovaDiasFGEM();
+        if (!anFGEM.calculadoFGEM()) {
+            return List.of("Para la prueba ANOVA se necesitan al menos dos semanas de datos.");
+        }
+        String pruebaFGEM = "ANOVA de un factor: F(" + anFGEM.glEntreFGEM() + ", " + anFGEM.glDentroFGEM() + ") = "
+                + String.format(Locale.US, "%.2f", anFGEM.fFGEM()) + ", p = " + valorPFGEM(anFGEM.pFGEM()) + ".";
+        if (anFGEM.significativoFGEM()) {
+            return List.of(pruebaFGEM + " La diferencia entre los días es estadísticamente significativa: se rechaza que todos los días "
+                    + "vendan lo mismo, así que el patrón semanal es real.",
+                    "El día de la semana explica el " + porcentajeFGEM(anFGEM.etaCuadradoFGEM()) + " de la variación de las ventas diarias (η²).");
+        }
+        return List.of(pruebaFGEM + " La diferencia entre los días no es significativa: no se puede descartar que se deba al azar, "
+                + "así que no conviene planificar solo con ella.");
+    }
+
+    /** Prueba t: si el cambio frente al período anterior es real. */
+    public static List<String> comparacionFGEM(AnalisisEstadisticoFGEM aFGEM, MonedaFGEM monedaFGEM) {
+        InferenciaFGEM.ComparacionFGEM cFGEM = aFGEM.comparacionFGEM();
+        if (!cFGEM.calculadoFGEM()) {
+            return List.of("No hay ventas suficientes en el período anterior (" + aFGEM.periodoAnteriorFGEM().descripcionFGEM()
+                    + ") para compararlo con una prueba t.");
+        }
+        boolean subeFGEM = cFGEM.mediaActualFGEM() >= cFGEM.mediaAnteriorFGEM();
+        String cambioFGEM = "La venta diaria promedio " + (subeFGEM ? "subió" : "bajó") + " de " + dineroFGEM(cFGEM.mediaAnteriorFGEM(), monedaFGEM)
+                + " a " + dineroFGEM(cFGEM.mediaActualFGEM(), monedaFGEM)
+                + (Double.isNaN(cFGEM.variacionFGEM()) ? "" : " (" + (subeFGEM ? "+" : "−") + porcentajeFGEM(Math.abs(cFGEM.variacionFGEM())) + ")")
+                + " frente a " + aFGEM.periodoAnteriorFGEM().descripcionFGEM() + ".";
+        String pruebaFGEM = " Prueba t de Welch: t = " + String.format(Locale.US, "%.2f", cFGEM.tFGEM()) + ", p = " + valorPFGEM(cFGEM.pFGEM()) + ".";
+        return List.of(cambioFGEM + pruebaFGEM, cFGEM.significativoFGEM()
+                ? "El cambio es estadísticamente significativo: es poco probable que se deba al azar."
+                : "El cambio no es significativo: podría deberse a la variación normal de las ventas.");
+    }
+
     public static List<String> abcFGEM(AnalisisEstadisticoFGEM aFGEM) {
         List<String> frasesFGEM = new ArrayList<>();
         AnalisisAbcFGEM abcFGEM = aFGEM.abcFGEM();

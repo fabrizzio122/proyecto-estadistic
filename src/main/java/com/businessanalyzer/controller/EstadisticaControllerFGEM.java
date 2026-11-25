@@ -208,8 +208,14 @@ public class EstadisticaControllerFGEM implements VistaModuloFGEM {
     private void mostrarResumenFGEM(AnalisisEstadisticoFGEM aFGEM) {
         llenarDescriptivaFGEM(gridTicketFGEM, aFGEM.ticketFGEM());
         llenarDescriptivaFGEM(gridDiariasFGEM, aFGEM.ventasDiariasFGEM());
+        com.businessanalyzer.analytics.estadistica.InferenciaFGEM.IntervaloConfianzaFGEM icFGEM = aFGEM.intervaloDiarioFGEM();
+        datoFGEM(gridDiariasFGEM, gridDiariasFGEM.getRowCount(), "IC 95 % de la media", icFGEM.calculadoFGEM()
+                        ? dineroFGEM(Math.max(0, icFGEM.inferiorFGEM())) + " – " + dineroFGEM(icFGEM.superiorFGEM()) : "—",
+                "Intervalo de confianza (t de Student): media ± t · s / √n. Con 95 % de confianza, el promedio real está en este rango");
         contenedorHistogramaFGEM.getChildren().setAll(GraficosFGEM.visorFGEM(GraficosFGEM.histogramaFGEM(aFGEM.histogramaTicketsFGEM(), monedaFGEM)));
-        lecturaFGEM(lecturaResumenFGEM, "Interpretación", LecturaEstadisticaFGEM.resumenFGEM(aFGEM, monedaFGEM));
+        List<String> frasesResumenFGEM = new java.util.ArrayList<>(LecturaEstadisticaFGEM.resumenFGEM(aFGEM, monedaFGEM));
+        frasesResumenFGEM.addAll(LecturaEstadisticaFGEM.intervaloFGEM(aFGEM, monedaFGEM));
+        lecturaFGEM(lecturaResumenFGEM, "Interpretación", frasesResumenFGEM);
     }
 
     private void llenarDescriptivaFGEM(GridPane grillaFGEM, EstadisticaDescriptivaFGEM eFGEM) {
@@ -239,8 +245,17 @@ public class EstadisticaControllerFGEM implements VistaModuloFGEM {
         filaFGEM = datoFGEM(gridTendenciaFGEM, filaFGEM, "Cambio por mes", dineroFGEM(tFGEM.pendienteFGEM()), "Pendiente de la recta");
         filaFGEM = datoFGEM(gridTendenciaFGEM, filaFGEM, "Crecimiento mensual", porcentajeFGEM(tFGEM.crecimientoMensualFGEM()), "Pendiente ÷ venta mensual promedio");
         filaFGEM = datoFGEM(gridTendenciaFGEM, filaFGEM, "R²", decimalFGEM(tFGEM.r2FGEM()), "Qué parte de la variación explica la recta (0 a 1)");
-        datoFGEM(gridTendenciaFGEM, filaFGEM, "Valor p", valorPFGEM(tFGEM.significanciaFGEM()), "Menor a 0.05: tendencia estadísticamente significativa");
-        lecturaFGEM(lecturaTendenciaFGEM, null, LecturaEstadisticaFGEM.tendenciaFGEM(aFGEM, monedaFGEM));
+        filaFGEM = datoFGEM(gridTendenciaFGEM, filaFGEM, "Valor p", valorPFGEM(tFGEM.significanciaFGEM()), "Menor a 0.05: tendencia estadísticamente significativa");
+        com.businessanalyzer.analytics.estadistica.InferenciaFGEM.ComparacionFGEM cFGEM = aFGEM.comparacionFGEM();
+        filaFGEM = datoFGEM(gridTendenciaFGEM, filaFGEM, "Venta diaria anterior", dineroFGEM(cFGEM.mediaAnteriorFGEM()),
+                "Promedio por día en " + aFGEM.periodoAnteriorFGEM().descripcionFGEM());
+        filaFGEM = datoFGEM(gridTendenciaFGEM, filaFGEM, "Venta diaria actual", dineroFGEM(cFGEM.mediaActualFGEM()), "Promedio por día en el período elegido");
+        datoFGEM(gridTendenciaFGEM, filaFGEM, "Prueba t (valor p)", cFGEM.calculadoFGEM()
+                        ? "t = " + decimalFGEM(cFGEM.tFGEM()) + " · p = " + valorPFGEM(cFGEM.pFGEM()) : "—",
+                "Prueba t de Welch. H₀: la venta diaria promedio es igual en los dos períodos. Con p < 0.05 el cambio es significativo");
+        List<String> frasesTendenciaFGEM = new java.util.ArrayList<>(LecturaEstadisticaFGEM.tendenciaFGEM(aFGEM, monedaFGEM));
+        frasesTendenciaFGEM.addAll(LecturaEstadisticaFGEM.comparacionFGEM(aFGEM, monedaFGEM));
+        lecturaFGEM(lecturaTendenciaFGEM, null, frasesTendenciaFGEM);
     }
 
     // ------------------------------------------------------------------ días de la semana
@@ -258,7 +273,15 @@ public class EstadisticaControllerFGEM implements VistaModuloFGEM {
             filaFGEM = datoFGEM(gridDiasFGEM, filaFGEM, Character.toUpperCase(nombreFGEM.charAt(0)) + nombreFGEM.substring(1), textoFGEM,
                     "Venta promedio · índice (1.00 = día promedio)");
         }
-        lecturaFGEM(lecturaDiasFGEM, null, LecturaEstadisticaFGEM.estacionalidadFGEM(aFGEM, monedaFGEM));
+        com.businessanalyzer.analytics.estadistica.InferenciaFGEM.AnovaFGEM anFGEM = aFGEM.anovaDiasFGEM();
+        datoFGEM(gridDiasFGEM, filaFGEM, "ANOVA (valor p)", anFGEM.calculadoFGEM()
+                        ? "F = " + decimalFGEM(anFGEM.fFGEM()) + " · p = " + valorPFGEM(anFGEM.pFGEM()) : "—",
+                "ANOVA de un factor. H₀: todos los días venden lo mismo en promedio. Con p < 0.05 la diferencia entre días es significativa");
+        List<String> frasesDiasFGEM = new java.util.ArrayList<>(LecturaEstadisticaFGEM.estacionalidadFGEM(aFGEM, monedaFGEM));
+        if (!aFGEM.ticketFGEM().vaciaFGEM()) {
+            frasesDiasFGEM.addAll(LecturaEstadisticaFGEM.anovaFGEM(aFGEM));
+        }
+        lecturaFGEM(lecturaDiasFGEM, null, frasesDiasFGEM);
     }
 
     // ------------------------------------------------------------------ ABC

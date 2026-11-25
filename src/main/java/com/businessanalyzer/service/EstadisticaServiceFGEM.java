@@ -9,6 +9,7 @@ import com.businessanalyzer.analytics.estadistica.AnalisisEstadisticoFGEM.PuntoM
 import com.businessanalyzer.analytics.estadistica.EstacionalidadSemanalFGEM;
 import com.businessanalyzer.analytics.estadistica.EstadisticaDescriptivaFGEM;
 import com.businessanalyzer.analytics.estadistica.HistogramaFGEM;
+import com.businessanalyzer.analytics.estadistica.InferenciaFGEM;
 import com.businessanalyzer.analytics.estadistica.MatrizCorrelacionFGEM;
 import com.businessanalyzer.analytics.estadistica.TendenciaFGEM;
 import com.businessanalyzer.config.DatabaseFGEM;
@@ -35,7 +36,8 @@ import java.util.TreeMap;
 
 /**
  * Análisis estadístico de las ventas de la empresa activa: descriptiva, distribución,
- * tendencia, estacionalidad semanal, clasificación ABC y correlaciones.
+ * tendencia, estacionalidad semanal, clasificación ABC, correlaciones e inferencia (intervalo de confianza,
+ * ANOVA por día de la semana y comparación con el período anterior).
  * Requiere el permiso {@link PermisoFGEM#ANALISIS_VER}.
  */
 public class EstadisticaServiceFGEM {
@@ -71,6 +73,18 @@ public class EstadisticaServiceFGEM {
             List<OperacionFGEM> ventasFGEM = operacionesFGEM.listarFGEM(cFGEM, empresaFGEM.idFGEM(), TipoOperacionFGEM.VENTA, desdeFGEM, hastaFGEM, false);
             double[] ticketsFGEM = ventasFGEM.stream().mapToDouble(oFGEM -> oFGEM.subtotalFGEM().doubleValue()).toArray();
             Map<LocalDate, Double> porDiaFGEM = ventasPorDiaFGEM(ventasFGEM, desdeFGEM, hastaFGEM.isAfter(hoyFGEM) ? hoyFGEM : hastaFGEM);
+            double[] diariasFGEM = porDiaFGEM.values().stream().mapToDouble(Double::doubleValue).toArray();
+
+            // Período anterior para la prueba t. Los días antes de la primera venta no cuentan: el negocio aún no
+            // operaba en el sistema y bajarían el promedio anterior.
+            PeriodoFGEM anteriorFGEM = periodoFGEM.anteriorFGEM();
+            List<OperacionFGEM> ventasAnterioresFGEM = operacionesFGEM.listarFGEM(cFGEM, empresaFGEM.idFGEM(), TipoOperacionFGEM.VENTA,
+                    anteriorFGEM.desdeFGEM(), anteriorFGEM.hastaFGEM(), false);
+            LocalDate primeraVentaFGEM = java.util.stream.Stream.concat(ventasAnterioresFGEM.stream(), ventasFGEM.stream())
+                    .map(OperacionFGEM::fechaFGEM).min(LocalDate::compareTo).orElse(null);
+            Map<LocalDate, Double> porDiaAnteriorFGEM = ventasPorDiaFGEM(ventasAnterioresFGEM, anteriorFGEM.desdeFGEM(), anteriorFGEM.hastaFGEM());
+            InferenciaFGEM.ComparacionFGEM comparacionFGEM = InferenciaFGEM.compararFGEM(desdeFGEM(porDiaFGEM, primeraVentaFGEM),
+                    desdeFGEM(porDiaAnteriorFGEM, primeraVentaFGEM));
 
             YearMonth mesActualFGEM = YearMonth.from(hoyFGEM);
             YearMonth ultimoPedidoFGEM = YearMonth.from(hastaFGEM);
@@ -85,15 +99,25 @@ public class EstadisticaServiceFGEM {
             return new AnalisisEstadisticoFGEM(
                     periodoFGEM,
                     EstadisticaDescriptivaFGEM.deFGEM(ticketsFGEM),
-                    EstadisticaDescriptivaFGEM.deFGEM(porDiaFGEM.values().stream().mapToDouble(Double::doubleValue).toArray()),
+                    EstadisticaDescriptivaFGEM.deFGEM(diariasFGEM),
                     HistogramaFGEM.deFGEM(ticketsFGEM, MAXIMO_CLASES_HISTOGRAMA_FGEM),
                     EstacionalidadSemanalFGEM.deFGEM(porDiaFGEM),
                     serieFGEM,
                     TendenciaFGEM.deFGEM(ventasMensualesFGEM),
                     MatrizCorrelacionFGEM.deFGEM(variablesFGEM(serieFGEM)),
                     AnalisisAbcFGEM.deFGEM(productosFGEM),
-                    excluirMesActualFGEM);
+                    excluirMesActualFGEM,
+                    InferenciaFGEM.intervaloFGEM(diariasFGEM),
+                    InferenciaFGEM.anovaDiaSemanaFGEM(porDiaFGEM),
+                    anteriorFGEM,
+                    comparacionFGEM);
         });
+    }
+
+    /** Ventas de los días desde {@code primera} (todos si es {@code null}). */
+    private static double[] desdeFGEM(Map<LocalDate, Double> porDiaFGEM, LocalDate primeraFGEM) {
+        return porDiaFGEM.entrySet().stream().filter(eFGEM -> primeraFGEM == null || !eFGEM.getKey().isBefore(primeraFGEM))
+                .mapToDouble(Map.Entry::getValue).toArray();
     }
 
     /** Total vendido cada día del rango, incluidos los días sin ventas (con cero). */

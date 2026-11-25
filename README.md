@@ -32,7 +32,7 @@ En IntelliJ IDEA: abrir la carpeta como proyecto Maven y ejecutar
 
 ## Pruebas, cobertura e integración continua
 
-- **335 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
+- **340 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
   base SQLite temporal y un reloj controlado.
 - **Cobertura con JaCoCo**: `.\mvnw.cmd test` deja el informe en `target/site/jacoco/index.html`.
   Resumen por capa: `.\.github\scripts\resumen-cobertura.ps1`.
@@ -118,6 +118,7 @@ automáticamente al iniciar y dentro de una transacción.
 30. «Atender hoy» en el Dashboard: agotados, perecibles por vencer, productos con pérdida y compra sugerida ✅
 31. Antigüedad de saldos por cobrar y por pagar (al día, 1-30, 31-60 y más de 60 días) y resumen por cliente o proveedor ✅
 32. Registrar la compra sugerida: de la reposición a una compra lista para revisar en «Ventas y compras» ✅
+33. Inferencia estadística: intervalo de confianza, ANOVA por día de la semana y prueba t contra el período anterior ✅
 
 ## Seguridad
 
@@ -269,6 +270,11 @@ Se calcula con **Apache Commons Math**:
 - **Días de la semana**: venta promedio e índice estacional de cada día (se cuentan los días sin ventas).
 - **Análisis ABC (Pareto)**: A = primer 80 % de las ventas, B = hasta 95 %, C = resto.
 - **Correlaciones de Pearson** entre ventas, margen bruto %, gastos operativos, publicidad y utilidad neta (mensuales), con su valor p.
+- **Inferencia** (Fase 33), con nivel de significancia de 5 % y dentro de las pestañas anteriores:
+  - *Resumen descriptivo*: **intervalo de confianza al 95 %** de la venta diaria promedio, media ± t · s / √n (t de Student con n − 1 grados de libertad).
+  - *Días de la semana*: **ANOVA de un factor**. H₀: todos los días venden lo mismo en promedio. Muestra F, sus grados de libertad, el valor p y η² (qué parte de la variación explica el día).
+  - *Tendencia*: **prueba t de Welch** entre la venta diaria del período elegido y la del período anterior equivalente (sin suponer varianzas iguales). Los días anteriores a la primera venta no cuentan.
+  - Supuesto: los días se tratan como observaciones independientes. El cálculo es puro (`analytics/estadistica/InferenciaFGEM`) y sus pruebas usan valores verificables a mano.
 - Cada pestaña incluye una **interpretación en lenguaje sencillo**.
 
 ## Predicciones
