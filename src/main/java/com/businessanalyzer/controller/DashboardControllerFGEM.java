@@ -12,6 +12,10 @@ import com.businessanalyzer.analytics.diagnostico.HallazgoFGEM;
 import com.businessanalyzer.analytics.diagnostico.SemaforoFGEM;
 import com.businessanalyzer.analytics.prediccion.PronosticoFGEM;
 import com.businessanalyzer.analytics.prediccion.ResultadoPrediccionFGEM;
+import com.businessanalyzer.analytics.sugerencias.AvisosSugerenciasFGEM;
+import com.businessanalyzer.analytics.sugerencias.AvisosSugerenciasFGEM.AvisoFGEM;
+import com.businessanalyzer.analytics.sugerencias.AvisosSugerenciasFGEM.GravedadFGEM;
+import com.businessanalyzer.analytics.sugerencias.SugerenciasProductoFGEM;
 import com.businessanalyzer.config.AppContextFGEM;
 import com.businessanalyzer.model.EmpresaFGEM;
 import com.businessanalyzer.model.MonedaFGEM;
@@ -53,20 +57,23 @@ import java.util.Optional;
 /**
  * Panel principal: el mes en curso resumido en una frase y cuatro indicadores (comparados con los mismos
  * días del mes anterior), la salud del negocio, las ventas y la utilidad de los últimos 12 meses con el
- * cierre esperado del mes, lo que viene y los productos que más aportan. Cada tarjeta lleva al módulo
+ * cierre esperado del mes, lo que viene, los productos que más aportan y lo que hay que atender hoy (agotados,
+ * perecibles por vencer, productos con pérdida). Cada tarjeta lleva al módulo
  * donde se ve el detalle. Todo sale de los datos reales de la empresa activa.
  */
 public class DashboardControllerFGEM implements VistaModuloFGEM {
 
     private static final int MAX_PRODUCTOS_FGEM = 6;
     private static final int MAX_ALERTAS_FGEM = 2;
+    private static final int MAX_AVISOS_FGEM = 3;
 
     private final AppContextFGEM contextoFGEM;
     private long solicitudFGEM;
 
     /** Lo que muestra el panel; cada parte puede faltar (sin permiso o sin datos). */
     private record PanelFGEM(AnalisisFinancieroFGEM analisisFGEM, DiagnosticoFGEM diagnosticoFGEM, ResultadoPrediccionFGEM prediccionFGEM,
-                         String errorDiagnosticoFGEM, String errorPrediccionFGEM, TesoreriaServiceFGEM.ResumenFGEM tesoreriaFGEM) {
+                         String errorDiagnosticoFGEM, String errorPrediccionFGEM, TesoreriaServiceFGEM.ResumenFGEM tesoreriaFGEM,
+                         SugerenciasProductoFGEM.ResultadoFGEM sugerenciasFGEM, String errorSugerenciasFGEM) {
     }
 
     @FXML private HBox bannerEmpresaFGEM;
@@ -79,11 +86,13 @@ public class DashboardControllerFGEM implements VistaModuloFGEM {
     @FXML private VBox evolucionFGEM;
     @FXML private VBox proximoFGEM;
     @FXML private VBox productosFGEM;
+    @FXML private VBox atenderFGEM;
     @FXML private Label lblTituloProductosFGEM;
     @FXML private Button btnAnalisisFGEM;
     @FXML private Button btnDiagnosticoFGEM;
     @FXML private Button btnVentasFGEM;
     @FXML private Button btnPrediccionesFGEM;
+    @FXML private Button btnSugerenciasFGEM;
 
     public DashboardControllerFGEM(AppContextFGEM contextoFGEM) {
         this.contextoFGEM = contextoFGEM;
@@ -92,7 +101,7 @@ public class DashboardControllerFGEM implements VistaModuloFGEM {
     @FXML
     private void initialize() {
         boolean analisisFGEM = contextoFGEM.sesionFGEM().tienePermisoFGEM(PermisoFGEM.ANALISIS_VER);
-        for (Button bFGEM : List.of(btnAnalisisFGEM, btnDiagnosticoFGEM, btnPrediccionesFGEM)) {
+        for (Button bFGEM : List.of(btnAnalisisFGEM, btnDiagnosticoFGEM, btnPrediccionesFGEM, btnSugerenciasFGEM)) {
             bFGEM.setVisible(analisisFGEM);
         }
         btnVentasFGEM.setVisible(contextoFGEM.sesionFGEM().tienePermisoFGEM(PermisoFGEM.OPERACIONES_VER));
@@ -149,7 +158,15 @@ public class DashboardControllerFGEM implements VistaModuloFGEM {
         } catch (RuntimeException eFGEM) {
             // Sin permiso de finanzas o sin cuentas: ese indicador no se muestra.
         }
-        return new PanelFGEM(analisisFGEM, diagnosticoFGEM, prediccionFGEM, errorDiagnosticoFGEM, errorPrediccionFGEM, tesoreriaFGEM);
+        SugerenciasProductoFGEM.ResultadoFGEM sugerenciasFGEM = null;
+        String errorSugerenciasFGEM = null;
+        try {
+            sugerenciasFGEM = contextoFGEM.sugerenciasFGEM().sugerenciasActualesFGEM();
+        } catch (RuntimeException eFGEM) {
+            errorSugerenciasFGEM = ErroresFGEM.mensajeFGEM(eFGEM);
+        }
+        return new PanelFGEM(analisisFGEM, diagnosticoFGEM, prediccionFGEM, errorDiagnosticoFGEM, errorPrediccionFGEM, tesoreriaFGEM,
+                sugerenciasFGEM, errorSugerenciasFGEM);
     }
 
     private void avisoFGEM(String tituloFGEM, String detalleFGEM) {
@@ -173,6 +190,7 @@ public class DashboardControllerFGEM implements VistaModuloFGEM {
         mostrarEvolucionFGEM(pFGEM.analisisFGEM(), esperadoVentasFGEM, esperadoUtilidadFGEM, monedaFGEM, hoyFGEM);
         mostrarProximoFGEM(pFGEM.prediccionFGEM(), pFGEM.errorPrediccionFGEM(), pFGEM.analisisFGEM().actualFGEM().ventasNetasFGEM(), monedaFGEM, hoyFGEM);
         mostrarProductosFGEM(pFGEM.analisisFGEM(), monedaFGEM);
+        mostrarAtenderFGEM(pFGEM.sugerenciasFGEM(), pFGEM.errorSugerenciasFGEM(), monedaFGEM);
         contextoFGEM.mostrarAlertasDiagnosticoFGEM(pFGEM.diagnosticoFGEM() == null || !pFGEM.diagnosticoFGEM().evaluadoFGEM()
                 ? 0 : pFGEM.diagnosticoFGEM().recomendacionesFGEM().size());
     }
@@ -476,7 +494,62 @@ public class DashboardControllerFGEM implements VistaModuloFGEM {
         productosFGEM.getChildren().setAll(grillaFGEM);
     }
 
+    // ------------------------------------------------------------------ atender hoy
+
+    /** Lo urgente de las sugerencias: qué reponer, qué ofrecer antes de que se venza y qué precios no cubren el costo. */
+    private void mostrarAtenderFGEM(SugerenciasProductoFGEM.ResultadoFGEM rFGEM, String errorFGEM, MonedaFGEM monedaFGEM) {
+        atenderFGEM.getChildren().clear();
+        if (rFGEM == null) {
+            Label sinFGEM = etiquetaFGEM(errorFGEM != null ? errorFGEM : "Sin datos.", "muted");
+            sinFGEM.setWrapText(true);
+            atenderFGEM.getChildren().add(sinFGEM);
+            return;
+        }
+        List<AvisoFGEM> avisosFGEM = AvisosSugerenciasFGEM.avisosFGEM(rFGEM);
+        if (avisosFGEM.isEmpty()) {
+            Label bienFGEM = etiquetaFGEM("Nada urgente: no hay agotados, perecibles por vencer ni productos que se vendan con pérdida.",
+                    "lectura");
+            bienFGEM.setWrapText(true);
+            atenderFGEM.getChildren().add(bienFGEM);
+        }
+        for (AvisoFGEM aFGEM : avisosFGEM.subList(0, Math.min(MAX_AVISOS_FGEM, avisosFGEM.size()))) {
+            Label tituloFGEM = etiquetaFGEM(aFGEM.tituloFGEM(), "fila-alerta-texto");
+            tituloFGEM.setMaxWidth(Double.MAX_VALUE);
+            HBox.setHgrow(tituloFGEM, Priority.ALWAYS);
+            Label cantidadFGEM = etiquetaFGEM(String.valueOf(aFGEM.cantidadFGEM()), "fila-alerta-valor");
+            cantidadFGEM.setMinWidth(Region.USE_PREF_SIZE);
+            HBox cabeceraFGEM = new HBox(10, tituloFGEM, cantidadFGEM);
+            cabeceraFGEM.setAlignment(Pos.CENTER_LEFT);
+            Label detalleFGEM = etiquetaFGEM(aFGEM.detalleFGEM(), "fila-alerta-detalle");
+            detalleFGEM.setWrapText(true);
+            detalleFGEM.setMinHeight(Region.USE_PREF_SIZE);
+            VBox filaFGEM = new VBox(2, cabeceraFGEM, detalleFGEM);
+            filaFGEM.getStyleClass().add("fila-alerta");
+            if (aFGEM.gravedadFGEM() == GravedadFGEM.MEDIA) {
+                filaFGEM.getStyleClass().add("fila-alerta-media");
+            }
+            atenderFGEM.getChildren().add(filaFGEM);
+        }
+        if (avisosFGEM.size() > MAX_AVISOS_FGEM) {
+            atenderFGEM.getChildren().add(etiquetaFGEM("y " + (avisosFGEM.size() - MAX_AVISOS_FGEM) + " aviso(s) más en Sugerencias", "hint"));
+        }
+        Region lineaFGEM = new Region();
+        lineaFGEM.getStyleClass().add("separador");
+        atenderFGEM.getChildren().add(lineaFGEM);
+        atenderFGEM.getChildren().add(filaDatoFGEM("Compra sugerida", rFGEM.reposicionFGEM().isEmpty() ? "Nada por ahora"
+                : MontosFGEM.formatearFGEM(rFGEM.costoReposicionFGEM(), monedaFGEM), "dato-valor"));
+        if (rFGEM.gananciaExtraMesFGEM().signum() > 0) {
+            atenderFGEM.getChildren().add(filaDatoFGEM("Ganancia extra con precios", aproximadoFGEM(rFGEM.gananciaExtraMesFGEM().doubleValue(), monedaFGEM)
+                    + " / mes", "texto-positivo"));
+        }
+    }
+
     // ------------------------------------------------------------------ navegación
+
+    @FXML
+    private void irSugerenciasFGEM() {
+        contextoFGEM.abrirModuloFGEM(ModuloFGEM.SUGERENCIAS);
+    }
 
     @FXML
     private void irAnalisisFGEM() {

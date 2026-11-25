@@ -3,6 +3,9 @@
 ## Sin publicar
 
 ### Nuevo
+- **«Atender hoy» en el Dashboard**: una tarjeta con lo urgente de las sugerencias (productos agotados,
+  perecibles por vencer, productos que se venden con pérdida y los que se agotan esta semana), con los primeros
+  nombres de cada caso, la compra sugerida y la ganancia extra posible con los precios. «Ver sugerencias» abre el módulo.
 - **Lista de compras** (*Sugerencias → Reposición → Lista de compras*): los productos por reponer agrupados por
   categoría, con el estado, el stock, la cantidad a comprar y el costo aproximado, con subtotales y total. En PDF para
   imprimir o en Excel para ajustar cantidades (el costo y el total se recalculan solos); queda en el historial de informes.
@@ -40,7 +43,7 @@
 
 ### Calidad
 - **Integración continua con GitHub Actions**: en cada push o pull request a `main` se compila el proyecto
-  en Windows con JDK 17 y se ejecutan las pruebas (329); el estado se ve en el distintivo del README.
+  en Windows con JDK 17 y se ejecutan las pruebas (331); el estado se ve en el distintivo del README.
 - **Cobertura de pruebas con JaCoCo**: la lógica de negocio (todo menos la interfaz) tiene 92 % de líneas
   cubiertas; informe en `target/site/jacoco/index.html` y resumen por capa en cada ejecución de GitHub.
 

@@ -164,6 +164,11 @@ public class SugerenciasServiceFGEM {
         return archivoFGEM;
     }
 
+    /** Sugerencias con el margen objetivo guardado de la empresa (para el Dashboard). */
+    public ResultadoFGEM sugerenciasActualesFGEM() {
+        return sugerenciasFGEM(margenObjetivoFGEM());
+    }
+
     private PeriodoVentasFGEM periodoFGEM(Connection cFGEM, EmpresaFGEM empresaFGEM, Set<Long> idsFGEM, LocalDate desdeFGEM, LocalDate hastaFGEM)
             throws SQLException {
         // Solo las líneas del catálogo (las ventas agropecuarias usan otros identificadores).

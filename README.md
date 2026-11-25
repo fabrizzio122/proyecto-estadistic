@@ -32,7 +32,7 @@ En IntelliJ IDEA: abrir la carpeta como proyecto Maven y ejecutar
 
 ## Pruebas, cobertura e integración continua
 
-- **329 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
+- **331 pruebas** JUnit 5 (clases `*TestFGEM`): cálculos puros con datos en memoria y servicios con una
   base SQLite temporal y un reloj controlado.
 - **Cobertura con JaCoCo**: `.\mvnw.cmd test` deja el informe en `target/site/jacoco/index.html`.
   Resumen por capa: `.\.github\scripts\resumen-cobertura.ps1`.
@@ -115,6 +115,7 @@ automáticamente al iniciar y dentro de una transacción.
 27. Sugerencias por producto: precios a ajustar, reposición y productos sin movimiento ✅
 28. Productos perecibles y sugerencias afinadas con datos reales: venta lenta con 180 días, agotados según su historial, ganancia en contexto ✅
 29. Lista de compras en PDF y Excel desde la reposición sugerida, agrupada por categoría ✅
+30. «Atender hoy» en el Dashboard: agotados, perecibles por vencer, productos con pérdida y compra sugerida ✅
 
 ## Seguridad
 
@@ -231,7 +232,7 @@ El dinero de la empresa vive en **cuentas**: la caja, cuentas bancarias y billet
 
 ## Dashboard y edición de registros (Fase 20)
 
-- **Dashboard:** indicadores del mes en curso comparados con los mismos días del mes anterior, ventas y utilidad de los últimos 12 meses, salud del negocio (diagnóstico), productos que más aportan al margen y ventas esperadas del próximo mes. Cada tarjeta abre su módulo.
+- **Dashboard:** indicadores del mes en curso comparados con los mismos días del mes anterior, ventas y utilidad de los últimos 12 meses, salud del negocio (diagnóstico), productos que más aportan al margen, ventas esperadas del próximo mes y «Atender hoy» (lo urgente de las sugerencias, Fase 30). Cada tarjeta abre su módulo.
 - **Mes en curso:** «Este mes» va del día 1 a hoy y se compara con los mismos días del mes anterior (no medio mes contra un mes entero); «Este año» se compara con las mismas fechas del año pasado.
 - **Editar:** ventas, compras, movimientos del hato, producción, costos y cosechas tienen botón «Editar». El registro original queda anulado como historial (con la referencia del que lo reemplaza) y se guarda el corregido en la misma transacción; el stock y las existencias se recalculan solos.
 - **Bodega Demo:** una venta por día (cierre de caja) repartida según el día de la semana, con un febrero flojo; los datos salen siempre iguales.

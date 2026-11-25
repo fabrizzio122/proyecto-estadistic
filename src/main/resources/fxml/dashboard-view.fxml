@@ -9,7 +9,7 @@
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <!-- Dashboard: el mes en curso en una frase y cuatro indicadores, la salud del negocio, los últimos
-     12 meses, lo que viene y los productos que más aportan. El contenido lo arma DashboardController. -->
+     12 meses, lo que viene, los productos que más aportan y lo que hay que atender hoy (sugerencias). El contenido lo arma DashboardController. -->
 <ScrollPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.businessanalyzer.controller.DashboardControllerFGEM"
             fitToWidth="true" styleClass="page-scroll">
@@ -61,16 +61,27 @@
                 </VBox>
             </HBox>
 
-            <VBox styleClass="card" spacing="14">
-                <HBox alignment="CENTER_LEFT" spacing="8">
-                    <Label fx:id="lblTituloProductosFGEM" text="Productos que más aportan al margen este mes"
-                           styleClass="card-title"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="btnVentasFGEM" text="Ventas y compras" styleClass="button-link"
-                            minWidth="-Infinity" onAction="#irVentasFGEM"/>
-                </HBox>
-                <VBox fx:id="productosFGEM" spacing="12"/>
-            </VBox>
+            <HBox spacing="20">
+                <VBox styleClass="card" spacing="14" HBox.hgrow="ALWAYS" prefWidth="640">
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label fx:id="lblTituloProductosFGEM" text="Productos que más aportan al margen este mes"
+                               styleClass="card-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="btnVentasFGEM" text="Ventas y compras" styleClass="button-link"
+                                minWidth="-Infinity" onAction="#irVentasFGEM"/>
+                    </HBox>
+                    <VBox fx:id="productosFGEM" spacing="12"/>
+                </VBox>
+                <VBox styleClass="card" spacing="12" prefWidth="360" minWidth="330" maxWidth="400">
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="Atender hoy" styleClass="card-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="btnSugerenciasFGEM" text="Ver sugerencias" styleClass="button-link"
+                                minWidth="-Infinity" onAction="#irSugerenciasFGEM"/>
+                    </HBox>
+                    <VBox fx:id="atenderFGEM" spacing="10"/>
+                </VBox>
+            </HBox>
         </VBox>
     </VBox>
 </ScrollPane>

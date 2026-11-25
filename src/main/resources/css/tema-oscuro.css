@@ -1319,6 +1319,20 @@
     -fx-text-fill: -ba-error-texto;
 }
 
+/* Alerta de prioridad media (amarilla): diagnóstico en amarillo, productos que se agotan esta semana */
+.fila-alerta.fila-alerta-media {
+    -fx-background-color: -ba-advertencia-fondo;
+}
+
+.fila-alerta.fila-alerta-media .label {
+    -fx-text-fill: -ba-advertencia;
+}
+
+.fila-alerta .label.fila-alerta-detalle {
+    -fx-font-size: 12px;
+    -fx-opacity: 0.85;
+}
+
 /* ---------- Informes ---------- */
 
 .tarjeta-informe {
