@@ -1,6 +1,6 @@
 @startuml 08-modelo-datos
 !include estilo.iuml
-title Business Analyzer Desktop 1.2 — Modelo de datos (SQLite, migraciones V1–V13)
+title Business Analyzer Desktop 1.2 — Modelo de datos (SQLite, migraciones V1–V15)
 hide methods
 skinparam linetype ortho
 
@@ -60,6 +60,7 @@ package "Empresas y catálogo (V3–V4)" {
     categoria_id <<FK>>
     codigo, tipo
     costo_unitario, precio_venta
+    perecible (V15)
   }
   entity historial_precio {
     * id <<PK>>

@@ -4,20 +4,21 @@ title Business Analyzer Desktop 1.2 — Arquitectura en capas
 
 package "Presentación (JavaFX 21)" as P {
   component "Vistas FXML + CSS\n(resources/fxml, css)" as FXML
-  component "controller\n23 controladores\n(MainControllerFGEM, DashboardControllerFGEM,\nOperacionesControllerFGEM, …)" as CTRL
+  component "controller\n25 controladores\n(MainControllerFGEM, DashboardControllerFGEM,\nOperacionesControllerFGEM, …)" as CTRL
   component "ui\nNavegadorFGEM, DialogosFGEM, FormulariosFGEM,\nGraficosFGEM (JFreeChart), TareasFGEM" as UI
 }
 
 package "Lógica de negocio" as N {
-  component "service\n23 servicios + validadores\n(OperacionServiceFGEM, DiagnosticoServiceFGEM, …)" as SRV
+  component "service\n26 servicios + validadores\n(OperacionServiceFGEM, DiagnosticoServiceFGEM, …)" as SRV
   component "seguridad\nSesionFGEM, PasswordHasherFGEM\n(PBKDF2), PoliticaPasswordFGEM" as SEG
-  component "analytics\ncálculos puros, sin BD:\nfinanciero, estadística, predicción,\nsimulación, diagnóstico, patrimonio,\nganadería, agricultura, valoración" as ANA
-  component "informes\nContenidoInformeFGEM, GeneradorPdfFGEM\n(JasperReports), LibroExcelFGEM (POI)" as INF
+  component "analytics\ncálculos puros, sin BD:\nfinanciero, estadística, predicción,\nsimulación, diagnóstico, patrimonio,\ntesorería, ganadería, agricultura,\nvaloración, sugerencias e inferencia" as ANA
+  component "informes\nContenidoInformeFGEM, GeneradorPdfFGEM\n(JasperReports), LibroExcelFGEM (POI),\nListaComprasFGEM" as INF
+  component "importacion\nPlantilla y lectura de libros\nde Excel (Apache POI)" as IMP
 }
 
 package "Datos" as D {
-  component "repository\n18 repositorios\nJDBC puro (PreparedStatement)" as REPO
-  component "config\nAppContextFGEM (composición),\nDatabaseFGEM (transacciones),\nMigradorFGEM V1…V14" as CFG
+  component "repository\n19 repositorios\nJDBC puro (PreparedStatement)" as REPO
+  component "config\nAppContextFGEM (composición),\nDatabaseFGEM (transacciones),\nMigradorFGEM V1…V15" as CFG
   database "SQLite\nbusiness-analyzer.db" as DB
 }
 
@@ -30,6 +31,7 @@ CTRL --> SRV : llama en segundo plano\n(TareasFGEM.ejecutar)
 SRV --> SEG : sesion.requerirFGEM(PermisoFGEM)
 SRV --> ANA : datos ya leídos
 SRV --> INF
+SRV --> IMP
 SRV --> REPO : Connection de la\ntransacción
 SRV --> CFG : database.enTransaccionFGEM(...)
 REPO --> DB : SQL

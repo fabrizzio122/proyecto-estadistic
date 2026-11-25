@@ -1,10 +1,10 @@
-# Guion de la demostración — Business Analyzer Desktop 1.2
+# Guion de la demostración — Business Analyzer Desktop (hasta la fase 33)
 
 Curso: Ingeniería de Software 2 · Duración: **15 minutos** + preguntas.
 
 La demo cuenta una historia: *el dueño de una bodega registra su día a día y el sistema le dice
-cómo está su negocio, qué va a pasar y qué hacer*. Después se muestra que el mismo motor sirve a un
-productor agropecuario y al ingeniero que lo inspecciona.
+cómo está su negocio, si lo que ve es real o casualidad, y qué hacer hoy*. Al final se muestra que el
+mismo motor sirve a un productor agropecuario.
 
 ---
 
@@ -12,15 +12,17 @@ productor agropecuario y al ingeniero que lo inspecciona.
 
 | # | Tarea | Hecho |
 |---|---|---|
-| 1 | Instalar `Business Analyzer-1.2.1.exe` en la laptop de la presentación (o descomprimir el `.zip` portable). | ☐ |
+| 1 | **Usar la versión actual del código**: el instalador 1.2.1 publicado no tiene las fases 25 a 33. Ejecutar `.\mvnw.cmd javafx:run` o generar un instalador nuevo con `.\empaquetar.ps1`. | ☐ |
 | 2 | Abrir la app, crear el administrador y entrar. | ☐ |
 | 3 | En **Empresas** → **Empresa de demostración** → **Bodega (comercio)**: se crea **Bodega Demo** (12 meses, una venta por día). | ☐ |
 | 4 | En **Empresas** → **Empresa de demostración** → **Fundo ganadero (agropecuario)**: se crea **Fundo Demo**. | ☐ |
 | 5 | En **Usuarios y permisos** crear un usuario `operador` con rol **Operador** y acceso a Bodega Demo. Entrar una vez con él para cambiar la contraseña temporal. | ☐ |
-| 6 | Generar una vez cada informe que se va a mostrar (la primera compilación de JasperReports tarda unos segundos; después es inmediata). | ☐ |
-| 7 | Dejar abiertos en otra ventana los diagramas `docs/uml/png/02-arquitectura.png` y `05-secuencia-registrar-venta.png`. | ☐ |
-| 8 | Pantalla: resolución 1920×1080 o menor, escala 100–125 %; cerrar notificaciones de Windows. | ☐ |
-| 9 | **Plan B**: grabar la demo completa en video y llevar el `.zip` portable en una USB. | ☐ |
+| 6 | **Para que Reposición tenga productos** (Bodega Demo tiene stock de todo): crear el producto *Leche evaporada 400 g* (costo 3.40, precio 4.20), registrar una compra de 30 unidades fechada hace 20 días y cuatro ventas de 7 unidades en días distintos. Queda con 2 unidades (alcanzan para unos 4 días): aparece en **Reposición** como «Se agota esta semana» y en **Atender hoy**. | ☐ |
+| 7 | **Para la antigüedad de saldos**: registrar una venta **al crédito** a *Juana Quispe* fechada hace 95 días con vencimiento hace 80 días. Bodega Demo ya trae otra vencida (Restaurante Doña Rosa). | ☐ |
+| 8 | Generar una vez cada informe que se va a mostrar (la primera compilación de JasperReports tarda unos segundos; después es inmediata). | ☐ |
+| 9 | Dejar abiertos en otra ventana los diagramas `docs/uml/png/02-arquitectura.png` y `04-clases-analisis.png`. | ☐ |
+| 10 | Pantalla: resolución 1920×1080 o menor, escala 100–125 %; cerrar notificaciones de Windows. | ☐ |
+| 11 | **Plan B**: grabar la demo completa en video y llevar una copia de seguridad de la base preparada en una USB. | ☐ |
 
 > La aplicación no necesita Internet ni servidor: todo funciona desde la laptop.
 
@@ -31,95 +33,86 @@ productor agropecuario y al ingeniero que lo inspecciona.
 ### 0:00 – 1:00 · El problema
 
 > «Los pequeños negocios —una bodega, un restaurante, un productor de alpacas— registran ventas y
-> gastos, pero no saben si ganan dinero, cuándo dejan de perder ni qué pasará el próximo mes. Las
-> herramientas profesionales son caras o necesitan un contador. Business Analyzer convierte sus
-> registros diarios en análisis financiero, estadístico y predictivo, con recomendaciones en
-> lenguaje sencillo.»
+> gastos, pero no saben si ganan dinero, si un cambio en sus ventas es real o casualidad, ni qué hacer
+> hoy. Business Analyzer convierte sus registros diarios en análisis financiero, estadístico y
+> predictivo, y termina en acciones concretas.»
 
-### 1:00 – 2:30 · Cómo está construido
+### 1:00 – 2:00 · Cómo está construido
 
 Mostrar `02-arquitectura.png`.
 
-- Aplicación de escritorio **Java 17 + JavaFX 21**, base de datos **SQLite** local.
-- **Arquitectura en capas**: controladores (pantalla) → servicios (reglas y permisos) → repositorios (SQL).
-- El paquete **analytics** son cálculos puros, sin base de datos: por eso se prueban fácil (302 pruebas JUnit 5).
-- **Sin frameworks pesados**: JDBC puro y composición manual en `AppContextFGEM`, para entender cada capa.
-- El esquema se versiona con **14 migraciones** que se aplican solas al iniciar.
+- Aplicación de escritorio **Java 17 + JavaFX 21**, base de datos **SQLite** local, **arquitectura en capas**.
+- El paquete **analytics** son cálculos puros, sin base de datos: por eso se prueban fácil.
+- **340 pruebas JUnit 5** que GitHub Actions ejecuta en cada cambio; **92 %** de cobertura en la lógica de negocio.
+- El esquema se versiona con **15 migraciones** que se aplican solas al iniciar.
 
-### 2:30 – 4:00 · Seguridad y roles
+### 2:00 – 2:45 · Seguridad y roles
 
-1. Entrar como `operador`. Señalar que el menú **no muestra** Análisis, Usuarios ni Configuración.
-2. Cerrar sesión y entrar como **administrador**: aparece el menú completo.
-3. Decir: «Contraseñas con PBKDF2, bloqueo de 15 minutos tras 5 intentos fallidos y cada servicio
-   vuelve a revisar el permiso aunque alguien salte la interfaz.»
+1. Entrar como `operador`: el menú **no muestra** Análisis, Usuarios ni Configuración.
+2. Entrar como **administrador**: aparece el menú completo. «Cada servicio vuelve a revisar el permiso aunque alguien salte la interfaz.»
 
-### 4:00 – 5:00 · Dashboard
+### 2:45 – 4:00 · Dashboard y «Atender hoy»
 
 Empresa activa: **Bodega Demo**.
 
-- Indicadores del mes en curso comparados con **los mismos días del mes anterior** (comparación justa).
-- Hacer clic en una tarjeta → abre el módulo correspondiente.
+- Indicadores del mes comparados con **los mismos días del mes anterior** (comparación justa).
+- Bajar hasta **Atender hoy**: «Apenas abre la app, el dueño ve lo urgente: el agua mineral se vende con
+  pérdida y la leche se agota esta semana.» → **Ver sugerencias**.
 
-### 5:00 – 7:00 · Registrar y corregir una venta
+### 4:00 – 5:15 · Registrar y corregir una venta
 
-1. **Ventas y compras** → nueva venta de *Arroz 5 kg* con una cantidad mayor al stock.
-2. El sistema avisa **stock insuficiente** y pregunta si registrar igual → cancelar y bajar la cantidad.
-3. Registrar. Se asigna el número `V-…` y el IGV 18 % se calcula solo.
-4. Seleccionar la venta → **Editar** → cambiar la cantidad. Mostrar que la original queda
-   **anulada como historial** («Corregida: reemplazada por V-…») y la nueva dice «Corrige V-…».
-5. Mostrar `05-secuencia-registrar-venta.png`: todo ocurre en **una transacción**; si algo falla no se
-   pierde ni se duplica nada.
+1. **Ventas y compras** → nueva venta de *Arroz 5 kg* con una cantidad mayor al stock: el sistema avisa **stock insuficiente**.
+2. Registrar con la cantidad correcta: número `V-…` e IGV 18 % automáticos.
+3. **Editar** la venta: la original queda **anulada como historial** y la nueva dice «Corrige V-…», todo en una transacción.
 
-### 7:00 – 8:30 · Análisis financiero
+### 5:15 – 6:15 · Análisis financiero
 
-**Análisis financiero**, últimos 3 meses:
+- Estado de resultados, **punto de equilibrio** y margen de seguridad.
+- **Rentabilidad por producto**: *Agua mineral (caja x15)* se vende a S/ 15,00 y cuesta S/ 16,00 → margen negativo.
 
-- Estado de resultados: ventas → costo de ventas → utilidad bruta → gastos → utilidad neta.
-- **Punto de equilibrio**: cuánto hay que vender para no perder y el margen de seguridad.
-- **Rentabilidad por producto**: *Agua mineral (caja x15)* se vende a S/ 15,00 y cuesta S/ 16,00 →
-  **margen negativo**. «El sistema detecta lo que el dueño no ve.»
+### 6:15 – 8:45 · Estadística e inferencia (lo central del curso)
 
-### 8:30 – 9:30 · Estadística y predicciones
+**Análisis estadístico**, últimos 6 meses:
 
-- **Análisis estadístico**: tendencia creciente, diciembre es el pico y febrero el mes flojo; ABC de productos.
-- **Predicciones**: el sistema prueba tres métodos (tendencia lineal, promedio móvil, Holt) con los
-  meses reales, **elige el de menor error** y muestra el intervalo de confianza.
+1. **Resumen descriptivo**: media, mediana, desviación, coeficiente de variación y, en *Ventas por día*,
+   el **intervalo de confianza al 95 %**: «con 95 % de confianza, la venta diaria promedio está entre… y …»
+   (t de Student, media ± t · s / √n).
+2. **Días de la semana**: el sábado vende más. «¿Es real o casualidad?» → fila **ANOVA**: F y p < 0,001,
+   se rechaza que todos los días vendan igual. Pasar el mouse sobre la fila para mostrar la hipótesis nula.
+3. **Tendencia**: regresión lineal con R² y valor p, y la **prueba t de Welch** contra el período anterior:
+   «las ventas diarias subieron y el cambio es significativo».
+4. **Predicciones**: prueba tres métodos con los meses reales y elige el de menor error.
 
-### 9:30 – 10:30 · Simulación de escenarios
+### 8:45 – 10:45 · Sugerencias: de los números a la acción
 
-**Simulación de escenarios** → «¿Qué pasa si subo los precios 5 % y vendo 3 % menos?»
+**Sugerencias**:
 
-- Mostrar el cambio en la utilidad y la tabla de **sensibilidad ±10 %**: qué variable pesa más.
-- **Guardar escenario** para compararlo después.
+1. **Precios**: el agua mineral con su **precio sugerido** = costo ÷ (1 − margen objetivo) y la ganancia extra al mes.
+2. **Reposición**: la leche se agota esta semana; cuánto comprar para 14 días (3 si es perecible).
+3. **Registrar compra** → se abre la compra ya llena en Ventas y compras; completar el proveedor y registrar.
+4. **Lista de compras → PDF**: agrupada por categoría, lista para llevar al proveedor.
+5. **Sin movimiento**: dinero parado y qué hacer.
 
-### 10:30 – 12:00 · Diagnóstico empresarial
+### 10:45 – 11:45 · Cobranza
 
-**Diagnóstico empresarial**:
+**Tesorería** → **Por cobrar y por pagar**: los cuatro recuadros de **antigüedad** (al día, 1-30, 31-60,
+más de 60 días) y **Por cliente**. Seleccionar a *Juana Quispe*: «su deuda tiene más de 60 días, es la más difícil de cobrar».
 
-- Puntaje de salud y **semáforo** por indicador (rentabilidad, solidez, crecimiento, riesgo comercial).
-- Recomendaciones **con cifras** calculadas por el simulador (por ejemplo, cuánto subir el precio para llegar a la meta).
-- Señalar el hallazgo de **productos vendidos con pérdida** (el agua mineral).
+### 11:45 – 12:45 · Diagnóstico e informes
 
-### 12:00 – 12:30 · Informes
+- **Diagnóstico empresarial**: puntaje de salud, **semáforo** por indicador y recomendaciones con cifras.
+- **Informes y reportes** → PDF del informe ejecutivo, listo para el banco o el contador.
 
-**Informes y reportes** → **Generar informe…** → PDF del diagnóstico o del estado de resultados.
-Abrirlo: está listo para entregar al banco o al contador. También se exporta a Excel.
+### 12:45 – 14:00 · El mismo motor en el campo
 
-### 12:30 – 14:00 · El mismo motor en el campo
-
-Cambiar la empresa activa a **Fundo Demo** (sector Agropecuario): aparece la sección **Agropecuario**.
-
-- **Ganadería**: hato de vacunos, alpacas y ovinos; natalidad y mortalidad de crías con semáforo.
-- **Agricultura**: campaña de papa en *Parcela Alta*, costos por rubro, rendimiento frente al promedio nacional.
-- **Visitas de inspección**: visita de la *Ing. Rosa Quispe*, compromisos cumplidos y no cumplidos →
-  **Informe técnico (PDF)** con firmas.
-- «Lo validamos con un ingeniero agrario, que nos pidió poder corregir los registros: eso ya está en esta versión.»
+Cambiar a **Fundo Demo**: aparece la sección **Agropecuario** (ganadería, campañas agrícolas y visitas de
+inspección con **informe técnico en PDF**). «Lo validamos con un ingeniero agrario.»
 
 ### 14:00 – 15:00 · Calidad y cierre
 
-- **302 pruebas automáticas**, 14 migraciones, copias de seguridad diarias con restauración en dos pasos.
-- **Instalador** `.exe` con Java incluido: el usuario no instala nada más.
-- Cierre: «Business Analyzer convierte registros diarios en decisiones. Gracias.»
+- 33 fases incrementales, 340 pruebas, integración continua, 15 migraciones, copias de seguridad con restauración.
+- Probado con el historial de una **bodega real** importado desde Excel.
+- Cierre: «Business Analyzer convierte registros diarios en decisiones respaldadas por estadística. Gracias.»
 
 ---
 
@@ -128,14 +121,17 @@ Cambiar la empresa activa a **Fundo Demo** (sector Agropecuario): aparece la sec
 | Pregunta | Respuesta corta |
 |---|---|
 | ¿Por qué SQLite y no MySQL/PostgreSQL? | Es una app de escritorio para un negocio pequeño: un archivo local, sin servidor ni instalación, con transacciones ACID. Las copias de seguridad son copiar un archivo (`VACUUM INTO`). |
-| ¿Por qué no usaron Spring ni JPA? | Requisito del proyecto: JDBC puro para controlar el SQL y mostrar cada capa. La inyección de dependencias se hace por constructor en `AppContextFGEM`. |
+| ¿Por qué no usaron Spring ni JPA? | JDBC puro para controlar el SQL y mostrar cada capa. La inyección de dependencias se hace por constructor en `AppContextFGEM`. |
 | ¿Cómo guardan el dinero sin errores de redondeo? | `BigDecimal` en Java y enteros ×10 000 en SQLite (`util.MontosFGEM`). Nunca `double` para dinero. |
+| ¿Qué hipótesis prueba el ANOVA? | H₀: todos los días de la semana venden lo mismo en promedio. H₁: al menos uno es distinto. Con p < 0,05 se rechaza H₀. η² dice qué parte de la variación explica el día. |
+| ¿Por qué prueba t de Welch y no la clásica? | Porque no supone que los dos períodos tengan la misma varianza; es más segura cuando las ventas cambian de un período a otro. |
+| ¿Qué supuestos tienen las pruebas? | Que los días son observaciones independientes. Con muchos días, la prueba t y el ANOVA son robustos a que las ventas no sean exactamente normales. Un modelo de series de tiempo (ARIMA) sería el siguiente paso. |
+| ¿Cómo comprobaron que las fórmulas están bien? | Las pruebas usan ejemplos que se resuelven a mano: lunes {1, 2, 3} y martes {4, 5, 6} dan F(1, 4) = 13,5 y p = 0,0213; con dos grupos, t² = F. |
 | ¿Cómo eligen el método de predicción? | Validación *rolling-origin*: cada método pronostica meses que ya ocurrieron y se elige el de menor error medio absoluto (MAE). |
-| ¿Qué pasa si dos personas usan el sistema? | Cada usuario tiene su rol y solo ve las empresas asignadas. Es monousuario por equipo; una versión en red sería trabajo futuro. |
-| ¿Cómo protegen las contraseñas? | PBKDF2-HMAC-SHA256 con sal, política de contraseñas, bloqueo tras 5 intentos y registro de accesos. |
-| ¿Cómo probaron el sistema? | 302 pruebas JUnit 5: cálculos puros con datos en memoria y servicios con una base SQLite temporal y un reloj controlado. |
+| ¿Cómo calculan cuánto reponer? | Venta diaria = vendido ÷ días; se repone lo que alcanza para menos de 14 días (3 si es perecible) y se compra venta diaria × días − stock. |
+| ¿Cómo probaron el sistema? | 340 pruebas JUnit 5 que corren en cada cambio con GitHub Actions: cálculos puros con datos en memoria y servicios con una base SQLite temporal y un reloj controlado. |
 | ¿Por qué no se pueden borrar ventas? | Por trazabilidad: se **anulan** con motivo y usuario; corregir = anular + registrar en una transacción. |
-| ¿Qué falta? | Fórmulas rurales específicas del ingeniero agrario, versión multiusuario en red y Holt-Winters estacional con 24+ meses de datos. |
+| ¿Qué falta? | Versión multiusuario en red, series de tiempo para la inferencia, fórmulas rurales del ingeniero agrario y publicar la versión 1.3.0. |
 
 ---
 
@@ -143,7 +139,8 @@ Cambiar la empresa activa a **Fundo Demo** (sector Agropecuario): aparece la sec
 
 | Problema | Qué hacer |
 |---|---|
-| La app no abre | Usar el `.zip` portable de la USB: descomprimir y abrir `Business Analyzer.exe`. |
-| El informe PDF tarda | Es la primera compilación; seguir hablando, aparece en segundos (por eso el paso 6 de la preparación). |
+| La app no abre | Ejecutar desde el código con `.\mvnw.cmd javafx:run` (requiere `JAVA_HOME` apuntando al JDK 17). |
+| Reposición sale vacía | Es correcto si hay stock para dos semanas: explicarlo y mostrar la captura del manual (capítulo Sugerencias). |
+| El informe PDF tarda | Es la primera compilación; seguir hablando, aparece en segundos (por eso el paso 8 de la preparación). |
 | Se olvidó la contraseña | Entrar con otro administrador → **Usuarios y permisos** → restablecer contraseña. |
 | Falla todo | Pasar el video grabado (plan B) y explicar sobre él. |

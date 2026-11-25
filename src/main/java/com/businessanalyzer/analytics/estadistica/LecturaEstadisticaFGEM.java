@@ -52,11 +52,11 @@ public final class LecturaEstadisticaFGEM {
                 boolean creceFGEM = tFGEM.direccionFGEM() == TendenciaFGEM.DireccionFGEM.CRECIENTE;
                 frasesFGEM.add("Las ventas " + (creceFGEM ? "crecen" : "caen") + " en promedio " + dineroFGEM(Math.abs(tFGEM.pendienteFGEM()), monedaFGEM)
                         + " por mes (" + (creceFGEM ? "+" : "") + porcentajeFGEM(tFGEM.crecimientoMensualFGEM()) + " mensual).");
-                frasesFGEM.add("La tendencia es estadísticamente significativa (p = " + valorPFGEM(tFGEM.significanciaFGEM())
+                frasesFGEM.add("La tendencia es estadísticamente significativa (" + pFGEM(tFGEM.significanciaFGEM())
                         + "): es poco probable que se deba al azar.");
             }
-            case ESTABLE -> frasesFGEM.add("No hay una tendencia clara: las subidas y bajadas mensuales podrían deberse al azar (p = "
-                    + valorPFGEM(tFGEM.significanciaFGEM()) + ").");
+            case ESTABLE -> frasesFGEM.add("No hay una tendencia clara: las subidas y bajadas mensuales podrían deberse al azar ("
+                    + pFGEM(tFGEM.significanciaFGEM()) + ").");
         }
         if (tFGEM.direccionFGEM() != TendenciaFGEM.DireccionFGEM.INSUFICIENTE && !Double.isNaN(tFGEM.r2FGEM())) {
             frasesFGEM.add("La recta de tendencia explica el " + porcentajeFGEM(tFGEM.r2FGEM()) + " de la variación de las ventas mensuales"
@@ -104,7 +104,7 @@ public final class LecturaEstadisticaFGEM {
             return List.of("Para la prueba ANOVA se necesitan al menos dos semanas de datos.");
         }
         String pruebaFGEM = "ANOVA de un factor: F(" + anFGEM.glEntreFGEM() + ", " + anFGEM.glDentroFGEM() + ") = "
-                + String.format(Locale.US, "%.2f", anFGEM.fFGEM()) + ", p = " + valorPFGEM(anFGEM.pFGEM()) + ".";
+                + String.format(Locale.US, "%.2f", anFGEM.fFGEM()) + ", " + pFGEM(anFGEM.pFGEM()) + ".";
         if (anFGEM.significativoFGEM()) {
             return List.of(pruebaFGEM + " La diferencia entre los días es estadísticamente significativa: se rechaza que todos los días "
                     + "vendan lo mismo, así que el patrón semanal es real.",
@@ -126,7 +126,7 @@ public final class LecturaEstadisticaFGEM {
                 + " a " + dineroFGEM(cFGEM.mediaActualFGEM(), monedaFGEM)
                 + (Double.isNaN(cFGEM.variacionFGEM()) ? "" : " (" + (subeFGEM ? "+" : "−") + porcentajeFGEM(Math.abs(cFGEM.variacionFGEM())) + ")")
                 + " frente a " + aFGEM.periodoAnteriorFGEM().descripcionFGEM() + ".";
-        String pruebaFGEM = " Prueba t de Welch: t = " + String.format(Locale.US, "%.2f", cFGEM.tFGEM()) + ", p = " + valorPFGEM(cFGEM.pFGEM()) + ".";
+        String pruebaFGEM = " Prueba t de Welch: t = " + String.format(Locale.US, "%.2f", cFGEM.tFGEM()) + ", " + pFGEM(cFGEM.pFGEM()) + ".";
         return List.of(cambioFGEM + pruebaFGEM, cFGEM.significativoFGEM()
                 ? "El cambio es estadísticamente significativo: es poco probable que se deba al azar."
                 : "El cambio no es significativo: podría deberse a la variación normal de las ventas.");
@@ -185,8 +185,9 @@ public final class LecturaEstadisticaFGEM {
         return MontosFGEM.porcentajeFGEM(BigDecimal.valueOf(fraccionFGEM));
     }
 
-    private static String valorPFGEM(double pFGEM) {
-        return Double.isNaN(pFGEM) ? "—" : pFGEM < 0.001 ? "< 0.001" : String.format(Locale.US, "%.3f", pFGEM);
+    /** «p = 0.013» o «p < 0.001». */
+    public static String pFGEM(double valorFGEM) {
+        return Double.isNaN(valorFGEM) ? "p no calculable" : valorFGEM < 0.001 ? "p < 0.001" : "p = " + String.format(Locale.US, "%.3f", valorFGEM);
     }
 
     /** 1.35 → "35 % más"; 0.62 → "38 % menos". */

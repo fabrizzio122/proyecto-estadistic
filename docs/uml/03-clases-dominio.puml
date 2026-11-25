@@ -52,6 +52,7 @@ package "Empresa y catálogo" {
     costoUnitarioFGEM : BigDecimal
     precioVentaFGEM : BigDecimal
     stockFGEM : BigDecimal  «calculado»
+    perecibleFGEM : boolean
   }
 }
 

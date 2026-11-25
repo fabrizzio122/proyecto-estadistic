@@ -11,6 +11,7 @@ package service {
   class DiagnosticoServiceFGEM
   class ValoracionServiceFGEM
   class TesoreriaServiceFGEM
+  class SugerenciasServiceFGEM
   class ConsultaMensualFGEM <<utilidad>> {
     {static} porMesFGEM(cFGEM, operacionesFGEM, movimientosFGEM, empresaIdFGEM, …) : List<MesFGEM>
   }
@@ -41,6 +42,11 @@ package analytics.estadistica {
   class AnalisisAbcFGEM
   class MatrizCorrelacionFGEM
   class EstacionalidadSemanalFGEM
+  class InferenciaFGEM {
+    {static} intervaloFGEM(valores) : IC 95 % (t de Student)
+    {static} anovaDiaSemanaFGEM(ventasPorDía) : F, p, η²
+    {static} compararFGEM(actual, anterior) : t de Welch, p
+  }
 }
 
 package analytics.prediccion {
@@ -111,6 +117,21 @@ package analytics.tesoreria {
     {static} calcularFGEM(hoyFGEM, saldoFGEM, historiaFGEM, deudasFGEM)
     primerNegativoFGEM : YearMonth
   }
+  class AntiguedadSaldosFGEM {
+    {static} calcularFGEM(operacionesFGEM, hoyFGEM)
+    tramos: al día, 1-30, 31-60, más de 60 días
+  }
+}
+
+package analytics.sugerencias {
+  class SugerenciasProductoFGEM {
+    {static} calcularFGEM(productos, recientes, historial, margenObjetivo)
+    precios, reposición, sin movimiento
+    {static} lineasCompraFGEM(reposición)
+  }
+  class AvisosSugerenciasFGEM {
+    {static} avisosFGEM(resultado) : «Atender hoy»
+  }
 }
 
 MetodoPronosticoFGEM <|.. TendenciaLinealFGEM
@@ -147,6 +168,15 @@ EstadisticaServiceFGEM ..> ConsultaMensualFGEM
 PrediccionServiceFGEM ..> ConsultaMensualFGEM
 ValoracionServiceFGEM ..> ValoracionNegocioFGEM
 ValoracionServiceFGEM ..> TendenciaFGEM : crecimiento\nsugerido
+EstadisticaServiceFGEM ..> InferenciaFGEM
+TesoreriaServiceFGEM ..> AntiguedadSaldosFGEM
+SugerenciasServiceFGEM ..> SugerenciasProductoFGEM
+SugerenciasServiceFGEM ..> SimuladorFGEM : utilidad\nmensual
+AvisosSugerenciasFGEM ..> SugerenciasProductoFGEM
+
+' Los paquetes nuevos van debajo de los anteriores para que el diagrama no se ensanche.
+SugerenciasProductoFGEM -[hidden]up- ProyeccionCajaFGEM
+InferenciaFGEM -[hidden]down- AvisosSugerenciasFGEM
 
 note bottom of PronosticadorFGEM
   Patrón Estrategia: los tres métodos se

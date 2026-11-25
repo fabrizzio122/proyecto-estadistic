@@ -533,6 +533,9 @@ public class ProductosControllerFGEM implements VistaModuloFGEM {
         private final CheckBox chkPerecibleFGEM = new CheckBox("Se vence pronto (pan, lácteos frescos, verduras…)");
 
         FormularioProductoFGEM(ProductoFGEM pFGEM) {
+            // El texto de la casilla baja de línea en vez de cortarse con «…».
+            chkPerecibleFGEM.setWrapText(true);
+            chkPerecibleFGEM.setMinHeight(javafx.scene.layout.Region.USE_PREF_SIZE);
             List<CategoriaFGEM> opcionesFGEM = new ArrayList<>();
             opcionesFGEM.add(SIN_CATEGORIA_FGEM);
             opcionesFGEM.addAll(categoriasFGEM);

@@ -51,6 +51,19 @@
 - **Valoración**: la utilidad de la tarjeta dice «Utilidad anualizada» e indica cuántos meses se llevaron a 12.
 - **Análisis financiero**: el color de la variación del costo de ventas se juzga por su % sobre las ventas (si se
   vende menos, el costo baja sin que sea una mejora). Las etiquetas de los meses en los gráficos ya no se enciman.
+- **Sugerencias**: la tarjeta «Ganancia extra posible» mostraba la utilidad mensual con cuatro decimales; la tarjeta
+  «Por reponer» cortaba el texto («1 produ…») y ahora muestra solo el número; los encabezados de la tabla de precios
+  ya no se cortan.
+- **Análisis estadístico**: el intervalo de confianza va en dos filas («desde» y «hasta») para no ensanchar la tarjeta
+  de ventas por día, y los valores p muy pequeños se escriben «p < 0.001» en vez de «p = < 0.001».
+- **Productos y servicios**: el texto de la casilla «Perecible» baja de línea en vez de cortarse.
+
+### Documentación
+- **Informe final, manual de usuario, diagramas UML y guion de la demo actualizados hasta la fase 33**: fases 25 a
+  33 en el informe (requisitos, tecnologías, migración V15, módulos, nueva sección 8.8 «Sugerencias por producto»,
+  inferencia, pruebas por área, cobertura y métricas); en el manual, los capítulos nuevos «Importar desde Excel» y
+  «Sugerencias», la tarjeta «Atender hoy», la antigüedad de saldos, los productos perecibles y la inferencia, con 10
+  capturas nuevas o actualizadas; casos de uso, arquitectura, clases y modelo de datos regenerados.
 
 ### Calidad
 - **Integración continua con GitHub Actions**: en cada push o pull request a `main` se compila el proyecto

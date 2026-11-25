@@ -22,11 +22,13 @@ actor "Administrador" as AD
     usecase "Registrar venta / compra" as UC_VENTA
     usecase "Corregir o anular\nventa / compra" as UC_CORR
     usecase "Registrar ingresos\ny gastos" as UC_FIN
+    usecase "Importar desde Excel" as UC_IMP
   }
   package "Tesorería" {
     usecase "Gestionar cuentas\ny mover dinero" as UC_CTA
     usecase "Registrar cobros\ny pagos al crédito" as UC_COBRO
     usecase "Ver flujo de efectivo\ny proyección de caja" as UC_FLUJO
+    usecase "Ver antigüedad de saldos\npor cliente o proveedor" as UC_ANT
   }
   package "Agropecuario" {
     usecase "Registrar ganado\ny producción" as UC_GAN
@@ -36,12 +38,15 @@ actor "Administrador" as AD
   }
   package "Análisis" {
     usecase "Analizar resultados\ny punto de equilibrio" as UC_ANA
-    usecase "Análisis estadístico" as UC_EST
+    usecase "Análisis estadístico\ne inferencia" as UC_EST
     usecase "Predecir ventas" as UC_PRED
     usecase "Diagnosticar la empresa" as UC_DIAG
     usecase "Simular escenarios" as UC_SIM
     usecase "Valorar el negocio" as UC_VAL
     usecase "Exportar informe\nPDF / Excel" as UC_INF
+    usecase "Ver sugerencias\n(precios, reposición,\nsin movimiento)" as UC_SUG
+    usecase "Exportar lista\nde compras" as UC_LISTA
+    usecase "Registrar la compra\nsugerida" as UC_COMPRA_SUG
   }
   package "Administración" {
     usecase "Registrar activos,\ndeudas y pagos" as UC_PAT
@@ -56,6 +61,8 @@ OP --> UC_PROD
 OP --> UC_VENTA
 OP --> UC_CORR
 OP --> UC_FIN
+OP --> UC_IMP
+OP --> UC_COMPRA_SUG
 OP --> UC_CTA
 OP --> UC_COBRO
 OP --> UC_GAN
@@ -71,6 +78,8 @@ AN --> UC_DIAG
 AN --> UC_SIM
 AN --> UC_VAL
 AN --> UC_INF
+AN --> UC_SUG
+AN --> UC_ANT
 
 GE --> UC_PAT
 GE --> UC_EMP
@@ -86,6 +95,10 @@ UC_DIAG ..> UC_SIM : <<include>>
 UC_VAL ..> UC_INF : <<extend>>
 UC_COBRO ..> UC_VENTA : <<extend>>
 UC_DIAG ..> UC_FLUJO : <<include>>
+UC_SUG ..> UC_LISTA : <<extend>>
+UC_SUG ..> UC_COMPRA_SUG : <<extend>>
+UC_COMPRA_SUG ..> UC_VENTA : <<include>>
+UC_DASH ..> UC_SUG : <<include>>\n«Atender hoy»
 
 legend bottom
   **Permisos por rol** (16 permisos, tabla rol_permiso)

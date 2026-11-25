@@ -146,9 +146,11 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
 
         mostrarGananciaFGEM(rFGEM);
         long agotadosFGEM = rFGEM.reposicionFGEM().stream().filter(rFGEM2 -> rFGEM2.urgenciaFGEM() == UrgenciaFGEM.AGOTADO).count();
-        kpiReponerFGEM.actualizarFGEM(rFGEM.reposicionFGEM().size() + (rFGEM.reposicionFGEM().size() == 1 ? " producto" : " productos"),
-                rFGEM.reposicionFGEM().isEmpty() ? "Hay stock para al menos dos semanas"
-                        : "Compra sugerida: " + dineroFGEM(rFGEM.costoReposicionFGEM())
+        // Solo el número como valor: la tarjeta es angosta y «1 producto» se cortaba.
+        int reponerFGEM = rFGEM.reposicionFGEM().size();
+        kpiReponerFGEM.actualizarFGEM(String.valueOf(reponerFGEM),
+                reponerFGEM == 0 ? "Hay stock para al menos dos semanas"
+                        : (reponerFGEM == 1 ? "producto" : "productos") + " · compra sugerida " + dineroFGEM(rFGEM.costoReposicionFGEM())
                         + (agotadosFGEM > 0 ? " · " + agotadosFGEM + (agotadosFGEM == 1 ? " agotado" : " agotados") : ""));
         mostrarParadoFGEM(rFGEM);
 
@@ -331,19 +333,19 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         // Las sugerencias no prioritarias (productos que casi no se venden) van en gris.
         Function<PrecioFGEM, String> tenueFGEM = pFGEM -> pFGEM.notaFGEM() != null ? TENUE_FGEM : null;
         tablaPreciosFGEM.getColumns().setAll(
-                columnaFGEM("Producto", 190, pFGEM -> pFGEM.productoFGEM().nombreFGEM(), tenueFGEM),
-                columnaFGEM("Motivo", 135, pFGEM -> pFGEM.motivoFGEM().descripcionFGEM(),
+                columnaFGEM("Producto", 175, pFGEM -> pFGEM.productoFGEM().nombreFGEM(), tenueFGEM),
+                columnaFGEM("Motivo", 165, pFGEM -> pFGEM.motivoFGEM().descripcionFGEM(),
                         pFGEM -> pFGEM.notaFGEM() != null ? TENUE_FGEM : pFGEM.motivoFGEM() == MotivoPrecioFGEM.PERDIDA ? "margen-negativo" : null),
                 numeroFGEM("Costo", 80, pFGEM -> dineroFGEM(pFGEM.productoFGEM().costoUnitarioFGEM()), tenueFGEM),
-                numeroFGEM("Precio actual", 90, pFGEM -> dineroFGEM(pFGEM.productoFGEM().precioVentaFGEM()), tenueFGEM),
-                numeroFGEM("Margen actual", 90, pFGEM -> MontosFGEM.porcentajeFGEM(pFGEM.margenActualFGEM()), tenueFGEM),
-                numeroFGEM("Precio sugerido", 100, pFGEM -> dineroFGEM(pFGEM.precioSugeridoFGEM()),
+                numeroFGEM("Precio", 80, pFGEM -> dineroFGEM(pFGEM.productoFGEM().precioVentaFGEM()), tenueFGEM),
+                numeroFGEM("Margen", 80, pFGEM -> MontosFGEM.porcentajeFGEM(pFGEM.margenActualFGEM()), tenueFGEM),
+                numeroFGEM("Sugerido", 90, pFGEM -> dineroFGEM(pFGEM.precioSugeridoFGEM()),
                         pFGEM -> pFGEM.notaFGEM() != null ? TENUE_FGEM : "margen-ok"),
-                numeroFGEM("Margen nuevo", 90, pFGEM -> MontosFGEM.porcentajeFGEM(pFGEM.margenSugeridoFGEM()), tenueFGEM),
-                numeroFGEM("Vendidos al mes", 100, pFGEM -> MontosFGEM.cantidadFGEM(pFGEM.unidadesMesFGEM().setScale(1, RoundingMode.HALF_UP)), tenueFGEM),
-                numeroFGEM("Ganancia extra / mes", 125, pFGEM -> pFGEM.notaFGEM() != null && pFGEM.gananciaExtraMesFGEM().signum() == 0 ? "—"
+                numeroFGEM("Nuevo margen", 115, pFGEM -> MontosFGEM.porcentajeFGEM(pFGEM.margenSugeridoFGEM()), tenueFGEM),
+                numeroFGEM("Vende al mes", 115, pFGEM -> MontosFGEM.cantidadFGEM(pFGEM.unidadesMesFGEM().setScale(1, RoundingMode.HALF_UP)), tenueFGEM),
+                numeroFGEM("Extra al mes", 105, pFGEM -> pFGEM.notaFGEM() != null && pFGEM.gananciaExtraMesFGEM().signum() == 0 ? "—"
                         : dineroFGEM(pFGEM.gananciaExtraMesFGEM()), pFGEM -> pFGEM.notaFGEM() != null ? TENUE_FGEM : "margen-ok"),
-                ajustadaFGEM(columnaFGEM("Nota", 280, pFGEM -> pFGEM.notaFGEM() == null ? "" : pFGEM.notaFGEM().descripcionFGEM(), tenueFGEM)));
+                ajustadaFGEM(columnaFGEM("Nota", 90, pFGEM -> pFGEM.notaFGEM() == null ? "" : pFGEM.notaFGEM().descripcionFGEM(), tenueFGEM)));
         tablaPreciosFGEM.setPlaceholder(new Label("Todos los precios cumplen el margen objetivo."));
         tablaPreciosFGEM.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     }
@@ -397,7 +399,8 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
     }
 
     private String dineroFGEM(BigDecimal valorFGEM) {
-        return MontosFGEM.formatearFGEM(valorFGEM, monedaFGEM);
+        // Los montos calculados (por ejemplo la utilidad mensual) pueden traer más de dos decimales.
+        return MontosFGEM.formatearFGEM(valorFGEM.setScale(2, RoundingMode.HALF_UP), monedaFGEM);
     }
 
     /** «1 día», «14 días». */
