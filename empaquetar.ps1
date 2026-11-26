@@ -1,37 +1,17 @@
-<#
-  Empaqueta Business Analyzer Desktop para Windows con jpackage (incluido en el JDK 17).
-
-  Uso (desde la carpeta del proyecto, en PowerShell):
-      .\empaquetar.ps1               compila, ejecuta las pruebas y empaqueta
-      .\empaquetar.ps1 -SinPruebas   empaqueta sin ejecutar las pruebas
-
-  Resultado en target\instalador (x.y.z = version del pom.xml):
-      Business Analyzer\                       aplicacion lista para usar (incluye su propio Java)
-      BusinessAnalyzer-x.y.z-portable.zip      la misma carpeta comprimida, para copiar a otro equipo
-      Business Analyzer-x.y.z.exe              instalador con acceso directo y menu Inicio
-                                               (solo si WiX Toolset 3 esta disponible)
-
-  Para publicar una version nueva basta con cambiar <version> en pom.xml.
-
-  Nota: el archivo no lleva tildes a proposito; Windows PowerShell 5.1 lee mal los scripts UTF-8 sin BOM.
-#>
 param([switch]$SinPruebas)
 
 $ErrorActionPreference = 'Stop'
 $raiz = $PSScriptRoot
 $nombre = 'Business Analyzer'
 
-# La version se define SOLO en pom.xml (<version>x.y.z</version>).
 $pom = [xml](Get-Content -Raw -Encoding UTF8 (Join-Path $raiz 'pom.xml'))
 $version = $pom.project.version
 if ($version -notmatch '^\d+\.\d+\.\d+$') {
     throw "La version del pom.xml ('$version') debe tener el formato x.y.z (por ejemplo 1.0.1) para jpackage."
 }
 Write-Host "Version: $version"
-# Identificador fijo: permite que una version nueva del instalador actualice la anterior.
 $uuidActualizacion = '6f1d3c2a-8b4e-4f7a-9c5d-2e8a7b1f0c43'
 
-# --- JDK con jpackage -------------------------------------------------------------------
 if (-not $env:JAVA_HOME -or -not (Test-Path "$env:JAVA_HOME\bin\jpackage.exe")) {
     $jdk = Get-ChildItem "$env:USERPROFILE\.jdks" -Directory -ErrorAction SilentlyContinue |
             Where-Object { $_.Name -match '17' -and (Test-Path "$($_.FullName)\bin\jpackage.exe") } |
@@ -44,7 +24,6 @@ if (-not $env:JAVA_HOME -or -not (Test-Path "$env:JAVA_HOME\bin\jpackage.exe")) 
 $jpackage = "$env:JAVA_HOME\bin\jpackage.exe"
 Write-Host "JDK: $env:JAVA_HOME"
 
-# --- 1. Compilar (y probar) ---------------------------------------------------------------
 $argumentosMaven = @('-q', 'clean', 'package')
 if ($SinPruebas) {
     $argumentosMaven += '-DskipTests'
@@ -55,7 +34,6 @@ if ($LASTEXITCODE -ne 0) {
     throw 'La compilacion o las pruebas fallaron. Revisa los mensajes de Maven.'
 }
 
-# --- 2. Entrada de jpackage: jar principal y dependencias en una sola carpeta ---------------
 $entrada = Join-Path $raiz 'target\jpackage-entrada'
 $salida = Join-Path $raiz 'target\instalador'
 Remove-Item -Recurse -Force $entrada, $salida -ErrorAction SilentlyContinue
@@ -64,8 +42,6 @@ New-Item -ItemType Directory -Force $salida | Out-Null
 Copy-Item (Join-Path $raiz 'target\business-analyzer.jar') $entrada
 Copy-Item (Join-Path $raiz 'target\lib\*.jar') $entrada
 
-# Modulos del JDK que necesita la aplicacion (JavaFX, SQLite, JasperReports, POI, JFreeChart).
-# jdk.localedata es imprescindible para los nombres de meses y formatos en espanol.
 $modulos = @(
     'java.base', 'java.compiler', 'java.datatransfer', 'java.desktop', 'java.logging', 'java.management',
     'java.naming', 'java.net.http', 'java.prefs', 'java.scripting', 'java.security.jgss', 'java.sql',
@@ -90,7 +66,6 @@ $comunes = @(
     '--dest', $salida
 )
 
-# --- 3. Aplicacion portable -----------------------------------------------------------------
 Write-Host 'Creando la aplicacion (app-image)...'
 & $jpackage --type app-image @comunes
 if ($LASTEXITCODE -ne 0) {
@@ -101,9 +76,6 @@ Compress-Archive -Path (Join-Path $salida $nombre) -DestinationPath $zip
 Write-Host "Aplicacion portable: $(Join-Path $salida $nombre)"
 Write-Host "Comprimida:          $zip"
 
-# --- 4. Instalador .exe (requiere WiX Toolset 3.x) -------------------------------------------
-# WiX se busca en el PATH, en la variable WIX (instalacion clasica) o en %USERPROFILE%\tools\wix314
-# (binarios oficiales descomprimidos, sin instalar).
 if (-not (Get-Command candle.exe -ErrorAction SilentlyContinue)) {
     $candidatas = @("$env:USERPROFILE\tools\wix314")
     if ($env:WIX) {

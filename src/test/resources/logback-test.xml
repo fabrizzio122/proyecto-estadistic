@@ -1,5 +1,4 @@
 <configuration>
-    <!-- Durante las pruebas solo se registra en consola (no se crean archivos de log). -->
     <appender name="CONSOLA" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36} - %msg%n</pattern>

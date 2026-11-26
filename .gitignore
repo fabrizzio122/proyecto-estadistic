@@ -1,18 +1,14 @@
-# Compilacion
 target/
 out/
 
-# IntelliJ IDEA
 .idea/
 *.iml
 
-# Base de datos y registros locales
 *.db
 *.db-wal
 *.db-shm
 *.sqlite
 logs/
 
-# Sistema operativo
 Thumbs.db
 .DS_Store

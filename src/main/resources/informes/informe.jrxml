@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Plantilla única de los informes PDF de Business Analyzer (JasperReports 6).
-  El contenido llega como una lista de bloques (ver ContenidoInforme.java); cada banda de
-  detalle dibuja un tipo de bloque y solo se imprime cuando el campo "tipo" coincide.
-  Página A4 vertical: 595 x 842 puntos, área útil de 515 puntos de ancho.
--->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
@@ -133,7 +127,6 @@
     </pageHeader>
 
     <detail>
-        <!-- SECCION -->
         <band height="34" splitType="Prevent">
             <printWhenExpression><![CDATA["SECCION".equals($F{tipo})]]></printWhenExpression>
             <textField>
@@ -144,7 +137,6 @@
             </textField>
         </band>
 
-        <!-- ENCABEZADO de tabla -->
         <band height="22" splitType="Prevent">
             <printWhenExpression><![CDATA["ENCABEZADO".equals($F{tipo})]]></printWhenExpression>
             <textField isBlankWhenNull="true">
@@ -179,7 +171,6 @@
             </textField>
         </band>
 
-        <!-- FILA de tabla -->
         <band height="17">
             <printWhenExpression><![CDATA["FILA".equals($F{tipo})]]></printWhenExpression>
             <textField textAdjust="StretchHeight" isBlankWhenNull="true">
@@ -214,7 +205,6 @@
             </textField>
         </band>
 
-        <!-- DATO (etiqueta y un valor largo que se ajusta en varias líneas) -->
         <band height="17">
             <printWhenExpression><![CDATA["DATO".equals($F{tipo})]]></printWhenExpression>
             <textField textAdjust="StretchHeight" isBlankWhenNull="true">
@@ -231,7 +221,6 @@
             </textField>
         </band>
 
-        <!-- FIRMAS (dos espacios para firmar) -->
         <band height="70" splitType="Prevent">
             <printWhenExpression><![CDATA["FIRMAS".equals($F{tipo})]]></printWhenExpression>
             <line>
@@ -254,7 +243,6 @@
             </textField>
         </band>
 
-        <!-- TOTAL (fila resaltada) -->
         <band height="19">
             <printWhenExpression><![CDATA["TOTAL".equals($F{tipo})]]></printWhenExpression>
             <textField textAdjust="StretchHeight" isBlankWhenNull="true">
@@ -289,7 +277,6 @@
             </textField>
         </band>
 
-        <!-- TEXTO -->
         <band height="16">
             <printWhenExpression><![CDATA["TEXTO".equals($F{tipo})]]></printWhenExpression>
             <textField textAdjust="StretchHeight" isBlankWhenNull="true">
@@ -299,7 +286,6 @@
             </textField>
         </band>
 
-        <!-- NOTA -->
         <band height="14">
             <printWhenExpression><![CDATA["NOTA".equals($F{tipo})]]></printWhenExpression>
             <textField textAdjust="StretchHeight" isBlankWhenNull="true">
@@ -309,7 +295,6 @@
             </textField>
         </band>
 
-        <!-- INDICADORES (hasta 4 tarjetas) -->
         <band height="58" splitType="Prevent">
             <printWhenExpression><![CDATA["INDICADORES".equals($F{tipo})]]></printWhenExpression>
             <frame>
@@ -378,7 +363,6 @@
             </frame>
         </band>
 
-        <!-- SEMAFORO (indicador del diagnóstico) -->
         <band height="33">
             <printWhenExpression><![CDATA["SEMAFORO".equals($F{tipo})]]></printWhenExpression>
             <ellipse>
@@ -410,7 +394,6 @@
             </line>
         </band>
 
-        <!-- RECOMENDACION -->
         <band height="36">
             <printWhenExpression><![CDATA["RECOMENDACION".equals($F{tipo})]]></printWhenExpression>
             <textField isBlankWhenNull="true">
@@ -430,7 +413,6 @@
             </textField>
         </band>
 
-        <!-- GRAFICO -->
         <band height="232" splitType="Prevent">
             <printWhenExpression><![CDATA["GRAFICO".equals($F{tipo})]]></printWhenExpression>
             <image scaleImage="RetainShape" hAlign="Center" vAlign="Middle">
@@ -439,7 +421,6 @@
             </image>
         </band>
 
-        <!-- ESPACIO -->
         <band height="8">
             <printWhenExpression><![CDATA["ESPACIO".equals($F{tipo})]]></printWhenExpression>
         </band>

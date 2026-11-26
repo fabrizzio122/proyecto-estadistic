@@ -1,5 +1,3 @@
-# Integración continua (Fase 25): en cada push o pull request a main, GitHub compila el
-# proyecto, ejecuta las pruebas y publica la cobertura de JaCoCo en el resumen de la ejecución.
 name: Pruebas
 
 on:

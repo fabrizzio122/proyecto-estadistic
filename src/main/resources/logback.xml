@@ -1,5 +1,4 @@
 <configuration>
-    <!-- Los registros se guardan junto a los datos: %USERPROFILE%\BusinessAnalyzer\logs -->
     <property name="LOG_DIR" value="${ba.data.dir:-${user.home}/BusinessAnalyzer}/logs"/>
 
     <appender name="CONSOLA" class="ch.qos.logback.core.ConsoleAppender">

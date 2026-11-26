@@ -1,19 +1,9 @@
-<#
-  Resume la cobertura de pruebas (JaCoCo) por capa a partir de target/site/jacoco/jacoco.csv.
-
-  Uso, despues de ".\mvnw.cmd test":
-      .\.github\scripts\resumen-cobertura.ps1                 muestra la tabla en la consola
-      .\.github\scripts\resumen-cobertura.ps1 -Markdown       la escribe en Markdown (GitHub Actions)
-
-  Nota: el archivo no lleva tildes a proposito; Windows PowerShell 5.1 lee mal los scripts UTF-8 sin BOM.
-#>
 param([switch]$Markdown, [string]$Csv = 'target/site/jacoco/jacoco.csv')
 
 $ErrorActionPreference = 'Stop'
 if (-not (Test-Path $Csv)) { throw "No existe $Csv. Ejecuta antes: mvnw test" }
 $filas = Import-Csv $Csv
 
-# Capas del proyecto segun el paquete (com.businessanalyzer.<capa>...)
 $capas = [ordered]@{
     'Analitica (calculos puros)'      = '^com\.businessanalyzer\.analytics'
     'Servicios (reglas de negocio)'   = '^com\.businessanalyzer\.service'
