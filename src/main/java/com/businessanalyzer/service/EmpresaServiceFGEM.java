@@ -26,22 +26,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/**
- * Registro de empresas, control de acceso por empresa y empresa activa de la sesión.
- * <p>
- * Reglas de acceso:
- * <ul>
- *     <li>Los administradores trabajan con todas las empresas.</li>
- *     <li>El resto de usuarios solo ve las empresas que tiene asignadas. Quien registra una
- *         empresa queda asignado a ella automáticamente.</li>
- *     <li>Las empresas no se eliminan: se archivan, para conservar su información histórica.</li>
- * </ul>
- */
 public class EmpresaServiceFGEM {
 
     private static final Logger logFGEM = LoggerFactory.getLogger(EmpresaServiceFGEM.class);
     private static final String CLAVE_EMPRESA_ACTIVA_FGEM = "empresa.activa";
-    /** Nombre de la cuenta de efectivo que se crea con cada empresa. */
     public static final String CUENTA_INICIAL_FGEM = "Caja";
 
     private final TesoreriaRepositoryFGEM tesoreriaFGEM = new TesoreriaRepositoryFGEM();
@@ -63,7 +51,6 @@ public class EmpresaServiceFGEM {
         this.relojFGEM = relojFGEM;
     }
 
-    /** Empresas que el usuario puede ver, opcionalmente incluyendo las archivadas. */
     public List<EmpresaFGEM> listarFGEM(boolean incluirArchivadasFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.EMPRESAS_VER);
         UsuarioFGEM usuarioFGEM = sesionFGEM.usuarioFGEM();
@@ -72,7 +59,6 @@ public class EmpresaServiceFGEM {
                 : empresasFGEM.listarAsignadasFGEM(cFGEM, usuarioFGEM.idFGEM(), incluirArchivadasFGEM));
     }
 
-    /** Empresas activas disponibles para elegir como empresa de trabajo. */
     public List<EmpresaFGEM> listarParaSelectorFGEM() {
         return listarFGEM(false);
     }
@@ -89,7 +75,6 @@ public class EmpresaServiceFGEM {
             if (!usuarioFGEM.rolFGEM().esAdministradorFGEM()) {
                 empresasFGEM.asignarFGEM(cFGEM, usuarioFGEM.idFGEM(), idFGEM);
             }
-            // Toda empresa empieza con una caja para su efectivo; las demás cuentas se crean en «Tesorería».
             tesoreriaFGEM.insertarCuentaFGEM(cFGEM, idFGEM, new DatosCuentaFGEM(CUENTA_INICIAL_FGEM, TipoCuentaFGEM.CAJA, null, BigDecimal.ZERO),
                     usuarioFGEM.nombreUsuarioFGEM(), ahoraFGEM);
             return empresasFGEM.buscarPorIdFGEM(cFGEM, idFGEM).orElseThrow();
@@ -113,7 +98,6 @@ public class EmpresaServiceFGEM {
         return actualizadaFGEM;
     }
 
-    /** Archiva ({@code false}) o reactiva ({@code true}) una empresa. */
     public EmpresaFGEM cambiarEstadoFGEM(long idFGEM, boolean activaFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.EMPRESAS_GESTIONAR);
         LocalDateTime ahoraFGEM = ahoraFGEM();
@@ -127,9 +111,6 @@ public class EmpresaServiceFGEM {
         return resultadoFGEM;
     }
 
-    // ------------------------------------------------------------------ acceso de usuarios
-
-    /** Usuarios (no administradores) asignados a la empresa. Solo para administradores. */
     public Set<Long> usuariosConAccesoFGEM(long empresaIdFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.USUARIOS_GESTIONAR);
         return databaseFGEM.conConexionFGEM(cFGEM -> {
@@ -152,8 +133,6 @@ public class EmpresaServiceFGEM {
         });
     }
 
-    // ------------------------------------------------------------------ empresa activa
-
     public EmpresaFGEM seleccionarEmpresaActivaFGEM(long idFGEM) {
         UsuarioFGEM usuarioFGEM = sesionFGEM.usuarioFGEM();
         EmpresaFGEM empresaFGEM = databaseFGEM.conConexionFGEM(cFGEM -> exigirAccesoFGEM(cFGEM, idFGEM));
@@ -166,10 +145,6 @@ public class EmpresaServiceFGEM {
         return empresaFGEM;
     }
 
-    /**
-     * Empresa sobre la que se registran los datos de negocio. Vuelve a comprobar en la base de
-     * datos que el usuario sigue teniendo acceso y que la empresa no fue archivada.
-     */
     public EmpresaFGEM empresaDeTrabajoFGEM() {
         EmpresaFGEM activaFGEM = sesionFGEM.empresaActivaRequeridaFGEM();
         EmpresaFGEM actualFGEM = databaseFGEM.conConexionFGEM(cFGEM -> exigirAccesoFGEM(cFGEM, activaFGEM.idFGEM()));
@@ -180,10 +155,6 @@ public class EmpresaServiceFGEM {
         return actualFGEM;
     }
 
-    /**
-     * Al iniciar sesión: vuelve a abrir la última empresa usada. Si ya no está disponible,
-     * elige la primera empresa activa a la que el usuario tiene acceso.
-     */
     public Optional<EmpresaFGEM> restaurarEmpresaActivaFGEM() {
         UsuarioFGEM usuarioFGEM = sesionFGEM.usuarioFGEM();
         if (!usuarioFGEM.tieneFGEM(PermisoFGEM.EMPRESAS_VER)) {
@@ -199,14 +170,11 @@ public class EmpresaServiceFGEM {
         return elegidaFGEM;
     }
 
-    // ------------------------------------------------------------------ utilidades
-
     private EmpresaFGEM exigirEmpresaFGEM(Connection cFGEM, long idFGEM) throws SQLException {
         return empresasFGEM.buscarPorIdFGEM(cFGEM, idFGEM)
                 .orElseThrow(() -> new ValidacionExceptionFGEM("La empresa ya no existe. Actualiza la lista."));
     }
 
-    /** Devuelve la empresa si el usuario de la sesión puede trabajar con ella. */
     private EmpresaFGEM exigirAccesoFGEM(Connection cFGEM, long idFGEM) throws SQLException {
         EmpresaFGEM empresaFGEM = exigirEmpresaFGEM(cFGEM, idFGEM);
         UsuarioFGEM usuarioFGEM = sesionFGEM.usuarioFGEM();

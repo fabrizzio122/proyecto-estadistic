@@ -66,7 +66,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Function;
 
-/** Módulo "Activos y deudas": registro de bienes y deudas, balance general e indicadores patrimoniales. */
 public class PatrimonioControllerFGEM implements VistaModuloFGEM {
 
     private enum TipoFilaFGEM { TITULO, DETALLE, SUBTOTAL, RESULTADO }
@@ -166,8 +165,6 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
     public void alMostrarFGEM() {
         cargarFGEM();
     }
-
-    // ------------------------------------------------------------------ carga
 
     @FXML
     private void cargarFGEM() {
@@ -285,7 +282,6 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
                 iFGEM.capitalTrabajoFGEM().signum() < 0 ? "margen-negativo" : null,
                 "Activo corriente − pasivo corriente: el dinero que queda para operar después de pagar lo del año.");
         boolean activoNoPositivoFGEM = bFGEM.totalActivoFGEM().signum() <= 0;
-        // Texto corto en la celda; el motivo va en la ayuda (tooltip).
         String noAplicaFGEM = "No aplica";
         String motivoFGEM = !activoNoPositivoFGEM ? "" : bFGEM.totalActivoFGEM().signum() < 0
                 ? " No aplica: los activos son negativos porque la caja está en rojo. Registra el saldo inicial o el aporte del dueño en «Tesorería»."
@@ -332,7 +328,6 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
         return filaFGEM + 1;
     }
 
-    /** Clase de color cuando más alto es mejor. */
     private static String semaforoMayorFGEM(BigDecimal valorFGEM, BigDecimal verdeFGEM, BigDecimal amarilloFGEM) {
         if (valorFGEM == null) {
             return null;
@@ -343,7 +338,6 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
         return valorFGEM.compareTo(amarilloFGEM) >= 0 ? "margen-bajo" : "margen-negativo";
     }
 
-    /** Clase de color cuando más bajo es mejor. */
     private static String semaforoMenorFGEM(BigDecimal valorFGEM, BigDecimal verdeFGEM, BigDecimal amarilloFGEM) {
         if (valorFGEM == null) {
             return null;
@@ -373,8 +367,6 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
     private static String normalizarFGEM(String textoFGEM) {
         return textoFGEM == null ? "" : textoFGEM.strip().toLowerCase(Locale.ROOT);
     }
-
-    // ------------------------------------------------------------------ activos
 
     @FXML
     private void nuevoActivoFGEM() {
@@ -428,8 +420,6 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
             NotificadorFGEM.exitoFGEM("Activo dado de baja.");
         }
     }
-
-    // ------------------------------------------------------------------ deudas
 
     @FXML
     private void nuevaDeudaFGEM() {
@@ -620,8 +610,6 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
         return columnaFGEM;
     }
 
-    // ------------------------------------------------------------------ tablas
-
     private void configurarTablaBalanceFGEM() {
         colBalConceptoFGEM.setCellValueFactory(cFGEM -> new ReadOnlyObjectWrapper<>(cFGEM.getValue()));
         colBalConceptoFGEM.setCellFactory(colFGEM -> celdaBalanceFGEM(fFGEM -> fFGEM.conceptoFGEM(), fFGEM -> null));
@@ -629,7 +617,6 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
         colBalMontoFGEM.setCellFactory(colFGEM -> celdaBalanceFGEM(fFGEM -> fFGEM.montoFGEM() == null ? "" : MontosFGEM.formatearFGEM(fFGEM.montoFGEM(), monedaFGEM),
                 fFGEM -> fFGEM.montoFGEM() != null && fFGEM.montoFGEM().signum() < 0 ? "margen-negativo" : null));
         colBalPorcentajeFGEM.setCellValueFactory(cFGEM -> new ReadOnlyObjectWrapper<>(cFGEM.getValue()));
-        // Con el activo total en cero o negativo, los porcentajes sobre el activo no tienen sentido: se ocultan.
         colBalPorcentajeFGEM.setCellFactory(colFGEM -> celdaBalanceFGEM(fFGEM -> fFGEM.montoFGEM() == null || totalActivoFGEM.signum() <= 0 ? ""
                 : MontosFGEM.porcentajeFGEM(fFGEM.montoFGEM().divide(totalActivoFGEM, 6, RoundingMode.HALF_UP)), fFGEM -> null));
         tablaBalanceFGEM.setRowFactory(tFGEM -> new TableRow<>() {
@@ -793,8 +780,6 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
         };
     }
 
-    // ------------------------------------------------------------------ utilidades
-
     private static <T> void seleccionarFGEM(TableView<T> tablaFGEM, java.util.function.Predicate<T> criterioFGEM) {
         tablaFGEM.getItems().stream().filter(criterioFGEM).findFirst().ifPresent(xFGEM -> {
             tablaFGEM.getSelectionModel().select(xFGEM);
@@ -818,7 +803,6 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
         return textoFGEM == null || textoFGEM.isBlank() ? null : MontosFGEM.leerFGEM(textoFGEM, campoFGEM);
     }
 
-    /** Formulario de activo. La vida útil y el valor residual solo se piden en bienes que se deprecian. */
     private final class FormularioActivoFGEM {
         private final ComboBox<CategoriaActivoFGEM> cmbCategoriaFGEM = new ComboBox<>();
         private final Label lblAyudaFGEM = new Label();
@@ -832,7 +816,6 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
         private final SelectorCuentaFGEM cmbCuentaFGEM;
 
         FormularioActivoFGEM(ActivoFGEM aFGEM) {
-            // El efectivo se lleva en «Tesorería»; «Caja y bancos» solo aparece al editar un registro antiguo.
             cmbCategoriaFGEM.setItems(FXCollections.observableArrayList(java.util.Arrays.stream(CategoriaActivoFGEM.values())
                     .filter(cFGEM -> cFGEM != CategoriaActivoFGEM.CAJA_BANCOS
                             || (aFGEM != null && aFGEM.categoriaFGEM() == CategoriaActivoFGEM.CAJA_BANCOS))
@@ -924,7 +907,6 @@ public class PatrimonioControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /** Formulario de deuda. Tasa, cuota y vencimiento son opcionales, pero mejoran el análisis. */
     private final class FormularioDeudaFGEM {
         private final ComboBox<CategoriaDeudaFGEM> cmbCategoriaFGEM =
                 new ComboBox<>(FXCollections.observableArrayList(CategoriaDeudaFGEM.values()));

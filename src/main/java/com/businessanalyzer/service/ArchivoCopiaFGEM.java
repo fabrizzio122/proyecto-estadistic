@@ -16,11 +16,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-/**
- * Formato de las copias de seguridad desde la versión con visitas de inspección: un archivo ZIP con
- * la base de datos ({@value #ENTRADA_BASE_DATOS}) y la carpeta de fotos ({@code fotos-visitas/...}).
- * Las copias antiguas, que son solo el archivo de la base de datos, se siguen aceptando.
- */
 final class ArchivoCopiaFGEM {
 
     static final String ENTRADA_BASE_DATOS_FGEM = "business-analyzer.db";
@@ -30,7 +25,6 @@ final class ArchivoCopiaFGEM {
     private ArchivoCopiaFGEM() {
     }
 
-    /** El archivo es un ZIP (copia nueva) y no una base de datos suelta (copia antigua). */
     static boolean esZipFGEM(Path archivoFGEM) {
         try (InputStream entradaFGEM = Files.newInputStream(archivoFGEM)) {
             return Arrays.equals(entradaFGEM.readNBytes(CABECERA_ZIP_FGEM.length), CABECERA_ZIP_FGEM);
@@ -39,7 +33,6 @@ final class ArchivoCopiaFGEM {
         }
     }
 
-    /** Empaqueta la base de datos y, si existe, la carpeta de fotos. Devuelve la cantidad de fotos incluidas. */
     static int crearFGEM(Path baseDatosFGEM, Path carpetaFotosFGEM, Path destinoFGEM) throws IOException {
         int fotosFGEM = 0;
         try (ZipOutputStream zipFGEM = new ZipOutputStream(Files.newOutputStream(destinoFGEM))) {
@@ -54,7 +47,6 @@ final class ArchivoCopiaFGEM {
                 for (Path fotoFGEM : archivosFGEM) {
                     String relativoFGEM = carpetaFotosFGEM.relativize(fotoFGEM).toString().replace('\\', '/');
                     ZipEntry entradaFGEM = new ZipEntry(PREFIJO_FOTOS_FGEM + relativoFGEM);
-                    // Las fotos ya vienen comprimidas: se guardan tal cual para no gastar tiempo.
                     entradaFGEM.setMethod(ZipEntry.DEFLATED);
                     zipFGEM.setLevel(java.util.zip.Deflater.NO_COMPRESSION);
                     zipFGEM.putNextEntry(entradaFGEM);
@@ -68,10 +60,6 @@ final class ArchivoCopiaFGEM {
         return fotosFGEM;
     }
 
-    /**
-     * Extrae la base de datos a {@code destinoBaseDatos} y, si {@code carpetaFotos} no es nula, las fotos
-     * dentro de ella. Devuelve la cantidad de fotos encontradas en la copia.
-     */
     static int extraerFGEM(Path zipCopiaFGEM, Path destinoBaseDatosFGEM, Path carpetaFotosFGEM) throws IOException {
         boolean conBaseDatosFGEM = false;
         int fotosFGEM = 0;
@@ -111,7 +99,6 @@ final class ArchivoCopiaFGEM {
         }
     }
 
-    /** Mueve {@code origen} a {@code destino} reemplazándolo. */
     static void moverFGEM(Path origenFGEM, Path destinoFGEM) throws IOException {
         Files.move(origenFGEM, destinoFGEM, StandardCopyOption.REPLACE_EXISTING);
     }

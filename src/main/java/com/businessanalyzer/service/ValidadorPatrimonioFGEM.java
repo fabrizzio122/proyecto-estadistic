@@ -8,10 +8,8 @@ import com.businessanalyzer.util.ValidacionesFGEM;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/** Valida y normaliza activos, deudas y pagos de deudas. */
 final class ValidadorPatrimonioFGEM {
 
-    /** Un local o un terreno pueden haberse comprado hace décadas. */
     private static final LocalDate FECHA_MINIMA_FGEM = LocalDate.of(1950, 1, 1);
     private static final BigDecimal TASA_MAXIMA_FGEM = new BigDecimal("300");
 
@@ -94,7 +92,6 @@ final class ValidadorPatrimonioFGEM {
         return limpioFGEM;
     }
 
-    /** Intereses de la cuota: opcionales (cero si no se indican). */
     static BigDecimal interesFGEM(BigDecimal interesFGEM) {
         return interesFGEM == null ? BigDecimal.ZERO : ValidadorCatalogoFGEM.montoFGEM(interesFGEM, "Intereses");
     }

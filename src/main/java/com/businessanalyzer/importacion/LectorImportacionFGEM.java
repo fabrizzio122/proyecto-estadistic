@@ -37,14 +37,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Lee un libro de importación (.xlsx o .xls) y convierte cada fila en datos de Java, anotando los
- * errores de formato con su hoja y fila. No toca la base de datos: las reglas de negocio (stock,
- * códigos repetidos, fechas futuras…) las aplica después el servicio de importación.
- */
 public final class LectorImportacionFGEM {
 
-    /** Más filas que esto en una hoja probablemente no son datos de un negocio pequeño. */
     static final int MAXIMO_FILAS_FGEM = 50_000;
     private static final long TAMANO_MAXIMO_FGEM = 30L * 1024 * 1024;
     private static final List<DateTimeFormatter> FORMATOS_FECHA_FGEM = List.of(
@@ -52,7 +46,6 @@ public final class LectorImportacionFGEM {
             DateTimeFormatter.ofPattern("uuuu-M-d"), DateTimeFormatter.ofPattern("d.M.uuuu"),
             DateTimeFormatter.ofPattern("d/M/uu"));
 
-    /** Palabras frecuentes de un gasto y su categoría (se buscan dentro del texto escrito). */
     private static final Map<String, CategoriaFinancieraFGEM> PALABRAS_GASTO_FGEM = new LinkedHashMap<>();
 
     static {
@@ -98,11 +91,6 @@ public final class LectorImportacionFGEM {
     private LectorImportacionFGEM() {
     }
 
-    /**
-     * Lee el archivo completo.
-     *
-     * @throws ValidacionExceptionFGEM si el archivo no se puede abrir o no tiene ninguna hoja reconocible
-     */
     public static ContenidoFGEM leerFGEM(Path archivoFGEM) {
         try {
             if (!Files.isRegularFile(archivoFGEM)) {
@@ -215,8 +203,6 @@ public final class LectorImportacionFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ conversión de cada hoja
-
     private static FilaProductoFGEM productoFGEM(FilaExcelFGEM fFGEM) {
         String nombreFGEM = fFGEM.textoFGEM(1, true);
         TipoItemFGEM tipoFGEM = tipoItemFGEM(fFGEM.textoFGEM(2, false));
@@ -228,7 +214,6 @@ public final class LectorImportacionFGEM {
                 fFGEM.decimalFGEM(5, true), fFGEM.decimalFGEM(6, true), siNoFGEM(fFGEM.textoFGEM(7, false)));
     }
 
-    /** «Sí», «si», «x», «1» o «perecible» = sí; vacío, «No» o «0» = no. */
     static boolean siNoFGEM(String textoFGEM) {
         return switch (PlantillaImportacionFGEM.normalizarFGEM(textoFGEM)) {
             case "", "no", "n", "0", "falso", "false" -> false;
@@ -239,8 +224,6 @@ public final class LectorImportacionFGEM {
 
     private static FilaOperacionFGEM operacionFGEM(FilaExcelFGEM fFGEM, TipoOperacionFGEM tipoFGEM) {
         boolean ventaFGEM = tipoFGEM == TipoOperacionFGEM.VENTA;
-        // Ventas: Fecha, Documento, Cliente, Producto, Cantidad, Precio, IGV
-        // Compras: Fecha, Comprobante, Proveedor, RUC, Producto, Cantidad, Costo, IGV
         int desplazamientoFGEM = ventaFGEM ? 0 : 1;
         LocalDate fechaFGEM = fFGEM.fechaFGEM(0);
         String documentoFGEM = fFGEM.textoFGEM(1, false);
@@ -267,8 +250,6 @@ public final class LectorImportacionFGEM {
         return new FilaMovimientoFGEM(fFGEM.numeroFGEM(), fechaFGEM, categoriaFGEM, descripcionFGEM, montoFGEM, comportamientoFGEM,
                 fFGEM.textoFGEM(5, false));
     }
-
-    // ------------------------------------------------------------------ valores con nombre
 
     static TipoItemFGEM tipoItemFGEM(String textoFGEM) {
         String nFGEM = PlantillaImportacionFGEM.normalizarFGEM(textoFGEM);
@@ -310,7 +291,6 @@ public final class LectorImportacionFGEM {
         }
         String conEspaciosFGEM = " " + nFGEM + " ";
         for (Map.Entry<String, CategoriaFinancieraFGEM> eFGEM : PALABRAS_GASTO_FGEM.entrySet()) {
-            // Palabra completa o comienzo de palabra: «sueldos» contiene «sueldo», pero «agua» no está dentro de «paraguas».
             if (conEspaciosFGEM.contains(" " + eFGEM.getKey())) {
                 return eFGEM.getValue();
             }
@@ -326,8 +306,6 @@ public final class LectorImportacionFGEM {
             default -> throw new ValorInvalidoFGEM("«" + textoFGEM + "» no válido: escribe Fijo o Variable.");
         };
     }
-
-    // ------------------------------------------------------------------ celdas
 
     private static boolean filaVaciaFGEM(Row rowFGEM) {
         if (rowFGEM == null) {
@@ -355,14 +333,12 @@ public final class LectorImportacionFGEM {
         };
     }
 
-    /** Valor de una celda que no se puede usar; el mensaje se muestra tal cual al usuario. */
     static final class ValorInvalidoFGEM extends RuntimeException {
         ValorInvalidoFGEM(String mensajeFGEM) {
             super(mensajeFGEM, null, false, false);
         }
     }
 
-    /** Acceso a las celdas de una fila por posición de columna en la plantilla. */
     private static final class FilaExcelFGEM {
         private final HojaFGEM hojaFGEM;
         private final Row rowFGEM;
@@ -412,7 +388,6 @@ public final class LectorImportacionFGEM {
             Cell celdaFGEM = celdaFGEM(posicionFGEM);
             String textoFGEM = switch (tipoFGEM(celdaFGEM)) {
                 case STRING -> celdaFGEM.getStringCellValue();
-                // Códigos o RUC escritos como número: 7751234 y no 7751234.0
                 case NUMERIC -> BigDecimal.valueOf(celdaFGEM.getNumericCellValue()).stripTrailingZeros().toPlainString();
                 case BOOLEAN -> String.valueOf(celdaFGEM.getBooleanCellValue());
                 case ERROR -> throw new ValorInvalidoFGEM("«" + columnaFGEM(posicionFGEM).tituloFGEM() + "» tiene un error de fórmula.");
@@ -446,11 +421,9 @@ public final class LectorImportacionFGEM {
             if (valorFGEM.signum() < 0) {
                 throw new ValorInvalidoFGEM("«" + tituloFGEM + "» no puede ser negativo.");
             }
-            // Los cálculos de Excel dejan decimales binarios (0.1 + 0.2 = 0.30000000000000004).
             return valorFGEM.setScale(4, RoundingMode.HALF_UP).stripTrailingZeros();
         }
 
-        /** Acepta 18, «18 %» o una celda con formato de porcentaje (0,18). */
         BigDecimal porcentajeFGEM(int posicionFGEM) {
             Cell celdaFGEM = celdaFGEM(posicionFGEM);
             if (tipoFGEM(celdaFGEM) == CellType.NUMERIC && celdaFGEM.getCellStyle().getDataFormatString().contains("%")) {
@@ -486,7 +459,6 @@ public final class LectorImportacionFGEM {
         int comaFGEM = limpioFGEM.lastIndexOf(',');
         int puntoFGEM = limpioFGEM.lastIndexOf('.');
         if (comaFGEM >= 0 && puntoFGEM >= 0) {
-            // El último separador es el decimal: 1.234,50 o 1,234.50
             limpioFGEM = comaFGEM > puntoFGEM ? limpioFGEM.replace(".", "").replace(',', '.') : limpioFGEM.replace(",", "");
         } else if (comaFGEM >= 0) {
             limpioFGEM = limpioFGEM.indexOf(',') == comaFGEM ? limpioFGEM.replace(',', '.') : limpioFGEM.replace(",", "");
@@ -508,7 +480,6 @@ public final class LectorImportacionFGEM {
                 LocalDate fechaFGEM = LocalDate.parse(limpioFGEM, formatoFGEM);
                 return fechaFGEM.getYear() < 100 ? fechaFGEM.plusYears(2000) : fechaFGEM;
             } catch (DateTimeParseException eFGEM) {
-                // probar el siguiente formato
             }
         }
         throw new ValorInvalidoFGEM("«" + tituloFGEM + "» no es una fecha válida (se leyó «" + limpioFGEM + "»). Usa dd/mm/aaaa.");

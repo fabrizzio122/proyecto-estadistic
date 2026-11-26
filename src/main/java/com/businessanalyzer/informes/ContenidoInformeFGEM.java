@@ -9,14 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Contenido de un informe PDF como una lista de bloques (secciones, tablas, textos, gráficos...).
- * La plantilla {@code informe.jrxml} dibuja cada bloque según su tipo, así todos los informes
- * comparten el mismo diseño. Las tablas admiten un concepto y hasta cuatro columnas de valores.
- */
 public final class ContenidoInformeFGEM {
 
-    /** Tipos de bloque que reconoce la plantilla. */
     enum TipoFGEM { SECCION, ENCABEZADO, FILA, DATO, TOTAL, TEXTO, NOTA, INDICADORES, SEMAFORO, RECOMENDACION, GRAFICO, FIRMAS, ESPACIO }
 
     static final int COLUMNAS_FGEM = 4;
@@ -27,7 +21,6 @@ public final class ContenidoInformeFGEM {
         return agregarFGEM(TipoFGEM.SECCION, tituloFGEM);
     }
 
-    /** Fila de títulos de una tabla. */
     public ContenidoInformeFGEM encabezadoFGEM(String conceptoFGEM, String... columnasFGEM) {
         return agregarFGEM(TipoFGEM.ENCABEZADO, conceptoFGEM, columnasFGEM);
     }
@@ -36,36 +29,26 @@ public final class ContenidoInformeFGEM {
         return agregarFGEM(TipoFGEM.FILA, conceptoFGEM, valoresFGEM);
     }
 
-    /** Etiqueta con un valor largo que ocupa el resto del ancho y se ajusta en varias líneas. */
     public ContenidoInformeFGEM datoFGEM(String etiquetaFGEM, String valorFGEM) {
         return agregarFGEM(TipoFGEM.DATO, etiquetaFGEM, valorFGEM);
     }
 
-    /** Dos espacios para firmar, con el nombre bajo cada línea. */
     public ContenidoInformeFGEM firmasFGEM(String izquierdaFGEM, String derechaFGEM) {
         return agregarFGEM(TipoFGEM.FIRMAS, null, izquierdaFGEM, derechaFGEM);
     }
 
-    /** Fila resaltada (subtotales y totales). */
     public ContenidoInformeFGEM totalFGEM(String conceptoFGEM, String... valoresFGEM) {
         return agregarFGEM(TipoFGEM.TOTAL, conceptoFGEM, valoresFGEM);
     }
 
-    /** Párrafo de texto normal. */
     public ContenidoInformeFGEM textoFGEM(String textoFGEM) {
         return agregarFGEM(TipoFGEM.TEXTO, textoFGEM);
     }
 
-    /** Texto pequeño y gris (aclaraciones, fuentes de los datos). */
     public ContenidoInformeFGEM notaFGEM(String textoFGEM) {
         return agregarFGEM(TipoFGEM.NOTA, textoFGEM);
     }
 
-    /**
-     * Fila de hasta cuatro tarjetas de indicadores.
-     *
-     * @param etiquetasYValoresFGEM pares etiqueta, valor (por ejemplo "Ventas netas", "S/ 1,200.00")
-     */
     public ContenidoInformeFGEM indicadoresFGEM(String... etiquetasYValoresFGEM) {
         if (etiquetasYValoresFGEM.length % 2 != 0 || etiquetasYValoresFGEM.length > COLUMNAS_FGEM * 2) {
             throw new IllegalArgumentException("Se esperan hasta cuatro pares etiqueta-valor.");
@@ -79,7 +62,6 @@ public final class ContenidoInformeFGEM {
         return this;
     }
 
-    /** Indicador con su color de semáforo, valor, estado y explicación. */
     public ContenidoInformeFGEM semaforoFGEM(String nombreFGEM, SemaforoFGEM semaforoFGEM, String valorFGEM, String explicacionFGEM) {
         Map<String, Object> bloqueFGEM = baseFGEM(TipoFGEM.SEMAFORO, nombreFGEM);
         bloqueFGEM.put("estado", semaforoFGEM.name());
@@ -90,7 +72,6 @@ public final class ContenidoInformeFGEM {
         return this;
     }
 
-    /** Recomendación con su etiqueta de prioridad coloreada. */
     public ContenidoInformeFGEM recomendacionFGEM(String prioridadFGEM, SemaforoFGEM semaforoFGEM, String tituloFGEM, String textoFGEM) {
         Map<String, Object> bloqueFGEM = baseFGEM(TipoFGEM.RECOMENDACION, tituloFGEM);
         bloqueFGEM.put("estado", semaforoFGEM.name());
@@ -115,12 +96,10 @@ public final class ContenidoInformeFGEM {
         return bloquesFGEM.isEmpty();
     }
 
-    /** Bloques en el formato que espera la plantilla (un mapa por bloque). */
     List<Map<String, ?>> bloquesFGEM() {
         return Collections.unmodifiableList(bloquesFGEM);
     }
 
-    /** Texto plano de todo el contenido (para pruebas y depuración). */
     public String textoPlanoFGEM() {
         StringBuilder sbFGEM = new StringBuilder();
         for (Map<String, ?> bFGEM : bloquesFGEM) {

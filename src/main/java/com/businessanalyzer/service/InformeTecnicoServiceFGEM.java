@@ -42,14 +42,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-/**
- * Informe técnico en PDF de una visita de inspección: datos de la visita, verificación en campo,
- * compromisos, indicadores del hato y de las campañas de los 12 meses previos a la visita, situación
- * patrimonial, observaciones, conclusión, fotos y espacio para las firmas.
- */
 public class InformeTecnicoServiceFGEM {
 
-    /** Fotos que se incluyen como máximo en el informe. */
     static final int MAXIMO_FOTOS_FGEM = 6;
 
     private final DatabaseFGEM databaseFGEM;
@@ -76,7 +70,6 @@ public class InformeTecnicoServiceFGEM {
         this.relojFGEM = relojFGEM;
     }
 
-    /** Nombre de archivo propuesto: "Informe-tecnico-Fundo-Demo-2026-11-14.pdf". */
     public static String nombreSugeridoFGEM(EmpresaFGEM empresaFGEM, VisitaFGEM visitaFGEM) {
         String limpioFGEM = java.text.Normalizer.normalize(empresaFGEM.nombreVisibleFGEM(), java.text.Normalizer.Form.NFD)
                 .replaceAll("\\p{M}", "").replaceAll("[^A-Za-z0-9]+", "-").replaceAll("(^-|-$)", "");
@@ -107,7 +100,6 @@ public class InformeTecnicoServiceFGEM {
         return archivoFGEM;
     }
 
-    /** Contenido del informe (público para las pruebas). */
     public ContenidoInformeFGEM redactarFGEM(EmpresaFGEM empresaFGEM, VisitaFGEM visitaFGEM) {
         MonedaFGEM monedaFGEM = empresaFGEM.monedaFGEM();
         PeriodoFGEM periodoFGEM = new PeriodoFGEM(visitaFGEM.fechaFGEM().minusYears(1).plusDays(1), visitaFGEM.fechaFGEM());
@@ -124,7 +116,6 @@ public class InformeTecnicoServiceFGEM {
 
         ContenidoInformeFGEM cFGEM = new ContenidoInformeFGEM();
 
-        // 1. Datos de la visita
         int cabezasFGEM = hatoFGEM.stream().mapToInt(ExistenciaValorizadaFGEM::cabezasFGEM).sum();
         BigDecimal areaFGEM = campaniasFGEM.stream().filter(rFGEM -> rFGEM.campaniaFGEM().estadoFGEM() == EstadoCampaniaFGEM.EN_CURSO)
                 .map(rFGEM -> rFGEM.campaniaFGEM().areaFGEM()).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -152,7 +143,6 @@ public class InformeTecnicoServiceFGEM {
             cFGEM.datoFGEM("Próxima visita", FechasFGEM.paraMostrarFGEM(visitaFGEM.proximaVisitaFGEM()));
         }
 
-        // 2. Verificación en campo
         cFGEM.seccionFGEM("2. Verificación en campo");
         if (visitaFGEM.aspectosFGEM().isEmpty()) {
             cFGEM.textoFGEM("No se registró la verificación de aspectos en esta visita.");
@@ -174,7 +164,6 @@ public class InformeTecnicoServiceFGEM {
             cFGEM.notaFGEM("Cumplimiento: «cumple» vale 1, «cumple en parte» 0.5 y «no cumple» 0; no se cuentan los aspectos que no aplican.");
         }
 
-        // 3. Compromisos
         List<CompromisoFGEM> verificadosFGEM = compromisosFGEM.stream()
                 .filter(kFGEM -> Objects.equals(kFGEM.visitaVerificacionIdFGEM(), visitaFGEM.idFGEM())).toList();
         List<CompromisoFGEM> pendientesPreviosFGEM = compromisosFGEM.stream()
@@ -197,7 +186,6 @@ public class InformeTecnicoServiceFGEM {
             nuevosFGEM.forEach(kFGEM -> cFGEM.filaFGEM(kFGEM.descripcionFGEM(), FechasFGEM.paraMostrarFGEM(kFGEM.plazoFGEM()), kFGEM.estadoFGEM().descripcionFGEM()));
         }
 
-        // 4. Ganadería
         if (!especiesFGEM.isEmpty() || !hatoFGEM.isEmpty()) {
             cFGEM.seccionFGEM("4. Ganadería (" + periodoFGEM.descripcionFGEM() + ")");
             cFGEM.indicadoresFGEM("Animales hoy", String.valueOf(cabezasFGEM),
@@ -215,7 +203,6 @@ public class InformeTecnicoServiceFGEM {
             }
         }
 
-        // 5. Agricultura
         if (!campaniasFGEM.isEmpty()) {
             cFGEM.seccionFGEM("5. Agricultura");
             cFGEM.encabezadoFGEM("Campaña", "Área (ha)", "Rendimiento", "% referencia", "Margen");
@@ -234,7 +221,6 @@ public class InformeTecnicoServiceFGEM {
                     cFGEM.notaFGEM(rFGEM.campaniaFGEM().cultivoFGEM().descripcionFGEM() + " perdido: " + rFGEM.campaniaFGEM().motivoFGEM() + "."));
         }
 
-        // 6. Situación patrimonial
         BalanceGeneralFGEM bFGEM = situacionFGEM.balanceFGEM();
         IndicadoresPatrimonioFGEM ipFGEM = situacionFGEM.indicadoresFGEM();
         if (!bFGEM.sinRegistrosFGEM()) {
@@ -250,13 +236,11 @@ public class InformeTecnicoServiceFGEM {
             }
         }
 
-        // 7. Observaciones y conclusión
         cFGEM.seccionFGEM("7. Observaciones y conclusión");
         cFGEM.textoFGEM(visitaFGEM.observacionesFGEM() == null ? "Sin observaciones adicionales." : visitaFGEM.observacionesFGEM());
         cFGEM.recomendacionFGEM(visitaFGEM.conclusionFGEM().descripcionFGEM(), visitaFGEM.conclusionFGEM().semaforoFGEM(), "Conclusión del inspector",
                 conclusionTextoFGEM(visitaFGEM));
 
-        // 8. Fotos
         int incluidasFGEM = 0;
         for (FotoVisitaFGEM fFGEM : fotosFGEM) {
             if (incluidasFGEM == MAXIMO_FOTOS_FGEM) {
@@ -274,7 +258,6 @@ public class InformeTecnicoServiceFGEM {
             incluidasFGEM++;
         }
 
-        // Firmas
         cFGEM.espacioFGEM();
         cFGEM.firmasFGEM("Inspector\n" + visitaFGEM.inspectorFGEM(),
                 "Productor\n" + Objects.requireNonNullElse(visitaFGEM.atendidoPorFGEM(), empresaFGEM.razonSocialFGEM()));

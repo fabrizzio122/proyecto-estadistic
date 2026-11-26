@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/** Acceso a las tablas {@code visita}, {@code visita_aspecto}, {@code compromiso} y {@code visita_foto}. */
 public class VisitaRepositoryFGEM {
 
     private static final String CONSULTA_FGEM = """
@@ -39,8 +38,6 @@ public class VisitaRepositoryFGEM {
             SELECT k.id, k.empresa_id, k.visita_id, v.fecha AS fecha_visita, k.descripcion, k.plazo, k.estado,
                    k.fecha_verificacion, k.visita_verificacion_id, k.observacion, k.verificado_por
             FROM compromiso k JOIN visita v ON v.id = k.visita_id""";
-
-    // ------------------------------------------------------------------ visitas
 
     public List<VisitaFGEM> listarFGEM(Connection cFGEM, long empresaIdFGEM, boolean incluirAnuladasFGEM) throws SQLException {
         String sqlFGEM = CONSULTA_FGEM + " WHERE empresa_id = ?" + (incluirAnuladasFGEM ? "" : " AND estado = 'REGISTRADA'")
@@ -108,8 +105,6 @@ public class VisitaRepositoryFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ compromisos
-
     public List<CompromisoFGEM> listarCompromisosFGEM(Connection cFGEM, long empresaIdFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement(CONSULTA_COMPROMISOS_FGEM
                 + " WHERE k.empresa_id = ? AND v.estado = 'REGISTRADA' ORDER BY v.fecha DESC, k.id")) {
@@ -158,8 +153,6 @@ public class VisitaRepositoryFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ fotos
-
     public List<FotoVisitaFGEM> listarFotosFGEM(Connection cFGEM, long visitaIdFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement(
                 "SELECT id, visita_id, archivo, descripcion FROM visita_foto WHERE visita_id = ? ORDER BY id")) {
@@ -205,8 +198,6 @@ public class VisitaRepositoryFGEM {
             psFGEM.executeUpdate();
         }
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private static void asignarFGEM(PreparedStatement psFGEM, DatosVisitaFGEM dFGEM) throws SQLException {
         psFGEM.setString(1, FechasFGEM.fechaATextoFGEM(dFGEM.fechaFGEM()));

@@ -4,18 +4,9 @@ import com.businessanalyzer.exception.ValidacionExceptionFGEM;
 
 import java.math.BigDecimal;
 
-/**
- * Supuestos de la valoración (fracciones: 0.20 = 20 %).
- *
- * @param tasaDescuentoFGEM         rentabilidad anual que exigiría un inversionista por el riesgo del negocio
- * @param crecimientoFGEM           crecimiento anual de los flujos en los años proyectados
- * @param crecimientoLargoPlazoFGEM crecimiento anual después de la proyección (debe ser menor que la tasa)
- * @param aniosFGEM                 años que se proyectan
- */
 public record SupuestosValoracionFGEM(BigDecimal tasaDescuentoFGEM, BigDecimal crecimientoFGEM, BigDecimal crecimientoLargoPlazoFGEM,
                                   int aniosFGEM) {
 
-    /** 20 %: costo de oportunidad habitual de una micro o pequeña empresa en el Perú. */
     public static final BigDecimal TASA_PREDETERMINADA_FGEM = new BigDecimal("0.20");
     public static final BigDecimal CRECIMIENTO_LARGO_PLAZO_FGEM = new BigDecimal("0.02");
     public static final int ANIOS_FGEM = 5;

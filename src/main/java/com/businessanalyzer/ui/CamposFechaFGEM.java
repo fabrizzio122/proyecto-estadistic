@@ -8,10 +8,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-/**
- * Selectores de fecha con formato dd/mm/aaaa, independiente de la configuración regional
- * de Windows. Acepta también fechas escritas sin ceros (5/3/2026).
- */
 public final class CamposFechaFGEM {
 
     private static final DateTimeFormatter MOSTRAR_FGEM = DateTimeFormatter.ofPattern("dd/MM/uuuu");
@@ -42,12 +38,6 @@ public final class CamposFechaFGEM {
         });
     }
 
-    /**
-     * Devuelve la fecha del selector, interpretando también lo que el usuario escribió sin
-     * confirmar con Enter. {@code null} si está vacío.
-     *
-     * @throws ValidacionException si el texto no es una fecha válida
-     */
     public static LocalDate leerFGEM(DatePicker selectorFGEM, String campoFGEM) {
         String textoFGEM = selectorFGEM.getEditor().getText();
         if (textoFGEM == null || textoFGEM.isBlank()) {

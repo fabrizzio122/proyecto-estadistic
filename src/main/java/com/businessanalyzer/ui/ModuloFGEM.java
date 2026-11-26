@@ -5,13 +5,6 @@ import com.businessanalyzer.model.PermisoFGEM;
 import java.util.Arrays;
 import java.util.Optional;
 
-/**
- * Modulos del sistema tal como aparecen en el menu lateral (en este orden).
- * <p>
- * Un modulo sin vista propia muestra una pantalla "en construccion" que indica la fase en
- * la que se implementa. Al construir un modulo basta con asignarle su archivo FXML aqui.
- * Cada modulo solo aparece en el menu si el usuario tiene el permiso indicado.
- */
 public enum ModuloFGEM {
 
     DASHBOARD(SeccionFGEM.GENERAL, "Dashboard",
@@ -82,7 +75,6 @@ public enum ModuloFGEM {
             "Preferencias y copias de seguridad", "fth-settings", 13,
             PermisoFGEM.CONFIGURACION_GESTIONAR, "/fxml/configuracion-view.fxml");
 
-    /** Grupos del menu lateral. */
     public enum SeccionFGEM {
         GENERAL("General"),
         GESTION("Gestión"),
@@ -134,22 +126,18 @@ public enum ModuloFGEM {
         return descripcionFGEM;
     }
 
-    /** Codigo del icono Feather (Ikonli), por ejemplo {@code fth-grid}. */
     public String iconoFGEM() {
         return iconoFGEM;
     }
 
-    /** Fase del proyecto en la que se implementa el modulo. */
     public int faseFGEM() {
         return faseFGEM;
     }
 
-    /** Permiso necesario para ver el modulo. */
     public PermisoFGEM permisoFGEM() {
         return permisoFGEM;
     }
 
-    /** Solo se muestra cuando la empresa activa es del sector agropecuario. */
     public boolean soloAgropecuarioFGEM() {
         return seccionFGEM == SeccionFGEM.AGRO;
     }
@@ -158,7 +146,6 @@ public enum ModuloFGEM {
         return fxmlFGEM != null;
     }
 
-    /** Ruta FXML a mostrar: la propia o la de "en construccion". */
     public String vistaFGEM() {
         return disponibleFGEM() ? fxmlFGEM : VISTA_PENDIENTE_FGEM;
     }

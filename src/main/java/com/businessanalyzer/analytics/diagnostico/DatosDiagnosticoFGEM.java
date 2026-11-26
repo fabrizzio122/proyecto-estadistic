@@ -12,20 +12,6 @@ import com.businessanalyzer.model.SectorFGEM;
 import java.time.YearMonth;
 import java.util.List;
 
-/**
- * Información que necesita el diagnóstico (la reúne {@code DiagnosticoService}).
- *
- * @param periodoFGEM          meses completos que se evalúan (normalmente los tres últimos)
- * @param mesesFGEM            meses de la serie histórica, desde el primero con ventas
- * @param ventasMensualesFGEM  ventas netas de cada mes de {@code meses}
- * @param utilidadMensualFGEM  utilidad neta de cada mes de {@code meses}
- * @param productosFGEM        rentabilidad por producto en {@code periodo}
- * @param patrimonioFGEM       balance general a hoy; {@code null} si no se dispone (liquidez y
- *                         endeudamiento quedan sin evaluar)
- * @param agroFGEM             datos del hato, las campañas y las inspecciones; {@code null} si la empresa no
- *                         es agropecuaria (sus indicadores no se incluyen)
- * @param cajaFGEM             proyección del dinero disponible (tesorería); {@code null} si no se dispone
- */
 public record DatosDiagnosticoFGEM(SectorFGEM sectorFGEM, MonedaFGEM monedaFGEM, PeriodoFGEM periodoFGEM, int mesesPeriodoFGEM,
                                ResumenOperacionesFGEM operacionesFGEM, ResumenFinancieroFGEM finanzasFGEM,
                                ResumenOperacionesFGEM operacionesAnterioresFGEM,
@@ -33,7 +19,6 @@ public record DatosDiagnosticoFGEM(SectorFGEM sectorFGEM, MonedaFGEM monedaFGEM,
                                List<RentabilidadProductoFGEM> productosFGEM, SituacionPatrimonialFGEM patrimonioFGEM,
                                DatosAgroFGEM agroFGEM, ProyeccionCajaFGEM cajaFGEM) {
 
-    /** Sin proyección de caja. */
     public DatosDiagnosticoFGEM(SectorFGEM sectorFGEM, MonedaFGEM monedaFGEM, PeriodoFGEM periodoFGEM, int mesesPeriodoFGEM,
                             ResumenOperacionesFGEM operacionesFGEM, ResumenFinancieroFGEM finanzasFGEM,
                             ResumenOperacionesFGEM operacionesAnterioresFGEM,
@@ -43,10 +28,6 @@ public record DatosDiagnosticoFGEM(SectorFGEM sectorFGEM, MonedaFGEM monedaFGEM,
                 ventasMensualesFGEM, utilidadMensualFGEM, productosFGEM, patrimonioFGEM, agroFGEM, null);
     }
 
-    /**
-     * Período con el que se comparan las ventas: el trimestre anterior o, en un productor agropecuario,
-     * el mismo período del año anterior (las cosechas y ventas de animales son estacionales).
-     */
     public PeriodoFGEM periodoComparadoFGEM() {
         return comparadoConFGEM(periodoFGEM, agroFGEM != null);
     }
@@ -57,7 +38,6 @@ public record DatosDiagnosticoFGEM(SectorFGEM sectorFGEM, MonedaFGEM monedaFGEM,
                 : periodoFGEM.anteriorFGEM();
     }
 
-    /** Sin datos agropecuarios. */
     public DatosDiagnosticoFGEM(SectorFGEM sectorFGEM, MonedaFGEM monedaFGEM, PeriodoFGEM periodoFGEM, int mesesPeriodoFGEM,
                             ResumenOperacionesFGEM operacionesFGEM, ResumenFinancieroFGEM finanzasFGEM,
                             ResumenOperacionesFGEM operacionesAnterioresFGEM,
@@ -75,7 +55,6 @@ public record DatosDiagnosticoFGEM(SectorFGEM sectorFGEM, MonedaFGEM monedaFGEM,
         }
     }
 
-    /** Sin datos de balance general. */
     public DatosDiagnosticoFGEM(SectorFGEM sectorFGEM, MonedaFGEM monedaFGEM, PeriodoFGEM periodoFGEM, int mesesPeriodoFGEM,
                             ResumenOperacionesFGEM operacionesFGEM, ResumenFinancieroFGEM finanzasFGEM,
                             ResumenOperacionesFGEM operacionesAnterioresFGEM,

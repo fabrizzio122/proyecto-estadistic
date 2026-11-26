@@ -9,15 +9,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Notificaciones flotantes (esquina superior derecha) que desaparecen solas.
- * Se pueden llamar desde cualquier hilo y desde cualquier controlador.
- * <pre>{@code Notificador.exito("Empresa registrada correctamente");}</pre>
- */
 public final class NotificadorFGEM {
 
     private enum TipoFGEM {
@@ -45,7 +39,6 @@ public final class NotificadorFGEM {
     private NotificadorFGEM() {
     }
 
-    /** Lo llama la ventana principal al construirse. */
     public static void instalarFGEM(VBox contenedorNotificacionesFGEM) {
         contenedorFGEM = contenedorNotificacionesFGEM;
     }
@@ -78,7 +71,7 @@ public final class NotificadorFGEM {
 
         Label textoFGEM = new Label(mensajeFGEM);
         textoFGEM.setWrapText(true);
-        HBox toastFGEM = new HBox(10, new FontIcon(tipoFGEM.iconoFGEM), textoFGEM);
+        HBox toastFGEM = new HBox(10, textoFGEM);
         toastFGEM.getStyleClass().addAll("toast", tipoFGEM.estiloFGEM);
         toastFGEM.setAlignment(Pos.CENTER_LEFT);
         toastFGEM.setMaxWidth(380);

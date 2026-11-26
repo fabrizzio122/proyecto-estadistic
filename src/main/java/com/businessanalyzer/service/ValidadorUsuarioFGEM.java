@@ -6,7 +6,6 @@ import com.businessanalyzer.util.ValidacionesFGEM;
 
 import java.util.regex.Pattern;
 
-/** Valida y normaliza los datos de un usuario (compartido por los servicios de usuarios). */
 final class ValidadorUsuarioFGEM {
 
     private static final Pattern FORMATO_USUARIO_FGEM = Pattern.compile("[A-Za-z0-9._-]+");

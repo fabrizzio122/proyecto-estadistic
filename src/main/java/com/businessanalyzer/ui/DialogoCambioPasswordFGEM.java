@@ -6,18 +6,11 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
 
-/** Diálogo para que el usuario conectado cambie su propia contraseña. */
 public final class DialogoCambioPasswordFGEM {
 
     private DialogoCambioPasswordFGEM() {
     }
 
-    /**
-     * @param passwordActualFGEM la contraseña actual si ya se conoce (recién escrita en el inicio de
-     *                       sesión); en ese caso no se vuelve a pedir. {@code null} para pedirla.
-     * @param obligatorioFGEM    {@code true} cuando un administrador asignó una contraseña temporal
-     * @return {@code true} si la contraseña se cambió
-     */
     public static boolean mostrarFGEM(Window propietarioFGEM, AutenticacionServiceFGEM autenticacionFGEM,
                                   String passwordActualFGEM, boolean obligatorioFGEM) {
         PasswordField actualFGEM = new PasswordField();

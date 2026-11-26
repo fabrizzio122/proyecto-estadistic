@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-/** Acceso a las tablas {@code empresa} y {@code usuario_empresa}. */
 public class EmpresaRepositoryFGEM {
 
     private static final String COLUMNAS_FGEM = """
@@ -31,7 +30,6 @@ public class EmpresaRepositoryFGEM {
 
     private static final String ORDEN_FGEM = " ORDER BY COALESCE(e.nombre_comercial, e.razon_social) COLLATE NOCASE";
 
-    /** Todas las empresas (para administradores). */
     public List<EmpresaFGEM> listarFGEM(Connection cFGEM, boolean incluirArchivadasFGEM) throws SQLException {
         String sqlFGEM = "SELECT " + COLUMNAS_FGEM + " FROM empresa e"
                 + (incluirArchivadasFGEM ? "" : " WHERE e.activa = 1") + ORDEN_FGEM;
@@ -40,7 +38,6 @@ public class EmpresaRepositoryFGEM {
         }
     }
 
-    /** Empresas asignadas a un usuario. */
     public List<EmpresaFGEM> listarAsignadasFGEM(Connection cFGEM, long usuarioIdFGEM, boolean incluirArchivadasFGEM) throws SQLException {
         String sqlFGEM = "SELECT " + COLUMNAS_FGEM + " FROM empresa e"
                 + " JOIN usuario_empresa ue ON ue.empresa_id = e.id"
@@ -60,7 +57,6 @@ public class EmpresaRepositoryFGEM {
         }
     }
 
-    /** Comparación sin distinguir mayúsculas (columna COLLATE NOCASE). */
     public boolean existeIdentificacionFGEM(Connection cFGEM, String identificacionFGEM, long excluirIdFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement(
                 "SELECT 1 FROM empresa WHERE identificacion_fiscal = ? AND id <> ?")) {
@@ -115,8 +111,6 @@ public class EmpresaRepositoryFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ acceso de usuarios
-
     public boolean estaAsignadaFGEM(Connection cFGEM, long usuarioIdFGEM, long empresaIdFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement(
                 "SELECT 1 FROM usuario_empresa WHERE usuario_id = ? AND empresa_id = ?")) {
@@ -151,7 +145,6 @@ public class EmpresaRepositoryFGEM {
         }
     }
 
-    /** Deja exactamente esos usuarios asignados a la empresa. Usar dentro de una transacción. */
     public void reemplazarAsignacionesFGEM(Connection cFGEM, long empresaIdFGEM, Set<Long> usuarioIdsFGEM) throws SQLException {
         try (PreparedStatement borrarFGEM = cFGEM.prepareStatement("DELETE FROM usuario_empresa WHERE empresa_id = ?")) {
             borrarFGEM.setLong(1, empresaIdFGEM);
@@ -161,8 +154,6 @@ public class EmpresaRepositoryFGEM {
             asignarFGEM(cFGEM, usuarioIdFGEM, empresaIdFGEM);
         }
     }
-
-    // ------------------------------------------------------------------ mapeo
 
     private static void asignarDatosFGEM(PreparedStatement psFGEM, DatosEmpresaFGEM dFGEM) throws SQLException {
         psFGEM.setString(1, dFGEM.razonSocialFGEM());

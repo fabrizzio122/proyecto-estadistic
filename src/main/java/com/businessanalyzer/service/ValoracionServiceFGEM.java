@@ -38,21 +38,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Locale;
 
-/**
- * Valoración del negocio de la empresa activa con los datos de hoy: balance general (incluye ganado
- * y cultivos de los productores) y utilidad de los últimos 12 meses completos. Requiere
- * {@link PermisoFGEM#ANALISIS_VER}; exportar el informe, {@link PermisoFGEM#INFORMES_GENERAR}.
- * <p>
- * Los supuestos (tasa de descuento y crecimiento) se guardan por empresa. Si no se eligió un
- * crecimiento, se propone el de la tendencia de las ventas del último año, acotado entre −10 % y 10 %.
- */
 public class ValoracionServiceFGEM {
 
     private static final String CLAVE_FGEM = "valoracion.";
     static final BigDecimal CRECIMIENTO_MINIMO_FGEM = new BigDecimal("-0.10");
     static final BigDecimal CRECIMIENTO_MAXIMO_FGEM = new BigDecimal("0.10");
 
-    /** Valoración con los datos que la sustentan. */
     public record ResultadoFGEM(ValoracionNegocioFGEM valoracionFGEM, SituacionPatrimonialFGEM situacionFGEM, BigDecimal crecimientoSugeridoFGEM,
                             PeriodoFGEM periodoResultadosFGEM) {
     }
@@ -82,7 +73,6 @@ public class ValoracionServiceFGEM {
         this.relojFGEM = relojFGEM;
     }
 
-    /** Supuestos guardados para la empresa activa, o los propuestos si aún no se guardaron. */
     public SupuestosValoracionFGEM supuestosFGEM() {
         sesionFGEM.requerirFGEM(PermisoFGEM.ANALISIS_VER);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -98,11 +88,10 @@ public class ValoracionServiceFGEM {
         }
     }
 
-    /** Guarda los supuestos de la empresa activa ({@code null} en el crecimiento vuelve al sugerido). */
     public void guardarSupuestosFGEM(BigDecimal tasaFGEM, BigDecimal crecimientoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.ANALISIS_VER);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
-        SupuestosValoracionFGEM.conFGEM(tasaFGEM, crecimientoFGEM == null ? BigDecimal.ZERO : crecimientoFGEM); // valida
+        SupuestosValoracionFGEM.conFGEM(tasaFGEM, crecimientoFGEM == null ? BigDecimal.ZERO : crecimientoFGEM);
         configuracionFGEM.guardarFGEM(CLAVE_FGEM + empresaFGEM.idFGEM() + ".tasa", tasaFGEM.toPlainString());
         configuracionFGEM.guardarFGEM(CLAVE_FGEM + empresaFGEM.idFGEM() + ".crecimiento", crecimientoFGEM == null ? "" : crecimientoFGEM.toPlainString());
     }
@@ -120,10 +109,6 @@ public class ValoracionServiceFGEM {
         });
     }
 
-    /**
-     * Crecimiento anual de la tendencia de las ventas de los últimos 12 meses completos (desde el primer
-     * mes con ventas). Sin tendencia clara o con menos de 6 meses, 0 %.
-     */
     BigDecimal crecimientoSugeridoFGEM(Connection cFGEM, long empresaIdFGEM) throws SQLException {
         YearMonth ultimoFGEM = YearMonth.from(LocalDate.now(relojFGEM)).minusMonths(1);
         double[] ventasFGEM = ConsultaMensualFGEM.porMesFGEM(cFGEM, operacionesFGEM, movimientosFGEM, empresaIdFGEM, ultimoFGEM.minusMonths(11), ultimoFGEM)
@@ -145,9 +130,6 @@ public class ValoracionServiceFGEM {
         return BigDecimal.valueOf(anualFGEM).setScale(4, RoundingMode.HALF_UP).max(CRECIMIENTO_MINIMO_FGEM).min(CRECIMIENTO_MAXIMO_FGEM);
     }
 
-    // ------------------------------------------------------------------ informe
-
-    /** Informe PDF de la valoración con los supuestos indicados; queda en el historial de informes. */
     public Path exportarFGEM(SupuestosValoracionFGEM supuestosFGEM, Path destinoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.INFORMES_GENERAR);
         if (destinoFGEM == null || destinoFGEM.getFileName() == null) {
@@ -173,7 +155,6 @@ public class ValoracionServiceFGEM {
         return archivoFGEM;
     }
 
-    /** Contenido del informe (público para las pruebas). */
     public static ContenidoInformeFGEM contenidoFGEM(ResultadoFGEM rFGEM, MonedaFGEM monedaFGEM) {
         ValoracionNegocioFGEM vFGEM = rFGEM.valoracionFGEM();
         SupuestosValoracionFGEM sFGEM = vFGEM.supuestosFGEM();
@@ -228,8 +209,6 @@ public class ValoracionServiceFGEM {
                 + "profesional. Una tasa de descuento mayor refleja más riesgo y da un valor menor.");
         return cFGEM;
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private BigDecimal leerFGEM(EmpresaFGEM empresaFGEM, String campoFGEM, BigDecimal porDefectoFGEM) {
         String textoFGEM = configuracionFGEM.obtenerFGEM(CLAVE_FGEM + empresaFGEM.idFGEM() + "." + campoFGEM, "");

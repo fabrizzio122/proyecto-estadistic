@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Situación de un compromiso acordado en una visita. */
 public enum EstadoCompromisoFGEM {
 
     PENDIENTE("Pendiente"),

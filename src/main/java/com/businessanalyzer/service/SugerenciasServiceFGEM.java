@@ -43,11 +43,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Sugerencias por producto de la empresa activa: precios, reposición y productos sin movimiento.
- * El margen objetivo se recuerda por empresa. Calcularlas requiere {@link PermisoFGEM#ANALISIS_VER}; exportar la lista
- * de compras, además, {@link PermisoFGEM#INFORMES_GENERAR}.
- */
 public class SugerenciasServiceFGEM {
 
     private static final String CLAVE_MARGEN_FGEM = "sugerencias.margen.";
@@ -78,7 +73,6 @@ public class SugerenciasServiceFGEM {
         this.relojFGEM = relojFGEM;
     }
 
-    /** Margen objetivo guardado para la empresa activa (20 % si nunca se cambió). */
     public BigDecimal margenObjetivoFGEM() {
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
         String guardadoFGEM = configuracionFGEM.obtenerFGEM(CLAVE_MARGEN_FGEM + empresaFGEM.idFGEM(), "");
@@ -89,9 +83,6 @@ public class SugerenciasServiceFGEM {
         }
     }
 
-    /**
-     * Calcula las sugerencias con el margen indicado (fracción: 0.20 = 20 %) y lo recuerda para la empresa.
-     */
     public ResultadoFGEM sugerenciasFGEM(BigDecimal margenObjetivoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.ANALISIS_VER);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -103,7 +94,6 @@ public class SugerenciasServiceFGEM {
         ResultadoFGEM resultadoFGEM = databaseFGEM.conConexionFGEM(cFGEM -> {
             List<ProductoFGEM> productosFGEM = this.productosFGEM.listarFGEM(cFGEM, empresaFGEM.idFGEM(), false);
             Set<Long> idsFGEM = productosFGEM.stream().map(ProductoFGEM::idFGEM).collect(Collectors.toSet());
-            // Si la empresa empezó a vender hace menos tiempo, los promedios diarios usan solo los días con datos.
             LocalDate primeraFGEM = operacionesFGEM.listarFGEM(cFGEM, empresaFGEM.idFGEM(), TipoOperacionFGEM.VENTA, desdeHistorialFGEM, hoyFGEM, false)
                     .stream().map(OperacionFGEM::fechaFGEM).min(LocalDate::compareTo).orElse(desdeRecienteFGEM);
             PeriodoVentasFGEM recientesFGEM = periodoFGEM(cFGEM, empresaFGEM, idsFGEM, maximoFGEM(desdeRecienteFGEM, primeraFGEM), hoyFGEM);
@@ -115,15 +105,10 @@ public class SugerenciasServiceFGEM {
         try {
             configuracionFGEM.guardarFGEM(CLAVE_MARGEN_FGEM + empresaFGEM.idFGEM(), margenFGEM.stripTrailingZeros().toPlainString());
         } catch (RuntimeException eFGEM) {
-            // Recordar el margen es solo una comodidad.
         }
         return resultadoFGEM;
     }
 
-    /**
-     * Guarda la lista de compras (la reposición sugerida) en PDF o en Excel según la extensión de {@code destino}
-     * ({@code .xlsx} para Excel; cualquier otra, PDF). Queda en el historial de informes. Devuelve la ruta final.
-     */
     public Path exportarListaComprasFGEM(BigDecimal margenObjetivoFGEM, Path destinoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.INFORMES_GENERAR);
         if (destinoFGEM == null || destinoFGEM.getFileName() == null) {
@@ -164,14 +149,12 @@ public class SugerenciasServiceFGEM {
         return archivoFGEM;
     }
 
-    /** Sugerencias con el margen objetivo guardado de la empresa (para el Dashboard). */
     public ResultadoFGEM sugerenciasActualesFGEM() {
         return sugerenciasFGEM(margenObjetivoFGEM());
     }
 
     private PeriodoVentasFGEM periodoFGEM(Connection cFGEM, EmpresaFGEM empresaFGEM, Set<Long> idsFGEM, LocalDate desdeFGEM, LocalDate hastaFGEM)
             throws SQLException {
-        // Solo las líneas del catálogo (las ventas agropecuarias usan otros identificadores).
         List<VentaFGEM> ventasFGEM = operacionesFGEM.lineasVendidasFGEM(cFGEM, empresaFGEM.idFGEM(), desdeFGEM, hastaFGEM).stream()
                 .filter(vFGEM -> idsFGEM.contains(vFGEM.productoIdFGEM()) && !"AGRO".equals(vFGEM.codigoFGEM()))
                 .toList();
@@ -179,10 +162,6 @@ public class SugerenciasServiceFGEM {
                 operacionesFGEM.ultimasVentasFGEM(cFGEM, empresaFGEM.idFGEM(), desdeFGEM, hastaFGEM));
     }
 
-    /**
-     * Utilidad neta mensual con la misma base que el diagnóstico (promedio de los últimos meses completos), para
-     * poner en contexto la ganancia extra de los precios. {@code null} si no hubo ventas.
-     */
     private BigDecimal utilidadMensualFGEM(Connection cFGEM, EmpresaFGEM empresaFGEM, LocalDate hoyFGEM) throws SQLException {
         YearMonth ultimoFGEM = YearMonth.from(hoyFGEM).minusMonths(1);
         int mesesFGEM = DiagnosticoServiceFGEM.MESES_EVALUADOS_FGEM;

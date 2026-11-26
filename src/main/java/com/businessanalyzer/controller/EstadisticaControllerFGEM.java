@@ -45,7 +45,6 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Locale;
 
-/** Módulo "Análisis estadístico": descriptiva, tendencia, días de la semana, ABC y correlaciones. */
 public class EstadisticaControllerFGEM implements VistaModuloFGEM {
 
     private final AppContextFGEM contextoFGEM;
@@ -111,8 +110,6 @@ public class EstadisticaControllerFGEM implements VistaModuloFGEM {
         cargarFGEM();
     }
 
-    // ------------------------------------------------------------------ período
-
     @FXML
     private void ultimos3FGEM() {
         fijarUltimosMesesFGEM(3);
@@ -128,7 +125,6 @@ public class EstadisticaControllerFGEM implements VistaModuloFGEM {
         fijarUltimosMesesFGEM(12);
     }
 
-    /** Desde el día 1 de hace (n − 1) meses hasta el fin del mes actual. */
     private void fijarUltimosMesesFGEM(int mesesFGEM) {
         YearMonth actualFGEM = YearMonth.now();
         LocalDate desdeFGEM = actualFGEM.minusMonths(mesesFGEM - 1L).atDay(1);
@@ -141,8 +137,6 @@ public class EstadisticaControllerFGEM implements VistaModuloFGEM {
             dpHastaFGEM.setValue(hastaFGEM);
         }
     }
-
-    // ------------------------------------------------------------------ carga
 
     private void cargarFGEM() {
         EmpresaFGEM empresaFGEM = contextoFGEM.sesionFGEM().empresaActivaFGEM().orElse(null);
@@ -203,13 +197,10 @@ public class EstadisticaControllerFGEM implements VistaModuloFGEM {
                         + " de las ventas");
     }
 
-    // ------------------------------------------------------------------ resumen descriptivo
-
     private void mostrarResumenFGEM(AnalisisEstadisticoFGEM aFGEM) {
         llenarDescriptivaFGEM(gridTicketFGEM, aFGEM.ticketFGEM());
         llenarDescriptivaFGEM(gridDiariasFGEM, aFGEM.ventasDiariasFGEM());
         com.businessanalyzer.analytics.estadistica.InferenciaFGEM.IntervaloConfianzaFGEM icFGEM = aFGEM.intervaloDiarioFGEM();
-        // En dos filas, para que la tarjeta no se ensanche.
         String ayudaIcFGEM = "Intervalo de confianza al 95 % (t de Student): media ± t · s / √n. Con 95 % de confianza, "
                 + "el promedio real de las ventas diarias está entre estos dos valores";
         int filaIcFGEM = datoFGEM(gridDiariasFGEM, gridDiariasFGEM.getRowCount(), "IC 95 %: desde",
@@ -236,8 +227,6 @@ public class EstadisticaControllerFGEM implements VistaModuloFGEM {
         datoFGEM(grillaFGEM, filaFGEM, "Asimetría", decimalFGEM(eFGEM.asimetriaFGEM()), "Positiva: pocos valores muy altos estiran la distribución");
     }
 
-    // ------------------------------------------------------------------ tendencia
-
     private void mostrarTendenciaFGEM(AnalisisEstadisticoFGEM aFGEM) {
         TendenciaFGEM tFGEM = aFGEM.tendenciaVentasFGEM();
         contenedorTendenciaFGEM.getChildren().setAll(GraficosFGEM.visorFGEM(GraficosFGEM.tendenciaFGEM(aFGEM.serieMensualFGEM(), tFGEM, monedaFGEM)));
@@ -260,8 +249,6 @@ public class EstadisticaControllerFGEM implements VistaModuloFGEM {
         frasesTendenciaFGEM.addAll(LecturaEstadisticaFGEM.comparacionFGEM(aFGEM, monedaFGEM));
         lecturaFGEM(lecturaTendenciaFGEM, null, frasesTendenciaFGEM);
     }
-
-    // ------------------------------------------------------------------ días de la semana
 
     private void mostrarDiasFGEM(AnalisisEstadisticoFGEM aFGEM) {
         EstacionalidadSemanalFGEM eFGEM = aFGEM.estacionalidadFGEM();
@@ -286,8 +273,6 @@ public class EstadisticaControllerFGEM implements VistaModuloFGEM {
         }
         lecturaFGEM(lecturaDiasFGEM, null, frasesDiasFGEM);
     }
-
-    // ------------------------------------------------------------------ ABC
 
     private void mostrarAbcFGEM(AnalisisEstadisticoFGEM aFGEM) {
         AnalisisAbcFGEM abcFGEM = aFGEM.abcFGEM();
@@ -327,8 +312,6 @@ public class EstadisticaControllerFGEM implements VistaModuloFGEM {
         colAbcAcumuladoFGEM.setCellValueFactory(cFGEM -> new ReadOnlyStringWrapper(MontosFGEM.porcentajeFGEM(cFGEM.getValue().acumuladoFGEM())));
     }
 
-    // ------------------------------------------------------------------ correlaciones
-
     private void mostrarCorrelacionesFGEM(AnalisisEstadisticoFGEM aFGEM) {
         MatrizCorrelacionFGEM mFGEM = aFGEM.correlacionesFGEM();
         gridCorrelacionFGEM.getChildren().clear();
@@ -356,7 +339,6 @@ public class EstadisticaControllerFGEM implements VistaModuloFGEM {
         return labelFGEM;
     }
 
-    /** Celda coloreada: azul si r es positivo, rojo si es negativo; más opaca cuanto más fuerte. */
     private static Label celdaCorrelacionFGEM(double rFGEM, double pFGEM, boolean diagonalFGEM) {
         Label celdaFGEM = new Label(Double.isNaN(rFGEM) ? "—" : String.format(Locale.US, "%.2f", rFGEM));
         celdaFGEM.setMinSize(105, 44);
@@ -373,8 +355,6 @@ public class EstadisticaControllerFGEM implements VistaModuloFGEM {
         }
         return celdaFGEM;
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private static int datoFGEM(GridPane grillaFGEM, int filaFGEM, String etiquetaFGEM, String valorFGEM, String ayudaFGEM) {
         Label claveFGEM = new Label(etiquetaFGEM);

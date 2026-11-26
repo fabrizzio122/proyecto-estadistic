@@ -66,7 +66,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-/** Módulo "Agricultura": parcelas, campañas, costos, cosechas y resultado de cada campaña. */
 public class AgriculturaControllerFGEM implements VistaModuloFGEM {
 
     private static final String TODAS_FGEM = "Todas";
@@ -158,8 +157,6 @@ public class AgriculturaControllerFGEM implements VistaModuloFGEM {
         cargarFGEM();
     }
 
-    // ------------------------------------------------------------------ carga
-
     @FXML
     private void cargarFGEM() {
         EmpresaFGEM empresaFGEM = contextoFGEM.sesionFGEM().empresaActivaFGEM().orElse(null);
@@ -225,8 +222,6 @@ public class AgriculturaControllerFGEM implements VistaModuloFGEM {
         kpiMargenFGEM.actualizarFGEM(MontosFGEM.formatearFGEM(margenFGEM, monedaFGEM),
                 cerradasFGEM.size() + (cerradasFGEM.size() == 1 ? " campaña cerrada" : " campañas cerradas"));
     }
-
-    // ------------------------------------------------------------------ comparación
 
     private void mostrarComparacionFGEM() {
         tablaComparacionFGEM.getItems().setAll(ComparacionCultivosFGEM.deFGEM(campaniasFGEM));
@@ -329,8 +324,6 @@ public class AgriculturaControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ campañas
-
     @FXML
     private void nuevaCampaniaFGEM() {
         List<ParcelaFGEM> activasFGEM = tablaParcelasFGEM.getItems().stream().filter(ParcelaFGEM::activaFGEM).toList();
@@ -374,7 +367,6 @@ public class AgriculturaControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /** Formulario de costo: registra uno nuevo en la campaña o, con {@code original}, lo corrige. */
     private boolean formularioCostoFGEM(String campaniaFGEM, long campaniaIdFGEM, CostoCampaniaFGEM originalFGEM) {
         ComboBox<RubroCostoFGEM> rubroFGEM = new ComboBox<>(FXCollections.observableArrayList(RubroCostoFGEM.values()));
         rubroFGEM.setPromptText("Selecciona el rubro");
@@ -419,7 +411,6 @@ public class AgriculturaControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /** Formulario de cosecha: registra una nueva en la campaña o, con {@code original}, la corrige. */
     private boolean formularioCosechaFGEM(String campaniaFGEM, long campaniaIdFGEM, CosechaFGEM originalFGEM) {
         DatePicker fechaFGEM = CamposFechaFGEM.nuevoFGEM(LocalDate.now());
         TextField kilosFGEM = new TextField();
@@ -528,7 +519,6 @@ public class AgriculturaControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /** Costos y cosechas de la campaña, con la opción de corregirlos o anular los registrados por error. */
     @FXML
     private void verRegistrosFGEM() {
         ResultadoCampaniaFGEM rFGEM = seleccionadaFGEM();
@@ -630,8 +620,6 @@ public class AgriculturaControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ parcelas
-
     @FXML
     private void nuevaParcelaFGEM() {
         FormularioParcelaFGEM formularioFGEM = new FormularioParcelaFGEM(null);
@@ -672,8 +660,6 @@ public class AgriculturaControllerFGEM implements VistaModuloFGEM {
             NotificadorFGEM.errorFGEM(ErroresFGEM.mensajeFGEM(eFGEM));
         }
     }
-
-    // ------------------------------------------------------------------ tablas
 
     private void configurarTablaCampaniasFGEM() {
         colCamCultivoFGEM.setCellValueFactory(cFGEM -> {
@@ -788,8 +774,6 @@ public class AgriculturaControllerFGEM implements VistaModuloFGEM {
         return columnaFGEM;
     }
 
-    // ------------------------------------------------------------------ utilidades
-
     private ResultadoCampaniaFGEM seleccionadaFGEM() {
         return tablaCampaniasFGEM.getSelectionModel().getSelectedItem();
     }
@@ -827,7 +811,6 @@ public class AgriculturaControllerFGEM implements VistaModuloFGEM {
         return textoFGEM == null || textoFGEM.isBlank() ? null : MontosFGEM.leerFGEM(textoFGEM, campoFGEM);
     }
 
-    /** Formulario de campaña: propone el rendimiento de referencia del cultivo. */
     private final class FormularioCampaniaFGEM {
         private final ComboBox<ParcelaFGEM> cmbParcelaFGEM;
         private final ComboBox<CultivoFGEM> cmbCultivoFGEM = new ComboBox<>(FXCollections.observableArrayList(CultivoFGEM.values()));
@@ -898,7 +881,6 @@ public class AgriculturaControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /** Formulario de parcela. */
     private final class FormularioParcelaFGEM {
         private final TextField txtNombreFGEM = new TextField();
         private final TextField txtAreaFGEM = new TextField();

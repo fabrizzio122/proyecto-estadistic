@@ -4,7 +4,6 @@ import com.businessanalyzer.analytics.diagnostico.SemaforoFGEM;
 
 import java.math.BigDecimal;
 
-/** Resultado de un aspecto verificado. */
 public enum ResultadoAspectoFGEM {
 
     CUMPLE("Cumple", SemaforoFGEM.VERDE, BigDecimal.ONE),
@@ -30,7 +29,6 @@ public enum ResultadoAspectoFGEM {
         return semaforoFGEM;
     }
 
-    /** 1, 0.5 o 0; {@code null} si no aplica (no cuenta para el porcentaje de cumplimiento). */
     public BigDecimal puntajeFGEM() {
         return puntajeFGEM;
     }

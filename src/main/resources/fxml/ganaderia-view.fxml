@@ -14,16 +14,13 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.businessanalyzer.controller.GanaderiaControllerFGEM"
       spacing="14" styleClass="page">
 
-    <!-- Indicadores principales -->
     <HBox fx:id="indicadoresFGEM" spacing="16"/>
 
-    <!-- Período (para movimientos, producción e indicadores) -->
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="Período" styleClass="form-label"/>
         <DatePicker fx:id="dpDesdeFGEM" prefWidth="135"/>
@@ -34,24 +31,20 @@
         <Region HBox.hgrow="ALWAYS"/>
         <Button fx:id="btnNuevoMovimientoFGEM" text="Registrar movimiento" styleClass="button-primary" minWidth="-Infinity"
                 onAction="#nuevoMovimientoFGEM">
-            <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
         </Button>
     </HBox>
 
     <TabPane fx:id="pestanasFGEM" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
 
-        <!-- 1. Hato -->
         <Tab text="Hato">
             <VBox spacing="10" styleClass="tab-contenido">
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label fx:id="lblHatoFGEM" styleClass="muted" wrapText="true" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
                     <Button fx:id="btnInventarioInicialFGEM" text="Inventario inicial" styleClass="button-secondary"
                             minWidth="-Infinity" onAction="#inventarioInicialFGEM">
-                        <graphic><FontIcon iconLiteral="fth-clipboard"/></graphic>
                     </Button>
                     <Button fx:id="btnPreciosFGEM" text="Precios por cabeza" styleClass="button-secondary"
                             minWidth="-Infinity" onAction="#editarPreciosFGEM">
-                        <graphic><FontIcon iconLiteral="fth-tag"/></graphic>
                     </Button>
                 </HBox>
                 <TableView fx:id="tablaHatoFGEM" VBox.vgrow="ALWAYS" styleClass="tabla-compacta">
@@ -70,7 +63,6 @@
             </VBox>
         </Tab>
 
-        <!-- 2. Movimientos -->
         <Tab text="Movimientos">
             <VBox spacing="10" styleClass="tab-contenido">
                 <HBox spacing="10" alignment="CENTER_LEFT">
@@ -79,11 +71,9 @@
                     <Region HBox.hgrow="ALWAYS"/>
                     <Button fx:id="btnEditarMovimientoFGEM" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#editarMovimientoFGEM">
-                        <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
                     </Button>
                     <Button fx:id="btnAnularMovimientoFGEM" text="Anular" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#anularMovimientoFGEM">
-                        <graphic><FontIcon iconLiteral="fth-x-circle"/></graphic>
                     </Button>
                 </HBox>
                 <TableView fx:id="tablaMovimientosFGEM" VBox.vgrow="ALWAYS">
@@ -102,22 +92,18 @@
             </VBox>
         </Tab>
 
-        <!-- 3. Producción -->
         <Tab text="Producción">
             <VBox spacing="10" styleClass="tab-contenido">
                 <HBox spacing="10" alignment="CENTER_LEFT">
                     <Label fx:id="lblProduccionFGEM" styleClass="muted" wrapText="true" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
                     <Button fx:id="btnEditarProduccionFGEM" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#editarProduccionFGEM">
-                        <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
                     </Button>
                     <Button fx:id="btnAnularProduccionFGEM" text="Anular" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#anularProduccionFGEM">
-                        <graphic><FontIcon iconLiteral="fth-x-circle"/></graphic>
                     </Button>
                     <Button fx:id="btnNuevaProduccionFGEM" text="Registrar producción" styleClass="button-secondary"
                             minWidth="-Infinity" onAction="#nuevaProduccionFGEM">
-                        <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
                     </Button>
                 </HBox>
                 <TableView fx:id="tablaProduccionFGEM" VBox.vgrow="ALWAYS">
@@ -139,14 +125,12 @@
             </VBox>
         </Tab>
 
-        <!-- 4. Indicadores -->
         <Tab text="Indicadores">
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="dialog-scroll">
                 <VBox fx:id="contenedorIndicadoresFGEM" spacing="14" styleClass="tab-contenido"/>
             </ScrollPane>
         </Tab>
 
-        <!-- 5. Evolución -->
         <Tab text="Evolución">
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="dialog-scroll">
                 <VBox spacing="14" styleClass="tab-contenido">

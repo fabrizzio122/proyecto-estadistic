@@ -22,24 +22,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 
-/**
- * Libro de Excel (.xlsx) con formato: títulos, encabezados resaltados, montos con el símbolo de la
- * moneda, porcentajes, fechas, filtros automáticos y la fila de encabezados inmovilizada.
- * <p>
- * Los montos y porcentajes se guardan como números (no como texto), para que el usuario pueda
- * sumarlos, filtrarlos o graficarlos en Excel.
- */
 public final class LibroExcelFGEM implements AutoCloseable {
 
-    /** Porcentaje expresado como fracción (0.125 = 12.5 %). */
     public record PorcentajeFGEM(BigDecimal valorFGEM) {
     }
 
-    /** Cantidad (no monetaria). */
     public record CantidadFGEM(BigDecimal valorFGEM) {
     }
 
-    /** Fórmula de Excel sin el signo "=" inicial. */
     public record FormulaFGEM(String expresionFGEM) {
     }
 
@@ -97,7 +87,6 @@ public final class LibroExcelFGEM implements AutoCloseable {
         return new HojaFGEM(libroFGEM.createSheet(WorkbookUtil.createSafeSheetName(nombreFGEM)));
     }
 
-    /** Guarda el libro en {@code destino} (primero en un temporal, para no dejar archivos a medias). */
     public void guardarFGEM(Path destinoFGEM) {
         Path temporalFGEM = destinoFGEM.resolveSibling(destinoFGEM.getFileName() + ".tmp");
         try (OutputStream salidaFGEM = Files.newOutputStream(temporalFGEM)) {
@@ -114,7 +103,6 @@ public final class LibroExcelFGEM implements AutoCloseable {
         try {
             libroFGEM.close();
         } catch (IOException ignoradoFGEM) {
-            // Libro en memoria: no hay recursos externos que liberar.
         }
     }
 
@@ -133,7 +121,6 @@ public final class LibroExcelFGEM implements AutoCloseable {
         return estiloFGEM;
     }
 
-    /** Una hoja del libro. Las filas se agregan de arriba hacia abajo. */
     public final class HojaFGEM {
 
         private final Sheet hojaFGEM;
@@ -167,13 +154,11 @@ public final class LibroExcelFGEM implements AutoCloseable {
             return this;
         }
 
-        /** Fila de datos. Los valores pueden ser texto, números, montos, fechas, porcentajes o fórmulas. */
         public HojaFGEM filaFGEM(Object... valoresFGEM) {
             escribirFGEM(valoresFGEM, false);
             return this;
         }
 
-        /** Fila de totales resaltada (no entra en el filtro automático). */
         public HojaFGEM totalFGEM(Object... valoresFGEM) {
             escribirFGEM(valoresFGEM, true);
             return this;
@@ -184,7 +169,6 @@ public final class LibroExcelFGEM implements AutoCloseable {
             return this;
         }
 
-        /** Suma de una columna de datos solo en las filas donde otras dos columnas tienen los valores indicados. */
         public FormulaFGEM sumaSiFGEM(int columnaFGEM, int columna1FGEM, String valor1FGEM, int columna2FGEM, String valor2FGEM) {
             if (primeraFilaDatosFGEM < 0 || filaActualFGEM <= primeraFilaDatosFGEM) {
                 return new FormulaFGEM("0");
@@ -193,7 +177,6 @@ public final class LibroExcelFGEM implements AutoCloseable {
                     + rangoFGEM(columna2FGEM) + ",\"" + valor2FGEM + "\")");
         }
 
-        /** Fórmula que suma una columna de datos (0 = columna A), opcionalmente solo si otra columna coincide. */
         public FormulaFGEM sumaFGEM(int columnaFGEM, Integer columnaCondicionFGEM, String condicionFGEM) {
             if (primeraFilaDatosFGEM < 0 || filaActualFGEM <= primeraFilaDatosFGEM) {
                 return new FormulaFGEM("0");
@@ -204,13 +187,11 @@ public final class LibroExcelFGEM implements AutoCloseable {
                     : new FormulaFGEM("SUMIF(" + rangoFGEM(columnaCondicionFGEM) + ",\"" + condicionFGEM + "\"," + rangoFGEM + ")");
         }
 
-        /** Rango de datos de una columna, por ejemplo {@code C5:C40}. */
         private String rangoFGEM(int columnaFGEM) {
             String letraFGEM = CellReference.convertNumToColString(columnaFGEM);
             return letraFGEM + (primeraFilaDatosFGEM + 1) + ":" + letraFGEM + filaActualFGEM;
         }
 
-        /** Filtro automático, encabezados inmovilizados y ancho de columnas ajustado. */
         public void terminarFGEM(int ultimaFilaDatosExclusivaFGEM) {
             if (filaEncabezadoFGEM >= 0) {
                 hojaFGEM.createFreezePane(0, filaEncabezadoFGEM + 1);
@@ -223,7 +204,6 @@ public final class LibroExcelFGEM implements AutoCloseable {
             }
         }
 
-        /** Fila siguiente a la última escrita (para indicar el final de los datos al filtro). */
         public int filaActualFGEM() {
             return filaActualFGEM;
         }

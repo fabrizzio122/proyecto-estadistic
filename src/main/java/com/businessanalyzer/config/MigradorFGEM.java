@@ -15,17 +15,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-/**
- * Aplica los scripts de {@code src/main/resources/db/migration} en orden.
- * <p>
- * Cada migracion se ejecuta una sola vez y dentro de una transaccion: si un script falla,
- * la base de datos queda exactamente como estaba. La version aplicada se guarda en la
- * tabla {@code schema_version}.
- * <p>
- * <b>Para cambiar el esquema en fases futuras:</b> crear un nuevo archivo
- * {@code V<n>__descripcion.sql} y agregarlo al final de {@link #MIGRACIONES_FGEM}.
- * Nunca modificar un script que ya fue aplicado.
- */
 public final class MigradorFGEM {
 
     static final List<MigracionFGEM> MIGRACIONES_FGEM = List.of(
@@ -48,7 +37,6 @@ public final class MigradorFGEM {
 
     private static final Logger logFGEM = LoggerFactory.getLogger(MigradorFGEM.class);
 
-    /** Versión de esquema que espera esta versión de la aplicación. */
     public static int ultimaVersionFGEM() {
         return MIGRACIONES_FGEM.get(MIGRACIONES_FGEM.size() - 1).versionFGEM();
     }
@@ -66,7 +54,6 @@ public final class MigradorFGEM {
         validarOrdenFGEM(this.migracionesFGEM);
     }
 
-    /** Aplica las migraciones pendientes y devuelve la version final del esquema. */
     public int migrarFGEM() {
         crearTablaVersionesFGEM();
         int actualFGEM = versionActualFGEM();

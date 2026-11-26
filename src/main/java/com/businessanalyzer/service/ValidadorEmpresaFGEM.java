@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-/** Valida y normaliza los datos de una empresa. */
 final class ValidadorEmpresaFGEM {
 
     private static final Pattern IDENTIFICACION_FGEM = Pattern.compile("[A-Z0-9-]{5,20}");

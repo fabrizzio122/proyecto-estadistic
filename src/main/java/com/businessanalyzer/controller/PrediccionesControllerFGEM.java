@@ -41,7 +41,6 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.function.Function;
 
-/** Módulo "Predicciones": proyección de ventas y utilidad neta con el método más preciso. */
 public class PrediccionesControllerFGEM implements VistaModuloFGEM {
 
     private static final int MESES_HISTORIA_GRAFICO_FGEM = 12;
@@ -156,8 +155,6 @@ public class PrediccionesControllerFGEM implements VistaModuloFGEM {
                 "Error típico " + porcentajeFGEM(ventasFGEM.errorRelativoFGEM()) + " · " + ventasFGEM.elegidaFGEM().metodoFGEM().nombreFGEM());
     }
 
-    // ------------------------------------------------------------------ contenido de cada serie
-
     private Node contenidoSerieFGEM(ResultadoPrediccionFGEM rFGEM, PronosticoFGEM pFGEM, double[] historiaFGEM, List<String> lecturaFGEM) {
         if (!pFGEM.suficienteFGEM()) {
             Label avisoFGEM = new Label("Se necesitan al menos " + PronosticadorFGEM.MINIMO_DATOS_FGEM + " meses completos con ventas "
@@ -205,7 +202,6 @@ public class PrediccionesControllerFGEM implements VistaModuloFGEM {
         explicacionFGEM.setMinHeight(Region.USE_PREF_SIZE);
         derechaFGEM.getChildren().addAll(metodoFGEM, explicacionFGEM, subtituloFGEM("Proyección mensual"), tablaPuntosFGEM(rFGEM, pFGEM),
                 subtituloFGEM("Error medio de cada método con tus datos"), tablaMetodosFGEM(pFGEM));
-        // El panel derecho se desplaza si no entra completo (horizontes largos o ventanas pequeñas).
         ScrollPane panelDerechoFGEM = new ScrollPane(derechaFGEM);
         panelDerechoFGEM.setFitToWidth(true);
         panelDerechoFGEM.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -249,18 +245,15 @@ public class PrediccionesControllerFGEM implements VistaModuloFGEM {
         return tablaFGEM;
     }
 
-    /** Monto sin decimales: "S/ 29,518". */
     private String enteroFGEM(double valorFGEM) {
         return monedaFGEM.simboloFGEM() + " " + new java.text.DecimalFormat("#,##0",
                 java.text.DecimalFormatSymbols.getInstance(java.util.Locale.US)).format(Math.round(valorFGEM));
     }
 
-    /** "nov 26". */
     private static String mesCortoFGEM(YearMonth mesFGEM) {
         return nombreMesFGEM(mesFGEM).substring(0, 3) + " " + String.valueOf(mesFGEM.getYear()).substring(2);
     }
 
-    /** Pestaña "Cómo se calcula": método por método y la forma de elegir. */
     private Node explicacionMetodosFGEM() {
         VBox cajaFGEM = tarjetaFGEM("Cómo se proyecta");
         cajaFGEM.getChildren().add(parrafoFGEM("Se usan solo meses completos (el mes en curso es el primero que se proyecta) y "
@@ -290,8 +283,6 @@ public class PrediccionesControllerFGEM implements VistaModuloFGEM {
         desplazableFGEM.getStyleClass().addAll("dialog-scroll", "tab-contenido");
         return desplazableFGEM;
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private static VBox tarjetaFGEM(String tituloFGEM) {
         VBox cajaFGEM = new VBox(8);
@@ -331,7 +322,6 @@ public class PrediccionesControllerFGEM implements VistaModuloFGEM {
         return columnaFGEM;
     }
 
-    /** Las proyecciones son aproximadas: en las tarjetas se muestran sin céntimos. */
     private String redondeadoFGEM(double valorFGEM) {
         return Double.isNaN(valorFGEM) ? "—" : MontosFGEM.formatearFGEM(BigDecimal.valueOf(valorFGEM).setScale(0, RoundingMode.HALF_UP), monedaFGEM)
                 .replaceAll("\\.00$", "");

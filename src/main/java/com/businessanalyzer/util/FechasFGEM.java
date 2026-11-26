@@ -8,10 +8,6 @@ import java.util.Locale;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
-/**
- * Conversión de fechas. En SQLite se guardan como texto ISO-8601
- * ({@code 2026-11-13T14:38:08}), que se ordena correctamente como texto.
- */
 public final class FechasFGEM {
 
     private static final DateTimeFormatter ISO_FGEM = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
@@ -34,7 +30,6 @@ public final class FechasFGEM {
         return fechaFGEM == null ? "—" : fechaFGEM.format(PANTALLA_FGEM);
     }
 
-    /** Fecha sin hora en formato ISO ({@code 2026-11-13}). */
     public static String fechaATextoFGEM(LocalDate fechaFGEM) {
         return fechaFGEM == null ? null : fechaFGEM.format(DateTimeFormatter.ISO_LOCAL_DATE);
     }
@@ -47,7 +42,6 @@ public final class FechasFGEM {
         return fechaFGEM == null ? "—" : fechaFGEM.format(FECHA_PANTALLA_FGEM);
     }
 
-    /** Nombre del mes en español con mayúscula inicial (1 = Enero). */
     public static String nombreMesFGEM(int mesFGEM) {
         String nombreFGEM = Month.of(mesFGEM).getDisplayName(TextStyle.FULL, ESPANOL_FGEM);
         return Character.toUpperCase(nombreFGEM.charAt(0)) + nombreFGEM.substring(1);

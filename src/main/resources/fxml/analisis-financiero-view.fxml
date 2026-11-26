@@ -19,7 +19,6 @@
       fx:controller="com.businessanalyzer.controller.AnalisisFinancieroControllerFGEM"
       spacing="14" styleClass="page">
 
-    <!-- Período y comparación -->
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="Período" styleClass="form-label"/>
         <DatePicker fx:id="dpDesdeFGEM" prefWidth="135"/>
@@ -33,12 +32,10 @@
         <Label fx:id="lblComparacionFGEM" styleClass="muted"/>
     </HBox>
 
-    <!-- Indicadores clave -->
     <HBox fx:id="indicadoresFGEM" spacing="16"/>
 
     <TabPane fx:id="pestanasFGEM" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
 
-        <!-- 1. Estado de resultados -->
         <Tab text="Estado de resultados">
             <HBox spacing="16" styleClass="tab-contenido">
                 <VBox spacing="10" HBox.hgrow="ALWAYS" prefWidth="560">
@@ -71,7 +68,6 @@
             </HBox>
         </Tab>
 
-        <!-- 2. Punto de equilibrio -->
         <Tab text="Punto de equilibrio">
             <HBox spacing="16" styleClass="tab-contenido">
                 <VBox styleClass="card" spacing="12" prefWidth="390" minWidth="340">
@@ -87,7 +83,6 @@
             </HBox>
         </Tab>
 
-        <!-- 3. Rentabilidad por producto -->
         <Tab text="Rentabilidad por producto">
             <HBox spacing="16" styleClass="tab-contenido">
                 <TableView fx:id="tablaProductosFGEM" HBox.hgrow="ALWAYS" styleClass="tabla-compacta">

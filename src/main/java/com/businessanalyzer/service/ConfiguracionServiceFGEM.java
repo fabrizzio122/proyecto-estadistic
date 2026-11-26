@@ -5,7 +5,6 @@ import com.businessanalyzer.repository.ConfiguracionRepositoryFGEM;
 
 import java.util.regex.Pattern;
 
-/** Preferencias de la aplicacion guardadas en la base de datos local. */
 public class ConfiguracionServiceFGEM {
 
     public static final String CLAVE_TEMA_FGEM = "app.tema";

@@ -26,11 +26,6 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.function.Function;
 
-/**
- * Redacta el contenido de cada informe a partir de los datos ya calculados: qué secciones lleva,
- * en qué orden y con qué textos. No calcula indicadores (eso lo hacen los paquetes de analytics)
- * ni accede a la base de datos.
- */
 public final class RedactorInformesFGEM {
 
     private static final int ANCHO_GRAFICO_FGEM = 515;
@@ -46,8 +41,6 @@ public final class RedactorInformesFGEM {
         this.aFGEM = datosFGEM.analisisFGEM();
         this.monedaFGEM = datosFGEM.empresaFGEM().monedaFGEM();
     }
-
-    // ------------------------------------------------------------------ PDF
 
     public ContenidoInformeFGEM informeEjecutivoFGEM() {
         ContenidoInformeFGEM cFGEM = new ContenidoInformeFGEM();
@@ -257,8 +250,6 @@ public final class RedactorInformesFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ Excel
-
     public LibroExcelFGEM libroExcelFGEM() {
         LibroExcelFGEM libroFGEM = new LibroExcelFGEM(monedaFGEM);
         String empresaFGEM = datosFGEM.empresaFGEM().nombreVisibleFGEM();
@@ -382,8 +373,6 @@ public final class RedactorInformesFGEM {
             hojaFGEM.filaFGEM(valoresFGEM);
         }
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private String dineroFGEM(BigDecimal valorFGEM) {
         return valorFGEM == null ? "—" : MontosFGEM.formatearFGEM(valorFGEM.setScale(2, RoundingMode.HALF_UP), monedaFGEM);

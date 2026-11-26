@@ -49,10 +49,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-/**
- * Módulo «Sugerencias»: qué precios ajustar, qué reponer y qué productos tienen dinero parado.
- * Los cálculos están en {@link SugerenciasProductoFGEM}.
- */
 public class SugerenciasControllerFGEM implements VistaModuloFGEM {
 
     private static final DateTimeFormatter FECHA_FGEM = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -125,7 +121,7 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
 
     @FXML
     private void calcularFGEM() {
-        spnMargenFGEM.increment(0);   // confirma lo escrito en el campo
+        spnMargenFGEM.increment(0);
         BigDecimal margenFGEM = BigDecimal.valueOf(spnMargenFGEM.getValue()).movePointLeft(2);
         progresoFGEM.setVisible(true);
         TareasFGEM.ejecutarFGEM(() -> contextoFGEM.sugerenciasFGEM().sugerenciasFGEM(margenFGEM), resultadoFGEM -> {
@@ -146,7 +142,6 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
 
         mostrarGananciaFGEM(rFGEM);
         long agotadosFGEM = rFGEM.reposicionFGEM().stream().filter(rFGEM2 -> rFGEM2.urgenciaFGEM() == UrgenciaFGEM.AGOTADO).count();
-        // Solo el número como valor: la tarjeta es angosta y «1 producto» se cortaba.
         int reponerFGEM = rFGEM.reposicionFGEM().size();
         kpiReponerFGEM.actualizarFGEM(String.valueOf(reponerFGEM),
                 reponerFGEM == 0 ? "Hay stock para al menos dos semanas"
@@ -169,7 +164,6 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         contextoFGEM.mostrarFraseFGEM(ModuloFGEM.SUGERENCIAS, fraseFGEM);
     }
 
-    /** La ganancia extra, con el supuesto y en el contexto de la utilidad del negocio. */
     private void mostrarGananciaFGEM(ResultadoFGEM rFGEM) {
         long cuantosFGEM = rFGEM.preciosPrioritariosFGEM();
         if (cuantosFGEM == 0) {
@@ -196,7 +190,6 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         kpiGananciaFGEM.actualizarFGEM(dineroFGEM(extraFGEM), detalleFGEM.toString());
     }
 
-    /** El dinero parado, separado por situación y como porcentaje del inventario. */
     private void mostrarParadoFGEM(ResultadoFGEM rFGEM) {
         if (rFGEM.sinMovimientoFGEM().isEmpty()) {
             kpiParadoFGEM.actualizarFGEM(dineroFGEM(BigDecimal.ZERO), "Todo el stock se está vendiendo");
@@ -232,9 +225,6 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         btnRegistrarCompraFGEM.setDisable(true);
     }
 
-    // ------------------------------------------------------------------ registrar la compra
-
-    /** Abre una compra nueva en «Ventas y compras» con los productos y las cantidades de la reposición. */
     @FXML
     private void registrarCompraFGEM() {
         List<ReposicionFGEM> reposicionFGEM = List.copyOf(tablaReposicionFGEM.getItems());
@@ -244,8 +234,6 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         contextoFGEM.proponerCompraFGEM(new AppContextFGEM.CompraPropuestaFGEM(SugerenciasProductoFGEM.lineasCompraFGEM(reposicionFGEM),
                 "Reposición sugerida del " + FECHA_FGEM.format(LocalDate.now())));
     }
-
-    // ------------------------------------------------------------------ lista de compras
 
     @FXML
     private void exportarListaPdfFGEM() {
@@ -257,7 +245,6 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         exportarListaFGEM(true);
     }
 
-    /** Guarda la lista de compras con el margen que se ve en pantalla (la reposición no depende de él). */
     private void exportarListaFGEM(boolean excelFGEM) {
         EmpresaFGEM empresaFGEM = contextoFGEM.sesionFGEM().empresaActivaFGEM().orElse(null);
         if (empresaFGEM == null) {
@@ -283,7 +270,6 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         if (archivoFGEM == null) {
             return;
         }
-        // Excel solo si el nombre termina en .xlsx; si el usuario borró la extensión, se agrega la elegida.
         Path destinoFGEM = archivoFGEM.toPath();
         String nombreFGEM = destinoFGEM.getFileName().toString().toLowerCase(java.util.Locale.ROOT);
         String extensionFGEM = excelFGEM ? ".xlsx" : ".pdf";
@@ -301,7 +287,6 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
                     try {
                         contextoFGEM.configuracionFGEM().guardarFGEM(CLAVE_CARPETA_FGEM, generadoFGEM.getParent().toString());
                     } catch (RuntimeException eFGEM) {
-                        // No poder recordar la carpeta no impide seguir.
                     }
                     if (DialogosFGEM.confirmarFGEM(menuListaComprasFGEM.getScene().getWindow(), "Lista de compras guardada",
                             "Se guardó «" + generadoFGEM.getFileName() + "».\n\n¿Quieres abrirla ahora?")) {
@@ -327,10 +312,7 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         }, errorFGEM -> NotificadorFGEM.errorFGEM("No se pudo abrir el archivo: " + ErroresFGEM.mensajeFGEM(errorFGEM)));
     }
 
-    // ------------------------------------------------------------------ tablas
-
     private void configurarPreciosFGEM() {
-        // Las sugerencias no prioritarias (productos que casi no se venden) van en gris.
         Function<PrecioFGEM, String> tenueFGEM = pFGEM -> pFGEM.notaFGEM() != null ? TENUE_FGEM : null;
         tablaPreciosFGEM.getColumns().setAll(
                 columnaFGEM("Producto", 175, pFGEM -> pFGEM.productoFGEM().nombreFGEM(), tenueFGEM),
@@ -366,7 +348,6 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         tablaReposicionFGEM.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     }
 
-    /** «2,5 por día», o «1 en 60 días» si se vende muy poco (para que no parezca «0 por día»). */
     private String ritmoFGEM(ReposicionFGEM rFGEM) {
         String vendidoFGEM = MontosFGEM.cantidadFGEM(rFGEM.vendidoFGEM()) + " en " + diasFGEM(rFGEM.diasBaseFGEM());
         if (rFGEM.segunHistorialFGEM()) {
@@ -399,11 +380,9 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
     }
 
     private String dineroFGEM(BigDecimal valorFGEM) {
-        // Los montos calculados (por ejemplo la utilidad mensual) pueden traer más de dos decimales.
         return MontosFGEM.formatearFGEM(valorFGEM.setScale(2, RoundingMode.HALF_UP), monedaFGEM);
     }
 
-    /** «1 día», «14 días». */
     static String diasFGEM(int diasFGEM) {
         return diasFGEM + (diasFGEM == 1 ? " día" : " días");
     }
@@ -433,10 +412,6 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
         return columnaFGEM;
     }
 
-    /**
-     * El texto de la columna pasa a una segunda línea en vez de cortarse con «…». Conserva las clases de color que
-     * la celda recibe en {@link #columnaFGEM}.
-     */
     private static <T> TableColumn<T, String> ajustadaFGEM(TableColumn<T, String> columnaFGEM) {
         var fabricaFGEM = columnaFGEM.getCellFactory();
         columnaFGEM.setCellFactory(cFGEM -> {
@@ -451,7 +426,6 @@ public class SugerenciasControllerFGEM implements VistaModuloFGEM {
                 celdaFGEM.setGraphic(nFGEM == null || nFGEM.isEmpty() ? null : textoFGEM);
             });
             celdaFGEM.setContentDisplay(javafx.scene.control.ContentDisplay.GRAPHIC_ONLY);
-            // El color de la celda (gris, rojo) se aplica también al texto ajustado.
             celdaFGEM.getStyleClass().addListener((javafx.collections.ListChangeListener<String>) cambioFGEM -> {
                 textoFGEM.getStyleClass().removeAll(CLASES_FGEM);
                 celdaFGEM.getStyleClass().stream().filter(CLASES_FGEM::contains).forEach(textoFGEM.getStyleClass()::add);

@@ -8,11 +8,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Interpreta el análisis en frases cortas y claras para quien no es especialista
- * ("¿estoy ganando?", "¿cuánto me falta para cubrir mis costos?").
- * El diagnóstico completo con semáforo de riesgos llega en la Fase 11.
- */
 public final class LecturaFinancieraFGEM {
 
     private LecturaFinancieraFGEM() {

@@ -3,7 +3,6 @@ package com.businessanalyzer;
 import com.businessanalyzer.config.AppConfigFGEM;
 import com.businessanalyzer.config.AppContextFGEM;
 import com.businessanalyzer.ui.AnimacionesFGEM;
-import com.businessanalyzer.ui.ColorAcentoFGEM;
 import com.businessanalyzer.ui.DialogosFGEM;
 import com.businessanalyzer.ui.EstilosFGEM;
 import com.businessanalyzer.ui.NotificadorFGEM;
@@ -14,14 +13,6 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Ciclo de vida de la aplicacion JavaFX.
- * <ul>
- *     <li>{@link #init()} corre fuera del hilo grafico: prepara carpetas y migra la base de datos.</li>
- *     <li>{@link #start(Stage)} abre la ventana en la pantalla de acceso.</li>
- *     <li>{@link #stop()} registra el cierre de sesion al salir.</li>
- * </ul>
- */
 public class BusinessAnalyzerAppFGEM extends Application {
 
     public static final String NOMBRE_FGEM = "Business Analyzer";
@@ -59,9 +50,7 @@ public class BusinessAnalyzerAppFGEM extends Application {
             NotificadorFGEM.errorFGEM("Ocurrió un error inesperado. El detalle quedó registrado en el log.");
         });
 
-        // El inicio de sesión toma el último color usado en este equipo (cada usuario aplica el suyo al entrar).
         try {
-            contextoFGEM.preferenciasFGEM().ultimoColorFGEM().flatMap(ColorAcentoFGEM::desdeFGEM).ifPresent(EstilosFGEM::cambiarAcentoFGEM);
             AnimacionesFGEM.reducirFGEM(contextoFGEM.preferenciasFGEM().animacionesReducidasFGEM());
         } catch (RuntimeException eFGEM) {
             logFGEM.warn("No se pudieron leer las preferencias visuales", eFGEM);

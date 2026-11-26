@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Una operación comercial es una venta (sale mercadería) o una compra (entra mercadería). */
 public enum TipoOperacionFGEM {
 
     VENTA("Venta", "Ventas", "V", "Cliente"),
@@ -26,12 +25,10 @@ public enum TipoOperacionFGEM {
         return pluralFGEM;
     }
 
-    /** Prefijo de la numeración automática: V-000001, C-000001. */
     public String prefijoNumeroFGEM() {
         return prefijoNumeroFGEM;
     }
 
-    /** Cómo se llama la otra parte: cliente o proveedor. */
     public String contraparteFGEM() {
         return contraparteFGEM;
     }

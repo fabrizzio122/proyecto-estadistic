@@ -4,12 +4,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * Hecho que cambia las existencias del hato.
- *
- * @param categoriaDestinoFGEM solo en los cambios de categoría
- * @param montoFGEM            valor total de la compra o venta; {@code null} si no se indicó
- */
 public record MovimientoGanadoFGEM(
         long idFGEM,
         long empresaIdFGEM,
@@ -30,7 +24,6 @@ public record MovimientoGanadoFGEM(
         return categoriaFGEM.especieFGEM();
     }
 
-    /** Variación de existencias que produce en la categoría indicada. */
     public int efectoEnFGEM(CategoriaGanadoFGEM cFGEM) {
         if (anuladoFGEM) {
             return 0;

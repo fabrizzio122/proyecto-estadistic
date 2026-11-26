@@ -1,9 +1,5 @@
 package com.businessanalyzer.model;
 
-/**
- * Movimientos que mueven dinero sin ser ingresos ni gastos: no cambian la utilidad, solo dónde está
- * el dinero o cuánto puso o sacó el dueño.
- */
 public enum TipoMovimientoTesoreriaFGEM {
 
     TRANSFERENCIA("Transferencia entre cuentas", true, true),
@@ -24,12 +20,10 @@ public enum TipoMovimientoTesoreriaFGEM {
         return descripcionFGEM;
     }
 
-    /** El dinero sale de una cuenta. */
     public boolean usaOrigenFGEM() {
         return usaOrigenFGEM;
     }
 
-    /** El dinero entra a una cuenta. */
     public boolean usaDestinoFGEM() {
         return usaDestinoFGEM;
     }

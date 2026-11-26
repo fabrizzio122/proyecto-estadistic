@@ -49,13 +49,6 @@ import com.businessanalyzer.service.UsuarioServiceFGEM;
 import java.io.IOException;
 import java.time.Clock;
 
-/**
- * Contenedor de las dependencias compartidas de la aplicacion (inyeccion manual,
- * sin Spring). Los controladores lo reciben en su constructor mediante
- * {@link com.businessanalyzer.ui.Vistas}.
- * <p>
- * En cada fase se agregan aqui los nuevos repositorios y servicios.
- */
 public final class AppContextFGEM {
 
     private final AppConfigFGEM configFGEM;
@@ -155,7 +148,6 @@ public final class AppContextFGEM {
                 sesionFGEM, relojFGEM, visitaServiceFGEM, finanzasServiceFGEM, tesoreriaServiceFGEM);
     }
 
-    /** Prepara las carpetas, migra la base de datos y crea los servicios. */
     public static AppContextFGEM crearFGEM(AppConfigFGEM configFGEM) throws IOException {
         configFGEM.prepararDirectoriosFGEM();
         boolean restauradaFGEM = RestauracionPendienteFGEM.aplicarFGEM(configFGEM.archivoBaseDatosFGEM());
@@ -166,7 +158,6 @@ public final class AppContextFGEM {
 
     private java.util.function.Consumer<com.businessanalyzer.ui.ModuloFGEM> irAModuloFGEM = mFGEM -> { };
 
-    /** La ventana principal indica cómo abrir un módulo (lo usan los accesos del Dashboard). */
     public void alAbrirModuloFGEM(java.util.function.Consumer<com.businessanalyzer.ui.ModuloFGEM> accionFGEM) {
         this.irAModuloFGEM = accionFGEM == null ? mFGEM -> { } : accionFGEM;
     }
@@ -175,7 +166,6 @@ public final class AppContextFGEM {
         irAModuloFGEM.accept(moduloFGEM);
     }
 
-    /** Compra armada en otro módulo (la reposición sugerida) para revisarla y registrarla en «Ventas y compras». */
     public record CompraPropuestaFGEM(java.util.List<com.businessanalyzer.model.DatosOperacionFGEM.DatosLineaFGEM> lineasFGEM,
                                       String observacionesFGEM) {
         public CompraPropuestaFGEM {
@@ -185,13 +175,11 @@ public final class AppContextFGEM {
 
     private CompraPropuestaFGEM compraPropuestaFGEM;
 
-    /** Abre «Ventas y compras» con el formulario de nueva compra ya lleno con {@code propuesta}. */
     public void proponerCompraFGEM(CompraPropuestaFGEM propuestaFGEM) {
         this.compraPropuestaFGEM = propuestaFGEM;
         abrirModuloFGEM(com.businessanalyzer.ui.ModuloFGEM.VENTAS_COMPRAS);
     }
 
-    /** La compra propuesta pendiente, si hay; se entrega una sola vez. */
     public java.util.Optional<CompraPropuestaFGEM> tomarCompraPropuestaFGEM() {
         CompraPropuestaFGEM propuestaFGEM = compraPropuestaFGEM;
         compraPropuestaFGEM = null;
@@ -200,27 +188,20 @@ public final class AppContextFGEM {
 
     private java.util.function.BiConsumer<com.businessanalyzer.ui.ModuloFGEM, String> fraseModuloFGEM = (mFGEM, fFGEM) -> { };
 
-    /** La ventana principal indica cómo mostrar la frase resumen de una pantalla de análisis. */
     public void alMostrarFraseFGEM(java.util.function.BiConsumer<com.businessanalyzer.ui.ModuloFGEM, String> accionFGEM) {
         this.fraseModuloFGEM = accionFGEM == null ? (mFGEM, fFGEM) -> { } : accionFGEM;
     }
 
-    /**
-     * Frase que resume en simple lo que muestra la pantalla (la primera de su lectura); {@code null} la oculta.
-     * Se ignora si el usuario ya cambió de módulo.
-     */
     public void mostrarFraseFGEM(com.businessanalyzer.ui.ModuloFGEM moduloFGEM, String fraseFGEM) {
         fraseModuloFGEM.accept(moduloFGEM, fraseFGEM);
     }
 
     private java.util.function.IntConsumer alertasDiagnosticoFGEM = nFGEM -> { };
 
-    /** La ventana principal indica cómo mostrar cuántas alertas del diagnóstico hay por atender. */
     public void alActualizarAlertasFGEM(java.util.function.IntConsumer accionFGEM) {
         this.alertasDiagnosticoFGEM = accionFGEM == null ? nFGEM -> { } : accionFGEM;
     }
 
-    /** Cantidad de indicadores en amarillo o rojo (el contador junto a «Diagnóstico empresarial»). */
     public void mostrarAlertasDiagnosticoFGEM(int cantidadFGEM) {
         alertasDiagnosticoFGEM.accept(cantidadFGEM);
     }
@@ -325,7 +306,6 @@ public final class AppContextFGEM {
         return copiaSeguridadServiceFGEM;
     }
 
-    /** Al iniciar se aplicó una copia de seguridad restaurada desde Configuración. */
     public boolean restauracionAplicadaFGEM() {
         return restauracionAplicadaFGEM;
     }

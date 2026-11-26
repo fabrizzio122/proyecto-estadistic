@@ -36,7 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AgriculturaServiceTestFGEM {
 
-    /** El reloj de pruebas está en 2026-01-15. */
     private static final LocalDate HOY_FGEM = LocalDate.of(2026, 1, 15);
     private static final LocalDate SIEMBRA_FGEM = LocalDate.of(2025, 10, 10);
 
@@ -69,20 +68,20 @@ class AgriculturaServiceTestFGEM {
     @Test
     void validaLasParcelasFGEM() {
         assertInvalidoFGEM(() -> servicioFGEM.registrarParcelaFGEM(new DatosParcelaFGEM("parcela alta", BigDecimal.ONE, TenenciaFGEM.PROPIA,
-                false, null)));                                                                   // nombre repetido
+                false, null)));
         assertInvalidoFGEM(() -> servicioFGEM.registrarParcelaFGEM(new DatosParcelaFGEM("Otra", BigDecimal.ZERO, TenenciaFGEM.PROPIA, false, null)));
         assertInvalidoFGEM(() -> servicioFGEM.registrarParcelaFGEM(new DatosParcelaFGEM("Otra", BigDecimal.ONE, null, false, null)));
 
         ParcelaFGEM inactivaFGEM = servicioFGEM.cambiarParcelaActivaFGEM(parcelaFGEM.idFGEM(), false);
         assertFalse(inactivaFGEM.activaFGEM());
         assertEquals(0, servicioFGEM.listarParcelasFGEM(false).size());
-        assertInvalidoFGEM(() -> campaniaFGEM(CultivoFGEM.PAPA, "1"));                                   // parcela desactivada
+        assertInvalidoFGEM(() -> campaniaFGEM(CultivoFGEM.PAPA, "1"));
     }
 
     @Test
     void registraUnaCampaniaCompletaYCalculaSuResultadoFGEM() {
         CampaniaFGEM papaFGEM = campaniaFGEM(CultivoFGEM.PAPA, "1.5");
-        assertEquals(0, new BigDecimal("15000").compareTo(papaFGEM.rendimientoReferenciaFGEM())); // propuesto por el cultivo
+        assertEquals(0, new BigDecimal("15000").compareTo(papaFGEM.rendimientoReferenciaFGEM()));
 
         servicioFGEM.registrarCostoFGEM(papaFGEM.idFGEM(), SIEMBRA_FGEM.minusDays(20), RubroCostoFGEM.PREPARACION, "Yunta", new BigDecimal("600"));
         servicioFGEM.registrarCostoFGEM(papaFGEM.idFGEM(), SIEMBRA_FGEM, RubroCostoFGEM.SEMILLA, "Semilla", new BigDecimal("3000"));
@@ -91,7 +90,7 @@ class AgriculturaServiceTestFGEM {
                 DestinoCosechaFGEM.AUTOCONSUMO, new BigDecimal("9"), null);
 
         assertEquals(0, new BigDecimal("3600").compareTo(rFGEM.costoTotalFGEM()));
-        assertEquals(0, new BigDecimal("12000").compareTo(rFGEM.rendimientoFGEM()));    // 18 000 kg / 1.5 ha
+        assertEquals(0, new BigDecimal("12000").compareTo(rFGEM.rendimientoFGEM()));
         assertEquals(0, new BigDecimal("12000").compareTo(rFGEM.ingresoVentasFGEM()));
 
         CampaniaFGEM cerradaFGEM = servicioFGEM.cerrarCampaniaFGEM(papaFGEM.idFGEM(), EstadoCampaniaFGEM.COSECHADA, HOY_FGEM, null);
@@ -102,15 +101,15 @@ class AgriculturaServiceTestFGEM {
 
     @Test
     void validaCampaniasCostosYCosechasFGEM() {
-        assertInvalidoFGEM(() -> campaniaFGEM(CultivoFGEM.PAPA, "3"));                                   // más que la parcela
+        assertInvalidoFGEM(() -> campaniaFGEM(CultivoFGEM.PAPA, "3"));
         CampaniaFGEM quinuaFGEM = campaniaFGEM(CultivoFGEM.QUINUA, "1");
         assertInvalidoFGEM(() -> servicioFGEM.registrarCostoFGEM(quinuaFGEM.idFGEM(), SIEMBRA_FGEM.minusMonths(7), RubroCostoFGEM.SEMILLA, "Semilla",
-                BigDecimal.TEN));                                                                // muy anterior a la siembra
+                BigDecimal.TEN));
         assertInvalidoFGEM(() -> servicioFGEM.registrarCostoFGEM(quinuaFGEM.idFGEM(), HOY_FGEM, RubroCostoFGEM.SEMILLA, "Semilla", BigDecimal.ZERO));
         assertInvalidoFGEM(() -> servicioFGEM.registrarCosechaFGEM(quinuaFGEM.idFGEM(), SIEMBRA_FGEM.minusDays(1), BigDecimal.TEN,
-                DestinoCosechaFGEM.VENTA, null, null));                                              // antes de la siembra
-        assertInvalidoFGEM(() -> servicioFGEM.cerrarCampaniaFGEM(quinuaFGEM.idFGEM(), EstadoCampaniaFGEM.COSECHADA, HOY_FGEM, null)); // sin cosechas
-        assertInvalidoFGEM(() -> servicioFGEM.cerrarCampaniaFGEM(quinuaFGEM.idFGEM(), EstadoCampaniaFGEM.PERDIDA, HOY_FGEM, null));   // sin causa
+                DestinoCosechaFGEM.VENTA, null, null));
+        assertInvalidoFGEM(() -> servicioFGEM.cerrarCampaniaFGEM(quinuaFGEM.idFGEM(), EstadoCampaniaFGEM.COSECHADA, HOY_FGEM, null));
+        assertInvalidoFGEM(() -> servicioFGEM.cerrarCampaniaFGEM(quinuaFGEM.idFGEM(), EstadoCampaniaFGEM.PERDIDA, HOY_FGEM, null));
 
         CampaniaFGEM perdidaFGEM = servicioFGEM.cerrarCampaniaFGEM(quinuaFGEM.idFGEM(), EstadoCampaniaFGEM.PERDIDA, HOY_FGEM, "Helada");
         assertEquals("Helada", perdidaFGEM.motivoFGEM());
@@ -144,7 +143,6 @@ class AgriculturaServiceTestFGEM {
         servicioFGEM.registrarCosechaFGEM(papaFGEM.idFGEM(), HOY_FGEM, new BigDecimal("100"), DestinoCosechaFGEM.VENTA, null, null);
         servicioFGEM.cerrarCampaniaFGEM(papaFGEM.idFGEM(), EstadoCampaniaFGEM.COSECHADA, HOY_FGEM, null);
         long cosechaIdFGEM = servicioFGEM.listarCosechasFGEM(papaFGEM.idFGEM()).get(0).idFGEM();
-        // Con la campaña cerrada se puede corregir el dato, aunque no agregar cosechas nuevas.
         servicioFGEM.corregirCosechaFGEM(cosechaIdFGEM, HOY_FGEM, new BigDecimal("150"), DestinoCosechaFGEM.VENTA, new BigDecimal("1.2"), null);
         assertEquals(0, new BigDecimal("150").compareTo(servicioFGEM.resultadoFGEM(papaFGEM.idFGEM()).produccionFGEM()));
         assertInvalidoFGEM(() -> servicioFGEM.registrarCosechaFGEM(papaFGEM.idFGEM(), HOY_FGEM, BigDecimal.TEN, DestinoCosechaFGEM.VENTA, null, null));
@@ -179,8 +177,6 @@ class AgriculturaServiceTestFGEM {
         assertThrows(AccesoDenegadoExceptionFGEM.class, () -> servicioFGEM.registrarParcelaFGEM(new DatosParcelaFGEM("Nueva",
                 BigDecimal.ONE, TenenciaFGEM.PROPIA, false, null)));
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private CampaniaFGEM campaniaFGEM(CultivoFGEM cultivoFGEM, String areaFGEM) {
         return servicioFGEM.registrarCampaniaFGEM(new DatosCampaniaFGEM(parcelaFGEM.idFGEM(), cultivoFGEM, null, SIEMBRA_FGEM, new BigDecimal(areaFGEM),

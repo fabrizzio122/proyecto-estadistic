@@ -42,7 +42,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GanaderiaServiceTestFGEM {
 
-    /** El reloj de pruebas está en 2026-01-15. */
     private static final LocalDate HOY_FGEM = LocalDate.of(2026, 1, 15);
 
     @TempDir
@@ -78,7 +77,7 @@ class GanaderiaServiceTestFGEM {
         MovimientoGanadoFGEM ventaFGEM = servicioFGEM.registrarMovimientoFGEM(new DatosMovimientoGanadoFGEM(HOY_FGEM, VENTA, VACA, 2, null,
                 new BigDecimal("5000"), "ignorada", "Feria de Huancayo"));
 
-        assertNull(ventaFGEM.causaFGEM());                    // la causa solo aplica a muertes y pérdidas
+        assertNull(ventaFGEM.causaFGEM());
         assertEquals("admin", ventaFGEM.registradoPorFGEM());
         Map<CategoriaGanadoFGEM, Integer> hatoFGEM = existenciasFGEM();
         assertEquals(Map.of(VACA, 8, TORO, 1, TERNERA, 2, VAQUILLONA, 1), hatoFGEM);
@@ -91,12 +90,10 @@ class GanaderiaServiceTestFGEM {
         movFGEM("2025-06-01", INVENTARIO_INICIAL, VACA, 5, null);
         movFGEM("2025-12-01", VENTA, VACA, 5, null);
 
-        // Vender antes de la venta de diciembre dejaría sin vacas en esa fecha.
         ValidacionExceptionFGEM eFGEM = assertThrows(ValidacionExceptionFGEM.class,
                 () -> movFGEM("2025-08-01", MUERTE, VACA, 1, null));
         assertTrue(eFGEM.getMessage().contains("faltarían 1"), eFGEM.getMessage());
         assertInvalidoFGEM(() -> movFGEM("2025-07-01", VENTA, TORO, 1, null));
-        // Y no se registró nada de lo rechazado.
         assertEquals(2, servicioFGEM.listarMovimientosFGEM(LocalDate.of(2025, 1, 1), HOY_FGEM, false).size());
     }
 
@@ -125,7 +122,6 @@ class GanaderiaServiceTestFGEM {
         assertTrue(servicioFGEM.listarMovimientosFGEM(LocalDate.of(2025, 1, 1), HOY_FGEM, true).stream()
                 .anyMatch(mFGEM -> mFGEM.idFGEM() == muerteFGEM.idFGEM() && mFGEM.anuladoFGEM()));
 
-        // Bajar el inventario inicial a 1 dejaría la muerte de 2 sin animales: no se guarda nada.
         assertInvalidoFGEM(() -> servicioFGEM.corregirMovimientoFGEM(inicialFGEM.idFGEM(), new DatosMovimientoGanadoFGEM(
                 LocalDate.parse("2025-06-01"), INVENTARIO_INICIAL, OVEJA, 1, null, null, null, null)));
         assertEquals(Map.of(OVEJA, 8), existenciasFGEM());
@@ -147,11 +143,11 @@ class GanaderiaServiceTestFGEM {
     @Test
     void validaLosMovimientosFGEM() {
         movFGEM("2025-06-01", INVENTARIO_INICIAL, ALPACA_MADRE, 30, null);
-        assertInvalidoFGEM(() -> movFGEM("2025-07-01", NACIMIENTO, ALPACA_MADRE, 1, null));          // no es cría
-        assertInvalidoFGEM(() -> movFGEM("2025-07-01", CAMBIO_CATEGORIA, ALPACA_MADRE, 1, null));    // sin destino
-        assertInvalidoFGEM(() -> movFGEM("2025-07-01", CAMBIO_CATEGORIA, ALPACA_MADRE, 1, LLAMA_MADRE)); // otra especie
-        assertInvalidoFGEM(() -> movFGEM("2026-02-01", NACIMIENTO, ALPACA_CRIA, 1, null));           // fecha futura
-        assertInvalidoFGEM(() -> movFGEM("2025-07-01", NACIMIENTO, ALPACA_CRIA, 0, null));           // cantidad
+        assertInvalidoFGEM(() -> movFGEM("2025-07-01", NACIMIENTO, ALPACA_MADRE, 1, null));
+        assertInvalidoFGEM(() -> movFGEM("2025-07-01", CAMBIO_CATEGORIA, ALPACA_MADRE, 1, null));
+        assertInvalidoFGEM(() -> movFGEM("2025-07-01", CAMBIO_CATEGORIA, ALPACA_MADRE, 1, LLAMA_MADRE));
+        assertInvalidoFGEM(() -> movFGEM("2026-02-01", NACIMIENTO, ALPACA_CRIA, 1, null));
+        assertInvalidoFGEM(() -> movFGEM("2025-07-01", NACIMIENTO, ALPACA_CRIA, 0, null));
     }
 
     @Test
@@ -190,7 +186,6 @@ class GanaderiaServiceTestFGEM {
         assertTrue(bFGEM.activoNoCorrienteFGEM().stream().anyMatch(pFGEM -> pFGEM.conceptoFGEM().equals(BalanceGeneralFGEM.GANADO_FGEM)));
         assertTrue(bFGEM.tieneActivosFGEM());
 
-        // Borrar un precio deja la categoría sin valorizar.
         preciosFGEM.put(TERNERO, null);
         servicioFGEM.guardarPreciosFGEM(preciosFGEM);
         assertEquals(0, new BigDecimal("25000").compareTo(ExistenciaValorizadaFGEM.totalFGEM(servicioFGEM.hatoFGEM())));
@@ -224,14 +219,11 @@ class GanaderiaServiceTestFGEM {
         assertEquals(1, servicioFGEM.hatoFGEM().size());
         assertThrows(AccesoDenegadoExceptionFGEM.class, () -> movFGEM("2025-07-01", NACIMIENTO, TERNERA, 1, null));
 
-        // El operador (el productor) sí registra.
         entornoFGEM.entrarComoFGEM("productor", "Temporal123");
         entornoFGEM.empresaServiceFGEM.seleccionarEmpresaActivaFGEM(fundoFGEM.idFGEM());
         movFGEM("2025-07-01", NACIMIENTO, TERNERA, 1, null);
         assertEquals(2, servicioFGEM.hatoFGEM().size());
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private MovimientoGanadoFGEM movFGEM(String fechaFGEM, TipoMovimientoGanadoFGEM tipoFGEM, CategoriaGanadoFGEM categoriaFGEM, int cantidadFGEM,
                                  CategoriaGanadoFGEM destinoFGEM) {

@@ -1,7 +1,3 @@
--- V4: catálogo de productos y servicios por empresa.
--- Los montos se guardan como INTEGER en diezmilésimas (valor x 10000): son exactos
--- (sin errores de redondeo de punto flotante) y se pueden sumar directamente en SQL.
-
 CREATE TABLE categoria (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
     empresa_id     INTEGER NOT NULL REFERENCES empresa (id),
@@ -32,7 +28,6 @@ CREATE TABLE producto (
 CREATE INDEX idx_producto_empresa ON producto (empresa_id, activo);
 CREATE INDEX idx_producto_categoria ON producto (categoria_id);
 
--- Cada cambio de costo o precio queda registrado para analizar la evolución de márgenes.
 CREATE TABLE historial_precio (
     id             INTEGER PRIMARY KEY AUTOINCREMENT,
     producto_id    INTEGER NOT NULL REFERENCES producto (id) ON DELETE CASCADE,

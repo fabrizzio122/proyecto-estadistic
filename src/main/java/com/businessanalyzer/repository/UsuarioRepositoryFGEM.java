@@ -20,10 +20,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/** Acceso a la tabla {@code usuario}. Todas las consultas son parametrizadas. */
 public class UsuarioRepositoryFGEM {
 
-    /** Usuario junto con su hash; solo lo usan los servicios para verificar contraseñas. */
     public record CredencialesFGEM(UsuarioFGEM usuarioFGEM, String passwordHashFGEM) {
     }
 
@@ -78,7 +76,6 @@ public class UsuarioRepositoryFGEM {
         }
     }
 
-    /** Búsqueda sin distinguir mayúsculas y minúsculas (columna COLLATE NOCASE). */
     public Optional<CredencialesFGEM> buscarCredencialesFGEM(Connection cFGEM, String nombreUsuarioFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement(
                 "SELECT " + COLUMNAS_FGEM + ", password_hash FROM usuario WHERE nombre_usuario = ?")) {
@@ -150,7 +147,6 @@ public class UsuarioRepositoryFGEM {
         }
     }
 
-    /** Cambia la contraseña y, de paso, reinicia los intentos fallidos y el bloqueo. */
     public void actualizarPasswordFGEM(Connection cFGEM, long idFGEM, String passwordHashFGEM, boolean debeCambiarPasswordFGEM,
                                    LocalDateTime ahoraFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement("""
@@ -166,7 +162,6 @@ public class UsuarioRepositoryFGEM {
         }
     }
 
-    /** Reemplaza el hash sin tocar nada más (actualización transparente del algoritmo). */
     public void reemplazarHashFGEM(Connection cFGEM, long idFGEM, String passwordHashFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement("UPDATE usuario SET password_hash = ? WHERE id = ?")) {
             psFGEM.setString(1, passwordHashFGEM);
@@ -196,7 +191,6 @@ public class UsuarioRepositoryFGEM {
         }
     }
 
-    /** Color de acento elegido por el usuario; vacío si usa el predeterminado. */
     public Optional<String> colorAcentoFGEM(Connection cFGEM, long idFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement("SELECT color_acento FROM usuario WHERE id = ?")) {
             psFGEM.setLong(1, idFGEM);

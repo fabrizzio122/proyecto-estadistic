@@ -1,9 +1,5 @@
 package com.businessanalyzer.analytics.tesoreria;
 
-/**
- * Actividades del estado de flujo de efectivo (NIC 7). Las transferencias entre cuentas son internas:
- * cambian dónde está el dinero, no cuánto hay.
- */
 public enum ActividadFGEM {
 
     OPERACION("Actividades de operación"),

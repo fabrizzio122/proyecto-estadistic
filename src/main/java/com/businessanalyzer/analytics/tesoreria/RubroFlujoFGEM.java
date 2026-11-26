@@ -1,6 +1,5 @@
 package com.businessanalyzer.analytics.tesoreria;
 
-/** Rubro del estado de flujo de efectivo (método directo), en el orden en que se presenta. */
 public enum RubroFlujoFGEM {
 
     COBROS_VENTAS(ActividadFGEM.OPERACION, "Cobros por ventas"),

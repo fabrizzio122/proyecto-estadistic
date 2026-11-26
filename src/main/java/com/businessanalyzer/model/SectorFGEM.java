@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Sector económico de la empresa. Orienta los análisis y diagnósticos de fases posteriores. */
 public enum SectorFGEM {
 
     COMERCIO("Comercio"),

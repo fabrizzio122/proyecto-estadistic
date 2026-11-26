@@ -19,12 +19,10 @@
       fx:controller="com.businessanalyzer.controller.TesoreriaControllerFGEM"
       spacing="14" styleClass="page">
 
-    <!-- Indicadores principales -->
     <HBox fx:id="indicadoresFGEM" spacing="16"/>
 
     <TabPane fx:id="pestanasFGEM" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
 
-        <!-- 1. Cuentas y movimientos entre cuentas -->
         <Tab text="Cuentas">
             <VBox spacing="10" styleClass="tab-contenido">
                 <HBox spacing="10" alignment="CENTER_LEFT">
@@ -33,15 +31,12 @@
                     <Region HBox.hgrow="ALWAYS"/>
                     <Button fx:id="btnEditarCuentaFGEM" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#editarCuentaFGEM">
-                        <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
                     </Button>
                     <Button fx:id="btnActivarCuentaFGEM" text="Desactivar" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#cambiarActivaFGEM">
-                        <graphic><FontIcon iconLiteral="fth-power"/></graphic>
                     </Button>
                     <Button fx:id="btnNuevaCuentaFGEM" text="Nueva cuenta" styleClass="button-primary" minWidth="-Infinity"
                             onAction="#nuevaCuentaFGEM">
-                        <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
                     </Button>
                 </HBox>
                 <TableView fx:id="tablaCuentasFGEM" prefHeight="190" minHeight="140">
@@ -70,11 +65,9 @@
                     <Region HBox.hgrow="ALWAYS"/>
                     <Button fx:id="btnAnularMovimientoFGEM" text="Anular" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#anularMovimientoFGEM">
-                        <graphic><FontIcon iconLiteral="fth-x-circle"/></graphic>
                     </Button>
                     <Button fx:id="btnNuevoMovimientoFGEM" text="Mover dinero" styleClass="button-primary" minWidth="-Infinity"
                             onAction="#nuevoMovimientoFGEM">
-                        <graphic><FontIcon iconLiteral="fth-repeat"/></graphic>
                     </Button>
                 </HBox>
                 <TableView fx:id="tablaMovimientosFGEM" VBox.vgrow="ALWAYS">
@@ -95,7 +88,6 @@
             </VBox>
         </Tab>
 
-        <!-- 2. Cuentas por cobrar y por pagar -->
         <Tab text="Por cobrar y por pagar">
             <VBox spacing="10" styleClass="tab-contenido">
                 <HBox spacing="10" alignment="CENTER_LEFT">
@@ -106,14 +98,11 @@
                     <Region HBox.hgrow="ALWAYS"/>
                     <Button fx:id="btnVerPagosFGEM" text="Ver cobros" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#verPagosFGEM">
-                        <graphic><FontIcon iconLiteral="fth-list"/></graphic>
                     </Button>
                     <Button fx:id="btnRegistrarPagoFGEM" text="Registrar cobro" styleClass="button-primary" minWidth="-Infinity"
                             onAction="#registrarPagoFGEM">
-                        <graphic><FontIcon iconLiteral="fth-check-circle"/></graphic>
                     </Button>
                 </HBox>
-                <!-- Antigüedad de saldos: al día, 1-30, 31-60 y más de 60 días vencido -->
                 <HBox fx:id="tramosFGEM" spacing="12"/>
                 <HBox spacing="14" VBox.vgrow="ALWAYS">
                     <VBox spacing="6" HBox.hgrow="ALWAYS">
@@ -150,7 +139,6 @@
             </VBox>
         </Tab>
 
-        <!-- 3. Estado de flujo de efectivo -->
         <Tab text="Flujo de efectivo">
             <VBox spacing="10" styleClass="tab-contenido">
                 <HBox spacing="10" alignment="CENTER_LEFT">
@@ -182,11 +170,10 @@
             </VBox>
         </Tab>
 
-        <!-- 4. Proyección de caja -->
         <Tab text="Proyección de caja">
             <VBox spacing="10" styleClass="tab-contenido">
                 <HBox fx:id="avisoProyeccionFGEM" styleClass="banner" spacing="14" alignment="CENTER_LEFT">
-                    <FontIcon fx:id="iconoProyeccionFGEM" iconLiteral="fth-trending-up" styleClass="banner-icon"/>
+                    <FontIcon fx:id="iconoProyeccionFGEM" iconLiteral="fth-trending-up" styleClass="banner-icon" visible="false" managed="false"/>
                     <Label fx:id="lblProyeccionFGEM" wrapText="true" HBox.hgrow="ALWAYS" minHeight="-Infinity"/>
                 </HBox>
                 <HBox spacing="16" VBox.vgrow="ALWAYS">

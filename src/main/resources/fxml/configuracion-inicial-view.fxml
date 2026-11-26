@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.businessanalyzer.ui.PanelMarcaFGEM?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
@@ -11,58 +10,51 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<!-- Primer arranque: creación de la cuenta de administrador, con el mismo panel de marca del inicio de sesión. -->
-<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.businessanalyzer.controller.ConfiguracionInicialControllerFGEM"
-      styleClass="pantalla-acceso">
+<StackPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.businessanalyzer.controller.ConfiguracionInicialControllerFGEM"
+           styleClass="pantalla-acceso">
 
-    <PanelMarcaFGEM HBox.hgrow="ALWAYS" prefWidth="640"/>
-
-    <StackPane HBox.hgrow="ALWAYS" prefWidth="640" minWidth="460" styleClass="acceso-formulario">
-        <padding><Insets top="40" right="48" bottom="40" left="48"/></padding>
-
-        <VBox spacing="16" maxWidth="420" maxHeight="-Infinity">
-            <VBox spacing="6">
-                <Label text="Bienvenido" styleClass="acceso-titulo"/>
-                <Label styleClass="acceso-subtitulo" wrapText="true"
-                       text="Es la primera vez que se usa el sistema. Crea la cuenta de administrador, que podrá registrar al resto de usuarios."/>
-            </VBox>
-
-            <VBox spacing="8">
-                <Label text="Usuario" styleClass="form-label"/>
-                <TextField fx:id="txtUsuarioFGEM" promptText="Ej.: admin" styleClass="campo-acceso"/>
-            </VBox>
-            <VBox spacing="8">
-                <Label text="Nombre completo" styleClass="form-label"/>
-                <TextField fx:id="txtNombreFGEM" promptText="Nombre y apellidos" styleClass="campo-acceso"/>
-            </VBox>
-            <VBox spacing="8">
-                <Label text="Correo electrónico (opcional)" styleClass="form-label"/>
-                <TextField fx:id="txtEmailFGEM" promptText="correo@empresa.com" styleClass="campo-acceso"/>
-            </VBox>
-            <HBox spacing="12">
-                <VBox spacing="8" HBox.hgrow="ALWAYS">
-                    <Label text="Contraseña" styleClass="form-label"/>
-                    <PasswordField fx:id="txtPasswordFGEM" styleClass="campo-acceso"/>
-                </VBox>
-                <VBox spacing="8" HBox.hgrow="ALWAYS">
-                    <Label text="Confirmar contraseña" styleClass="form-label"/>
-                    <PasswordField fx:id="txtConfirmacionFGEM" onAction="#crearFGEM" styleClass="campo-acceso"/>
-                </VBox>
-            </HBox>
-            <Label fx:id="lblPoliticaFGEM" styleClass="hint" wrapText="true"/>
-
-            <Label fx:id="lblErrorFGEM" styleClass="form-error" wrapText="true" maxWidth="1.7976931348623157E308"
-                   visible="false" managed="false"/>
-
-            <StackPane>
-                <Button fx:id="btnCrearFGEM" text="Crear administrador e ingresar" styleClass="button-primary, acceso-boton"
-                        defaultButton="true" maxWidth="1.7976931348623157E308" onAction="#crearFGEM"/>
-                <ProgressIndicator fx:id="progresoFGEM" prefWidth="24" prefHeight="24" visible="false" managed="false"
-                                   StackPane.alignment="CENTER_RIGHT">
-                    <StackPane.margin><Insets right="16"/></StackPane.margin>
-                </ProgressIndicator>
-            </StackPane>
+    <VBox spacing="12" maxWidth="440" maxHeight="-Infinity" styleClass="acceso-card">
+        <VBox spacing="4">
+            <Label text="Business Analyzer" styleClass="acceso-titulo"/>
+            <Label styleClass="acceso-subtitulo" wrapText="true"
+                   text="Configuración inicial: crea la cuenta del administrador."/>
         </VBox>
-    </StackPane>
-</HBox>
+
+        <VBox spacing="6">
+            <Label text="Usuario" styleClass="form-label"/>
+            <TextField fx:id="txtUsuarioFGEM" styleClass="campo-acceso"/>
+        </VBox>
+        <VBox spacing="6">
+            <Label text="Nombre completo" styleClass="form-label"/>
+            <TextField fx:id="txtNombreFGEM" styleClass="campo-acceso"/>
+        </VBox>
+        <VBox spacing="6">
+            <Label text="Correo electrónico (opcional)" styleClass="form-label"/>
+            <TextField fx:id="txtEmailFGEM" styleClass="campo-acceso"/>
+        </VBox>
+        <HBox spacing="12">
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="Contraseña" styleClass="form-label"/>
+                <PasswordField fx:id="txtPasswordFGEM" styleClass="campo-acceso"/>
+            </VBox>
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="Confirmar contraseña" styleClass="form-label"/>
+                <PasswordField fx:id="txtConfirmacionFGEM" onAction="#crearFGEM" styleClass="campo-acceso"/>
+            </VBox>
+        </HBox>
+        <Label fx:id="lblPoliticaFGEM" styleClass="hint" wrapText="true"/>
+
+        <Label fx:id="lblErrorFGEM" styleClass="form-error" wrapText="true" maxWidth="1.7976931348623157E308"
+               visible="false" managed="false"/>
+
+        <StackPane>
+            <Button fx:id="btnCrearFGEM" text="Crear administrador" styleClass="button-primary, acceso-boton"
+                    defaultButton="true" maxWidth="1.7976931348623157E308" onAction="#crearFGEM"/>
+            <ProgressIndicator fx:id="progresoFGEM" prefWidth="20" prefHeight="20" visible="false" managed="false"
+                               StackPane.alignment="CENTER_RIGHT">
+                <StackPane.margin><Insets right="12"/></StackPane.margin>
+            </ProgressIndicator>
+        </StackPane>
+    </VBox>
+</StackPane>

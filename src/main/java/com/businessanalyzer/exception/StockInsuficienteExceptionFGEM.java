@@ -2,10 +2,6 @@ package com.businessanalyzer.exception;
 
 import java.util.List;
 
-/**
- * Una venta pide más unidades de las que hay en stock. La interfaz puede preguntar al usuario
- * si desea registrarla igualmente (stock negativo).
- */
 public class StockInsuficienteExceptionFGEM extends ValidacionExceptionFGEM {
 
     private final List<String> faltantesFGEM;

@@ -41,7 +41,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class VisitaServiceTestFGEM {
 
-    /** El reloj de pruebas está en 2026-01-15. */
     private static final LocalDate HOY_FGEM = LocalDate.of(2026, 1, 15);
 
     @TempDir
@@ -71,7 +70,7 @@ class VisitaServiceTestFGEM {
                 List.of(new DatosVisitaFGEM.NuevoCompromisoFGEM("Construir el cobertizo", HOY_FGEM.plusMonths(1)))));
 
         assertEquals(4, vFGEM.aspectosFGEM().size());
-        assertEquals(0, new BigDecimal("0.5").compareTo(vFGEM.cumplimientoFGEM())); // (1 + 0.5 + 0) / 3
+        assertEquals(0, new BigDecimal("0.5").compareTo(vFGEM.cumplimientoFGEM()));
         assertEquals("Vacunas pendientes", vFGEM.notasFGEM().get(AspectoInspeccionFGEM.VACUNACION));
         assertEquals("-12.13520, -75.23110", vFGEM.coordenadasFGEM());
         List<CompromisoFGEM> compromisosFGEM = servicioFGEM.compromisosFGEM();
@@ -84,15 +83,15 @@ class VisitaServiceTestFGEM {
     void validaLosDatosFGEM() {
         assertInvalidoFGEM(() -> servicioFGEM.registrarFGEM(visitaFGEM(HOY_FGEM.plusDays(1), Map.of(), List.of())));
         assertInvalidoFGEM(() -> servicioFGEM.registrarFGEM(new DatosVisitaFGEM(HOY_FGEM, TipoVisitaFGEM.SUPERVISION, "Ing. Rosa", null,
-                -12.0, null, null, null, ConclusionVisitaFGEM.FAVORABLE, null, Map.of(), Map.of(), List.of()))); // solo latitud
+                -12.0, null, null, null, ConclusionVisitaFGEM.FAVORABLE, null, Map.of(), Map.of(), List.of())));
         assertInvalidoFGEM(() -> servicioFGEM.registrarFGEM(new DatosVisitaFGEM(HOY_FGEM, TipoVisitaFGEM.SUPERVISION, "Ing. Rosa", null,
                 -95.0, 10.0, null, null, ConclusionVisitaFGEM.FAVORABLE, null, Map.of(), Map.of(), List.of())));
         assertInvalidoFGEM(() -> servicioFGEM.registrarFGEM(new DatosVisitaFGEM(HOY_FGEM, TipoVisitaFGEM.SUPERVISION, "Ing. Rosa", null,
-                null, null, null, null, ConclusionVisitaFGEM.FAVORABLE, HOY_FGEM, Map.of(), Map.of(), List.of()))); // próxima = hoy
+                null, null, null, null, ConclusionVisitaFGEM.FAVORABLE, HOY_FGEM, Map.of(), Map.of(), List.of())));
         assertInvalidoFGEM(() -> servicioFGEM.registrarFGEM(visitaFGEM(HOY_FGEM, Map.of(), List.of(
-                new DatosVisitaFGEM.NuevoCompromisoFGEM("Hacer algo útil", HOY_FGEM.minusDays(1))))));             // plazo vencido
+                new DatosVisitaFGEM.NuevoCompromisoFGEM("Hacer algo útil", HOY_FGEM.minusDays(1))))));
         entornoFGEM.crearEmpresaActivaFGEM("Bodega");
-        assertInvalidoFGEM(() -> servicioFGEM.listarFGEM(false));                                            // no agropecuaria
+        assertInvalidoFGEM(() -> servicioFGEM.listarFGEM(false));
     }
 
     @Test
@@ -104,7 +103,7 @@ class VisitaServiceTestFGEM {
 
         assertInvalidoFGEM(() -> servicioFGEM.verificarCompromisoFGEM(kFGEM.idFGEM(), EstadoCompromisoFGEM.CUMPLIDO, HOY_FGEM, primeraFGEM.idFGEM(), null));
         assertInvalidoFGEM(() -> servicioFGEM.verificarCompromisoFGEM(kFGEM.idFGEM(), EstadoCompromisoFGEM.CUMPLIDO,
-                HOY_FGEM.minusMonths(3), null, null));                                               // antes de acordarlo
+                HOY_FGEM.minusMonths(3), null, null));
 
         VisitaFGEM segundaFGEM = servicioFGEM.registrarFGEM(visitaFGEM(HOY_FGEM, Map.of(), List.of()));
         CompromisoFGEM cumplidoFGEM = servicioFGEM.verificarCompromisoFGEM(kFGEM.idFGEM(), EstadoCompromisoFGEM.CUMPLIDO, HOY_FGEM, segundaFGEM.idFGEM(), "Hecho");
@@ -127,7 +126,7 @@ class VisitaServiceTestFGEM {
 
         servicioFGEM.anularFGEM(vFGEM.idFGEM(), "Registrada por error");
         assertEquals(0, servicioFGEM.listarFGEM(false).size());
-        assertEquals(0, servicioFGEM.compromisosFGEM().size());                                     // se ocultan con la visita
+        assertEquals(0, servicioFGEM.compromisosFGEM().size());
         assertInvalidoFGEM(() -> servicioFGEM.actualizarFGEM(vFGEM.idFGEM(), visitaFGEM(HOY_FGEM, Map.of(), List.of())));
     }
 
@@ -162,8 +161,6 @@ class VisitaServiceTestFGEM {
         assertEquals(1, servicioFGEM.listarFGEM(false).size());
         assertThrows(AccesoDenegadoExceptionFGEM.class, () -> servicioFGEM.registrarFGEM(visitaFGEM(HOY_FGEM, Map.of(), List.of())));
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private static DatosVisitaFGEM visitaFGEM(LocalDate fechaFGEM, Map<AspectoInspeccionFGEM, ResultadoAspectoFGEM> aspectosFGEM,
                                       List<DatosVisitaFGEM.NuevoCompromisoFGEM> compromisosFGEM) {

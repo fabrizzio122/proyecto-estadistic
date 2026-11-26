@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
-/** Valida y normaliza cuentas de dinero, transferencias, aportes, retiros y cobros o pagos. */
 final class ValidadorTesoreriaFGEM {
 
     private static final LocalDate FECHA_MINIMA_FGEM = LocalDate.of(2000, 1, 1);

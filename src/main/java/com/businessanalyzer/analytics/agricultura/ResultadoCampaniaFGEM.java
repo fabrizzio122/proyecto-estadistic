@@ -19,29 +19,13 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Resultados técnicos y económicos de una campaña:
- * <ul>
- *   <li><b>Rendimiento</b> = kilos cosechados ÷ hectáreas sembradas.</li>
- *   <li><b>Valor de la producción</b> = ventas + lo no vendido valorizado al precio en chacra (o, si no se
- *       indicó, al precio promedio de venta). La merma poscosecha no se valoriza.</li>
- *   <li><b>Margen</b> = valor de la producción − costos.</li>
- *   <li><b>Rendimiento de equilibrio</b> = costo por hectárea ÷ precio por kilo: los kilos por hectárea
- *       que hay que cosechar para no perder.</li>
- * </ul>
- *
- * @param precioValorizacionFGEM S/ por kg con que se valoriza lo no vendido; {@code null} si no hay precio
- */
 public record ResultadoCampaniaFGEM(CampaniaFGEM campaniaFGEM, BigDecimal costoTotalFGEM, Map<RubroCostoFGEM, BigDecimal> costosPorRubroFGEM,
                                 BigDecimal produccionFGEM, Map<DestinoCosechaFGEM, BigDecimal> porDestinoFGEM,
                                 BigDecimal ingresoVentasFGEM, BigDecimal precioPromedioVentaFGEM, BigDecimal precioValorizacionFGEM,
                                 BigDecimal valorProduccionFGEM) {
 
-    /** Proporción de la referencia desde la cual el rendimiento se considera bueno. */
     public static final BigDecimal RENDIMIENTO_VERDE_FGEM = BigDecimal.ONE;
-    /** Por debajo de esta proporción de la referencia el rendimiento es bajo. */
     public static final BigDecimal RENDIMIENTO_AMARILLO_FGEM = new BigDecimal("0.70");
-    /** Rentabilidad (margen ÷ costo) desde la cual la campaña se considera buena. */
     public static final BigDecimal RENTABILIDAD_VERDE_FGEM = new BigDecimal("0.20");
 
     private static final int ESCALA_FGEM = 6;
@@ -81,7 +65,6 @@ public record ResultadoCampaniaFGEM(CampaniaFGEM campaniaFGEM, BigDecimal costoT
                     valorFGEM = valorFGEM.add(eFGEM.getValue().multiply(precioFGEM));
                 }
             }
-            // Ventas registradas sin precio: se valorizan al precio de referencia.
             BigDecimal vendidosSinPrecioFGEM = destinosFGEM.getOrDefault(DestinoCosechaFGEM.VENTA, BigDecimal.ZERO).subtract(kilosConPrecioFGEM);
             valorFGEM = valorFGEM.add(vendidosSinPrecioFGEM.multiply(precioFGEM));
         }
@@ -89,7 +72,6 @@ public record ResultadoCampaniaFGEM(CampaniaFGEM campaniaFGEM, BigDecimal costoT
                 ingresosFGEM.setScale(2, RoundingMode.HALF_UP), precioPromedioFGEM, precioFGEM, valorFGEM.setScale(2, RoundingMode.HALF_UP));
     }
 
-    /** Kilos por hectárea; {@code null} si aún no hay cosecha (salvo campaña perdida: 0). */
     public BigDecimal rendimientoFGEM() {
         if (produccionFGEM.signum() == 0 && campaniaFGEM.estadoFGEM() != EstadoCampaniaFGEM.PERDIDA) {
             return null;
@@ -97,7 +79,6 @@ public record ResultadoCampaniaFGEM(CampaniaFGEM campaniaFGEM, BigDecimal costoT
         return produccionFGEM.divide(campaniaFGEM.areaFGEM(), ESCALA_FGEM, RoundingMode.HALF_UP);
     }
 
-    /** Rendimiento ÷ referencia; {@code null} sin rendimiento o sin referencia. */
     public BigDecimal avanceReferenciaFGEM() {
         BigDecimal rFGEM = rendimientoFGEM();
         return rFGEM == null || campaniaFGEM.rendimientoReferenciaFGEM() == null ? null
@@ -108,7 +89,6 @@ public record ResultadoCampaniaFGEM(CampaniaFGEM campaniaFGEM, BigDecimal costoT
         return costoTotalFGEM.divide(campaniaFGEM.areaFGEM(), 2, RoundingMode.HALF_UP);
     }
 
-    /** Costo de producir un kilo; {@code null} sin producción. */
     public BigDecimal costoPorKiloFGEM() {
         return produccionFGEM.signum() == 0 ? null : costoTotalFGEM.divide(produccionFGEM, 4, RoundingMode.HALF_UP);
     }
@@ -117,24 +97,19 @@ public record ResultadoCampaniaFGEM(CampaniaFGEM campaniaFGEM, BigDecimal costoT
         return valorProduccionFGEM.subtract(costoTotalFGEM);
     }
 
-    /** Margen ÷ costo; {@code null} sin costos. */
     public BigDecimal rentabilidadFGEM() {
         return costoTotalFGEM.signum() == 0 ? null : margenFGEM().divide(costoTotalFGEM, ESCALA_FGEM, RoundingMode.HALF_UP);
     }
 
-    /** Kilos por hectárea necesarios para cubrir los costos; {@code null} sin precio o sin costos. */
     public BigDecimal rendimientoEquilibrioFGEM() {
         return precioValorizacionFGEM == null || precioValorizacionFGEM.signum() == 0 || costoTotalFGEM.signum() == 0 ? null
                 : costoPorHectareaFGEM().divide(precioValorizacionFGEM, 2, RoundingMode.HALF_UP);
     }
 
-    /** Parte de la producción que se vendió; {@code null} sin producción. */
     public BigDecimal parteVendidaFGEM() {
         return produccionFGEM.signum() == 0 ? null
                 : porDestinoFGEM.getOrDefault(DestinoCosechaFGEM.VENTA, BigDecimal.ZERO).divide(produccionFGEM, ESCALA_FGEM, RoundingMode.HALF_UP);
     }
-
-    // ------------------------------------------------------------------ evaluación
 
     public List<IndicadorGanaderoFGEM> evaluarFGEM(MonedaFGEM monedaFGEM) {
         List<IndicadorGanaderoFGEM> listaFGEM = new ArrayList<>();

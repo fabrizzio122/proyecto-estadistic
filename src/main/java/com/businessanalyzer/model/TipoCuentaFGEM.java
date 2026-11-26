@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Dónde está el dinero de la empresa. */
 public enum TipoCuentaFGEM {
 
     CAJA("Caja (efectivo)"),

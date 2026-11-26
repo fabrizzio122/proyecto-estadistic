@@ -10,19 +10,16 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.businessanalyzer.controller.InformesControllerFGEM"
       spacing="14" styleClass="page">
 
-    <!-- 1. Tipo de informe (las tarjetas se crean en el controlador) -->
     <VBox spacing="8">
         <Label text="1. Elige el informe" styleClass="step-title"/>
         <HBox fx:id="tarjetasFGEM" spacing="14"/>
     </VBox>
 
-    <!-- 2. Período y generación -->
     <VBox styleClass="card" spacing="10">
         <Label text="2. Elige el período y genera el archivo" styleClass="step-title"/>
         <HBox spacing="10" alignment="CENTER_LEFT">
@@ -36,23 +33,19 @@
             <ProgressIndicator fx:id="progresoFGEM" prefWidth="22" prefHeight="22" visible="false"/>
             <Button fx:id="btnGenerarFGEM" text="Generar informe…" styleClass="button-primary" minWidth="-Infinity"
                     onAction="#generarFGEM">
-                <graphic><FontIcon iconLiteral="fth-download"/></graphic>
             </Button>
         </HBox>
         <Label fx:id="lblResumenFGEM" styleClass="hint" wrapText="true" minHeight="-Infinity"/>
     </VBox>
 
-    <!-- 3. Historial -->
     <VBox styleClass="card" spacing="10" VBox.vgrow="ALWAYS">
         <HBox spacing="10" alignment="CENTER_LEFT">
             <Label text="Informes generados" styleClass="card-title"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Button fx:id="btnAbrirFGEM" text="Abrir" styleClass="button-secondary" minWidth="-Infinity" onAction="#abrirFGEM">
-                <graphic><FontIcon iconLiteral="fth-external-link"/></graphic>
             </Button>
             <Button fx:id="btnCarpetaFGEM" text="Mostrar en la carpeta" styleClass="button-secondary" minWidth="-Infinity"
                     onAction="#abrirCarpetaFGEM">
-                <graphic><FontIcon iconLiteral="fth-folder"/></graphic>
             </Button>
         </HBox>
         <TableView fx:id="tablaHistorialFGEM" VBox.vgrow="ALWAYS" styleClass="tabla-compacta">

@@ -23,7 +23,6 @@
 
     <HBox fx:id="indicadoresFGEM" spacing="16"/>
 
-    <!-- El contenido de cada pestaña se arma en el controlador (misma estructura para ambas series) -->
     <TabPane fx:id="pestanasFGEM" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
         <Tab fx:id="tabVentasFGEM" text="Ventas netas"/>
         <Tab fx:id="tabUtilidadFGEM" text="Utilidad neta"/>

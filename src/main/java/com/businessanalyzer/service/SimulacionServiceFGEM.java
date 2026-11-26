@@ -25,14 +25,8 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Simulación de escenarios de la empresa activa: obtiene la base real y administra los
- * escenarios guardados. El cálculo de cada escenario lo hace {@link com.businessanalyzer.analytics.simulacion.Simulador}.
- * Requiere el permiso {@link PermisoFGEM#ANALISIS_VER} (simular no modifica los datos del negocio).
- */
 public class SimulacionServiceFGEM {
 
-    /** Período que se usa como punto de partida. */
     public enum TipoBaseFGEM {
         ULTIMO_MES("Último mes completo", 1),
         PROMEDIO_3_MESES("Promedio de los últimos 3 meses", 3),
@@ -83,7 +77,6 @@ public class SimulacionServiceFGEM {
         this.relojFGEM = relojFGEM;
     }
 
-    /** Resultados reales (promedio mensual) de los últimos meses completos. */
     public BaseSimulacionFGEM baseFGEM(TipoBaseFGEM tipoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.ANALISIS_VER);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -103,7 +96,6 @@ public class SimulacionServiceFGEM {
         return databaseFGEM.conConexionFGEM(cFGEM -> escenariosFGEM.listarFGEM(cFGEM, empresaFGEM.idFGEM()));
     }
 
-    /** Crea el escenario o, si ya existe uno con ese nombre en la empresa, lo reemplaza. */
     public EscenarioFGEM guardarFGEM(String nombreFGEM, String descripcionFGEM, SupuestosFGEM supuestosFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.ANALISIS_VER);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -136,7 +128,6 @@ public class SimulacionServiceFGEM {
         });
     }
 
-    /** Límites razonables: cada cambio entre −100 % y +500 %; impuesto entre 0 % y 100 %. */
     public static void validarFGEM(SupuestosFGEM sFGEM) {
         if (sFGEM == null) {
             throw new ValidacionExceptionFGEM("Faltan los supuestos del escenario.");

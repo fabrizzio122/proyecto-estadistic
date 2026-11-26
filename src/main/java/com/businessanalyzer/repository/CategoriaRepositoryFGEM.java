@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** Acceso a la tabla {@code categoria}. */
 public class CategoriaRepositoryFGEM {
 
     private static final String CONSULTA_FGEM = """

@@ -32,28 +32,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Motor del diagnóstico empresarial: evalúa catorce indicadores con un semáforo, calcula un puntaje
- * de salud de 0 a 100 y redacta una recomendación concreta para cada indicador en amarillo o rojo.
- * <p>
- * Reúne los cálculos de las fases anteriores (estado de resultados, punto de equilibrio,
- * rentabilidad por producto, tendencia, pronóstico y simulación) y no accede a la base de datos.
- * <p>
- * <b>Puntaje:</b> verde = 100, amarillo = 50, rojo = 0, promediados según el peso de cada
- * indicador. Si un indicador clave (peso 3) está en rojo, la calificación no puede ser mejor que
- * «En riesgo», aunque el promedio sea alto.
- */
 public final class MotorDiagnosticoFGEM {
 
-    /** Meses que se revisan para contar meses con pérdida. */
     static final int MESES_REVISION_PERDIDAS_FGEM = 6;
-    /** Meses de historia necesarios para evaluar la tendencia y la regularidad. */
     static final int MINIMO_MESES_SERIE_FGEM = 6;
-    /** Margen de seguridad con el que se considera que el negocio tiene un colchón suficiente. */
     static final BigDecimal SEGURIDAD_OBJETIVO_FGEM = new BigDecimal("0.20");
     private static final int HORIZONTE_PROYECCION_FGEM = 3;
 
-    /** Umbrales que dependen del sector (un supermercado vive con márgenes menores que un servicio). */
     record UmbralesFGEM(BigDecimal netoVerdeFGEM, BigDecimal brutoVerdeFGEM, BigDecimal brutoAmarilloFGEM) {
 
         static UmbralesFGEM deFGEM(SectorFGEM sectorFGEM) {
@@ -146,7 +131,6 @@ public final class MotorDiagnosticoFGEM {
         return new DiagnosticoFGEM(datosFGEM.periodoFGEM(), nivelFGEM, puntajeFGEM, hallazgosFGEM, porAreaFGEM, resumenFGEM);
     }
 
-    /** Promedio ponderado de los indicadores evaluados; −1 si ninguno pudo evaluarse. */
     static int puntajeFGEM(List<HallazgoFGEM> hallazgosFGEM) {
         int pesosFGEM = 0;
         int sumaFGEM = 0;
@@ -158,8 +142,6 @@ public final class MotorDiagnosticoFGEM {
         }
         return pesosFGEM == 0 ? -1 : Math.round((float) sumaFGEM / pesosFGEM);
     }
-
-    // ------------------------------------------------------------------ rentabilidad
 
     private HallazgoFGEM margenNetoFGEM() {
         TipoIndicadorFGEM tipoFGEM = TipoIndicadorFGEM.MARGEN_NETO;
@@ -185,7 +167,6 @@ public final class MotorDiagnosticoFGEM {
                         + " Otra vía es recortar costos y gastos en unos " + dineroFGEM(perdidaMensualFGEM) + " al mes.");
     }
 
-    /** "habría que subir los precios alrededor de +4.0 % (con el mismo volumen)." o una alternativa. */
     private String precioParaMetaFGEM(BigDecimal metaFGEM) {
         return SimuladorFGEM.cambioPrecioParaMetaFGEM(baseFGEM, neutrosFGEM, metaFGEM)
                 .filter(cFGEM -> cFGEM.signum() > 0)
@@ -239,8 +220,6 @@ public final class MotorDiagnosticoFGEM {
                         + "de los meses buenos para cubrir los malos.");
     }
 
-    // ------------------------------------------------------------------ solidez
-
     private HallazgoFGEM margenSeguridadFGEM() {
         TipoIndicadorFGEM tipoFGEM = TipoIndicadorFGEM.MARGEN_SEGURIDAD;
         String criterioFGEM = "Bien desde " + pctFGEM(SEGURIDAD_OBJETIVO_FGEM) + "; riesgo por debajo de 5 %.";
@@ -274,7 +253,6 @@ public final class MotorDiagnosticoFGEM {
                 "Aumenta las ventas" + alternativaFGEM);
     }
 
-    /** Reducción total de costos fijos para que el margen de seguridad llegue al objetivo. */
     private BigDecimal reduccionFijosParaFGEM(BigDecimal objetivoFGEM) {
         BigDecimal fijosPermitidosFGEM = equilibrioFGEM.ventasFGEM().multiply(BigDecimal.ONE.subtract(objetivoFGEM))
                 .multiply(equilibrioFGEM.razonContribucionFGEM());
@@ -318,15 +296,10 @@ public final class MotorDiagnosticoFGEM {
         return new HallazgoFGEM(tipoFGEM, semaforoFGEM, pctFGEM(cargaFGEM), criterioFGEM, lecturaFGEM, recomendacionFGEM);
     }
 
-    /** Balance general disponible con al menos un activo registrado; si no, liquidez y endeudamiento no se evalúan. */
     private Optional<SituacionPatrimonialFGEM> patrimonioFGEM() {
         return Optional.ofNullable(datosFGEM.patrimonioFGEM()).filter(sFGEM -> sFGEM.balanceFGEM().tieneActivosFGEM());
     }
 
-    /**
-     * Con activos en cero o negativos (normalmente la caja en rojo porque falta el saldo inicial) los ratios sobre
-     * el activo no tienen sentido: no se califican y se explica qué registrar.
-     */
     private HallazgoFGEM noAplicaFGEM(TipoIndicadorFGEM tipoFGEM, String criterioFGEM, BalanceGeneralFGEM bFGEM) {
         String lecturaFGEM = bFGEM.efectivoFGEM() != null && bFGEM.efectivoFGEM().signum() < 0
                 ? "No aplica: los activos son negativos (" + dineroFGEM(bFGEM.totalActivoFGEM()) + ") porque la caja está en rojo ("
@@ -369,10 +342,6 @@ public final class MotorDiagnosticoFGEM {
                         + "más plazo con proveedores, refinancia los préstamos a un plazo mayor y acelera los cobros pendientes.");
     }
 
-    /**
-     * Rojo si con el pronóstico base el dinero se acaba en los próximos seis meses; amarillo si solo se
-     * acaba en el escenario pesimista; verde si alcanza en ambos.
-     */
     private HallazgoFGEM cajaProyectadaFGEM() {
         TipoIndicadorFGEM tipoFGEM = TipoIndicadorFGEM.CAJA_PROYECTADA;
         ProyeccionCajaFGEM cajaFGEM = datosFGEM.cajaFGEM();
@@ -446,8 +415,6 @@ public final class MotorDiagnosticoFGEM {
                 "Para bajar al " + pctFGEM(IndicadoresPatrimonioFGEM.ENDEUDAMIENTO_VERDE_FGEM) + " habría que reducir las deudas en unos "
                         + dineroFGEM(excesoFGEM.max(BigDecimal.ZERO)) + ". Evita nuevos préstamos y amortiza primero los de mayor tasa.");
     }
-
-    // ------------------------------------------------------------------ producción agropecuaria
 
     private HallazgoFGEM natalidadFGEM(DatosAgroFGEM agroFGEM) {
         TipoIndicadorFGEM tipoFGEM = TipoIndicadorFGEM.NATALIDAD;
@@ -565,8 +532,6 @@ public final class MotorDiagnosticoFGEM {
         return valorFGEM.compareTo(amarilloFGEM) <= 0 ? SemaforoFGEM.AMARILLO : SemaforoFGEM.ROJO;
     }
 
-    // ------------------------------------------------------------------ crecimiento
-
     private HallazgoFGEM variacionVentasFGEM() {
         TipoIndicadorFGEM tipoFGEM = TipoIndicadorFGEM.VARIACION_VENTAS;
         BigDecimal anteriorFGEM = datosFGEM.operacionesAnterioresFGEM().ventasNetasFGEM();
@@ -638,8 +603,6 @@ public final class MotorDiagnosticoFGEM {
                         + "promociones con anticipación.");
     }
 
-    // ------------------------------------------------------------------ riesgo comercial
-
     private HallazgoFGEM regularidadVentasFGEM() {
         TipoIndicadorFGEM tipoFGEM = TipoIndicadorFGEM.REGULARIDAD_VENTAS;
         double[] ventasFGEM = ultimosFGEM(datosFGEM.ventasMensualesFGEM(), 12);
@@ -707,8 +670,6 @@ public final class MotorDiagnosticoFGEM {
                         + " por encima de su costo o renegocia su compra; si los usas como gancho, verifica que "
                         + "realmente atraigan otras ventas.");
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private static double[] ultimosFGEM(double[] valoresFGEM, int cantidadFGEM) {
         return Arrays.copyOfRange(valoresFGEM, Math.max(0, valoresFGEM.length - cantidadFGEM), valoresFGEM.length);

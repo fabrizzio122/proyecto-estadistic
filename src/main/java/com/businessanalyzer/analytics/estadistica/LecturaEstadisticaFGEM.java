@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/** Traduce los resultados estadísticos a frases claras para quien no es especialista. */
 public final class LecturaEstadisticaFGEM {
 
     private static final Locale ESPANOL_FGEM = Locale.forLanguageTag("es");
@@ -86,7 +85,6 @@ public final class LecturaEstadisticaFGEM {
         return frasesFGEM;
     }
 
-    /** Intervalo de confianza de la venta diaria promedio. */
     public static List<String> intervaloFGEM(AnalisisEstadisticoFGEM aFGEM, MonedaFGEM monedaFGEM) {
         InferenciaFGEM.IntervaloConfianzaFGEM iFGEM = aFGEM.intervaloDiarioFGEM();
         if (!iFGEM.calculadoFGEM() || aFGEM.ticketFGEM().vaciaFGEM()) {
@@ -97,7 +95,6 @@ public final class LecturaEstadisticaFGEM {
                 + " (intervalo t de Student con " + iFGEM.nFGEM() + " días). Mientras más días, más angosto el intervalo.");
     }
 
-    /** ANOVA por día de la semana: confirma (o no) que la diferencia entre días es real. */
     public static List<String> anovaFGEM(AnalisisEstadisticoFGEM aFGEM) {
         InferenciaFGEM.AnovaFGEM anFGEM = aFGEM.anovaDiasFGEM();
         if (!anFGEM.calculadoFGEM()) {
@@ -114,7 +111,6 @@ public final class LecturaEstadisticaFGEM {
                 + "así que no conviene planificar solo con ella.");
     }
 
-    /** Prueba t: si el cambio frente al período anterior es real. */
     public static List<String> comparacionFGEM(AnalisisEstadisticoFGEM aFGEM, MonedaFGEM monedaFGEM) {
         InferenciaFGEM.ComparacionFGEM cFGEM = aFGEM.comparacionFGEM();
         if (!cFGEM.calculadoFGEM()) {
@@ -175,8 +171,6 @@ public final class LecturaEstadisticaFGEM {
         return frasesFGEM;
     }
 
-    // ------------------------------------------------------------------ formato
-
     private static String dineroFGEM(double valorFGEM, MonedaFGEM monedaFGEM) {
         return MontosFGEM.formatearFGEM(BigDecimal.valueOf(valorFGEM).setScale(2, RoundingMode.HALF_UP), monedaFGEM);
     }
@@ -185,12 +179,10 @@ public final class LecturaEstadisticaFGEM {
         return MontosFGEM.porcentajeFGEM(BigDecimal.valueOf(fraccionFGEM));
     }
 
-    /** «p = 0.013» o «p < 0.001». */
     public static String pFGEM(double valorFGEM) {
         return Double.isNaN(valorFGEM) ? "p no calculable" : valorFGEM < 0.001 ? "p < 0.001" : "p = " + String.format(Locale.US, "%.3f", valorFGEM);
     }
 
-    /** 1.35 → "35 % más"; 0.62 → "38 % menos". */
     private static String diferenciaFGEM(double indiceFGEM) {
         double cambioFGEM = indiceFGEM - 1;
         return porcentajeFGEM(Math.abs(cambioFGEM)) + (cambioFGEM >= 0 ? " más" : " menos");

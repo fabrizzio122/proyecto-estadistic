@@ -33,20 +33,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Registro y consulta de ventas y compras de la empresa activa.
- * <p>
- * Reglas:
- * <ul>
- *     <li>Cada operación se guarda en una sola transacción: cabecera, líneas y, en compras,
- *         la actualización de costos del catálogo. O se guarda todo o nada.</li>
- *     <li>Las ventas guardan el costo del producto en ese momento, para que el margen
- *         histórico no cambie cuando cambie el costo.</li>
- *     <li>Si una venta supera el stock disponible se lanza {@link StockInsuficienteExceptionFGEM};
- *         la interfaz puede confirmar con el usuario y repetir con {@code permitirStockNegativo}.</li>
- *     <li>Las operaciones no se eliminan: se anulan indicando el motivo.</li>
- * </ul>
- */
 public class OperacionServiceFGEM {
 
     public static final BigDecimal TASA_IMPUESTO_INICIAL_FGEM = new BigDecimal("18");
@@ -75,8 +61,6 @@ public class OperacionServiceFGEM {
         this.relojFGEM = relojFGEM;
     }
 
-    // ------------------------------------------------------------------ consultas
-
     public List<OperacionFGEM> listarFGEM(TipoOperacionFGEM tipoFGEM, LocalDate desdeFGEM, LocalDate hastaFGEM, boolean incluirAnuladasFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.OPERACIONES_VER);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -84,14 +68,12 @@ public class OperacionServiceFGEM {
         return databaseFGEM.conConexionFGEM(cFGEM -> operacionesFGEM.listarFGEM(cFGEM, empresaFGEM.idFGEM(), tipoFGEM, desdeFGEM, hastaFGEM, incluirAnuladasFGEM));
     }
 
-    /** Operación completa, con sus líneas. */
     public OperacionFGEM obtenerFGEM(long idFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.OPERACIONES_VER);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
         return databaseFGEM.conConexionFGEM(cFGEM -> exigirOperacionFGEM(cFGEM, idFGEM, empresaFGEM.idFGEM()));
     }
 
-    /** Como {@link #resumenFGEM}, pero sumando las ventas y costos de la producción agropecuaria. */
     public ResumenOperacionesFGEM resumenConAgroFGEM(LocalDate desdeFGEM, LocalDate hastaFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.OPERACIONES_VER);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -106,14 +88,12 @@ public class OperacionServiceFGEM {
         return databaseFGEM.conConexionFGEM(cFGEM -> operacionesFGEM.resumenOperacionesFGEM(cFGEM, empresaFGEM.idFGEM(), desdeFGEM, hastaFGEM));
     }
 
-    /** Productos y servicios activos que se pueden usar en una operación nueva. */
     public List<ProductoFGEM> productosDisponiblesFGEM() {
         sesionFGEM.requerirFGEM(PermisoFGEM.OPERACIONES_VER);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
         return databaseFGEM.conConexionFGEM(cFGEM -> productosFGEM.listarFGEM(cFGEM, empresaFGEM.idFGEM(), false));
     }
 
-    /** Última tasa de impuesto usada en la empresa (18 % la primera vez). */
     public BigDecimal tasaImpuestoSugeridaFGEM() {
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
         String guardadaFGEM = configuracionFGEM.obtenerFGEM(CLAVE_TASA_FGEM + "." + empresaFGEM.idFGEM(), "");
@@ -123,8 +103,6 @@ public class OperacionServiceFGEM {
             return TASA_IMPUESTO_INICIAL_FGEM;
         }
     }
-
-    // ------------------------------------------------------------------ registro y anulación
 
     public OperacionFGEM registrarFGEM(DatosOperacionFGEM datosFGEM, boolean permitirStockNegativoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.OPERACIONES_GESTIONAR);
@@ -142,12 +120,6 @@ public class OperacionServiceFGEM {
         return registradaFGEM;
     }
 
-    /**
-     * Corrige una venta o compra: en una sola transacción anula la original (queda como historial, con
-     * el número que la reemplaza) y registra los datos nuevos con un número nuevo. Como el stock se
-     * calcula de las operaciones registradas, al corregir una venta sus cantidades vuelven a estar
-     * disponibles antes de revisar el stock.
-     */
     public OperacionFGEM corregirFGEM(long idFGEM, DatosOperacionFGEM datosFGEM, boolean permitirStockNegativoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.OPERACIONES_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -247,9 +219,6 @@ public class OperacionServiceFGEM {
         });
     }
 
-    // ------------------------------------------------------------------ utilidades
-
-    /** El precio pagado pasa a ser el costo del catálogo (y queda en el historial de precios). */
     private void actualizarCostosDelCatalogoFGEM(Connection cFGEM, List<ProductoFGEM> itemsFGEM, List<DatosLineaFGEM> lineasFGEM,
                                              LocalDateTime ahoraFGEM, String usuarioFGEM) throws SQLException {
         for (int iFGEM = 0; iFGEM < itemsFGEM.size(); iFGEM++) {
@@ -262,7 +231,6 @@ public class OperacionServiceFGEM {
         }
     }
 
-    /** Una venta o compra al crédito con cobros o pagos registrados no se corrige ni se anula directamente. */
     private void exigirSinPagosFGEM(Connection cFGEM, OperacionFGEM operacionFGEM) throws SQLException {
         if (tesoreriaFGEM.pagosVigentesFGEM(cFGEM, operacionFGEM.idFGEM()) > 0) {
             String queFGEM = operacionFGEM.tipoFGEM() == TipoOperacionFGEM.VENTA ? "cobros" : "pagos";

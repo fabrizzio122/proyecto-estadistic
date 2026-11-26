@@ -16,7 +16,6 @@ class MontosTestFGEM {
         assertEquals(125_000L, MontosFGEM.aEnteroFGEM(new BigDecimal("12.5")));
         assertEquals(1L, MontosFGEM.aEnteroFGEM(new BigDecimal("0.0001")));
         assertEquals(0, new BigDecimal("12.5").compareTo(MontosFGEM.desdeEnteroFGEM(125_000L)));
-        // 0.1 + 0.2 con double daría 0.30000000000000004
         long sumaFGEM = MontosFGEM.aEnteroFGEM(new BigDecimal("0.1")) + MontosFGEM.aEnteroFGEM(new BigDecimal("0.2"));
         assertEquals(0, new BigDecimal("0.3").compareTo(MontosFGEM.desdeEnteroFGEM(sumaFGEM)));
     }

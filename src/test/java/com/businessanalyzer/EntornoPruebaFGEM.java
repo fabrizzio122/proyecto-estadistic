@@ -52,11 +52,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 
-/**
- * Base de datos temporal ya migrada con todos los servicios de seguridad.
- * Usa un hash con pocas iteraciones (las pruebas serían muy lentas con 600.000)
- * y un reloj que se puede adelantar para probar los bloqueos.
- */
 public final class EntornoPruebaFGEM {
 
     public static final String PASSWORD_ADMIN_FGEM = "Admin2026";
@@ -117,26 +112,22 @@ public final class EntornoPruebaFGEM {
                 agriculturaFGEM, patrimonioFGEM, empresaServiceFGEM, sesionFGEM, relojFGEM);
     }
 
-    /** Crea una empresa con datos mínimos (requiere sesión con permiso) y la deja activa. */
     public EmpresaFGEM crearEmpresaActivaFGEM(String razonSocialFGEM) {
         EmpresaFGEM empresaFGEM = empresaServiceFGEM.crearFGEM(new DatosEmpresaFGEM(razonSocialFGEM, null, null, SectorFGEM.COMERCIO,
                 TamanoEmpresaFGEM.MICRO, MonedaFGEM.PEN, 1, null, null, null, null));
         return empresaServiceFGEM.seleccionarEmpresaActivaFGEM(empresaFGEM.idFGEM());
     }
 
-    /** Crea un usuario con el rol indicado (requiere sesión de administrador). Contraseña: Temporal123. */
     public UsuarioFGEM crearUsuarioFGEM(String nombreUsuarioFGEM, String codigoRolFGEM) {
         return usuarioServiceFGEM.crearFGEM(new DatosUsuarioFGEM(nombreUsuarioFGEM, "Usuario " + nombreUsuarioFGEM, null,
                 idRolFGEM(codigoRolFGEM)), "Temporal123", "Temporal123");
     }
 
-    /** Cierra la sesión actual y entra con otro usuario. */
     public UsuarioFGEM entrarComoFGEM(String nombreUsuarioFGEM, String passwordFGEM) {
         autenticacionFGEM.cerrarSesionFGEM();
         return autenticacionFGEM.iniciarSesionFGEM(nombreUsuarioFGEM, passwordFGEM);
     }
 
-    /** Crea el administrador inicial "admin" e inicia sesión con él. */
     public UsuarioFGEM administradorConectadoFGEM() {
         autenticacionFGEM.crearAdministradorInicialFGEM(
                 new DatosUsuarioFGEM("admin", "Administrador General", "admin@empresa.com", 0),
@@ -148,7 +139,6 @@ public final class EntornoPruebaFGEM {
         return databaseFGEM.conConexionFGEM(cFGEM -> rolesFGEM.buscarPorCodigoFGEM(cFGEM, codigoFGEM)).map(RolFGEM::idFGEM).orElseThrow();
     }
 
-    /** Reloj fijo que solo avanza cuando la prueba lo pide. */
     public static final class RelojAjustableFGEM extends Clock {
         private Instant instanteFGEM;
 

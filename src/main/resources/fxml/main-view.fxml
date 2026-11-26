@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.businessanalyzer.config.VersionAppFGEM?>
-<?import com.businessanalyzer.ui.LogoFGEM?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
@@ -11,16 +10,12 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<!-- Ventana principal: menu lateral | barra superior + contenido + barra de estado.
-     Las notificaciones flotantes las aloja la clase Ventana, por encima de esta vista. -->
 <BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.businessanalyzer.controller.MainControllerFGEM">
     <left>
         <VBox styleClass="sidebar" prefWidth="236" minWidth="236">
             <HBox styleClass="brand">
-                <LogoFGEM fx:factory="nuevoFGEM"/>
                 <VBox>
                     <Label text="Business Analyzer" styleClass="brand-title"/>
                     <Label styleClass="brand-subtitle">
@@ -46,20 +41,13 @@
                 <Region HBox.hgrow="ALWAYS"/>
                 <Label fx:id="chipPeriodoFGEM" styleClass="chip-periodo" minWidth="-Infinity" visible="false" managed="false"/>
                 <MenuButton fx:id="selectorEmpresaFGEM" styleClass="company-selector" text="Sin empresa seleccionada">
-                    <graphic>
-                        <FontIcon iconLiteral="fth-briefcase"/>
-                    </graphic>
                 </MenuButton>
                 <Button fx:id="btnAccionPrincipalFGEM" styleClass="button-primary" minWidth="-Infinity"
                         visible="false" managed="false"/>
                 <MenuButton fx:id="menuUsuarioFGEM" styleClass="user-menu">
-                    <graphic>
-                        <FontIcon iconLiteral="fth-user"/>
-                    </graphic>
                 </MenuButton>
             </HBox>
 
-            <!-- Frase resumen de las pantallas de análisis (la llena cada módulo al cargar) -->
             <HBox fx:id="franjaFraseFGEM" styleClass="franja-frase" visible="false" managed="false">
                 <Region styleClass="franja-frase-marca" minWidth="4" maxWidth="4"/>
                 <Label fx:id="lblFraseFGEM" styleClass="franja-frase-texto" wrapText="true" HBox.hgrow="ALWAYS"

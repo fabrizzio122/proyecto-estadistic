@@ -58,15 +58,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-/** Módulo "Simulación de escenarios": ¿qué pasaría si cambian precios, volumen o costos? */
 public class SimulacionControllerFGEM implements VistaModuloFGEM {
 
-    /** Fila de la tabla base frente a escenario. */
     private record FilaResultadoFGEM(String conceptoFGEM, String baseFGEM, String escenarioFGEM, String diferenciaFGEM,
                                  String claseDiferenciaFGEM, boolean destacadaFGEM) {
     }
 
-    /** Fila de la comparación de escenarios: un valor por columna. */
     private record FilaMetricaFGEM(String conceptoFGEM, List<String> valoresFGEM) {
     }
 
@@ -136,8 +133,6 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
         cargarBaseFGEM();
     }
 
-    // ------------------------------------------------------------------ base
-
     private void cargarBaseFGEM() {
         EmpresaFGEM empresaFGEM = contextoFGEM.sesionFGEM().empresaActivaFGEM().orElse(null);
         if (empresaFGEM == null) {
@@ -176,8 +171,6 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
                     }
                 });
     }
-
-    // ------------------------------------------------------------------ supuestos
 
     private void construirPanelSupuestosFGEM() {
         Label tituloFGEM = new Label("Supuestos del escenario");
@@ -230,7 +223,6 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
         });
     }
 
-    /** Pone los controles en los valores indicados y recalcula una sola vez. */
     private void aplicarFGEM(SupuestosFGEM sFGEM) {
         cargandoFGEM = true;
         for (VariableFGEM variableFGEM : VariableFGEM.values()) {
@@ -238,8 +230,6 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
         }
         txtCostoAdicionalFGEM.setText(MontosFGEM.paraEditarFGEM(sFGEM.costoFijoAdicionalFGEM()).replace(".00", ""));
         txtTasaFGEM.setText(textoPorcentajeFGEM(sFGEM.tasaImpuestoFGEM().movePointRight(2).doubleValue()));
-        // El campo muestra la tasa redondeada; mientras no se edite se usa la tasa exacta, para que
-        // un escenario sin cambios dé exactamente la utilidad de la base.
         tasaExactaFGEM = sFGEM.tasaImpuestoFGEM();
         textoTasaExactaFGEM = txtTasaFGEM.getText();
         cargandoFGEM = false;
@@ -253,7 +243,6 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /** Tasa del campo de impuesto: la exacta si el usuario no cambió el texto mostrado. */
     private BigDecimal tasaDelCampoFGEM() {
         if (tasaExactaFGEM != null && txtTasaFGEM.getText().equals(textoTasaExactaFGEM)) {
             return tasaExactaFGEM;
@@ -269,7 +258,6 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /** Supuestos de los controles; lanza ValidacionException si alguno no es válido. */
     private SupuestosFGEM supuestosActualesFGEM() {
         SupuestosFGEM sFGEM = new SupuestosFGEM(
                 controlesFGEM.get(VariableFGEM.PRECIO).fraccionFGEM(),
@@ -283,8 +271,6 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
         SimulacionServiceFGEM.validarFGEM(sFGEM);
         return sFGEM;
     }
-
-    // ------------------------------------------------------------------ cálculo y presentación
 
     private void recalcularFGEM() {
         if (cargandoFGEM || baseFGEM == null) {
@@ -396,8 +382,6 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
         tablaResultadosFGEM.setPlaceholder(new Label("Cargando la base..."));
     }
 
-    // ------------------------------------------------------------------ sensibilidad y meta
-
     private void mostrarSensibilidadFGEM(SupuestosFGEM sFGEM) {
         List<SimuladorFGEM.SensibilidadFGEM> sensibilidadFGEM = SimuladorFGEM.sensibilidadFGEM(baseFGEM, sFGEM);
         contenedorTornadoFGEM.getChildren().setAll(GraficosFGEM.visorFGEM(
@@ -458,8 +442,6 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
         return cajaFGEM;
     }
 
-    // ------------------------------------------------------------------ comparación de escenarios
-
     private void mostrarComparacionFGEM(ResultadoEscenarioFGEM rBaseFGEM, ResultadoEscenarioFGEM rActualFGEM) {
         List<String> nombresFGEM = new ArrayList<>(List.of("Base", "Escenario actual"));
         List<ResultadoEscenarioFGEM> resultadosFGEM = new ArrayList<>(List.of(rBaseFGEM, rActualFGEM));
@@ -467,7 +449,6 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
             nombresFGEM.add(eFGEM.nombreFGEM());
             resultadosFGEM.add(SimuladorFGEM.simularFGEM(baseFGEM, eFGEM.supuestosFGEM()));
         }
-        // Columnas dinámicas (una por escenario): ancho fijo y desplazamiento horizontal si no entran.
         tablaComparacionFGEM.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         tablaComparacionFGEM.getColumns().clear();
         TableColumn<FilaMetricaFGEM, String> conceptoFGEM = new TableColumn<>("Concepto");
@@ -552,8 +533,6 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ utilidades
-
     private String dineroFGEM(BigDecimal valorFGEM) {
         return MontosFGEM.formatearFGEM(valorFGEM.setScale(2, RoundingMode.HALF_UP), monedaFGEM);
     }
@@ -575,7 +554,6 @@ public class SimulacionControllerFGEM implements VistaModuloFGEM {
         return textoFGEM.replaceAll("\\.?0+$", "");
     }
 
-    /** Barra deslizable (−50 % a +100 %) con campo de texto para escribir valores exactos (−100 % a +500 %). */
     private final class ControlCambioFGEM {
         private final VariableFGEM variableFGEM;
         private final Slider barraFGEM = new Slider(-50, 100, 0);

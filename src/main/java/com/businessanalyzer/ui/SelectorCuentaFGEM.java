@@ -9,13 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Lista desplegable para elegir la cuenta de dinero (caja, banco, Yape…) de un registro. Puede incluir
- * una opción «ninguna» para los registros que no mueven dinero (por ejemplo, un activo que ya se tenía).
- */
 public final class SelectorCuentaFGEM extends ComboBox<SelectorCuentaFGEM.OpcionFGEM> {
 
-    /** Una cuenta, o la opción sin cuenta ({@code id == null}). */
     public record OpcionFGEM(Long idFGEM, String textoFGEM) {
         @Override
         public String toString() {
@@ -23,11 +18,6 @@ public final class SelectorCuentaFGEM extends ComboBox<SelectorCuentaFGEM.Opcion
         }
     }
 
-    /**
-     * @param cuentasFGEM      cuentas activas de la empresa (la primera es la principal)
-     * @param sinCuentaFGEM    texto de la opción «ninguna»; {@code null} si siempre hay que elegir una cuenta
-     * @param seleccionadaFGEM cuenta elegida al abrir; {@code null} = la opción «ninguna» o, si no existe, la principal
-     */
     public SelectorCuentaFGEM(List<CuentaDineroFGEM> cuentasFGEM, String sinCuentaFGEM, Long seleccionadaFGEM) {
         List<OpcionFGEM> opcionesFGEM = new ArrayList<>();
         if (sinCuentaFGEM != null) {
@@ -40,7 +30,6 @@ public final class SelectorCuentaFGEM extends ComboBox<SelectorCuentaFGEM.Opcion
                 case BILLETERA -> "billetera digital";
             }));
         }
-        // Una cuenta ya desactivada que el registro usaba se muestra para no perderla al editar.
         if (seleccionadaFGEM != null && opcionesFGEM.stream().noneMatch(oFGEM -> Objects.equals(oFGEM.idFGEM(), seleccionadaFGEM))) {
             opcionesFGEM.add(new OpcionFGEM(seleccionadaFGEM, "Cuenta desactivada"));
         }
@@ -59,7 +48,6 @@ public final class SelectorCuentaFGEM extends ComboBox<SelectorCuentaFGEM.Opcion
         setValue(inicialFGEM);
     }
 
-    /** Cuenta elegida; {@code null} si se eligió «ninguna» o no hay cuentas. */
     public Long cuentaIdFGEM() {
         return getValue() == null ? null : getValue().idFGEM();
     }

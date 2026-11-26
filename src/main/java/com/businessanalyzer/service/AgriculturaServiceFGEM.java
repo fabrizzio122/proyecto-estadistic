@@ -27,17 +27,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Agricultura de la empresa activa (solo empresas del sector agropecuario): parcelas, campañas
- * por cultivo, sus costos y cosechas, y el resultado de cada campaña.
- * <p>
- * Una campaña está «en curso» hasta que se cierra como cosechada o perdida (helada, granizo,
- * sequía…). Los costos se pueden registrar hasta seis meses antes de la siembra (preparación del
- * terreno). Nada se elimina: los registros se anulan.
- */
 public class AgriculturaServiceFGEM {
 
-    /** Los costos de preparación del terreno pueden ser anteriores a la siembra. */
     static final int MESES_COSTOS_PREVIOS_FGEM = 6;
 
     private final DatabaseFGEM databaseFGEM;
@@ -54,8 +45,6 @@ public class AgriculturaServiceFGEM {
         this.sesionFGEM = sesionFGEM;
         this.relojFGEM = relojFGEM;
     }
-
-    // ------------------------------------------------------------------ parcelas
 
     public List<ParcelaFGEM> listarParcelasFGEM(boolean incluirInactivasFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_VER);
@@ -96,7 +85,6 @@ public class AgriculturaServiceFGEM {
         });
     }
 
-    /** Desactiva (o reactiva) una parcela: deja de ofrecerse para nuevas campañas, pero conserva su historia. */
     public ParcelaFGEM cambiarParcelaActivaFGEM(long idFGEM, boolean activaFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -107,9 +95,6 @@ public class AgriculturaServiceFGEM {
         });
     }
 
-    // ------------------------------------------------------------------ campañas
-
-    /** Campañas con sus resultados, de la siembra más reciente a la más antigua. */
     public List<ResultadoCampaniaFGEM> listarCampaniasFGEM(boolean incluirAnuladasFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_VER);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -187,7 +172,6 @@ public class AgriculturaServiceFGEM {
         return guardarCostoFGEM(campaniaIdFGEM, null, fechaFGEM, rubroFGEM, descripcionFGEM, montoFGEM);
     }
 
-    /** Corrige un costo: el original queda anulado y se registra el corregido, en una sola operación. */
     public ResultadoCampaniaFGEM corregirCostoFGEM(long costoIdFGEM, LocalDate fechaFGEM, RubroCostoFGEM rubroFGEM, String descripcionFGEM,
                                            BigDecimal montoFGEM) {
         return guardarCostoFGEM(null, costoIdFGEM, fechaFGEM, rubroFGEM, descripcionFGEM, montoFGEM);
@@ -226,10 +210,6 @@ public class AgriculturaServiceFGEM {
         return guardarCosechaFGEM(campaniaIdFGEM, null, fechaFGEM, kilosFGEM, destinoFGEM, precioFGEM, observacionFGEM);
     }
 
-    /**
-     * Corrige una cosecha: la original queda anulada y se registra la corregida. Se permite aunque la
-     * campaña ya esté cerrada como cosechada (corregir un dato no agrega una cosecha nueva).
-     */
     public ResultadoCampaniaFGEM corregirCosechaFGEM(long cosechaIdFGEM, LocalDate fechaFGEM, BigDecimal kilosFGEM, DestinoCosechaFGEM destinoFGEM,
                                              BigDecimal precioFGEM, String observacionFGEM) {
         return guardarCosechaFGEM(null, cosechaIdFGEM, fechaFGEM, kilosFGEM, destinoFGEM, precioFGEM, observacionFGEM);
@@ -274,12 +254,6 @@ public class AgriculturaServiceFGEM {
         anularRegistroFGEM("cosecha", cosechaIdFGEM, "La cosecha no existe o ya está anulada.");
     }
 
-    /**
-     * Cierra la campaña.
-     *
-     * @param estadoFGEM {@link EstadoCampaniaFGEM#COSECHADA} (requiere al menos una cosecha) o
-     *               {@link EstadoCampaniaFGEM#PERDIDA} (requiere el motivo: helada, granizo, sequía…)
-     */
     public CampaniaFGEM cerrarCampaniaFGEM(long idFGEM, EstadoCampaniaFGEM estadoFGEM, LocalDate fechaFGEM, String motivoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -308,7 +282,6 @@ public class AgriculturaServiceFGEM {
         });
     }
 
-    /** Vuelve a poner en curso una campaña cerrada (para corregir o agregar cosechas). */
     public CampaniaFGEM reabrirCampaniaFGEM(long idFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -324,7 +297,6 @@ public class AgriculturaServiceFGEM {
         });
     }
 
-    /** Anula una campaña registrada por error: deja de contar en los resultados y en el balance. */
     public CampaniaFGEM anularCampaniaFGEM(long idFGEM, String motivoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -338,8 +310,6 @@ public class AgriculturaServiceFGEM {
             return repositorioFGEM.buscarCampaniaFGEM(cFGEM, idFGEM).orElseThrow();
         });
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private void anularRegistroFGEM(String tablaFGEM, long idFGEM, String mensajeFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_GESTIONAR);

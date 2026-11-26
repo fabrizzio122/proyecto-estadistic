@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** Acceso a las tablas {@code parcela}, {@code campania}, {@code costo_campania} y {@code cosecha}. */
 public class AgriculturaRepositoryFGEM {
 
     private static final String CONSULTA_PARCELAS_FGEM = """
@@ -48,8 +47,6 @@ public class AgriculturaRepositoryFGEM {
     private static final String CONSULTA_COSECHAS_FGEM = """
             SELECT h.id, h.campania_id, h.fecha, h.cantidad, h.destino, h.precio, h.observacion, h.estado, h.registrado_por
             FROM cosecha h JOIN campania c ON c.id = h.campania_id""";
-
-    // ------------------------------------------------------------------ parcelas
 
     public List<ParcelaFGEM> listarParcelasFGEM(Connection cFGEM, long empresaIdFGEM, boolean incluirInactivasFGEM) throws SQLException {
         String sqlFGEM = CONSULTA_PARCELAS_FGEM + " WHERE empresa_id = ?" + (incluirInactivasFGEM ? "" : " AND activa = 1")
@@ -116,8 +113,6 @@ public class AgriculturaRepositoryFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ campañas
-
     public List<CampaniaFGEM> listarCampaniasFGEM(Connection cFGEM, long empresaIdFGEM, boolean incluirAnuladasFGEM) throws SQLException {
         String sqlFGEM = CONSULTA_CAMPANIAS_FGEM + " WHERE c.empresa_id = ?"
                 + (incluirAnuladasFGEM ? "" : " AND c.estado <> 'ANULADA'")
@@ -181,9 +176,6 @@ public class AgriculturaRepositoryFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ costos y cosechas
-
-    /** Costos vigentes o todos de las campañas de la empresa (o de una sola campaña si {@code campaniaId} no es nulo). */
     public List<CostoCampaniaFGEM> listarCostosFGEM(Connection cFGEM, long empresaIdFGEM, Long campaniaIdFGEM, boolean incluirAnuladosFGEM)
             throws SQLException {
         String sqlFGEM = CONSULTA_COSTOS_FGEM + " WHERE c.empresa_id = ?" + (campaniaIdFGEM == null ? "" : " AND k.campania_id = ?")
@@ -265,7 +257,6 @@ public class AgriculturaRepositoryFGEM {
         }
     }
 
-    /** Anula un costo o una cosecha; devuelve la campaña a la que pertenecía o vacío si no existe o ya estaba anulado. */
     public Optional<Long> anularRegistroFGEM(Connection cFGEM, String tablaFGEM, long idFGEM, long empresaIdFGEM, String usuarioFGEM,
                                          LocalDateTime ahoraFGEM) throws SQLException {
         if (!tablaFGEM.equals("costo_campania") && !tablaFGEM.equals("cosecha")) {
@@ -292,8 +283,6 @@ public class AgriculturaRepositoryFGEM {
         }
         return Optional.of(campaniaIdFGEM);
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private static void asignarParcelaFGEM(PreparedStatement psFGEM, DatosParcelaFGEM dFGEM) throws SQLException {
         psFGEM.setString(1, dFGEM.nombreFGEM());

@@ -9,19 +9,6 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
-/**
- * Estado de flujo de efectivo de un período por el método directo:
- * <pre>
- *   Saldo inicial de efectivo
- * + Flujo neto de operación      (cobros de ventas e ingresos − pagos de compras, gastos e intereses)
- * + Flujo neto de inversión      (− compra de activos)
- * + Flujo neto de financiamiento (préstamos y aportes − pagos de capital y retiros)
- * = Saldo final de efectivo
- * </pre>
- * Las transferencias entre cuentas no cambian el total, por eso no aparecen.
- *
- * @param porRubroFGEM monto neto de cada rubro con movimiento (positivo = entra, negativo = sale)
- */
 public record FlujoEfectivoFGEM(PeriodoFGEM periodoFGEM, BigDecimal saldoInicialFGEM, Map<RubroFlujoFGEM, BigDecimal> porRubroFGEM,
                             BigDecimal saldoFinalFGEM) {
 
@@ -31,10 +18,6 @@ public record FlujoEfectivoFGEM(PeriodoFGEM periodoFGEM, BigDecimal saldoInicial
         porRubroFGEM = Collections.unmodifiableMap(copiaFGEM);
     }
 
-    /**
-     * @param cuentasFGEM todas las cuentas de la empresa (también las inactivas, porque su dinero ya se movió)
-     * @param flujosFGEM  todos los flujos de dinero de la empresa
-     */
     public static FlujoEfectivoFGEM deFGEM(PeriodoFGEM periodoFGEM, Collection<CuentaDineroFGEM> cuentasFGEM, Collection<FlujoDineroFGEM> flujosFGEM) {
         BigDecimal inicialFGEM = cuentasFGEM.stream().map(CuentaDineroFGEM::saldoInicialFGEM).reduce(BigDecimal.ZERO, BigDecimal::add);
         Map<RubroFlujoFGEM, BigDecimal> rubrosFGEM = new EnumMap<>(RubroFlujoFGEM.class);
@@ -49,12 +32,10 @@ public record FlujoEfectivoFGEM(PeriodoFGEM periodoFGEM, BigDecimal saldoInicial
         return new FlujoEfectivoFGEM(periodoFGEM, inicialFGEM, rubrosFGEM, inicialFGEM.add(netoFGEM));
     }
 
-    /** Monto neto del rubro; cero si no tuvo movimiento. */
     public BigDecimal rubroFGEM(RubroFlujoFGEM rubroFGEM) {
         return porRubroFGEM.getOrDefault(rubroFGEM, BigDecimal.ZERO);
     }
 
-    /** Flujo neto de una actividad. */
     public BigDecimal netoFGEM(ActividadFGEM actividadFGEM) {
         return porRubroFGEM.entrySet().stream()
                 .filter(eFGEM -> eFGEM.getKey().actividadFGEM() == actividadFGEM)
@@ -62,7 +43,6 @@ public record FlujoEfectivoFGEM(PeriodoFGEM periodoFGEM, BigDecimal saldoInicial
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    /** Aumento (positivo) o disminución (negativo) del efectivo en el período. */
     public BigDecimal variacionFGEM() {
         return saldoFinalFGEM.subtract(saldoInicialFGEM);
     }

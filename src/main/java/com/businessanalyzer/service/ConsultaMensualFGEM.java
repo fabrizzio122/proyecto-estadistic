@@ -14,10 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Totales de ventas, compras, ingresos y gastos de cada mes de un rango, con solo dos consultas.
- * La comparten el análisis financiero (evolución) y el estadístico (tendencia y correlaciones).
- */
 final class ConsultaMensualFGEM {
 
     record MesFGEM(YearMonth mesFGEM, ResumenOperacionesFGEM operacionesFGEM, ResumenFinancieroFGEM finanzasFGEM) {

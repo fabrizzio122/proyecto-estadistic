@@ -66,7 +66,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Function;
 
-/** Módulo "Ventas y compras": registro, consulta y anulación de operaciones comerciales. */
 public class OperacionesControllerFGEM implements VistaModuloFGEM {
 
     private final AppContextFGEM contextoFGEM;
@@ -146,7 +145,6 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
         if (propuestaFGEM != null && btnNuevaFGEM.isVisible()) {
             tglComprasFGEM.setSelected(true);
             cargarFGEM();
-            // Después de mostrar la pantalla, para que el formulario se abra sobre ella.
             javafx.application.Platform.runLater(() -> abrirNuevaFGEM(propuestaFGEM));
             return;
         }
@@ -156,8 +154,6 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
     private TipoOperacionFGEM tipoFGEM() {
         return tglComprasFGEM.isSelected() ? TipoOperacionFGEM.COMPRA : TipoOperacionFGEM.VENTA;
     }
-
-    // ------------------------------------------------------------------ carga
 
     @FXML
     private void esteMesFGEM() {
@@ -228,14 +224,11 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
                 + MontosFGEM.formatearFGEM(totalFGEM, monedaFGEM));
     }
 
-    // ------------------------------------------------------------------ acciones
-
     @FXML
     private void nuevaFGEM() {
         abrirNuevaFGEM(null);
     }
 
-    /** Formulario de nueva operación; con {@code propuesta}, una compra ya llena con la reposición sugerida. */
     private void abrirNuevaFGEM(AppContextFGEM.CompraPropuestaFGEM propuestaFGEM) {
         TipoOperacionFGEM tipoFGEM = propuestaFGEM != null ? TipoOperacionFGEM.COMPRA : tipoFGEM();
         FormularioOperacionFGEM formularioFGEM;
@@ -278,7 +271,6 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /** Corrige la operación seleccionada: la original queda anulada y se registra la versión corregida. */
     @FXML
     private void editarFGEM() {
         OperacionFGEM seleccionadaFGEM = seleccionadaFGEM();
@@ -355,8 +347,6 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
             NotificadorFGEM.exitoFGEM(operacionFGEM.numeroFGEM() + " anulada.");
         }
     }
-
-    // ------------------------------------------------------------------ tabla
 
     private void configurarTablaFGEM() {
         colNumeroFGEM.setCellValueFactory(cFGEM -> textoFGEM(cFGEM.getValue().numeroFGEM()));
@@ -454,8 +444,6 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
         btnEditarFGEM.setDisable(operacionFGEM == null || operacionFGEM.anuladaFGEM());
     }
 
-    // ------------------------------------------------------------------ detalle
-
     private Node detalleFGEM(OperacionFGEM oFGEM) {
         GridPane datosFGEM = new GridPane();
         datosFGEM.setHgap(14);
@@ -493,7 +481,6 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
         return new VBox(14, datosFGEM, lineasFGEM, totalesFGEM);
     }
 
-    /** «Al contado · Caja», «Debe S/ 118.00 (vencida)», «Al crédito · pagada»… */
     private String textoPagoFGEM(OperacionFGEM oFGEM) {
         if (!oFGEM.alCreditoFGEM()) {
             return oFGEM.cuentaFGEM() == null ? "Al contado" : "Al contado · " + oFGEM.cuentaFGEM();
@@ -521,7 +508,6 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /** Subtotal, impuesto, total y (en ventas) margen, alineados a la derecha. */
     private VBox bloqueTotalesFGEM(BigDecimal subtotalFGEM, BigDecimal tasaFGEM, BigDecimal impuestoFGEM, BigDecimal totalFGEM,
                                BigDecimal margenFGEM) {
         VBox cajaFGEM = new VBox(4);
@@ -551,8 +537,6 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
         filaFGEM.setAlignment(Pos.CENTER_RIGHT);
         return filaFGEM;
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private void seleccionarFGEM(long idFGEM) {
         tablaFGEM.getItems().stream().filter(oFGEM -> oFGEM.idFGEM() == idFGEM).findFirst().ifPresent(oFGEM -> {
@@ -597,9 +581,6 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
         return columnaFGEM;
     }
 
-    // ------------------------------------------------------------------ formulario de registro
-
-    /** Línea editable del formulario (aún no registrada). */
     private static final class LineaFormularioFGEM {
         private final ProductoFGEM productoFGEM;
         private BigDecimal cantidadFGEM;
@@ -612,7 +593,6 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /** Formulario de venta o compra: cabecera, buscador de productos, líneas y totales en vivo. */
     private final class FormularioOperacionFGEM {
         private final TipoOperacionFGEM tipoFGEM;
         private final List<ProductoFGEM> catalogoFGEM;
@@ -646,7 +626,6 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
             txtComprobanteFGEM.setPromptText("Ej.: F001-000123");
             txtObservacionesFGEM.setPromptText("Opcional");
             dpVencimientoFGEM.setPromptText("Fecha límite (opcional)");
-            // Al contado el dinero entra o sale de una cuenta; al crédito queda pendiente hasta su vencimiento.
             cmbCondicionFGEM.valueProperty().addListener((oFGEM, aFGEM, condicionFGEM) -> {
                 boolean creditoFGEM = condicionFGEM == CondicionPagoFGEM.CREDITO;
                 cmbCuentaFGEM.setDisable(creditoFGEM);
@@ -691,7 +670,6 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
             return raizFGEM.getScene().getWindow();
         }
 
-        /** Rellena el formulario con una operación ya registrada (para corregirla). */
         void cargarDesdeFGEM(OperacionFGEM oFGEM) {
             dpFechaFGEM.setValue(oFGEM.fechaFGEM());
             txtContraparteFGEM.setText(oFGEM.contraparteFGEM() == null ? "" : oFGEM.contraparteFGEM());
@@ -714,7 +692,6 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
             recalcularFGEM();
         }
 
-        /** Rellena una compra nueva con la propuesta; devuelve cuántos productos no están en el catálogo activo. */
         int cargarPropuestaFGEM(AppContextFGEM.CompraPropuestaFGEM propuestaFGEM) {
             int faltantesFGEM = 0;
             for (DatosLineaFGEM lineaFGEM : propuestaFGEM.lineasFGEM()) {
@@ -757,7 +734,7 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
             ayudaPagoFGEM.setWrapText(true);
             cabeceraFGEM.add(ayudaPagoFGEM, 2, 4, 2, 1);
 
-            Button agregarFGEM = new Button("Agregar", new org.kordamp.ikonli.javafx.FontIcon("fth-plus"));
+            Button agregarFGEM = new Button("Agregar");
             agregarFGEM.getStyleClass().add("button-secondary");
             agregarFGEM.setMinWidth(Region.USE_PREF_SIZE);
             agregarFGEM.setOnAction(eFGEM -> agregarLineaFGEM());
@@ -769,7 +746,7 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
                     etiquetaCortaFGEM("Precio"), txtPrecioFGEM, agregarFGEM);
             selectorFGEM.setAlignment(Pos.CENTER_LEFT);
 
-            Button quitarFGEM = new Button("Quitar línea", new org.kordamp.ikonli.javafx.FontIcon("fth-trash-2"));
+            Button quitarFGEM = new Button("Quitar línea");
             quitarFGEM.getStyleClass().add("button-secondary");
             quitarFGEM.disableProperty().bind(tablaLineasFGEM.getSelectionModel().selectedItemProperty().isNull());
             quitarFGEM.setOnAction(eFGEM -> {
@@ -916,7 +893,6 @@ public class OperacionesControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /** Muestra código, nombre, precio de referencia y (en productos) el stock disponible. */
     private final class CeldaProductoFGEM extends ListCell<ProductoFGEM> {
         @Override
         protected void updateItem(ProductoFGEM pFGEM, boolean vacioFGEM) {

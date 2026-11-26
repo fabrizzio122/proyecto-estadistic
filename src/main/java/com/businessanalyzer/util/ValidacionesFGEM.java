@@ -4,11 +4,6 @@ import com.businessanalyzer.exception.ValidacionExceptionFGEM;
 
 import java.util.regex.Pattern;
 
-/**
- * Validaciones de texto reutilizables por todos los servicios. Cada método devuelve el
- * valor normalizado (sin espacios al inicio ni al final) o lanza {@link ValidacionExceptionFGEM}
- * con un mensaje listo para mostrarse al usuario.
- */
 public final class ValidacionesFGEM {
 
     private static final Pattern EMAIL_FGEM = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
@@ -31,7 +26,6 @@ public final class ValidacionesFGEM {
         return textoFGEM;
     }
 
-    /** @return el texto normalizado, o {@code null} si está vacío. */
     public static String opcionalFGEM(String valorFGEM, String campoFGEM, int maximoFGEM) {
         String textoFGEM = valorFGEM == null ? "" : valorFGEM.strip();
         if (textoFGEM.isEmpty()) {

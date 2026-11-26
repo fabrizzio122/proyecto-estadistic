@@ -1,7 +1,3 @@
--- V7: escenarios de simulación guardados por empresa.
--- Los cambios porcentuales se guardan como fracción x 10000 (0.05 = 5 % -> 500);
--- el costo fijo adicional como monto x 10000.
-
 CREATE TABLE escenario (
     id                   INTEGER PRIMARY KEY AUTOINCREMENT,
     empresa_id           INTEGER NOT NULL REFERENCES empresa (id),

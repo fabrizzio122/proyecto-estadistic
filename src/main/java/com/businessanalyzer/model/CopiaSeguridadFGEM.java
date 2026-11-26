@@ -3,10 +3,8 @@ package com.businessanalyzer.model;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 
-/** Copia de seguridad (base de datos y fotos de las visitas) guardada en la carpeta de copias. */
 public record CopiaSeguridadFGEM(Path archivoFGEM, LocalDateTime fechaFGEM, TipoFGEM tipoFGEM, long bytesFGEM) {
 
-    /** Origen de la copia; forma parte del nombre del archivo. */
     public enum TipoFGEM {
         MANUAL("Manual", "manual"),
         AUTOMATICA("Automática", "auto"),
@@ -39,7 +37,6 @@ public record CopiaSeguridadFGEM(Path archivoFGEM, LocalDateTime fechaFGEM, Tipo
         }
     }
 
-    /** Resumen del contenido de un archivo de copia, obtenido al validarlo ({@code fotos}: fotos de visitas incluidas). */
     public record ContenidoFGEM(int versionEsquemaFGEM, int empresasFGEM, int usuariosFGEM, int operacionesFGEM, int fotosFGEM) {
     }
 }

@@ -10,19 +10,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-/**
- * Restauración de una copia de seguridad en dos pasos, para no reemplazar la base de datos
- * mientras la aplicación la está usando:
- * <ol>
- *     <li>Desde Configuración, la copia elegida se valida y se deja como
- *         {@code restauracion-pendiente.db} junto a la base de datos (y sus fotos, si las trae, en
- *         {@code restauracion-pendiente-fotos/}); luego la aplicación se cierra.</li>
- *     <li>Al iniciar de nuevo, antes de abrir cualquier conexión, {@link #aplicarFGEM(Path)} reemplaza la
- *         base de datos por la copia, descarta los archivos temporales de SQLite (-wal, -shm) de la
- *         base anterior y, si hay fotos pendientes, reemplaza la carpeta de fotos. Después el migrador
- *         actualiza el esquema si la copia era de una versión anterior.</li>
- * </ol>
- */
 public final class RestauracionPendienteFGEM {
 
     public static final String ARCHIVO_FGEM = "restauracion-pendiente.db";
@@ -33,12 +20,10 @@ public final class RestauracionPendienteFGEM {
     private RestauracionPendienteFGEM() {
     }
 
-    /** Archivo donde se deja la copia que se aplicará al próximo inicio. */
     public static Path archivoPendienteFGEM(Path archivoBaseDatosFGEM) {
         return archivoBaseDatosFGEM.resolveSibling(ARCHIVO_FGEM);
     }
 
-    /** Carpeta donde se dejan las fotos de la copia que se aplicará al próximo inicio. */
     public static Path carpetaFotosPendienteFGEM(Path archivoBaseDatosFGEM) {
         return archivoBaseDatosFGEM.resolveSibling(CARPETA_FOTOS_FGEM);
     }
@@ -47,11 +32,6 @@ public final class RestauracionPendienteFGEM {
         return Files.isRegularFile(archivoPendienteFGEM(archivoBaseDatosFGEM));
     }
 
-    /**
-     * Aplica la restauración pendiente, si la hay.
-     *
-     * @return {@code true} si se reemplazó la base de datos
-     */
     public static boolean aplicarFGEM(Path archivoBaseDatosFGEM) throws IOException {
         Path pendienteFGEM = archivoPendienteFGEM(archivoBaseDatosFGEM);
         if (!Files.isRegularFile(pendienteFGEM)) {
@@ -72,7 +52,6 @@ public final class RestauracionPendienteFGEM {
         return true;
     }
 
-    /** Borra una carpeta y todo su contenido, si existe. */
     public static void borrarFGEM(Path carpetaFGEM) throws IOException {
         if (!Files.exists(carpetaFGEM)) {
             return;

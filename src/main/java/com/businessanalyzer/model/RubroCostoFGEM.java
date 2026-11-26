@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Rubros de costo de una campaña agrícola. */
 public enum RubroCostoFGEM {
 
     PREPARACION("Preparación del terreno", "Arado, rastra, surcado (yunta o tractor)."),

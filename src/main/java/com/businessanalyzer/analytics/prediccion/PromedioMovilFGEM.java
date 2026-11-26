@@ -1,6 +1,5 @@
 package com.businessanalyzer.analytics.prediccion;
 
-/** Proyecta el promedio de los últimos k meses (pronóstico plano). */
 public final class PromedioMovilFGEM implements MetodoPronosticoFGEM {
 
     private final int ventanaFGEM;

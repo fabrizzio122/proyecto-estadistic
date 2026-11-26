@@ -1,7 +1,3 @@
--- V5: ventas y compras (cabecera + líneas de detalle).
--- Montos y cantidades en diezmilésimas (valor x 10000), igual que en V4.
--- El stock de cada producto se calcula como compras - ventas de las operaciones REGISTRADAS.
-
 CREATE TABLE operacion (
     id                    INTEGER PRIMARY KEY AUTOINCREMENT,
     empresa_id            INTEGER NOT NULL REFERENCES empresa (id),

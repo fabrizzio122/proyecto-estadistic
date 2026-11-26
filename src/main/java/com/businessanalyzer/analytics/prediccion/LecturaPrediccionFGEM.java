@@ -8,7 +8,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Explica la proyección en frases claras. */
 public final class LecturaPrediccionFGEM {
 
     private LecturaPrediccionFGEM() {

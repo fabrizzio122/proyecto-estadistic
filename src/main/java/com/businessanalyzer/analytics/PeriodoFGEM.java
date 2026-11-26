@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
 
-/** Rango de fechas de un análisis, con su período anterior equivalente para comparar. */
 public record PeriodoFGEM(LocalDate desdeFGEM, LocalDate hastaFGEM) {
 
     public PeriodoFGEM {
@@ -23,7 +22,6 @@ public record PeriodoFGEM(LocalDate desdeFGEM, LocalDate hastaFGEM) {
         return new PeriodoFGEM(mesFGEM.atDay(1), mesFGEM.atEndOfMonth());
     }
 
-    /** El período comprende meses completos (del día 1 al último día). */
     public boolean mesesCompletosFGEM() {
         return desdeFGEM.getDayOfMonth() == 1 && hastaFGEM.equals(YearMonth.from(hastaFGEM).atEndOfMonth());
     }
@@ -32,16 +30,6 @@ public record PeriodoFGEM(LocalDate desdeFGEM, LocalDate hastaFGEM) {
         return ChronoUnit.DAYS.between(desdeFGEM, hastaFGEM) + 1;
     }
 
-    /**
-     * Período anterior equivalente para comparar:
-     * <ul>
-     *   <li>meses completos: los mismos meses previos (octubre para noviembre);</li>
-     *   <li>un mes en curso (del 1 al 15 de noviembre): los mismos días del mes anterior (1 al 15 de octubre),
-     *       para no comparar medio mes contra un mes entero;</li>
-     *   <li>el año en curso (del 1 de enero a hoy): las mismas fechas del año anterior;</li>
-     *   <li>cualquier otro rango: la misma cantidad de días inmediatamente antes.</li>
-     * </ul>
-     */
     public PeriodoFGEM anteriorFGEM() {
         long mesesFGEM = ChronoUnit.MONTHS.between(YearMonth.from(desdeFGEM), YearMonth.from(hastaFGEM)) + 1;
         if (mesesCompletosFGEM()) {
@@ -57,7 +45,6 @@ public record PeriodoFGEM(LocalDate desdeFGEM, LocalDate hastaFGEM) {
         return new PeriodoFGEM(desdeFGEM.minusDays(diasFGEM()), desdeFGEM.minusDays(1));
     }
 
-    /** "noviembre 2026", "enero – marzo 2026", "del 1 al 13 de noviembre 2026" o "15/10/2026 – 13/11/2026". */
     public String descripcionFGEM() {
         if (mesesCompletosFGEM()) {
             YearMonth inicioFGEM = YearMonth.from(desdeFGEM);

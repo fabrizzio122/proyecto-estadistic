@@ -11,13 +11,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/** Existencias del hato calculadas a partir de sus movimientos. */
 public final class HatoFGEM {
 
     private HatoFGEM() {
     }
 
-    /** Cabezas por categoría al final del día indicado (solo categorías con animales). */
     public static Map<CategoriaGanadoFGEM, Integer> existenciasFGEM(Collection<MovimientoGanadoFGEM> movimientosFGEM, LocalDate fechaFGEM) {
         Map<CategoriaGanadoFGEM, Integer> resultadoFGEM = new EnumMap<>(CategoriaGanadoFGEM.class);
         for (MovimientoGanadoFGEM mFGEM : movimientosFGEM) {
@@ -32,17 +30,10 @@ public final class HatoFGEM {
         return resultadoFGEM;
     }
 
-    /**
-     * Revisa que ninguna categoría quede con existencias negativas en ningún momento, recorriendo
-     * los movimientos en orden de fecha.
-     *
-     * @return la primera categoría y fecha en que faltarían animales, si las hay
-     */
     public static Optional<FaltanteFGEM> primerFaltanteFGEM(Collection<MovimientoGanadoFGEM> movimientosFGEM) {
         List<MovimientoGanadoFGEM> ordenadosFGEM = movimientosFGEM.stream()
                 .filter(mFGEM -> !mFGEM.anuladoFGEM())
                 .sorted(Comparator.comparing(MovimientoGanadoFGEM::fechaFGEM)
-                        // El mismo día, primero las entradas y después las salidas.
                         .thenComparing(mFGEM -> -mFGEM.tipoFGEM().signoFGEM())
                         .thenComparingLong(MovimientoGanadoFGEM::idFGEM))
                 .toList();
@@ -58,7 +49,6 @@ public final class HatoFGEM {
         return Optional.empty();
     }
 
-    /** Faltan {@code cantidad} animales de la categoría en la fecha indicada. */
     public record FaltanteFGEM(CategoriaGanadoFGEM categoriaFGEM, LocalDate fechaFGEM, int cantidadFGEM) {
     }
 

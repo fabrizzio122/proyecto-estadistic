@@ -3,16 +3,8 @@ package com.businessanalyzer.model;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Categorías de ingresos y gastos. Cada una indica su grupo en el estado de resultados y,
- * en los gastos, el comportamiento sugerido (el usuario puede cambiarlo en cada movimiento).
- * <p>
- * Los préstamos recibidos o pagados y los aportes de capital no son ingresos ni gastos:
- * se tratarán en el flujo de caja.
- */
 public enum CategoriaFinancieraFGEM {
 
-    // ------------------------------------------------------------------ gastos operativos
     SUELDOS("Sueldos y salarios", TipoMovimientoFGEM.GASTO, GrupoFinancieroFGEM.GASTO_OPERATIVO, ComportamientoFGEM.FIJO),
     ALQUILER("Alquiler de local", TipoMovimientoFGEM.GASTO, GrupoFinancieroFGEM.GASTO_OPERATIVO, ComportamientoFGEM.FIJO),
     SERVICIOS_BASICOS("Luz, agua, internet y teléfono", TipoMovimientoFGEM.GASTO, GrupoFinancieroFGEM.GASTO_OPERATIVO, ComportamientoFGEM.FIJO),
@@ -27,12 +19,10 @@ public enum CategoriaFinancieraFGEM {
     EMPAQUES("Empaques y suministros", TipoMovimientoFGEM.GASTO, GrupoFinancieroFGEM.GASTO_OPERATIVO, ComportamientoFGEM.VARIABLE),
     OTROS_GASTOS("Otros gastos operativos", TipoMovimientoFGEM.GASTO, GrupoFinancieroFGEM.GASTO_OPERATIVO, ComportamientoFGEM.FIJO),
 
-    // ------------------------------------------------------------------ gastos financieros e impuestos
     INTERESES_PRESTAMOS("Intereses de préstamos", TipoMovimientoFGEM.GASTO, GrupoFinancieroFGEM.GASTO_FINANCIERO, ComportamientoFGEM.FIJO),
     COMISIONES_BANCARIAS("Comisiones bancarias", TipoMovimientoFGEM.GASTO, GrupoFinancieroFGEM.GASTO_FINANCIERO, ComportamientoFGEM.VARIABLE),
     IMPUESTO_RENTA("Impuesto a la renta", TipoMovimientoFGEM.GASTO, GrupoFinancieroFGEM.IMPUESTO_RENTA, ComportamientoFGEM.VARIABLE),
 
-    // ------------------------------------------------------------------ ingresos no comerciales
     INTERESES_GANADOS("Intereses ganados", TipoMovimientoFGEM.INGRESO, GrupoFinancieroFGEM.INGRESO_FINANCIERO, null),
     ALQUILERES_COBRADOS("Alquileres cobrados", TipoMovimientoFGEM.INGRESO, GrupoFinancieroFGEM.OTRO_INGRESO, null),
     SUBSIDIOS("Subsidios y donaciones", TipoMovimientoFGEM.INGRESO, GrupoFinancieroFGEM.OTRO_INGRESO, null),
@@ -64,7 +54,6 @@ public enum CategoriaFinancieraFGEM {
         return grupoFGEM;
     }
 
-    /** {@code null} en las categorías de ingreso. */
     public ComportamientoFGEM comportamientoSugeridoFGEM() {
         return comportamientoSugeridoFGEM;
     }

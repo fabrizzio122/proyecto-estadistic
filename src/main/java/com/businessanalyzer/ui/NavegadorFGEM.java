@@ -9,10 +9,6 @@ import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Map;
 
-/**
- * Muestra la vista de cada modulo en el area central. Cada vista se carga una sola vez
- * y se reutiliza, de modo que conserva su estado al cambiar de modulo.
- */
 public final class NavegadorFGEM {
 
     private record VistaCargadaFGEM(Parent raizFGEM, Object controladorFGEM) {
@@ -39,10 +35,6 @@ public final class NavegadorFGEM {
         }
     }
 
-    /**
-     * Tras cambiar la empresa activa: descarta las vistas en memoria (se recargarán con los
-     * datos de la nueva empresa cuando se abran) y refresca la que está a la vista.
-     */
     public void alCambiarEmpresaFGEM(ModuloFGEM visibleFGEM) {
         cargadasFGEM.keySet().removeIf(moduloFGEM -> moduloFGEM != visibleFGEM);
         VistaCargadaFGEM vistaFGEM = cargadasFGEM.get(visibleFGEM);

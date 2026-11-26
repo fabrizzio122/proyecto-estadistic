@@ -54,13 +54,11 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Function;
 
-/** Módulo "Productos y servicios": catálogo con costos, precios y márgenes, y categorías. */
 public class ProductosControllerFGEM implements VistaModuloFGEM {
 
     private static final String TODOS_LOS_TIPOS_FGEM = "Todos los tipos";
     private static final CategoriaFGEM TODAS_FGEM = new CategoriaFGEM(-1, -1, "Todas las categorías", null, 0);
     private static final CategoriaFGEM SIN_CATEGORIA_FGEM = new CategoriaFGEM(0, 0, "Sin categoría", null, 0);
-    /** Por debajo de este margen sobre el precio se resalta en ámbar. */
     private static final BigDecimal MARGEN_BAJO_FGEM = new BigDecimal("0.20");
 
     private final AppContextFGEM contextoFGEM;
@@ -128,8 +126,6 @@ public class ProductosControllerFGEM implements VistaModuloFGEM {
         cargarFGEM();
     }
 
-    // ------------------------------------------------------------------ carga
-
     @FXML
     private void cargarFGEM() {
         EmpresaFGEM empresaFGEM = contextoFGEM.sesionFGEM().empresaActivaFGEM().orElse(null);
@@ -177,8 +173,6 @@ public class ProductosControllerFGEM implements VistaModuloFGEM {
                 resumenFGEM.conMargenNegativoFGEM() == 0 ? "Ningún ítem se vende bajo su costo" : "Se venden por debajo del costo");
         kpiCategoriasFGEM.actualizarFGEM(String.valueOf(categoriasFGEM.size()), "Para agrupar el análisis");
     }
-
-    // ------------------------------------------------------------------ productos
 
     @FXML
     private void nuevoFGEM() {
@@ -261,8 +255,6 @@ public class ProductosControllerFGEM implements VistaModuloFGEM {
                 tablaHistorialFGEM);
     }
 
-    // ------------------------------------------------------------------ categorías
-
     @FXML
     private void nuevaCategoriaFGEM() {
         TextField nombreFGEM = new TextField();
@@ -313,8 +305,6 @@ public class ProductosControllerFGEM implements VistaModuloFGEM {
             NotificadorFGEM.errorFGEM(ErroresFGEM.mensajeFGEM(eFGEM));
         }
     }
-
-    // ------------------------------------------------------------------ configuración de tablas
 
     private void configurarFiltrosFGEM() {
         cmbFiltroTipoFGEM.getItems().setAll(TODOS_LOS_TIPOS_FGEM, TipoItemFGEM.PRODUCTO.descripcionFGEM() + "s",
@@ -435,8 +425,6 @@ public class ProductosControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ utilidades
-
     private void seleccionarFGEM(long idFGEM) {
         tablaFGEM.getItems().stream().filter(pFGEM -> pFGEM.idFGEM() == idFGEM).findFirst()
                 .ifPresent(pFGEM -> {
@@ -476,7 +464,6 @@ public class ProductosControllerFGEM implements VistaModuloFGEM {
         return columnaFGEM;
     }
 
-    /** Clase de color según el margen: negativo, bajo (menor al 20 %) o saludable. */
     private static String claseMargenFGEM(MargenesFGEM.MargenFGEM margenFGEM) {
         if (margenFGEM.negativoFGEM()) {
             return "margen-negativo";
@@ -518,7 +505,6 @@ public class ProductosControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /** Campos del formulario de producto o servicio, con vista previa del margen. */
     private final class FormularioProductoFGEM {
         private final ComboBox<TipoItemFGEM> cmbTipoFGEM = new ComboBox<>(FXCollections.observableArrayList(TipoItemFGEM.values()));
         private final TextField txtCodigoFGEM = new TextField();
@@ -533,7 +519,6 @@ public class ProductosControllerFGEM implements VistaModuloFGEM {
         private final CheckBox chkPerecibleFGEM = new CheckBox("Se vence pronto (pan, lácteos frescos, verduras…)");
 
         FormularioProductoFGEM(ProductoFGEM pFGEM) {
-            // El texto de la casilla baja de línea en vez de cortarse con «…».
             chkPerecibleFGEM.setWrapText(true);
             chkPerecibleFGEM.setMinHeight(javafx.scene.layout.Region.USE_PREF_SIZE);
             List<CategoriaFGEM> opcionesFGEM = new ArrayList<>();
@@ -565,10 +550,8 @@ public class ProductosControllerFGEM implements VistaModuloFGEM {
                 txtDescripcionFGEM.setText(Objects.requireNonNullElse(pFGEM.descripcionFGEM(), ""));
                 chkPerecibleFGEM.setSelected(pFGEM.perecibleFGEM());
             }
-            // Solo un bien físico puede vencerse.
             chkPerecibleFGEM.setWrapText(true);
             chkPerecibleFGEM.disableProperty().bind(cmbTipoFGEM.valueProperty().isEqualTo(TipoItemFGEM.SERVICIO));
-            // Un servicio nuevo se mide normalmente por servicio u hora.
             cmbTipoFGEM.valueProperty().addListener((oFGEM, anteriorFGEM, tipoFGEM) -> {
                 if (pFGEM == null && tipoFGEM == TipoItemFGEM.SERVICIO && cmbUnidadFGEM.getValue() == UnidadMedidaFGEM.UNIDAD) {
                     cmbUnidadFGEM.setValue(UnidadMedidaFGEM.SERVICIO);

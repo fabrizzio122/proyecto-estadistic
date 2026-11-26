@@ -9,15 +9,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-/**
- * Clasificación ABC (principio de Pareto) de los productos según sus ventas:
- * <ul>
- *     <li><b>A</b>: los que, sumados de mayor a menor, generan el primer 80 % de las ventas.</li>
- *     <li><b>B</b>: los que completan hasta el 95 %.</li>
- *     <li><b>C</b>: el resto (muchos productos que aportan poco).</li>
- * </ul>
- * Un producto es A si el acumulado <i>antes</i> de él es menor al 80 %; así el primero siempre es A.
- */
 public record AnalisisAbcFGEM(List<ItemFGEM> itemsFGEM, BigDecimal ventasTotalesFGEM) {
 
     public static final BigDecimal LIMITE_A_FGEM = new BigDecimal("0.80");
@@ -25,10 +16,6 @@ public record AnalisisAbcFGEM(List<ItemFGEM> itemsFGEM, BigDecimal ventasTotales
 
     public enum ClaseFGEM { A, B, C }
 
-    /**
-     * @param participacionFGEM ventas del producto ÷ ventas totales
-     * @param acumuladoFGEM     participación acumulada hasta este producto (inclusive)
-     */
     public record ItemFGEM(RentabilidadProductoFGEM productoFGEM, BigDecimal participacionFGEM, BigDecimal acumuladoFGEM, ClaseFGEM claseFGEM) {
     }
 
@@ -60,7 +47,6 @@ public record AnalisisAbcFGEM(List<ItemFGEM> itemsFGEM, BigDecimal ventasTotales
         return itemsFGEM.stream().filter(iFGEM -> iFGEM.claseFGEM() == claseFGEM).count();
     }
 
-    /** Parte de las ventas que aporta una clase. */
     public BigDecimal participacionFGEM(ClaseFGEM claseFGEM) {
         return itemsFGEM.stream().filter(iFGEM -> iFGEM.claseFGEM() == claseFGEM)
                 .map(ItemFGEM::participacionFGEM).reduce(BigDecimal.ZERO, BigDecimal::add);

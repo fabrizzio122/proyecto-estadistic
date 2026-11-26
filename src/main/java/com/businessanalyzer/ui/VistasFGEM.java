@@ -5,12 +5,6 @@ import javafx.fxml.FXMLLoader;
 
 import java.net.URL;
 
-/**
- * Carga archivos FXML creando sus controladores con las dependencias de la aplicacion.
- * <p>
- * El controlador puede declarar uno de estos constructores (se prueban en este orden):
- * {@code (AppContext, Ventana)}, {@code (AppContext)} o sin parametros.
- */
 public final class VistasFGEM {
 
     public static final String PRINCIPAL_FGEM = "/fxml/main-view.fxml";
@@ -40,7 +34,6 @@ public final class VistasFGEM {
                 try {
                     return tipoFGEM.getConstructor(AppContextFGEM.class, VentanaFGEM.class).newInstance(contextoFGEM, ventanaFGEM);
                 } catch (NoSuchMethodException ignoradaFGEM) {
-                    // se prueba el siguiente constructor
                 }
             }
             try {

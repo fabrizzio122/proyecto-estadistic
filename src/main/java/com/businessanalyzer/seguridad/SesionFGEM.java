@@ -9,13 +9,6 @@ import com.businessanalyzer.model.UsuarioFGEM;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-/**
- * Usuario que tiene la sesión abierta y empresa con la que está trabajando.
- * <p>
- * Los servicios la consultan para comprobar permisos antes de cada operación protegida
- * (la interfaz oculta opciones, pero la verificación real ocurre en los servicios).
- * Desde la Fase 4, los datos de negocio se registran siempre sobre la empresa activa.
- */
 public final class SesionFGEM {
 
     private volatile UsuarioFGEM usuarioFGEM;
@@ -27,7 +20,6 @@ public final class SesionFGEM {
         this.empresaActivaFGEM = null;
     }
 
-    /** Refresca los datos del usuario de la sesión tras modificarlos. */
     public void actualizarFGEM(UsuarioFGEM actualizadoFGEM) {
         UsuarioFGEM actualFGEM = usuarioFGEM;
         if (actualFGEM != null && actualFGEM.idFGEM() == actualizadoFGEM.idFGEM()) {
@@ -68,13 +60,10 @@ public final class SesionFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ empresa activa
-
     public Optional<EmpresaFGEM> empresaActivaFGEM() {
         return Optional.ofNullable(empresaActivaFGEM);
     }
 
-    /** Para las operaciones que solo tienen sentido con una empresa seleccionada. */
     public EmpresaFGEM empresaActivaRequeridaFGEM() {
         EmpresaFGEM actualFGEM = empresaActivaFGEM;
         if (actualFGEM == null) {
@@ -83,13 +72,11 @@ public final class SesionFGEM {
         return actualFGEM;
     }
 
-    /** Lo usa {@code EmpresaService} después de comprobar el acceso; {@code null} deja la sesión sin empresa. */
     public void seleccionarEmpresaFGEM(EmpresaFGEM empresaFGEM) {
         empresaActivaFGEM = empresaFGEM;
         notificarFGEM();
     }
 
-    /** Refresca la empresa activa si fue modificada. */
     public void actualizarEmpresaFGEM(EmpresaFGEM modificadaFGEM) {
         EmpresaFGEM actualFGEM = empresaActivaFGEM;
         if (actualFGEM != null && actualFGEM.idFGEM() == modificadaFGEM.idFGEM()) {
@@ -98,7 +85,6 @@ public final class SesionFGEM {
         }
     }
 
-    /** Un único oyente (la ventana principal) que se entera cuando cambia la empresa activa. */
     public void alCambiarEmpresaFGEM(Consumer<Optional<EmpresaFGEM>> oyenteFGEM) {
         this.oyenteEmpresaFGEM = oyenteFGEM;
     }

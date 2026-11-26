@@ -31,8 +31,8 @@ class AvisosSugerenciasTestFGEM {
                 reponerFGEM(5, "Leche", UrgenciaFGEM.URGENTE), reponerFGEM(6, "Atún", UrgenciaFGEM.PRONTO));
         List<PrecioFGEM> preciosFGEM = List.of(
                 precioFGEM(7, "Agua", MotivoPrecioFGEM.PERDIDA, null),
-                precioFGEM(8, "Galletas", MotivoPrecioFGEM.PERDIDA, NotaPrecioFGEM.SIN_VENTAS),   // casi no se vende: no es urgente
-                precioFGEM(9, "Gaseosa", MotivoPrecioFGEM.MARGEN_BAJO, null));                    // margen bajo: no es urgente
+                precioFGEM(8, "Galletas", MotivoPrecioFGEM.PERDIDA, NotaPrecioFGEM.SIN_VENTAS),
+                precioFGEM(9, "Gaseosa", MotivoPrecioFGEM.MARGEN_BAJO, null));
         List<SinMovimientoFGEM> paradosFGEM = List.of(
                 new SinMovimientoFGEM(productoFGEM(10, "Yogur"), SituacionFGEM.PERECIBLE_EN_RIESGO, BigDecimal.TEN, BigDecimal.TEN, null),
                 new SinMovimientoFGEM(productoFGEM(11, "Velas"), SituacionFGEM.SIN_VENTAS, BigDecimal.TEN, BigDecimal.TEN, null));

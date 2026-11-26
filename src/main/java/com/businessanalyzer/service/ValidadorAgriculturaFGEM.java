@@ -9,7 +9,6 @@ import com.businessanalyzer.util.ValidacionesFGEM;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/** Valida y normaliza parcelas, campañas, costos y cosechas. */
 final class ValidadorAgriculturaFGEM {
 
     private static final LocalDate FECHA_MINIMA_FGEM = LocalDate.of(2000, 1, 1);

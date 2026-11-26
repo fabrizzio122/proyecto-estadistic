@@ -2,10 +2,6 @@ package com.businessanalyzer.model;
 
 import java.math.BigDecimal;
 
-/**
- * Especies ganaderas que se pueden registrar, con los umbrales de referencia para el semáforo
- * de sus indicadores (valores habituales en la ganadería familiar y mediana del Perú).
- */
 public enum EspecieFGEM {
 
     VACUNO("Vacunos", "vacas", pctFGEM(70), pctFGEM(55), pctFGEM(3), pctFGEM(6), pctFGEM(5), pctFGEM(10)),
@@ -43,7 +39,6 @@ public enum EspecieFGEM {
         return descripcionFGEM;
     }
 
-    /** Nombre de las hembras reproductoras en plural ("vacas", "ovejas", "madres"). */
     public String hembrasFGEM() {
         return hembrasFGEM;
     }

@@ -3,13 +3,6 @@ package com.businessanalyzer.model;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Tipos de bienes y derechos que puede registrar una empresa.
- * <p>
- * Los corrientes se convierten en dinero en menos de un año (caja, lo que deben los clientes);
- * los no corrientes son los bienes que se usan para operar (local, máquinas, vehículos).
- * El inventario de mercadería no figura aquí: se calcula solo con el stock y el costo del catálogo.
- */
 public enum CategoriaActivoFGEM {
 
     CAJA_BANCOS("Caja y bancos", true, null,
@@ -49,17 +42,14 @@ public enum CategoriaActivoFGEM {
         return descripcionFGEM;
     }
 
-    /** Se convierte en dinero en menos de un año. */
     public boolean corrienteFGEM() {
         return corrienteFGEM;
     }
 
-    /** Puede tener vida útil y depreciarse (activos fijos, salvo terrenos). */
     public boolean depreciableFGEM() {
         return !corrienteFGEM && this != TERRENOS;
     }
 
-    /** Años de vida útil propuestos al registrar; {@code null} si no se deprecia. */
     public Integer vidaUtilSugeridaFGEM() {
         return vidaUtilSugeridaFGEM;
     }

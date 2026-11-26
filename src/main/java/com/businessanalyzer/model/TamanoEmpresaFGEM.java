@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Tamaño de la empresa según su volumen de operaciones. */
 public enum TamanoEmpresaFGEM {
 
     MICRO("Microempresa"),

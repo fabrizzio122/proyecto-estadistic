@@ -35,7 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Genera los informes reales (PDF y Excel) con los datos de la empresa de demostración. */
 class InformeServiceTestFGEM {
 
     private static final LocalDate DESDE_FGEM = LocalDate.of(2025, 10, 1);
@@ -110,7 +109,6 @@ class InformeServiceTestFGEM {
             assertEquals(CellType.NUMERIC, primeraFGEM.getCell(1).getCellType(), "La fecha es una fecha de Excel");
             assertEquals(CellType.NUMERIC, primeraFGEM.getCell(8).getCellType(), "El total es un número");
 
-            // Total de ventas registradas en la hoja = ventas netas del estado de resultados (hoja Resumen).
             Row totalFGEM = ventasFGEM.getRow(ventasFGEM.getLastRowNum());
             double totalSubtotalFGEM = evaluadorFGEM.evaluate(totalFGEM.getCell(6)).getNumberValue();
             double ventasResumenFGEM = libroFGEM.getSheet("Resumen").getRow(4).getCell(1).getNumericCellValue();

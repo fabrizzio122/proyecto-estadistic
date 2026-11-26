@@ -14,32 +14,18 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-/**
- * Lo más urgente de las sugerencias, en pocas líneas, para el Dashboard: productos agotados, perecibles que se
- * vencerán, productos que se venden con pérdida y productos que se agotan esta semana. Solo cuenta lo que pide
- * actuar ya: los precios bajos de productos que casi no se venden y la venta lenta quedan para el módulo.
- * Es cálculo puro.
- */
 public final class AvisosSugerenciasFGEM {
 
-    /** Nombres que se muestran en el detalle de cada aviso. */
     public static final int MAX_NOMBRES_FGEM = 3;
 
     private AvisosSugerenciasFGEM() {
     }
 
-    /** {@code GRAVE}: hay que actuar hoy; {@code MEDIA}: esta semana. */
     public enum GravedadFGEM { GRAVE, MEDIA }
 
-    /**
-     * @param tituloFGEM   qué pasa («Agotados»)
-     * @param cantidadFGEM cuántos productos
-     * @param detalleFGEM  los primeros nombres y qué hacer
-     */
     public record AvisoFGEM(GravedadFGEM gravedadFGEM, String tituloFGEM, int cantidadFGEM, String detalleFGEM) {
     }
 
-    /** Avisos de lo más a lo menos urgente; lista vacía si no hay nada urgente. */
     public static List<AvisoFGEM> avisosFGEM(ResultadoFGEM rFGEM) {
         List<AvisoFGEM> avisosFGEM = new ArrayList<>();
         agregarFGEM(avisosFGEM, GravedadFGEM.GRAVE, "Agotados", "Repón: ", rFGEM.reposicionFGEM(),

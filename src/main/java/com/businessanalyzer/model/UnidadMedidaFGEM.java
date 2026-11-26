@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Unidad en la que se vende y se cuenta un producto o servicio. */
 public enum UnidadMedidaFGEM {
 
     UNIDAD("Unidad", "und"),

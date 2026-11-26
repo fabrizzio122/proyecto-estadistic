@@ -1,5 +1,3 @@
--- V8: historial de informes generados (qué se generó, de qué período, quién y dónde se guardó).
-
 CREATE TABLE informe_generado (
     id           INTEGER PRIMARY KEY AUTOINCREMENT,
     empresa_id   INTEGER NOT NULL REFERENCES empresa (id),

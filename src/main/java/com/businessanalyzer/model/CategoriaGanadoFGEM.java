@@ -3,10 +3,6 @@ package com.businessanalyzer.model;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Categorías del hato por especie. Las crías reciben los nacimientos; las hembras reproductoras
- * son la base de la natalidad.
- */
 public enum CategoriaGanadoFGEM {
 
     VACA(EspecieFGEM.VACUNO, "Vacas", RolFGEM.HEMBRA_REPRODUCTORA),
@@ -36,7 +32,6 @@ public enum CategoriaGanadoFGEM {
     LLAMA_PADRE(EspecieFGEM.LLAMA, "Padres", RolFGEM.MACHO_REPRODUCTOR),
     LLAMA_CAPON(EspecieFGEM.LLAMA, "Capones", RolFGEM.OTRO);
 
-    /** Función de la categoría en el hato. */
     public enum RolFGEM { HEMBRA_REPRODUCTORA, MACHO_REPRODUCTOR, CRIA, RECRIA, OTRO }
 
     private final EspecieFGEM especieFGEM;
@@ -65,7 +60,6 @@ public enum CategoriaGanadoFGEM {
         return rolFGEM == RolFGEM.CRIA;
     }
 
-    /** "Alpacas · Madres". */
     public String nombreCompletoFGEM() {
         return especieFGEM.descripcionFGEM() + " · " + descripcionFGEM;
     }

@@ -7,11 +7,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Resume el mes en curso en una frase en lenguaje simple, por ejemplo:
- * «Vas 11.5 % arriba de octubre y ya cubriste tus costos del mes más de dos veces.»
- * Se arma por partes para que la pantalla pinte en verde lo positivo y en coral lo que preocupa.
- */
 public record FraseMesFGEM(List<ParteFGEM> partesFGEM) {
 
     public enum TonoFGEM { NORMAL, POSITIVO, NEGATIVO }
@@ -19,7 +14,6 @@ public record FraseMesFGEM(List<ParteFGEM> partesFGEM) {
     public record ParteFGEM(String textoFGEM, TonoFGEM tonoFGEM) {
     }
 
-    /** Variaciones menores a 1 % se consideran «igual». */
     private static final BigDecimal UMBRAL_FGEM = new BigDecimal("0.01");
     private static final String[] VECES_FGEM = {"", "", "dos", "tres", "cuatro", "cinco"};
 
@@ -27,13 +21,6 @@ public record FraseMesFGEM(List<ParteFGEM> partesFGEM) {
         partesFGEM = List.copyOf(partesFGEM);
     }
 
-    /**
-     * @param ventasFGEM         ventas del mes hasta hoy
-     * @param ventasAnteriorFGEM ventas de los mismos días del mes anterior
-     * @param mesAnteriorFGEM    nombre del mes anterior en minúsculas («octubre»)
-     * @param coberturaFGEM      ventas ÷ punto de equilibrio; {@code null} si las ventas no cubren sus costos variables
-     * @param faltanteFGEM       lo que falta vender para el punto de equilibrio, ya formateado («S/ 1,200.00»)
-     */
     public static FraseMesFGEM deFGEM(BigDecimal ventasFGEM, BigDecimal ventasAnteriorFGEM, String mesAnteriorFGEM, BigDecimal coberturaFGEM,
                               String faltanteFGEM) {
         List<ParteFGEM> partesFGEM = new ArrayList<>();
@@ -74,7 +61,6 @@ public record FraseMesFGEM(List<ParteFGEM> partesFGEM) {
         return new FraseMesFGEM(partesFGEM);
     }
 
-    /** La frase completa, sin tonos. */
     public String textoFGEM() {
         StringBuilder sbFGEM = new StringBuilder();
         partesFGEM.forEach(pFGEM -> sbFGEM.append(pFGEM.textoFGEM()));

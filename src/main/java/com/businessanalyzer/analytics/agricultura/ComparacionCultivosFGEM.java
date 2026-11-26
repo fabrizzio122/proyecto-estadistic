@@ -12,23 +12,10 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Comparación de las campañas cerradas (cosechadas o perdidas) agrupadas por cultivo. Los
- * promedios se ponderan por la superficie: una campaña de 2 ha pesa el doble que una de 1 ha.
- *
- * @param rendimientoFGEM   kilos por hectárea promedio
- * @param avanceFGEM        rendimiento ÷ referencia promedio; {@code null} sin referencia
- * @param costoPorHaFGEM    costo por hectárea promedio
- * @param margenPorHaFGEM   margen por hectárea promedio
- * @param mejorFGEM         campaña con mayor rendimiento
- * @param peorFGEM          campaña con menor rendimiento
- * @param perdidasFGEM      campañas perdidas
- */
 public record ComparacionCultivosFGEM(CultivoFGEM cultivoFGEM, int campaniasFGEM, int perdidasFGEM, BigDecimal areaFGEM,
                                   BigDecimal rendimientoFGEM, BigDecimal avanceFGEM, BigDecimal costoPorHaFGEM,
                                   BigDecimal margenPorHaFGEM, ResultadoCampaniaFGEM mejorFGEM, ResultadoCampaniaFGEM peorFGEM) {
 
-    /** Una fila por cultivo con campañas cerradas, del de mayor margen por hectárea al de menor. */
     public static List<ComparacionCultivosFGEM> deFGEM(Collection<ResultadoCampaniaFGEM> resultadosFGEM) {
         Map<CultivoFGEM, List<ResultadoCampaniaFGEM>> porCultivoFGEM = new EnumMap<>(CultivoFGEM.class);
         for (ResultadoCampaniaFGEM rFGEM : resultadosFGEM) {

@@ -50,12 +50,10 @@ class DatosDemoServiceTestFGEM {
         assertTrue(patrimonioFGEM.indicadoresFGEM().liquidezCorrienteFGEM().compareTo(BigDecimal.ONE) > 0);
         assertTrue(patrimonioFGEM.indicadoresFGEM().coberturaCuotasFGEM().compareTo(BigDecimal.ONE) > 0);
 
-        // El dinero recorre caja, banco y Yape sin que ninguna cuenta quede en negativo.
         List<SaldoCuentaFGEM> saldosFGEM = entornoFGEM.tesoreriaFGEM.listarCuentasFGEM(false);
         assertEquals(3, saldosFGEM.size());
         assertTrue(saldosFGEM.stream().noneMatch(SaldoCuentaFGEM::negativoFGEM), "Ninguna cuenta debe quedar en negativo");
         assertEquals(0, SaldoCuentaFGEM.totalFGEM(saldosFGEM).compareTo(patrimonioFGEM.balanceFGEM().efectivoFGEM()));
-        // La evolución mensual tampoco pasa por saldos negativos al cierre de cada mes.
         assertTrue(entornoFGEM.tesoreriaFGEM.evolucionFGEM(13).stream().allMatch(mFGEM -> mFGEM.saldoCierreFGEM().signum() > 0));
         TesoreriaServiceFGEM.ResumenFGEM resumenFGEM = entornoFGEM.tesoreriaFGEM.resumenFGEM();
         assertTrue(resumenFGEM.porCobrarFGEM().signum() > 0);

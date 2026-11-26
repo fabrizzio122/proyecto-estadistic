@@ -50,7 +50,7 @@ class DatosDemoAgroServiceTestFGEM {
         BalanceGeneralFGEM balanceFGEM = entornoFGEM.patrimonioFGEM.situacionFGEM().balanceFGEM();
         assertTrue(balanceFGEM.ganadoFGEM().signum() > 0);
         assertTrue(balanceFGEM.patrimonioFGEM().signum() > 0);
-        assertTrue(balanceFGEM.cultivosFGEM().signum() > 0);    // la papa recién sembrada
+        assertTrue(balanceFGEM.cultivosFGEM().signum() > 0);
 
         var campaniasFGEM = entornoFGEM.agriculturaFGEM.listarCampaniasFGEM(false);
         assertEquals(5, campaniasFGEM.size());

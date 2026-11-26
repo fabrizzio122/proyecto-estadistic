@@ -1,14 +1,11 @@
 package com.businessanalyzer.ui;
 
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import org.kordamp.ikonli.javafx.FontIcon;
 
-/** Tarjeta de indicador (KPI): titulo, icono, valor principal y una linea de detalle. */
 public class TarjetaIndicadorFGEM extends VBox {
 
     public static final String SIN_VALOR_FGEM = "—";
@@ -19,12 +16,6 @@ public class TarjetaIndicadorFGEM extends VBox {
     public TarjetaIndicadorFGEM(String tituloFGEM, String iconoFGEM) {
         Label lblTituloFGEM = new Label(tituloFGEM);
         lblTituloFGEM.getStyleClass().add("kpi-title");
-        FontIcon iconFGEM = new FontIcon(iconoFGEM);
-        iconFGEM.getStyleClass().add("kpi-icon");
-        Region espacioFGEM = new Region();
-        HBox.setHgrow(espacioFGEM, Priority.ALWAYS);
-        HBox cabeceraFGEM = new HBox(8, lblTituloFGEM, espacioFGEM, iconFGEM);
-        cabeceraFGEM.setAlignment(Pos.CENTER_LEFT);
 
         valorFGEM.getStyleClass().add("kpi-value");
         detalleFGEM.getStyleClass().add("kpi-detail");
@@ -32,7 +23,7 @@ public class TarjetaIndicadorFGEM extends VBox {
         detalleFGEM.setMinHeight(Region.USE_PREF_SIZE);
 
         getStyleClass().add("kpi-card");
-        getChildren().addAll(cabeceraFGEM, valorFGEM, detalleFGEM);
+        getChildren().addAll(lblTituloFGEM, valorFGEM, detalleFGEM);
         setSpacing(6);
         setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(this, Priority.ALWAYS);

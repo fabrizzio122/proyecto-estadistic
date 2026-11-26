@@ -17,17 +17,9 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Evolución mensual del hato: animales al cierre de cada mes por especie, nacimientos, muertes y
- * ventas de cada mes, y producción mensual de leche y fibra con su tendencia (regresión lineal).
- *
- * @param existenciasFGEM animales al cierre de cada mes, por especie (solo especies con animales)
- * @param produccionFGEM  producción de cada mes, por producto (solo productos registrados)
- */
 public record EvolucionHatoFGEM(List<YearMonth> mesesFGEM, Map<EspecieFGEM, int[]> existenciasFGEM, int[] nacimientosFGEM,
                             int[] muertesFGEM, int[] salidasFGEM, Map<ProductoGanaderoFGEM, double[]> produccionFGEM) {
 
-    /** Meses con datos necesarios para hablar de tendencia. */
     public static final int MINIMO_MESES_TENDENCIA_FGEM = 6;
 
     public static EvolucionHatoFGEM calcularFGEM(YearMonth desdeFGEM, YearMonth hastaFGEM, Collection<MovimientoGanadoFGEM> movimientosFGEM,
@@ -70,7 +62,6 @@ public record EvolucionHatoFGEM(List<YearMonth> mesesFGEM, Map<EspecieFGEM, int[
         return new EvolucionHatoFGEM(mesesFGEM, existenciasFGEM, nacimientosFGEM, muertesFGEM, salidasFGEM, produccionFGEM);
     }
 
-    /** Animales de todas las especies al cierre de cada mes. */
     public int[] totalAnimalesFGEM() {
         int[] totalFGEM = new int[mesesFGEM.size()];
         existenciasFGEM.values().forEach(serieFGEM -> {
@@ -81,7 +72,6 @@ public record EvolucionHatoFGEM(List<YearMonth> mesesFGEM, Map<EspecieFGEM, int[
         return totalFGEM;
     }
 
-    /** Tendencia de la producción mensual, desde el primer mes con producción; {@code null} con pocos datos. */
     public TendenciaFGEM tendenciaFGEM(ProductoGanaderoFGEM productoFGEM) {
         double[] serieFGEM = produccionFGEM.get(productoFGEM);
         if (serieFGEM == null) {
@@ -95,7 +85,6 @@ public record EvolucionHatoFGEM(List<YearMonth> mesesFGEM, Map<EspecieFGEM, int[
         return utilFGEM.length < MINIMO_MESES_TENDENCIA_FGEM ? null : TendenciaFGEM.deFGEM(utilFGEM);
     }
 
-    /** Frases en lenguaje sencillo sobre la evolución. */
     public List<String> lecturaFGEM() {
         List<String> frasesFGEM = new ArrayList<>();
         int[] totalFGEM = totalAnimalesFGEM();

@@ -23,11 +23,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.List;
 
-/** Módulo "Diagnóstico empresarial": puntaje de salud, semáforo de indicadores y recomendaciones. */
 public class DiagnosticoControllerFGEM implements VistaModuloFGEM {
 
     private static final List<String> CLASES_SEMAFORO_FGEM =
@@ -146,12 +144,10 @@ public class DiagnosticoControllerFGEM implements VistaModuloFGEM {
             tituloFGEM.getStyleClass().add("diagnostico-seccion");
             VBox listaFGEM = new VBox(6, tituloFGEM);
             for (HallazgoFGEM hFGEM : fortalezasFGEM) {
-                FontIcon iconoFGEM = new FontIcon("fth-check-circle");
-                iconoFGEM.getStyleClass().add("icono-fortaleza");
-                Label textoFGEM = new Label(hFGEM.tipoFGEM().nombreFGEM() + ": " + hFGEM.valorFGEM());
+                Label textoFGEM = new Label("- " + hFGEM.tipoFGEM().nombreFGEM() + ": " + hFGEM.valorFGEM());
                 textoFGEM.setWrapText(true);
                 textoFGEM.setMinHeight(Region.USE_PREF_SIZE);
-                HBox filaFGEM = new HBox(8, iconoFGEM, textoFGEM);
+                HBox filaFGEM = new HBox(8, textoFGEM);
                 filaFGEM.setAlignment(Pos.CENTER_LEFT);
                 listaFGEM.getChildren().add(filaFGEM);
             }

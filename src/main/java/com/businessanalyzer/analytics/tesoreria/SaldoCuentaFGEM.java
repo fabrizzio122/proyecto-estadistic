@@ -8,11 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Saldo de una cuenta a una fecha de corte: saldo inicial + entradas − salidas.
- *
- * @param ultimoMovimientoFGEM fecha del último movimiento hasta el corte; {@code null} si no tiene
- */
 public record SaldoCuentaFGEM(CuentaDineroFGEM cuentaFGEM, BigDecimal entradasFGEM, BigDecimal salidasFGEM, BigDecimal saldoFGEM,
                           LocalDate ultimoMovimientoFGEM) {
 
@@ -20,7 +15,6 @@ public record SaldoCuentaFGEM(CuentaDineroFGEM cuentaFGEM, BigDecimal entradasFG
         return saldoFGEM.signum() < 0;
     }
 
-    /** Saldos de las cuentas indicadas con los flujos hasta la fecha de corte (inclusive). */
     public static List<SaldoCuentaFGEM> deFGEM(Collection<CuentaDineroFGEM> cuentasFGEM, Collection<FlujoDineroFGEM> flujosFGEM,
                                        LocalDate corteFGEM) {
         List<SaldoCuentaFGEM> saldosFGEM = new ArrayList<>();
@@ -47,7 +41,6 @@ public record SaldoCuentaFGEM(CuentaDineroFGEM cuentaFGEM, BigDecimal entradasFG
         return saldosFGEM;
     }
 
-    /** Suma de los saldos. */
     public static BigDecimal totalFGEM(Collection<SaldoCuentaFGEM> saldosFGEM) {
         return saldosFGEM.stream().map(SaldoCuentaFGEM::saldoFGEM).reduce(BigDecimal.ZERO, BigDecimal::add);
     }

@@ -32,16 +32,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Ganadería de la empresa activa (solo empresas del sector agropecuario): existencias del hato,
- * movimientos, producción de leche, fibra y lana, precios por cabeza e indicadores técnicos.
- * <p>
- * Las existencias nunca pueden quedar negativas: un movimiento que deje sin animales a una
- * categoría en alguna fecha se rechaza. Nada se elimina; los registros se anulan.
- */
 public class GanaderiaServiceFGEM {
 
-    /** Fecha lejana para leer todos los movimientos, incluidos los posteriores a una fecha dada. */
     private static final LocalDate SIN_LIMITE_FGEM = LocalDate.of(9999, 12, 31);
 
     private final DatabaseFGEM databaseFGEM;
@@ -59,9 +51,6 @@ public class GanaderiaServiceFGEM {
         this.relojFGEM = relojFGEM;
     }
 
-    // ------------------------------------------------------------------ consultas
-
-    /** Existencias de hoy por categoría, con su precio y valor. */
     public List<ExistenciaValorizadaFGEM> hatoFGEM() {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_VER);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -71,7 +60,6 @@ public class GanaderiaServiceFGEM {
                 repositorioFGEM.preciosFGEM(cFGEM, empresaFGEM.idFGEM())));
     }
 
-    /** Movimientos del período, del más reciente al más antiguo. */
     public List<MovimientoGanadoFGEM> listarMovimientosFGEM(LocalDate desdeFGEM, LocalDate hastaFGEM, boolean incluirAnuladosFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_VER);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -97,7 +85,6 @@ public class GanaderiaServiceFGEM {
         return databaseFGEM.conConexionFGEM(cFGEM -> repositorioFGEM.preciosFGEM(cFGEM, empresaFGEM.idFGEM()));
     }
 
-    /** Indicadores del período para cada especie con animales o movimientos. */
     public List<IndicadoresEspecieFGEM> indicadoresFGEM(PeriodoFGEM periodoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_VER);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -116,7 +103,6 @@ public class GanaderiaServiceFGEM {
         });
     }
 
-    /** Evolución mensual del hato y de la producción entre los meses indicados (máximo 5 años). */
     public EvolucionHatoFGEM evolucionFGEM(YearMonth desdeFGEM, YearMonth hastaFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_VER);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -127,8 +113,6 @@ public class GanaderiaServiceFGEM {
                 repositorioFGEM.listarMovimientosFGEM(cFGEM, empresaFGEM.idFGEM(), hastaFGEM.atEndOfMonth(), false),
                 repositorioFGEM.listarProduccionFGEM(cFGEM, empresaFGEM.idFGEM(), desdeFGEM.atDay(1), hastaFGEM.atEndOfMonth(), false)));
     }
-
-    // ------------------------------------------------------------------ registro
 
     public MovimientoGanadoFGEM registrarMovimientoFGEM(DatosMovimientoGanadoFGEM datosFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_GESTIONAR);
@@ -143,7 +127,6 @@ public class GanaderiaServiceFGEM {
         });
     }
 
-    /** Anula un movimiento registrado por error. Se rechaza si dejaría categorías con existencias negativas. */
     public MovimientoGanadoFGEM anularMovimientoFGEM(long idFGEM, String motivoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -163,10 +146,6 @@ public class GanaderiaServiceFGEM {
         });
     }
 
-    /**
-     * Corrige un movimiento: el original queda anulado (con nota) y se registra el corregido en la misma
-     * transacción. Se rechaza si el resultado deja alguna categoría con existencias negativas.
-     */
     public MovimientoGanadoFGEM corregirMovimientoFGEM(long idFGEM, DatosMovimientoGanadoFGEM datosFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -184,7 +163,6 @@ public class GanaderiaServiceFGEM {
         });
     }
 
-    /** Corrige un registro de producción (el original queda anulado). */
     public ProduccionGanaderaFGEM corregirProduccionFGEM(long idFGEM, DatosProduccionFGEM datosFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -230,7 +208,6 @@ public class GanaderiaServiceFGEM {
         });
     }
 
-    /** Guarda los precios por cabeza; un precio {@code null} borra el de esa categoría. */
     public void guardarPreciosFGEM(Map<CategoriaGanadoFGEM, BigDecimal> preciosFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -245,9 +222,6 @@ public class GanaderiaServiceFGEM {
         });
     }
 
-    // ------------------------------------------------------------------ utilidades
-
-    /** La empresa activa, siempre que sea del sector agropecuario. */
     private EmpresaFGEM empresaAgropecuariaFGEM() {
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
         if (empresaFGEM.sectorFGEM() != SectorFGEM.AGROPECUARIO) {
@@ -257,7 +231,6 @@ public class GanaderiaServiceFGEM {
         return empresaFGEM;
     }
 
-    /** Rechaza la operación (y deshace la transacción) si alguna categoría queda con existencias negativas. */
     private void exigirExistenciasFGEM(Connection cFGEM, long empresaIdFGEM) throws SQLException {
         HatoFGEM.primerFaltanteFGEM(repositorioFGEM.listarMovimientosFGEM(cFGEM, empresaIdFGEM, SIN_LIMITE_FGEM, false)).ifPresent(fFGEM -> {
             throw new ValidacionExceptionFGEM("No alcanzan los animales: el " + com.businessanalyzer.util.FechasFGEM.paraMostrarFGEM(fFGEM.fechaFGEM())

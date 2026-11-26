@@ -1,9 +1,5 @@
 package com.businessanalyzer.analytics.diagnostico;
 
-/**
- * Indicadores que evalúa el diagnóstico. El peso indica cuánto influye cada uno en el puntaje
- * global (3 = clave, 1 = complementario).
- */
 public enum TipoIndicadorFGEM {
 
     MARGEN_NETO("Margen neto", AreaFGEM.RENTABILIDAD, 3,
@@ -75,7 +71,6 @@ public enum TipoIndicadorFGEM {
         return pesoFGEM;
     }
 
-    /** Solo se evalúa en empresas del sector agropecuario. */
     public boolean soloAgropecuarioFGEM() {
         return areaFGEM == AreaFGEM.AGROPECUARIO;
     }

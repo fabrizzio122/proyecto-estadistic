@@ -35,7 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 
-/** Módulo "Configuración": copias de seguridad, restauración e información del sistema. */
 public class ConfiguracionControllerFGEM implements VistaModuloFGEM {
 
     private static final String CLAVE_CARPETA_INFORMES_FGEM = "informes.carpeta";
@@ -89,8 +88,6 @@ public class ConfiguracionControllerFGEM implements VistaModuloFGEM {
         cargarCopiasFGEM();
         mostrarSistemaFGEM();
     }
-
-    // ------------------------------------------------------------------ copias
 
     private void cargarCopiasFGEM() {
         TareasFGEM.ejecutarFGEM(() -> contextoFGEM.copiasFGEM().listarFGEM(),
@@ -159,7 +156,7 @@ public class ConfiguracionControllerFGEM implements VistaModuloFGEM {
     @FXML
     private void guardarAutomaticaFGEM() {
         try {
-            spnConservarFGEM.increment(0); // confirma lo escrito en el campo
+            spnConservarFGEM.increment(0);
             contextoFGEM.copiasFGEM().configurarAutomaticaFGEM(chkAutomaticaFGEM.isSelected(), spnConservarFGEM.getValue());
             NotificadorFGEM.exitoFGEM("Preferencias de copia automática guardadas.");
         } catch (RuntimeException eFGEM) {
@@ -182,8 +179,6 @@ public class ConfiguracionControllerFGEM implements VistaModuloFGEM {
             NotificadorFGEM.errorFGEM(ErroresFGEM.mensajeFGEM(eFGEM));
         }
     }
-
-    // ------------------------------------------------------------------ restauración
 
     @FXML
     private void restaurarSeleccionadaFGEM() {
@@ -239,8 +234,6 @@ public class ConfiguracionControllerFGEM implements VistaModuloFGEM {
                     NotificadorFGEM.errorFGEM(ErroresFGEM.mensajeFGEM(errorFGEM));
                 });
     }
-
-    // ------------------------------------------------------------------ sistema
 
     private void mostrarSistemaFGEM() {
         Path datosFGEM = contextoFGEM.configFGEM().directorioDatosFGEM();
@@ -306,8 +299,6 @@ public class ConfiguracionControllerFGEM implements VistaModuloFGEM {
             NotificadorFGEM.exitoFGEM("Carpeta de informes actualizada.");
         }
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private void abrirFGEM(Path rutaFGEM) {
         if (!Files.exists(rutaFGEM)) {

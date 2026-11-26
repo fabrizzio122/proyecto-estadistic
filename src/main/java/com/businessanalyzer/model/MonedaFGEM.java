@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Moneda en la que la empresa registra sus operaciones (código ISO 4217). */
 public enum MonedaFGEM {
 
     PEN("Sol peruano", "S/"),

@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** Acceso a la tabla {@code escenario}. */
 public class EscenarioRepositoryFGEM {
 
     private static final String CONSULTA_FGEM = """

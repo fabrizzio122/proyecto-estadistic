@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FinanzasServiceTestFGEM {
 
-    /** El reloj de pruebas está en 2026-01-15. */
     private static final LocalDate HOY_FGEM = LocalDate.of(2026, 1, 15);
     private static final YearMonth DICIEMBRE_FGEM = YearMonth.of(2025, 12);
     private static final YearMonth ENERO_FGEM = YearMonth.of(2026, 1);

@@ -10,10 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Cuánto vendió y cuánto ganó (margen bruto) cada producto o servicio en un período.
- * El costo es el que tenía el producto en el momento de cada venta.
- */
 public record RentabilidadProductoFGEM(
         long productoIdFGEM,
         String codigoFGEM,
@@ -24,7 +20,6 @@ public record RentabilidadProductoFGEM(
         BigDecimal ventasFGEM,
         BigDecimal costoFGEM) {
 
-    /** Una línea de venta registrada (dato de entrada). */
     public record VentaFGEM(long productoIdFGEM, String codigoFGEM, String nombreFGEM, TipoItemFGEM tipoFGEM, String categoriaFGEM,
                         BigDecimal cantidadFGEM, BigDecimal subtotalFGEM, BigDecimal costoUnitarioFGEM) {
     }
@@ -33,12 +28,10 @@ public record RentabilidadProductoFGEM(
         return ventasFGEM.subtract(costoFGEM);
     }
 
-    /** Margen ÷ ventas del producto; {@code null} si no hubo ventas. */
     public BigDecimal margenSobreVentasFGEM() {
         return ventasFGEM.signum() == 0 ? null : margenFGEM().divide(ventasFGEM, MargenesFGEM.ESCALA_RATIO_FGEM, RoundingMode.HALF_UP);
     }
 
-    /** Agrupa las líneas por producto y ordena de mayor a menor margen. */
     public static List<RentabilidadProductoFGEM> agruparFGEM(List<VentaFGEM> ventasFGEM) {
         Map<Long, RentabilidadProductoFGEM> porProductoFGEM = new LinkedHashMap<>();
         for (VentaFGEM vFGEM : ventasFGEM) {

@@ -4,7 +4,6 @@ import com.businessanalyzer.config.AppContextFGEM;
 import com.businessanalyzer.model.DatosUsuarioFGEM;
 import com.businessanalyzer.seguridad.PoliticaPasswordFGEM;
 import com.businessanalyzer.ui.ErroresFGEM;
-import com.businessanalyzer.ui.EstilosFGEM;
 import com.businessanalyzer.ui.NotificadorFGEM;
 import com.businessanalyzer.ui.TareasFGEM;
 import com.businessanalyzer.ui.VentanaFGEM;
@@ -18,7 +17,6 @@ import javafx.scene.control.TextField;
 
 import java.util.List;
 
-/** Primer arranque: crea la cuenta de administrador y abre la sesión con ella. */
 public class ConfiguracionInicialControllerFGEM {
 
     private final AppContextFGEM contextoFGEM;
@@ -61,9 +59,7 @@ public class ConfiguracionInicialControllerFGEM {
                     return contextoFGEM.autenticacionFGEM().iniciarSesionFGEM(datosFGEM.nombreUsuarioFGEM(), passwordFGEM);
                 },
                 usuarioFGEM -> {
-                    // El administrador conserva el color elegido en «Color de la luz» y queda recordado en el equipo.
                     try {
-                        contextoFGEM.preferenciasFGEM().guardarColorDelUsuarioFGEM(EstilosFGEM.acentoFGEM().name());
                         contextoFGEM.preferenciasFGEM().recordarUsuarioActualFGEM();
                     } catch (RuntimeException eFGEM) {
                         org.slf4j.LoggerFactory.getLogger(ConfiguracionInicialControllerFGEM.class)

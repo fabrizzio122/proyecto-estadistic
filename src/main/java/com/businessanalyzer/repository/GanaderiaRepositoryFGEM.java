@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/** Acceso a las tablas {@code movimiento_ganado}, {@code produccion_ganadera} y {@code precio_ganado}. */
 public class GanaderiaRepositoryFGEM {
 
     private static final String CONSULTA_MOVIMIENTOS_FGEM = """
@@ -41,9 +40,6 @@ public class GanaderiaRepositoryFGEM {
                    estado, registrado_por, registrado_en
             FROM produccion_ganadera""";
 
-    // ------------------------------------------------------------------ movimientos
-
-    /** Todos los movimientos hasta la fecha indicada (incluida), del más antiguo al más reciente. */
     public List<MovimientoGanadoFGEM> listarMovimientosFGEM(Connection cFGEM, long empresaIdFGEM, LocalDate hastaFGEM,
                                                     boolean incluirAnuladosFGEM) throws SQLException {
         String sqlFGEM = CONSULTA_MOVIMIENTOS_FGEM + " WHERE empresa_id = ? AND fecha <= ?"
@@ -98,8 +94,6 @@ public class GanaderiaRepositoryFGEM {
             exigirUnaFilaFGEM(psFGEM.executeUpdate(), "El movimiento ya no existe o está anulado. Actualiza la lista.");
         }
     }
-
-    // ------------------------------------------------------------------ producción
 
     public List<ProduccionGanaderaFGEM> listarProduccionFGEM(Connection cFGEM, long empresaIdFGEM, LocalDate desdeFGEM, LocalDate hastaFGEM,
                                                      boolean incluirAnuladosFGEM) throws SQLException {
@@ -159,8 +153,6 @@ public class GanaderiaRepositoryFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ precios
-
     public Map<CategoriaGanadoFGEM, BigDecimal> preciosFGEM(Connection cFGEM, long empresaIdFGEM) throws SQLException {
         Map<CategoriaGanadoFGEM, BigDecimal> preciosFGEM = new EnumMap<>(CategoriaGanadoFGEM.class);
         try (PreparedStatement psFGEM = cFGEM.prepareStatement(
@@ -175,7 +167,6 @@ public class GanaderiaRepositoryFGEM {
         return preciosFGEM;
     }
 
-    /** Guarda el precio por cabeza; {@code null} lo elimina. */
     public void guardarPrecioFGEM(Connection cFGEM, long empresaIdFGEM, CategoriaGanadoFGEM categoriaFGEM, BigDecimal precioFGEM,
                               String usuarioFGEM, LocalDateTime ahoraFGEM) throws SQLException {
         if (precioFGEM == null) {
@@ -201,8 +192,6 @@ public class GanaderiaRepositoryFGEM {
             psFGEM.executeUpdate();
         }
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private static void montoOpcionalFGEM(PreparedStatement psFGEM, int indiceFGEM, BigDecimal valorFGEM) throws SQLException {
         if (valorFGEM == null) {

@@ -4,7 +4,6 @@ import com.businessanalyzer.analytics.diagnostico.SemaforoFGEM;
 
 import java.math.BigDecimal;
 
-/** Conclusión del inspector sobre la visita. */
 public enum ConclusionVisitaFGEM {
 
     FAVORABLE("Favorable", SemaforoFGEM.VERDE),
@@ -27,7 +26,6 @@ public enum ConclusionVisitaFGEM {
         return semaforoFGEM;
     }
 
-    /** Conclusión que se propone según el cumplimiento: desde 80 % favorable; desde 50 %, con observaciones. */
     public static ConclusionVisitaFGEM sugeridaFGEM(BigDecimal cumplimientoFGEM) {
         if (cumplimientoFGEM == null || cumplimientoFGEM.compareTo(new BigDecimal("0.80")) >= 0) {
             return FAVORABLE;

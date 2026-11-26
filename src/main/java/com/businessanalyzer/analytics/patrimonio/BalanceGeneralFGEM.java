@@ -15,32 +15,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Balance general simplificado a una fecha de corte:
- * <pre>
- *   Activo corriente      (caja y bancos, cuentas por cobrar, inventario, otros)
- * + Activo no corriente   (bienes a su valor en libros, ya descontada la depreciación)
- * = Total activo
- *   Pasivo corriente      (lo que vence en los próximos 12 meses)
- * + Pasivo no corriente   (el resto de las deudas)
- * = Total pasivo
- *   Patrimonio = Total activo − Total pasivo
- * </pre>
- * El inventario se valoriza con el stock actual de los productos por su costo unitario. El efectivo es el
- * saldo calculado de las cuentas de tesorería; las ventas y compras al crédito pendientes se suman como
- * cuentas por cobrar y por pagar.
- *
- * @param efectivoFGEM              saldo de las cuentas de tesorería (Fase 22)
- * @param porCobrarFGEM             ventas al crédito pendientes de cobro (Fase 22)
- * @param porPagarFGEM              compras al crédito pendientes de pago (Fase 22)
- * @param depreciacionAcumuladaFGEM depreciación de todos los activos fijos hasta la fecha de corte
- * @param depreciacionMensualFGEM   depreciación que generan los activos fijos cada mes
- * @param cuotasMensualesFGEM       suma de las cuotas mensuales de las deudas pendientes
- * @param ganadoFGEM                valor de mercado del hato (Fase 15); cero si no hay ganado
- * @param cultivosFGEM              costos acumulados de las campañas agrícolas en curso (Fase 16)
- * @param activosRegistradosFGEM    cantidad de activos registrados (sin contar el inventario)
- * @param deudasPendientesFGEM      cantidad de deudas con saldo
- */
 public record BalanceGeneralFGEM(LocalDate corteFGEM,
                              List<PartidaFGEM> activoCorrienteFGEM,
                              List<PartidaFGEM> activoNoCorrienteFGEM,
@@ -65,7 +39,6 @@ public record BalanceGeneralFGEM(LocalDate corteFGEM,
     public static final String GANADO_FGEM = "Ganado (valor de mercado)";
     public static final String CULTIVOS_FGEM = "Cultivos en proceso (al costo)";
 
-    /** Rubro del balance con su monto. */
     public record PartidaFGEM(String conceptoFGEM, BigDecimal montoFGEM) {
     }
 
@@ -76,36 +49,22 @@ public record BalanceGeneralFGEM(LocalDate corteFGEM,
         pasivoNoCorrienteFGEM = List.copyOf(pasivoNoCorrienteFGEM);
     }
 
-    /**
-     * @param activosFGEM    activos de la empresa (se consideran los vigentes a la fecha de corte)
-     * @param inventarioFGEM valor del stock de mercadería
-     * @param deudasFGEM     deudas de la empresa (se consideran las pendientes iniciadas hasta la fecha de corte)
-     */
     public static BalanceGeneralFGEM deFGEM(LocalDate corteFGEM, Collection<ActivoFGEM> activosFGEM, BigDecimal inventarioFGEM,
                                     Collection<DeudaFGEM> deudasFGEM) {
         return deFGEM(corteFGEM, activosFGEM, inventarioFGEM, BigDecimal.ZERO, deudasFGEM);
     }
 
-    /** Igual que el anterior, sumando el valor del ganado al activo no corriente. */
     public static BalanceGeneralFGEM deFGEM(LocalDate corteFGEM, Collection<ActivoFGEM> activosFGEM, BigDecimal inventarioFGEM,
                                     BigDecimal ganadoFGEM, Collection<DeudaFGEM> deudasFGEM) {
         return deFGEM(corteFGEM, activosFGEM, inventarioFGEM, ganadoFGEM, BigDecimal.ZERO, deudasFGEM);
     }
 
-    /** Igual que el anterior, sumando al activo corriente lo invertido en las campañas agrícolas en curso. */
     public static BalanceGeneralFGEM deFGEM(LocalDate corteFGEM, Collection<ActivoFGEM> activosFGEM, BigDecimal inventarioFGEM,
                                     BigDecimal ganadoFGEM, BigDecimal cultivosFGEM, Collection<DeudaFGEM> deudasFGEM) {
         return deFGEM(corteFGEM, activosFGEM, inventarioFGEM, ganadoFGEM, cultivosFGEM, deudasFGEM, BigDecimal.ZERO, BigDecimal.ZERO,
                 BigDecimal.ZERO);
     }
 
-    /**
-     * Balance completo, con el dinero de las cuentas de tesorería y las ventas y compras al crédito pendientes.
-     *
-     * @param efectivoFGEM  saldo de las cuentas (puede ser negativo si una cuenta quedó sobregirada)
-     * @param porCobrarFGEM ventas al crédito pendientes de cobro
-     * @param porPagarFGEM  compras al crédito pendientes de pago (se consideran de corto plazo)
-     */
     public static BalanceGeneralFGEM deFGEM(LocalDate corteFGEM, Collection<ActivoFGEM> activosFGEM, BigDecimal inventarioFGEM,
                                     BigDecimal ganadoFGEM, BigDecimal cultivosFGEM, Collection<DeudaFGEM> deudasFGEM,
                                     BigDecimal efectivoFGEM, BigDecimal porCobrarFGEM, BigDecimal porPagarFGEM) {
@@ -183,11 +142,6 @@ public record BalanceGeneralFGEM(LocalDate corteFGEM,
                 pagarFGEM);
     }
 
-    /**
-     * Parte del saldo que se pagará en los próximos 12 meses. Sin vencimiento, o si vence dentro
-     * de un año, es todo el saldo; si vence después, se supone que el capital se paga en partes
-     * iguales cada mes hasta el vencimiento.
-     */
     public static BigDecimal porcionCorrienteFGEM(DeudaFGEM dFGEM, LocalDate corteFGEM) {
         BigDecimal saldoFGEM = dFGEM.saldoFGEM();
         if (dFGEM.vencimientoFGEM() == null) {
@@ -200,7 +154,6 @@ public record BalanceGeneralFGEM(LocalDate corteFGEM,
         return saldoFGEM.multiply(BigDecimal.valueOf(12)).divide(BigDecimal.valueOf(mesesFGEM), 2, RoundingMode.HALF_UP);
     }
 
-    /** Meses que faltan hasta la fecha (redondeado hacia arriba); 0 si ya pasó. */
     static long mesesHastaFGEM(LocalDate desdeFGEM, LocalDate hastaFGEM) {
         if (!hastaFGEM.isAfter(desdeFGEM)) {
             return 0;
@@ -240,20 +193,14 @@ public record BalanceGeneralFGEM(LocalDate corteFGEM,
         return totalPasivoCorrienteFGEM().add(totalPasivoNoCorrienteFGEM());
     }
 
-    /** Lo que realmente pertenece a los dueños: activos − deudas. Puede ser negativo. */
     public BigDecimal patrimonioFGEM() {
         return totalActivoFGEM().subtract(totalPasivoFGEM());
     }
 
-    /** No hay activos ni deudas registrados: no se puede evaluar la situación patrimonial. */
     public boolean sinRegistrosFGEM() {
         return !tieneActivosFGEM() && deudasPendientesFGEM == 0;
     }
 
-    /**
-     * Hay activos registrados, ganado valorizado, dinero en las cuentas de tesorería (aunque estén en rojo) o
-     * ventas por cobrar. El inventario solo no cuenta: se calcula del catálogo aunque no se haya registrado nada más.
-     */
     public boolean tieneActivosFGEM() {
         return activosRegistradosFGEM > 0 || ganadoFGEM.signum() > 0 || cultivosFGEM.signum() > 0
                 || (efectivoFGEM != null && efectivoFGEM.signum() != 0) || (porCobrarFGEM != null && porCobrarFGEM.signum() > 0);

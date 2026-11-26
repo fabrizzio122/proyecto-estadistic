@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Bitácora de eventos de seguridad (inicios de sesión, bloqueos, cambios de cuentas). */
 public class RegistroAccesoRepositoryFGEM {
 
     private static final int LONGITUD_MAXIMA_NOMBRE_FGEM = 50;

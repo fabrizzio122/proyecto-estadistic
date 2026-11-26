@@ -15,18 +15,15 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.businessanalyzer.controller.AgriculturaControllerFGEM"
       spacing="14" styleClass="page">
 
-    <!-- Indicadores principales -->
     <HBox fx:id="indicadoresFGEM" spacing="16"/>
 
     <TabPane fx:id="pestanasFGEM" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
 
-        <!-- 1. Campañas -->
         <Tab text="Campañas">
             <VBox spacing="10" styleClass="tab-contenido">
                 <HBox spacing="10" alignment="CENTER_LEFT">
@@ -35,19 +32,15 @@
                     <Region HBox.hgrow="ALWAYS"/>
                     <Button fx:id="btnCostoFGEM" text="Costo" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#registrarCostoFGEM">
-                        <graphic><FontIcon iconLiteral="fth-minus-circle"/></graphic>
                     </Button>
                     <Button fx:id="btnCosechaFGEM" text="Cosecha" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#registrarCosechaFGEM">
-                        <graphic><FontIcon iconLiteral="fth-package"/></graphic>
                     </Button>
                     <Button fx:id="btnCerrarFGEM" text="Cerrar campaña" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#cerrarCampaniaFGEM">
-                        <graphic><FontIcon iconLiteral="fth-check-square"/></graphic>
                     </Button>
                     <Button fx:id="btnRegistrosFGEM" text="Registros" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#verRegistrosFGEM">
-                        <graphic><FontIcon iconLiteral="fth-list"/></graphic>
                     </Button>
                     <MenuButton fx:id="menuMasFGEM" text="Más" styleClass="button-secondary" minWidth="-Infinity">
                         <items>
@@ -58,7 +51,6 @@
                     </MenuButton>
                     <Button fx:id="btnNuevaCampaniaFGEM" text="Nueva campaña" styleClass="button-primary" minWidth="-Infinity"
                             onAction="#nuevaCampaniaFGEM">
-                        <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
                     </Button>
                 </HBox>
                 <HBox spacing="16" VBox.vgrow="ALWAYS">
@@ -86,7 +78,6 @@
             </VBox>
         </Tab>
 
-        <!-- Comparación de cultivos -->
         <Tab text="Comparación">
             <VBox spacing="12" styleClass="tab-contenido">
                 <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
@@ -113,7 +104,6 @@
             </VBox>
         </Tab>
 
-        <!-- 2. Parcelas -->
         <Tab text="Parcelas">
             <VBox spacing="10" styleClass="tab-contenido">
                 <HBox spacing="10" alignment="CENTER_LEFT">
@@ -121,15 +111,12 @@
                     <Region HBox.hgrow="ALWAYS"/>
                     <Button fx:id="btnEditarParcelaFGEM" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#editarParcelaFGEM">
-                        <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
                     </Button>
                     <Button fx:id="btnEstadoParcelaFGEM" text="Desactivar" styleClass="button-secondary" minWidth="-Infinity"
                             onAction="#cambiarEstadoParcelaFGEM">
-                        <graphic><FontIcon iconLiteral="fth-archive"/></graphic>
                     </Button>
                     <Button fx:id="btnNuevaParcelaFGEM" text="Nueva parcela" styleClass="button-primary" minWidth="-Infinity"
                             onAction="#nuevaParcelaFGEM">
-                        <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
                     </Button>
                 </HBox>
                 <TableView fx:id="tablaParcelasFGEM" VBox.vgrow="ALWAYS">

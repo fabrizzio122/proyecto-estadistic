@@ -9,28 +9,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Cuánto vale el negocio, por tres métodos:
- * <ol>
- *   <li><b>Patrimonial:</b> activos − deudas del balance general (el ganado a precio de mercado y los
- *       cultivos en proceso al costo).</li>
- *   <li><b>Capitalización de utilidades:</b> utilidad neta anual ÷ tasa de descuento (un negocio que gana
- *       lo mismo cada año, para siempre).</li>
- *   <li><b>Flujos descontados:</b> flujo anual para el dueño (utilidad neta + depreciación, que no es
- *       salida de dinero) proyectado con el crecimiento elegido, más un valor terminal con crecimiento
- *       de largo plazo, todo traído a valor de hoy con la tasa de descuento.</li>
- * </ol>
- * <b>Valor de referencia:</b> el promedio de los dos métodos por rentabilidad si supera al patrimonial
- * (el negocio vale más por lo que gana que por lo que tiene: la diferencia es el fondo de comercio);
- * si no, el valor patrimonial.
- *
- * @param flujoAnualFGEM       utilidad neta anual + depreciación anual
- * @param capitalizacionFGEM   {@code null} si la utilidad no es positiva
- * @param flujosDescontadosFGEM {@code null} si el flujo no es positivo
- * @param valorRentabilidadFGEM promedio de los métodos por rentabilidad disponibles; {@code null} si ninguno
- * @param fondoComercioFGEM    valor por rentabilidad − patrimonial; {@code null} sin valor por rentabilidad
- * @param mesesResultadosFGEM  meses con ventas usados para calcular la utilidad anual
- */
 public record ValoracionNegocioFGEM(SupuestosValoracionFGEM supuestosFGEM, BigDecimal patrimonialFGEM, BigDecimal utilidadAnualFGEM,
                                 BigDecimal depreciacionAnualFGEM, BigDecimal flujoAnualFGEM, BigDecimal capitalizacionFGEM,
                                 BigDecimal flujosDescontadosFGEM, List<ProyeccionFGEM> proyeccionFGEM, BigDecimal valorTerminalFGEM,
@@ -38,25 +16,17 @@ public record ValoracionNegocioFGEM(SupuestosValoracionFGEM supuestosFGEM, BigDe
                                 BigDecimal valorReferenciaFGEM, BaseFGEM baseFGEM, BigDecimal minimoFGEM, BigDecimal maximoFGEM,
                                 int mesesResultadosFGEM) {
 
-    /** Meses de resultados por debajo de los cuales la valoración por rentabilidad es poco confiable. */
     public static final int MESES_CONFIABLES_FGEM = 6;
     private static final MathContext PRECISION_FGEM = new MathContext(20, RoundingMode.HALF_UP);
 
-    /** Qué método define el valor de referencia. */
     public enum BaseFGEM { RENTABILIDAD, PATRIMONIO }
 
-    /** Un año proyectado. */
     public record ProyeccionFGEM(int anioFGEM, BigDecimal flujoFGEM, BigDecimal factorFGEM, BigDecimal valorPresenteFGEM) {
     }
 
-    /** Fila de la tabla de sensibilidad: valor por flujos descontados para cada combinación. */
     public record SensibilidadFGEM(List<BigDecimal> tasasFGEM, List<BigDecimal> crecimientosFGEM, BigDecimal[][] valoresFGEM) {
     }
 
-    /**
-     * @param utilidadAnualFGEM   utilidad neta llevada a 12 meses; {@code null} si aún no hay ventas
-     * @param depreciacionMensualFGEM depreciación mensual de los activos fijos
-     */
     public static ValoracionNegocioFGEM calcularFGEM(SupuestosValoracionFGEM sFGEM, BigDecimal patrimonialFGEM, BigDecimal utilidadAnualFGEM,
                                              BigDecimal depreciacionMensualFGEM, int mesesResultadosFGEM) {
         BigDecimal utilidadFGEM = utilidadAnualFGEM == null ? BigDecimal.ZERO : utilidadAnualFGEM;
@@ -112,10 +82,6 @@ public record ValoracionNegocioFGEM(SupuestosValoracionFGEM supuestosFGEM, BigDe
                 mesesResultadosFGEM);
     }
 
-    /**
-     * Valor por flujos descontados con la tasa y el crecimiento movidos 5 y 2 puntos hacia cada lado.
-     * Las combinaciones no válidas (tasa fuera de rango) quedan en {@code null}.
-     */
     public SensibilidadFGEM sensibilidadFGEM() {
         List<BigDecimal> tasasFGEM = List.of(supuestosFGEM.tasaDescuentoFGEM().subtract(new BigDecimal("0.05")),
                 supuestosFGEM.tasaDescuentoFGEM(), supuestosFGEM.tasaDescuentoFGEM().add(new BigDecimal("0.05")));
@@ -138,12 +104,10 @@ public record ValoracionNegocioFGEM(SupuestosValoracionFGEM supuestosFGEM, BigDe
         return new SensibilidadFGEM(tasasFGEM, crecimientosFGEM, valoresFGEM);
     }
 
-    /** La utilidad se calculó con pocos meses: la valoración por rentabilidad es solo orientativa. */
     public boolean pocosDatosFGEM() {
         return mesesResultadosFGEM < MESES_CONFIABLES_FGEM;
     }
 
-    /** Frases en lenguaje sencillo. */
     public List<String> lecturaFGEM(MonedaFGEM monedaFGEM) {
         List<String> frasesFGEM = new ArrayList<>();
         frasesFGEM.add("Con lo que tiene y lo que debe, el negocio vale " + MontosFGEM.formatearFGEM(patrimonialFGEM, monedaFGEM)

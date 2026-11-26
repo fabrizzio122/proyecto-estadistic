@@ -94,7 +94,6 @@ class CopiaSeguridadServiceTestFGEM {
         CopiaSeguridadFGEM automaticaFGEM = servicioFGEM.crearAutomaticaSiCorrespondeFGEM().orElseThrow();
         servicioFGEM.programarRestauracionFGEM(automaticaFGEM.archivoFGEM());
 
-        // Reinicio: se aplica la copia y la aplicación arranca de nuevo con los datos restaurados.
         RestauracionPendienteFGEM.aplicarFGEM(entornoFGEM.databaseFGEM.archivoFGEM());
         DatabaseFGEM reabiertaFGEM = new DatabaseFGEM(entornoFGEM.databaseFGEM.archivoFGEM());
         new MigradorFGEM(reabiertaFGEM).migrarFGEM();
@@ -128,14 +127,12 @@ class CopiaSeguridadServiceTestFGEM {
         assertTrue(copiaFGEM.archivoFGEM().getFileName().toString().endsWith(".zip"));
         assertEquals(1, servicioFGEM.validarFGEM(copiaFGEM.archivoFGEM()).fotosFGEM());
 
-        // Después de la copia se borra esa foto y se agrega otra.
         Files.delete(fotoFGEM);
         Files.write(fotosFGEM.resolve("7").resolve("nueva.jpg"), new byte[]{9});
 
         servicioFGEM.programarRestauracionFGEM(copiaFGEM.archivoFGEM());
         assertTrue(Files.isRegularFile(RestauracionPendienteFGEM.carpetaFotosPendienteFGEM(entornoFGEM.databaseFGEM.archivoFGEM())
                 .resolve("7").resolve("cobertizo.jpg")));
-        // La copia previa a la restauración guarda las fotos del estado actual.
         CopiaSeguridadFGEM previaFGEM = servicioFGEM.listarFGEM().stream()
                 .filter(cFGEM -> cFGEM.tipoFGEM() == CopiaSeguridadFGEM.TipoFGEM.PREVIA_RESTAURACION).findFirst().orElseThrow();
         assertEquals(1, servicioFGEM.validarFGEM(previaFGEM.archivoFGEM()).fotosFGEM());
@@ -172,7 +169,6 @@ class CopiaSeguridadServiceTestFGEM {
         assertThrows(ValidacionExceptionFGEM.class, () -> servicioFGEM.validarFGEM(zipFGEM));
     }
 
-    /** Copia en el formato anterior a las fotos: solo el archivo de la base de datos. */
     private Path copiaAntiguaFGEM(String nombreFGEM) {
         Path destinoFGEM = carpetaFGEM.resolve(nombreFGEM);
         entornoFGEM.databaseFGEM.conConexionFGEM(cFGEM -> {
@@ -198,7 +194,6 @@ class CopiaSeguridadServiceTestFGEM {
         assertTrue(servicioFGEM.listarFGEM().stream().anyMatch(cFGEM -> cFGEM.tipoFGEM() == CopiaSeguridadFGEM.TipoFGEM.PREVIA_RESTAURACION),
                 "Se guarda el estado anterior");
 
-        // Simula el reinicio: se aplica la restauración antes de abrir la base de datos.
         assertTrue(RestauracionPendienteFGEM.aplicarFGEM(entornoFGEM.databaseFGEM.archivoFGEM()));
         assertFalse(RestauracionPendienteFGEM.hayPendienteFGEM(entornoFGEM.databaseFGEM.archivoFGEM()));
         DatabaseFGEM reabiertaFGEM = new DatabaseFGEM(entornoFGEM.databaseFGEM.archivoFGEM());
@@ -213,7 +208,6 @@ class CopiaSeguridadServiceTestFGEM {
         assertThrows(ValidacionExceptionFGEM.class, () -> servicioFGEM.validarFGEM(textoFGEM));
         assertThrows(ValidacionExceptionFGEM.class, () -> servicioFGEM.validarFGEM(carpetaFGEM.resolve("no-existe.db")));
 
-        // Base SQLite de otra aplicación
         DatabaseFGEM otraFGEM = new DatabaseFGEM(carpetaFGEM.resolve("otra.db"));
         otraFGEM.conConexionFGEM(cFGEM -> {
             try (Statement stFGEM = cFGEM.createStatement()) {
@@ -223,7 +217,6 @@ class CopiaSeguridadServiceTestFGEM {
         });
         assertThrows(ValidacionExceptionFGEM.class, () -> servicioFGEM.validarFGEM(otraFGEM.archivoFGEM()));
 
-        // Copia (en el formato antiguo, solo la base) de una versión más nueva de la aplicación
         Path viejaFGEM = copiaAntiguaFGEM("futura.db");
         DatabaseFGEM futuraFGEM = new DatabaseFGEM(viejaFGEM);
         futuraFGEM.conConexionFGEM(cFGEM -> {

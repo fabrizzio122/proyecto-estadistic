@@ -64,7 +64,6 @@ class ValoracionServiceTestFGEM {
         assertEquals(0, new BigDecimal("0.25").compareTo(sFGEM.tasaDescuentoFGEM()));
         assertEquals(0, new BigDecimal("0.03").compareTo(sFGEM.crecimientoFGEM()));
 
-        // Otra empresa conserva los valores propuestos.
         entornoFGEM.crearEmpresaActivaFGEM("Otra");
         assertEquals(0, SupuestosValoracionFGEM.TASA_PREDETERMINADA_FGEM.compareTo(servicioFGEM.supuestosFGEM().tasaDescuentoFGEM()));
         assertThrows(RuntimeException.class, () -> servicioFGEM.guardarSupuestosFGEM(new BigDecimal("0.90"), BigDecimal.ZERO));

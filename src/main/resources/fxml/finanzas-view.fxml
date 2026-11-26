@@ -12,16 +12,13 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.businessanalyzer.controller.FinanzasControllerFGEM"
       spacing="14" styleClass="page">
 
-    <!-- Indicadores del período -->
     <HBox fx:id="indicadoresFGEM" spacing="16"/>
 
-    <!-- Fila 1: filtros -->
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="Período" styleClass="form-label"/>
         <DatePicker fx:id="dpDesdeFGEM" prefWidth="135"/>
@@ -33,30 +30,23 @@
         <CheckBox fx:id="chkAnuladosFGEM" text="Incluir anulados" minWidth="-Infinity" onAction="#cargarFGEM"/>
     </HBox>
 
-    <!-- Fila 2: acciones -->
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Button fx:id="btnCopiarFGEM" text="Copiar gastos fijos del mes anterior" styleClass="button-secondary"
                 minWidth="-Infinity" onAction="#copiarFijosFGEM">
-            <graphic><FontIcon iconLiteral="fth-copy"/></graphic>
         </Button>
         <Region HBox.hgrow="ALWAYS"/>
         <Button fx:id="btnEditarFGEM" text="Editar" styleClass="button-secondary" minWidth="-Infinity" onAction="#editarFGEM">
-            <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
         </Button>
         <Button fx:id="btnAnularFGEM" text="Anular" styleClass="button-secondary" minWidth="-Infinity" onAction="#anularFGEM">
-            <graphic><FontIcon iconLiteral="fth-x-circle"/></graphic>
         </Button>
         <Button fx:id="btnNuevoIngresoFGEM" text="Nuevo ingreso" styleClass="button-secondary" minWidth="-Infinity"
                 onAction="#nuevoIngresoFGEM">
-            <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
         </Button>
         <Button fx:id="btnNuevoGastoFGEM" text="Nuevo gasto" styleClass="button-primary" minWidth="-Infinity"
                 onAction="#nuevoGastoFGEM">
-            <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
         </Button>
     </HBox>
 
-    <!-- Movimientos (izquierda) y gastos por categoría (derecha) -->
     <HBox spacing="16" VBox.vgrow="ALWAYS">
         <TableView fx:id="tablaFGEM" HBox.hgrow="ALWAYS">
             <columns>

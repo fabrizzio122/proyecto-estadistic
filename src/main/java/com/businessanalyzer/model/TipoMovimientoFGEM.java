@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Un movimiento financiero es un ingreso o un gasto. */
 public enum TipoMovimientoFGEM {
 
     INGRESO("Ingreso", "Ingresos"),

@@ -48,14 +48,12 @@ class IndicadoresGanaderiaTestFGEM {
                 movFGEM("2025-05-01", VENTA, VACA, 3, null)));
         assertTrue(HatoFGEM.primerFaltanteFGEM(movsFGEM).isEmpty());
 
-        // Una venta anterior que deja sin vacas para la venta de mayo.
         movsFGEM.add(movFGEM("2025-02-01", VENTA, VACA, 1, null));
         HatoFGEM.FaltanteFGEM fFGEM = HatoFGEM.primerFaltanteFGEM(movsFGEM).orElseThrow();
         assertEquals(VACA, fFGEM.categoriaFGEM());
         assertEquals(LocalDate.of(2025, 5, 1), fFGEM.fechaFGEM());
         assertEquals(1, fFGEM.cantidadFGEM());
 
-        // El mismo día cuentan primero las entradas.
         assertTrue(HatoFGEM.primerFaltanteFGEM(List.of(
                 movFGEM("2025-03-01", VENTA, TERNERO, 1, null),
                 movFGEM("2025-03-01", NACIMIENTO, TERNERO, 1, null))).isEmpty());
@@ -74,24 +72,24 @@ class IndicadoresGanaderiaTestFGEM {
                 movFGEM("2025-06-01", COMPRA, VACA, 2, null),
                 movFGEM("2025-08-01", VENTA, TORETE, 3, null),
                 movFGEM("2025-09-01", CONSUMO, TORETE, 1, null),
-                movFGEM("2026-01-05", NACIMIENTO, TERNERA, 1, null)); // fuera del período
+                movFGEM("2026-01-05", NACIMIENTO, TERNERA, 1, null));
 
         IndicadoresEspecieFGEM iFGEM = IndicadoresEspecieFGEM.calcularFGEM(EspecieFGEM.VACUNO, ANIO_2025_FGEM, movsFGEM, List.of());
 
         assertEquals(25, iFGEM.existenciaInicialFGEM());
         assertEquals(20, iFGEM.hembrasInicioFGEM());
         assertEquals(14, iFGEM.nacimientosFGEM());
-        assertEquals(35, iFGEM.existenciaFinalFGEM());        // 25 + 14 nacimientos + 2 compras − 2 muertes − 3 ventas − 1 consumo
-        igualFGEM("0.7", iFGEM.natalidadFGEM());                   // 14 / 20
-        igualFGEM("0.04878", iFGEM.mortalidadFGEM(), "0.00001");   // 2 / (25 + 14 + 2)
-        igualFGEM("0.071429", iFGEM.mortalidadCriasFGEM());        // 1 / 14
-        igualFGEM("0.16", iFGEM.extraccionFGEM());                 // (3 + 1) / 25
-        igualFGEM("0.4", iFGEM.crecimientoFGEM());                 // (35 − 25) / 25
-        igualFGEM("21", iFGEM.hembrasPorMachoFGEM());              // 21 vacas, 1 toro
+        assertEquals(35, iFGEM.existenciaFinalFGEM());
+        igualFGEM("0.7", iFGEM.natalidadFGEM());
+        igualFGEM("0.04878", iFGEM.mortalidadFGEM(), "0.00001");
+        igualFGEM("0.071429", iFGEM.mortalidadCriasFGEM());
+        igualFGEM("0.16", iFGEM.extraccionFGEM());
+        igualFGEM("0.4", iFGEM.crecimientoFGEM());
+        igualFGEM("21", iFGEM.hembrasPorMachoFGEM());
 
         List<IndicadorGanaderoFGEM> evaluadosFGEM = iFGEM.evaluarFGEM(MonedaFGEM.PEN);
-        assertEquals(SemaforoFGEM.VERDE, buscarFGEM(evaluadosFGEM, "Natalidad").semaforoFGEM());      // 70 % = umbral verde
-        assertEquals(SemaforoFGEM.AMARILLO, buscarFGEM(evaluadosFGEM, "Mortalidad").semaforoFGEM());  // 4.9 %: entre 3 % y 6 %
+        assertEquals(SemaforoFGEM.VERDE, buscarFGEM(evaluadosFGEM, "Natalidad").semaforoFGEM());
+        assertEquals(SemaforoFGEM.AMARILLO, buscarFGEM(evaluadosFGEM, "Mortalidad").semaforoFGEM());
         assertEquals(SemaforoFGEM.AMARILLO, buscarFGEM(evaluadosFGEM, "Mortalidad de crías").semaforoFGEM());
     }
 
@@ -110,7 +108,7 @@ class IndicadoresGanaderiaTestFGEM {
         igualFGEM("0.5", iFGEM.natalidadFGEM());
         igualFGEM("0.3", iFGEM.mortalidadCriasFGEM());
         List<IndicadorGanaderoFGEM> evaluadosFGEM = iFGEM.evaluarFGEM(MonedaFGEM.PEN);
-        assertEquals(SemaforoFGEM.AMARILLO, buscarFGEM(evaluadosFGEM, "Natalidad").semaforoFGEM()); // 50 %: entre 45 % y 60 %
+        assertEquals(SemaforoFGEM.AMARILLO, buscarFGEM(evaluadosFGEM, "Natalidad").semaforoFGEM());
         assertEquals(SemaforoFGEM.ROJO, buscarFGEM(evaluadosFGEM, "Mortalidad de crías").semaforoFGEM());
     }
 
@@ -118,15 +116,15 @@ class IndicadoresGanaderiaTestFGEM {
     void promediaLaProduccionPorAnimalYDiaFGEM() {
         List<MovimientoGanadoFGEM> movsFGEM = List.of(movFGEM("2024-01-01", INVENTARIO_INICIAL, VACA, 10, null));
         List<ProduccionGanaderaFGEM> produccionFGEM = List.of(
-                prodFGEM(ProductoGanaderoFGEM.LECHE, "2025-01-31", 30, "1800", 10, "1.20"),  // 6 l por vaca al día
-                prodFGEM(ProductoGanaderoFGEM.LECHE, "2025-02-28", 28, "1400", 10, null),    // 5 l
-                prodFGEM(ProductoGanaderoFGEM.LECHE, "2025-03-01", 1, "50", null, null));    // sin animales: no entra al promedio
+                prodFGEM(ProductoGanaderoFGEM.LECHE, "2025-01-31", 30, "1800", 10, "1.20"),
+                prodFGEM(ProductoGanaderoFGEM.LECHE, "2025-02-28", 28, "1400", 10, null),
+                prodFGEM(ProductoGanaderoFGEM.LECHE, "2025-03-01", 1, "50", null, null));
 
         IndicadoresEspecieFGEM.ResumenProduccionFGEM lecheFGEM = IndicadoresEspecieFGEM.calcularFGEM(EspecieFGEM.VACUNO, ANIO_2025_FGEM, movsFGEM,
                 produccionFGEM).produccionFGEM().get(0);
 
         igualFGEM("3250", lecheFGEM.cantidadFGEM());
-        igualFGEM("5.517241", lecheFGEM.promedioFGEM());   // 3 200 / (300 + 280)
+        igualFGEM("5.517241", lecheFGEM.promedioFGEM());
         igualFGEM("2160", lecheFGEM.valorFGEM());
         assertEquals("5.52 l por vaca al día", lecheFGEM.promedioTextoFGEM());
     }
@@ -149,8 +147,6 @@ class IndicadoresGanaderiaTestFGEM {
         assertNull(filasFGEM.get(1).valorFGEM());
         igualFGEM("29000", ExistenciaValorizadaFGEM.totalFGEM(filasFGEM));
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private MovimientoGanadoFGEM movFGEM(String fechaFGEM, TipoMovimientoGanadoFGEM tipoFGEM, CategoriaGanadoFGEM categoriaFGEM, int cantidadFGEM,
                                  CategoriaGanadoFGEM destinoFGEM) {

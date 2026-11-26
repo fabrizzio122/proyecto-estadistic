@@ -30,12 +30,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** Acceso a las tablas {@code operacion} y {@code operacion_linea}. */
 public class OperacionRepositoryFGEM {
 
     private final VentasAgroRepositoryFGEM agroFGEM = new VentasAgroRepositoryFGEM();
 
-    /** Cabecera de una operación nueva, con los totales ya calculados. */
     public record NuevaOperacionFGEM(TipoOperacionFGEM tipoFGEM, String numeroFGEM, LocalDate fechaFGEM, String contraparteFGEM,
                                  String documentoContraparteFGEM, String comprobanteFGEM, BigDecimal tasaImpuestoFGEM,
                                  CalculadoraOperacionFGEM.TotalesFGEM totalesFGEM, String observacionesFGEM,
@@ -68,7 +66,6 @@ public class OperacionRepositoryFGEM {
         }
     }
 
-    /** Cabecera y líneas. */
     public Optional<OperacionFGEM> buscarPorIdFGEM(Connection cFGEM, long idFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement(CABECERA_FGEM + " WHERE o.id = ?")) {
             psFGEM.setLong(1, idFGEM);
@@ -80,10 +77,6 @@ public class OperacionRepositoryFGEM {
         }
     }
 
-    /**
-     * Ventas o compras al crédito registradas que aún tienen saldo por cobrar o pagar, de la más
-     * antigua a la más reciente.
-     */
     public List<OperacionFGEM> listarPendientesFGEM(Connection cFGEM, long empresaIdFGEM, TipoOperacionFGEM tipoFGEM) throws SQLException {
         String sqlFGEM = CABECERA_FGEM + " WHERE o.empresa_id = ? AND o.tipo = ? AND o.estado = 'REGISTRADA'"
                 + " AND o.condicion = 'CREDITO' ORDER BY COALESCE(o.vencimiento, o.fecha), o.fecha, o.id";
@@ -122,7 +115,6 @@ public class OperacionRepositoryFGEM {
         return lineasFGEM;
     }
 
-    /** Siguiente número para la empresa y el tipo: V-000001, C-000001... */
     public String siguienteNumeroFGEM(Connection cFGEM, long empresaIdFGEM, TipoOperacionFGEM tipoFGEM) throws SQLException {
         String prefijoFGEM = tipoFGEM.prefijoNumeroFGEM();
         int mayorFGEM = 0;
@@ -213,10 +205,6 @@ public class OperacionRepositoryFGEM {
         }
     }
 
-    /**
-     * Totales del período para los análisis: operaciones registradas más las ventas y costos de la
-     * producción agropecuaria (ver {@link VentasAgroRepositoryFGEM}).
-     */
     public ResumenOperacionesFGEM resumenFGEM(Connection cFGEM, long empresaIdFGEM, LocalDate desdeFGEM, LocalDate hastaFGEM)
             throws SQLException {
         ResumenOperacionesFGEM opsFGEM = resumenOperacionesFGEM(cFGEM, empresaIdFGEM, desdeFGEM, hastaFGEM);
@@ -231,7 +219,6 @@ public class OperacionRepositoryFGEM {
         return new ResumenOperacionesFGEM(ventasFGEM, costoFGEM, opsFGEM.comprasNetasFGEM(), cantidadFGEM, opsFGEM.cantidadComprasFGEM());
     }
 
-    /** Totales del período, solo con las operaciones de «Ventas y compras» registradas (no anuladas). */
     public ResumenOperacionesFGEM resumenOperacionesFGEM(Connection cFGEM, long empresaIdFGEM, LocalDate desdeFGEM, LocalDate hastaFGEM)
             throws SQLException {
         BigDecimal ventasFGEM = BigDecimal.ZERO;
@@ -264,7 +251,6 @@ public class OperacionRepositoryFGEM {
         return new ResumenOperacionesFGEM(ventasFGEM, costoVentasFGEM, comprasFGEM, cantidadVentasFGEM, cantidadComprasFGEM);
     }
 
-    /** Totales de cada mes del rango (solo registradas), para el gráfico de evolución. */
     public Map<YearMonth, ResumenOperacionesFGEM> resumenMensualFGEM(Connection cFGEM, long empresaIdFGEM, LocalDate desdeFGEM,
                                                             LocalDate hastaFGEM) throws SQLException {
         Map<YearMonth, ResumenOperacionesFGEM> porMesFGEM = new TreeMap<>();
@@ -303,7 +289,6 @@ public class OperacionRepositoryFGEM {
         return porMesFGEM;
     }
 
-    /** Fecha de la última venta registrada de cada producto en el período (producto → fecha). */
     public Map<Long, LocalDate> ultimasVentasFGEM(Connection cFGEM, long empresaIdFGEM, LocalDate desdeFGEM, LocalDate hastaFGEM) throws SQLException {
         Map<Long, LocalDate> ultimasFGEM = new java.util.HashMap<>();
         try (PreparedStatement psFGEM = cFGEM.prepareStatement("""
@@ -325,7 +310,6 @@ public class OperacionRepositoryFGEM {
         return ultimasFGEM;
     }
 
-    /** Líneas de las ventas registradas del período, para la rentabilidad por producto. */
     public List<RentabilidadProductoFGEM.VentaFGEM> lineasVendidasFGEM(Connection cFGEM, long empresaIdFGEM, LocalDate desdeFGEM,
                                                            LocalDate hastaFGEM) throws SQLException {
         List<RentabilidadProductoFGEM.VentaFGEM> lineasFGEM = new ArrayList<>();

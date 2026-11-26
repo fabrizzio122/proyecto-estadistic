@@ -16,7 +16,6 @@ import javafx.stage.Window;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-/** Ventanas modales de confirmacion, error y formularios con el estilo de la aplicacion. */
 public final class DialogosFGEM {
 
     private static final ButtonType ACEPTAR_FGEM = new ButtonType("Aceptar", ButtonBar.ButtonData.OK_DONE);
@@ -25,14 +24,12 @@ public final class DialogosFGEM {
     private DialogosFGEM() {
     }
 
-    /** @return {@code true} si el usuario pulso "Aceptar". */
     public static boolean confirmarFGEM(Window propietarioFGEM, String tituloFGEM, String mensajeFGEM) {
         Alert alertaFGEM = new Alert(Alert.AlertType.CONFIRMATION, mensajeFGEM, ACEPTAR_FGEM, CANCELAR_FGEM);
         prepararFGEM(alertaFGEM, propietarioFGEM, tituloFGEM);
         return alertaFGEM.showAndWait().filter(ACEPTAR_FGEM::equals).isPresent();
     }
 
-    /** Muestra un error; si hay excepcion, su detalle técnico va en una sección desplegable. */
     public static void errorFGEM(Window propietarioFGEM, String tituloFGEM, String mensajeFGEM, Throwable causaFGEM) {
         Alert alertaFGEM = new Alert(Alert.AlertType.ERROR, mensajeFGEM, ACEPTAR_FGEM);
         prepararFGEM(alertaFGEM, propietarioFGEM, tituloFGEM);
@@ -47,20 +44,11 @@ public final class DialogosFGEM {
         alertaFGEM.showAndWait();
     }
 
-    /**
-     * Muestra un formulario modal. Al pulsar el botón de aceptar se ejecuta {@code accion}:
-     * si lanza una excepción, el mensaje aparece dentro del diálogo y este sigue abierto para
-     * que el usuario corrija los datos.
-     *
-     * @param descripcionFGEM texto explicativo opcional sobre el formulario
-     * @return {@code true} si la acción se completó correctamente
-     */
     public static boolean formularioFGEM(Window propietarioFGEM, String tituloFGEM, String descripcionFGEM,
                                      Node contenidoFGEM, String textoAceptarFGEM, Runnable accionFGEM) {
         return formularioFGEM(propietarioFGEM, tituloFGEM, descripcionFGEM, contenidoFGEM, textoAceptarFGEM, 480, accionFGEM);
     }
 
-    /** Igual que el anterior, indicando el ancho del formulario en píxeles. */
     public static boolean formularioFGEM(Window propietarioFGEM, String tituloFGEM, String descripcionFGEM,
                                      Node contenidoFGEM, String textoAceptarFGEM, double anchoFGEM, Runnable accionFGEM) {
         Dialog<ButtonType> dialogoFGEM = new Dialog<>();
@@ -110,7 +98,6 @@ public final class DialogosFGEM {
         return dialogoFGEM.showAndWait().filter(aceptarFGEM::equals).isPresent();
     }
 
-    /** Ventana de solo lectura con un contenido cualquiera (tabla, detalle...) y botón "Cerrar". */
     public static void informacionFGEM(Window propietarioFGEM, String tituloFGEM, String descripcionFGEM, Node contenidoFGEM) {
         Dialog<ButtonType> dialogoFGEM = new Dialog<>();
         if (propietarioFGEM != null) {

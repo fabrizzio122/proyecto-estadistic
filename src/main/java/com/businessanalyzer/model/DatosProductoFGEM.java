@@ -2,13 +2,6 @@ package com.businessanalyzer.model;
 
 import java.math.BigDecimal;
 
-/**
- * Datos editables de un producto o servicio.
- *
- * @param codigoFGEM      vacío para que el sistema asigne uno (P-0001, S-0001...)
- * @param categoriaIdFGEM {@code null} si no tiene categoría
- * @param perecibleFGEM   se vence pronto (pan, lácteos frescos, verduras)
- */
 public record DatosProductoFGEM(
         TipoItemFGEM tipoFGEM,
         String codigoFGEM,
@@ -20,7 +13,6 @@ public record DatosProductoFGEM(
         BigDecimal precioVentaFGEM,
         boolean perecibleFGEM) {
 
-    /** Producto no perecible. */
     public DatosProductoFGEM(TipoItemFGEM tipoFGEM, String codigoFGEM, String nombreFGEM, String descripcionFGEM, Long categoriaIdFGEM,
                              UnidadMedidaFGEM unidadFGEM, BigDecimal costoUnitarioFGEM, BigDecimal precioVentaFGEM) {
         this(tipoFGEM, codigoFGEM, nombreFGEM, descripcionFGEM, categoriaIdFGEM, unidadFGEM, costoUnitarioFGEM, precioVentaFGEM, false);

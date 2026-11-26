@@ -1,6 +1,5 @@
 package com.businessanalyzer.analytics.simulacion;
 
-/** Variables que se pueden cambiar en un escenario (en porcentaje). */
 public enum VariableFGEM {
 
     PRECIO("Precio de venta", "Cuánto suben o bajan los precios (con las mismas unidades vendidas)."),

@@ -1,6 +1,5 @@
 package com.businessanalyzer.analytics.diagnostico;
 
-/** Calificación global del negocio según su puntaje (0 a 100). */
 public enum NivelSaludFGEM {
 
     SALUDABLE("Saludable", 75, SemaforoFGEM.VERDE),

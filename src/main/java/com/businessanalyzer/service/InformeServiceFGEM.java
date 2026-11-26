@@ -29,18 +29,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Genera los informes en PDF (JasperReports) y el libro de Excel (Apache POI) de la empresa
- * activa, y lleva el historial de lo generado.
- * <p>
- * Requiere {@link PermisoFGEM#INFORMES_GENERAR}. Además, cada servicio consultado aplica su propio
- * permiso (por ejemplo, el libro de Excel incluye las ventas, así que exige poder verlas).
- */
 public class InformeServiceFGEM {
 
-    /** Informes que se muestran en el historial. */
     public static final int LIMITE_HISTORIAL_FGEM = 50;
-    /** Período máximo de un informe, para que el PDF y el libro sigan siendo manejables. */
     public static final int DIAS_MAXIMOS_FGEM = 3 * 366;
 
     private static final Logger logFGEM = LoggerFactory.getLogger(InformeServiceFGEM.class);
@@ -69,10 +60,6 @@ public class InformeServiceFGEM {
         this.relojFGEM = relojFGEM;
     }
 
-    /**
-     * Genera el informe y lo guarda en {@code destino}; si el nombre no tiene la extensión del
-     * formato, se le agrega. Devuelve la ruta final del archivo.
-     */
     public Path generarFGEM(TipoInformeFGEM tipoFGEM, LocalDate desdeFGEM, LocalDate hastaFGEM, Path destinoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.INFORMES_GENERAR);
         if (tipoFGEM == null) {
@@ -135,7 +122,6 @@ public class InformeServiceFGEM {
         return databaseFGEM.conConexionFGEM(cFGEM -> informesFGEM.listarFGEM(cFGEM, empresaFGEM.idFGEM(), LIMITE_HISTORIAL_FGEM));
     }
 
-    /** Nombre de archivo sugerido, por ejemplo {@code Informe-ejecutivo_Bodega-Demo_2026-08-01_2026-10-31.pdf}. */
     public static String nombreSugeridoFGEM(TipoInformeFGEM tipoFGEM, EmpresaFGEM empresaFGEM, LocalDate desdeFGEM, LocalDate hastaFGEM) {
         return seguroFGEM(tipoFGEM.tituloFGEM()) + "_" + seguroFGEM(empresaFGEM.nombreVisibleFGEM()) + "_" + desdeFGEM + "_" + hastaFGEM
                 + "." + tipoFGEM.formatoFGEM().extensionFGEM();

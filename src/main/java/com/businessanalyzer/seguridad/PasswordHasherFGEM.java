@@ -7,17 +7,6 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 
-/**
- * Hash de contraseñas con PBKDF2-HMAC-SHA256 (incluido en Java, sin dependencias externas).
- * <p>
- * Formato almacenado: {@code pbkdf2_sha256$<iteraciones>$<sal Base64>$<hash Base64>}.
- * Cada contraseña tiene su propia sal aleatoria de 16 bytes, por lo que dos usuarios con la
- * misma contraseña tienen hashes distintos. La comparación se hace en tiempo constante.
- * <p>
- * Las iteraciones siguen la recomendación de OWASP para PBKDF2-HMAC-SHA256. Si en el futuro
- * se aumentan, los hashes antiguos se actualizan solos en el siguiente inicio de sesión
- * (ver {@link #requiereActualizacionFGEM(String)}).
- */
 public final class PasswordHasherFGEM {
 
     public static final int ITERACIONES_POR_DEFECTO_FGEM = 600_000;
@@ -34,7 +23,6 @@ public final class PasswordHasherFGEM {
         this(ITERACIONES_POR_DEFECTO_FGEM);
     }
 
-    /** Permite menos iteraciones solo para pruebas automatizadas rápidas. */
     public PasswordHasherFGEM(int iteracionesFGEM) {
         if (iteracionesFGEM < 1) {
             throw new IllegalArgumentException("Las iteraciones deben ser positivas");
@@ -69,7 +57,6 @@ public final class PasswordHasherFGEM {
         }
     }
 
-    /** {@code true} si el hash se generó con otra configuración y conviene regenerarlo. */
     public boolean requiereActualizacionFGEM(String almacenadoFGEM) {
         String[] partesFGEM = almacenadoFGEM == null ? new String[0] : almacenadoFGEM.split("\\$");
         return partesFGEM.length != 4 || !PREFIJO_FGEM.equals(partesFGEM[0])

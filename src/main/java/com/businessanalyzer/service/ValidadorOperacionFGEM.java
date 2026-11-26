@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/** Valida y normaliza una venta o compra antes de registrarla. */
 final class ValidadorOperacionFGEM {
 
     static final int MAXIMO_LINEAS_FGEM = 500;

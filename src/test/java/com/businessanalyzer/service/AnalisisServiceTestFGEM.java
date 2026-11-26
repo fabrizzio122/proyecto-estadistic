@@ -36,17 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Escenario con valores verificables a mano (reloj de pruebas en 2026-01-15):
- * <pre>
- * Enero:  ventas 1800 (10 A a 100 + 20 B a 40), costo de ventas 1200 (10 x 60 + 20 x 30)
- *         gastos operativos 440 (alquiler 200 fijo, sueldos 150 fijo, flete 90 variable)
- *         intereses pagados 30 (fijo), intereses ganados 10, otros ingresos 5, impuesto a la renta 20
- *  -> utilidad bruta 600, operativa 160, antes de impuestos 145, neta 125
- *  -> costos variables 1290, fijos 380, razón de contribución 510/1800, equilibrio 1341.18
- * Diciembre: ventas 500 (5 A), costo 300, alquiler 200 -> utilidad neta 0
- * </pre>
- */
 class AnalisisServiceTestFGEM {
 
     private static final YearMonth ENERO_FGEM = YearMonth.of(2026, 1);
@@ -178,8 +167,6 @@ class AnalisisServiceTestFGEM {
         assertThrows(AccesoDenegadoExceptionFGEM.class, () -> servicioFGEM.analizarFGEM(ENERO_FGEM.atDay(1), ENERO_FGEM.atEndOfMonth()));
         assertThrows(AccesoDenegadoExceptionFGEM.class, () -> servicioFGEM.resumenFGEM(ENERO_FGEM.atDay(1), ENERO_FGEM.atEndOfMonth()));
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private ProductoFGEM productoFGEM(String nombreFGEM, String costoFGEM, String precioFGEM) {
         return entornoFGEM.catalogoFGEM.crearProductoFGEM(new DatosProductoFGEM(TipoItemFGEM.PRODUCTO, null, nombreFGEM, null, null,

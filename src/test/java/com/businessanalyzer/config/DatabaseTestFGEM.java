@@ -34,7 +34,6 @@ class DatabaseTestFGEM {
         databaseFGEM.enTransaccionFGEM(cFGEM -> {
             insertarFGEM(1);
             insertarFGEM(2);
-            // Una lectura anidada ve lo escrito aunque todavía no se haya confirmado.
             assertEquals(2, contarFGEM());
             return null;
         });
@@ -48,7 +47,6 @@ class DatabaseTestFGEM {
             throw new IllegalStateException("falla después de la escritura anidada");
         }));
         assertEquals(0, contarFGEM());
-        // Al terminar, el hilo vuelve a abrir conexiones propias.
         insertarFGEM(3);
         assertEquals(1, contarFGEM());
     }

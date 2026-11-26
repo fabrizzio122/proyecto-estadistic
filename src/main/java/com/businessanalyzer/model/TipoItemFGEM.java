@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Un ítem del catálogo es un bien físico (producto) o un servicio. */
 public enum TipoItemFGEM {
 
     PRODUCTO("Producto", "P"),
@@ -18,7 +17,6 @@ public enum TipoItemFGEM {
         return descripcionFGEM;
     }
 
-    /** Prefijo de los códigos automáticos: P-0001, S-0001. */
     public String prefijoCodigoFGEM() {
         return prefijoCodigoFGEM;
     }

@@ -16,27 +16,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Ventas y costos de la producción agropecuaria, para que el estado de resultados y todos los
- * análisis los incluyan (el productor no registra estas ventas en «Ventas y compras»):
- * <ul>
- *   <li><b>Venta de animales:</b> ventas del hato con su valor total, en la fecha de la venta.</li>
- *   <li><b>Leche, fibra y lana:</b> los registros de producción con precio se consideran vendidos.</li>
- *   <li><b>Cosechas:</b> las cosechas vendidas con precio. Su costo es el costo por kilo de la campaña.</li>
- *   <li><b>Resto del costo de las campañas:</b> al cerrarlas, lo que no se asignó a ventas (semilla,
- *       forraje para los animales, merma, campañas perdidas) se reconoce como costo. Lo que consume la
- *       familia no es un costo del negocio y no se incluye.</li>
- * </ul>
- */
 public class VentasAgroRepositoryFGEM {
 
-    /**
-     * Partida agropecuaria del estado de resultados.
-     *
-     * @param claveFGEM    identificador del «producto» para la rentabilidad por producto (negativo)
-     * @param cantidadFGEM cabezas, litros o kilos vendidos (0 en los costos de cierre)
-     * @param esVentaFGEM  {@code true} si es una venta; {@code false} si es solo costo
-     */
     public record PartidaFGEM(LocalDate fechaFGEM, long claveFGEM, String nombreFGEM, BigDecimal cantidadFGEM, BigDecimal ventaFGEM,
                           BigDecimal costoFGEM, boolean esVentaFGEM) {
     }

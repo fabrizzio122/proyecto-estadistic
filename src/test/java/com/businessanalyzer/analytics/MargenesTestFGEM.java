@@ -47,11 +47,11 @@ class MargenesTestFGEM {
     @Test
     void resumeElCatalogoActivoFGEM() {
         List<ProductoFGEM> itemsFGEM = List.of(
-                itemFGEM(TipoItemFGEM.PRODUCTO, "75", "100", true),    // 25 %
-                itemFGEM(TipoItemFGEM.PRODUCTO, "60", "50", true),     // -20 %
-                itemFGEM(TipoItemFGEM.SERVICIO, "0", "80", true),      // 100 %
-                itemFGEM(TipoItemFGEM.SERVICIO, "1", "0", true),       // sin precio: no entra al promedio
-                itemFGEM(TipoItemFGEM.PRODUCTO, "1", "100", false));   // archivado: no cuenta
+                itemFGEM(TipoItemFGEM.PRODUCTO, "75", "100", true),
+                itemFGEM(TipoItemFGEM.PRODUCTO, "60", "50", true),
+                itemFGEM(TipoItemFGEM.SERVICIO, "0", "80", true),
+                itemFGEM(TipoItemFGEM.SERVICIO, "1", "0", true),
+                itemFGEM(TipoItemFGEM.PRODUCTO, "1", "100", false));
 
         ResumenCatalogoFGEM resumenFGEM = ResumenCatalogoFGEM.deFGEM(itemsFGEM);
 

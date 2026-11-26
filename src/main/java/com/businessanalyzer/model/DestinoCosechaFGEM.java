@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** A dónde va lo cosechado. */
 public enum DestinoCosechaFGEM {
 
     VENTA("Venta"),

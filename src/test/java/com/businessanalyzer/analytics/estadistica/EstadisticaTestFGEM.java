@@ -15,7 +15,6 @@ import java.util.TreeMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Casos de libro con resultados conocidos para cada técnica estadística. */
 class EstadisticaTestFGEM {
 
     private static final double TOLERANCIA_FGEM = 1e-4;

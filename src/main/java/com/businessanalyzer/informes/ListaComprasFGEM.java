@@ -19,14 +19,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- * Lista de compras a partir de la reposición sugerida: los productos agrupados por categoría (para recorrer el
- * proveedor o el mercado por secciones), con la cantidad a comprar y el costo aproximado.
- * Se entrega en PDF (para imprimir y marcar) o en Excel (para ajustar cantidades: el costo se recalcula solo).
- */
 public final class ListaComprasFGEM {
 
-    /** Grupo de los productos sin categoría; va al final. */
     public static final String SIN_CATEGORIA_FGEM = "Sin categoría";
 
     private static final Collator COLLATOR_FGEM = Collator.getInstance(Locale.forLanguageTag("es-PE"));
@@ -34,7 +28,6 @@ public final class ListaComprasFGEM {
     private ListaComprasFGEM() {
     }
 
-    /** Productos de una categoría con su subtotal. */
     public record GrupoFGEM(String categoriaFGEM, List<ReposicionFGEM> itemsFGEM) {
 
         public BigDecimal subtotalFGEM() {
@@ -42,10 +35,6 @@ public final class ListaComprasFGEM {
         }
     }
 
-    /**
-     * Agrupa por categoría en orden alfabético («Sin categoría» al final). Dentro de cada grupo, primero los agotados,
-     * luego los que se agotan esta semana y al final el resto; a igual urgencia, por nombre.
-     */
     public static List<GrupoFGEM> agruparFGEM(List<ReposicionFGEM> reposicionFGEM) {
         Map<String, List<ReposicionFGEM>> porCategoriaFGEM = new TreeMap<>((aFGEM, bFGEM) -> {
             if (aFGEM.equals(bFGEM)) {
@@ -67,7 +56,6 @@ public final class ListaComprasFGEM {
         return ordenadoFGEM.entrySet().stream().map(eFGEM -> new GrupoFGEM(eFGEM.getKey(), eFGEM.getValue())).toList();
     }
 
-    /** Contenido del PDF: resumen, una tabla por categoría con su subtotal y el total. */
     public static ContenidoInformeFGEM contenidoFGEM(List<ReposicionFGEM> reposicionFGEM, MonedaFGEM monedaFGEM, String periodoFGEM) {
         ContenidoInformeFGEM cFGEM = new ContenidoInformeFGEM();
         BigDecimal totalFGEM = reposicionFGEM.stream().map(ReposicionFGEM::costoFGEM).reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -100,10 +88,6 @@ public final class ListaComprasFGEM {
         return cFGEM;
     }
 
-    /**
-     * Libro de Excel con una fila por producto. El costo es una fórmula (cantidad × costo unitario), así que al cambiar
-     * una cantidad se actualizan el costo y el total. La columna «Comprado» queda en blanco para marcarla.
-     */
     public static LibroExcelFGEM libroFGEM(List<ReposicionFGEM> reposicionFGEM, MonedaFGEM monedaFGEM, String tituloFGEM, String detalleFGEM) {
         LibroExcelFGEM libroFGEM = new LibroExcelFGEM(monedaFGEM);
         HojaFGEM hFGEM = libroFGEM.hojaFGEM("Lista de compras");
@@ -126,7 +110,6 @@ public final class ListaComprasFGEM {
         return libroFGEM;
     }
 
-    /** Estado corto, para que quepa en la columna del PDF. */
     static String estadoFGEM(UrgenciaFGEM urgenciaFGEM) {
         return switch (urgenciaFGEM) {
             case AGOTADO -> "Agotado";

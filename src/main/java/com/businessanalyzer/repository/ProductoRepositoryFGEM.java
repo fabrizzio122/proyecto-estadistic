@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** Acceso a las tablas {@code producto} e {@code historial_precio}. */
 public class ProductoRepositoryFGEM {
 
     private static final String CONSULTA_FGEM = """
@@ -54,7 +53,6 @@ public class ProductoRepositoryFGEM {
         }
     }
 
-    /** Comparación sin distinguir mayúsculas (columna COLLATE NOCASE). */
     public boolean existeCodigoFGEM(Connection cFGEM, long empresaIdFGEM, String codigoFGEM, long excluirIdFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement(
                 "SELECT 1 FROM producto WHERE empresa_id = ? AND codigo = ? AND id <> ?")) {
@@ -67,7 +65,6 @@ public class ProductoRepositoryFGEM {
         }
     }
 
-    /** Siguiente código automático para la empresa: P-0001, P-0002... (o S- para servicios). */
     public String siguienteCodigoFGEM(Connection cFGEM, long empresaIdFGEM, String prefijoFGEM) throws SQLException {
         int mayorFGEM = 0;
         try (PreparedStatement psFGEM = cFGEM.prepareStatement(
@@ -128,7 +125,6 @@ public class ProductoRepositoryFGEM {
         }
     }
 
-    /** Nuevo costo unitario (por ejemplo, el precio pagado en la última compra). */
     public void actualizarCostoFGEM(Connection cFGEM, long idFGEM, BigDecimal costoFGEM, LocalDateTime ahoraFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement(
                 "UPDATE producto SET costo_unitario = ?, actualizado_en = ? WHERE id = ?")) {
@@ -138,8 +134,6 @@ public class ProductoRepositoryFGEM {
             exigirUnaFilaFGEM(psFGEM.executeUpdate());
         }
     }
-
-    // ------------------------------------------------------------------ historial de precios
 
     public void registrarPrecioFGEM(Connection cFGEM, long productoIdFGEM, BigDecimal costoFGEM, BigDecimal precioFGEM,
                                 LocalDateTime fechaFGEM, String usuarioFGEM) throws SQLException {
@@ -155,7 +149,6 @@ public class ProductoRepositoryFGEM {
         }
     }
 
-    /** Del cambio más reciente al más antiguo. */
     public List<RegistroPrecioFGEM> historialFGEM(Connection cFGEM, long productoIdFGEM) throws SQLException {
         List<RegistroPrecioFGEM> registrosFGEM = new ArrayList<>();
         try (PreparedStatement psFGEM = cFGEM.prepareStatement("""
@@ -174,8 +167,6 @@ public class ProductoRepositoryFGEM {
         }
         return registrosFGEM;
     }
-
-    // ------------------------------------------------------------------ mapeo
 
     private static void asignarDatosFGEM(PreparedStatement psFGEM, DatosProductoFGEM dFGEM) throws SQLException {
         if (dFGEM.categoriaIdFGEM() == null) {

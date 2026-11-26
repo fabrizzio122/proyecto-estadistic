@@ -23,14 +23,6 @@ import java.time.YearMonth;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Ingresos y gastos no comerciales de la empresa activa (alquiler, sueldos, servicios,
- * intereses...). Junto con las ventas y compras forman la base del estado de resultados
- * y del punto de equilibrio.
- * <p>
- * Los movimientos se pueden corregir mientras estén registrados; para quitarlos del análisis
- * se anulan indicando el motivo (no se eliminan).
- */
 public class FinanzasServiceFGEM {
 
     private final DatabaseFGEM databaseFGEM;
@@ -78,7 +70,6 @@ public class FinanzasServiceFGEM {
                 dFGEM.comprobanteFGEM(), cuentaIdFGEM);
     }
 
-    /** Los intereses que generó el pago de una deuda se corrigen desde ese pago, en «Activos y deudas». */
     private static void exigirNoGeneradoPorPagoFGEM(MovimientoFinancieroFGEM mFGEM) {
         if (mFGEM.dePagoDeudaFGEM()) {
             throw new ValidacionExceptionFGEM("Este gasto lo generó el pago de una deuda. Corrígelo o anúlalo desde "
@@ -98,7 +89,6 @@ public class FinanzasServiceFGEM {
                 throw new ValidacionExceptionFGEM("Un movimiento anulado no se puede modificar.");
             }
             exigirNoGeneradoPorPagoFGEM(actualFGEM);
-            // Un registro anterior a la tesorería puede seguir sin cuenta si no se elige una.
             Long cuentaIdFGEM = limpiosFGEM.cuentaIdFGEM() == null && actualFGEM.cuentaIdFGEM() == null ? null
                     : cuentasFGEM.resolverFGEM(cFGEM, empresaFGEM.idFGEM(), limpiosFGEM.cuentaIdFGEM(), actualFGEM.cuentaIdFGEM());
             movimientosFGEM.actualizarFGEM(cFGEM, idFGEM, conCuentaFGEM(limpiosFGEM, cuentaIdFGEM), usuarioFGEM, ahoraFGEM);
@@ -123,13 +113,6 @@ public class FinanzasServiceFGEM {
         });
     }
 
-    /**
-     * Copia al mes de destino los gastos fijos registrados en el mes de origen, conservando el
-     * día (ajustado si el mes de destino es más corto). Omite los que ya existen en el destino
-     * con la misma categoría, descripción y monto, para no duplicarlos si se repite la acción.
-     *
-     * @return cantidad de gastos copiados
-     */
     public int copiarGastosFijosFGEM(YearMonth origenFGEM, YearMonth destinoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_GESTIONAR);
         Objects.requireNonNull(origenFGEM, "origen");

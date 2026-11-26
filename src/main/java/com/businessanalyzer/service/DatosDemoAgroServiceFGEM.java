@@ -52,11 +52,6 @@ import java.util.Map;
 import static com.businessanalyzer.model.CategoriaGanadoFGEM.*;
 import static com.businessanalyzer.model.TipoMovimientoGanadoFGEM.*;
 
-/**
- * Crea un productor agropecuario de demostración («Fundo Demo») con vacunos, alpacas y ovinos:
- * inventario inicial de hace un año, nacimientos, muertes, ventas, producción de leche y fibra,
- * precios por cabeza, un tractor y un préstamo. Todo se registra con los servicios normales.
- */
 public class DatosDemoAgroServiceFGEM {
 
     public static final String NOMBRE_FUNDO_FGEM = "Fundo Demo";
@@ -101,7 +96,6 @@ public class DatosDemoAgroServiceFGEM {
         LocalDate hoyFGEM = LocalDate.now(relojFGEM);
         LocalDate inicioFGEM = hoyFGEM.minusMonths(12).withDayOfMonth(1);
 
-        // Inventario inicial (hace un año).
         Map<CategoriaGanadoFGEM, Integer> inicialFGEM = new EnumMap<>(CategoriaGanadoFGEM.class);
         inicialFGEM.putAll(Map.of(VACA, 12, VAQUILLONA, 4, TERNERA, 3, TERNERO, 3, TORETE, 2, TORO, 1));
         inicialFGEM.putAll(Map.of(ALPACA_MADRE, 60, ALPACA_TUI_HEMBRA, 15, ALPACA_TUI_MACHO, 12, ALPACA_PADRE, 3,
@@ -109,7 +103,6 @@ public class DatosDemoAgroServiceFGEM {
         inicialFGEM.putAll(Map.of(OVEJA, 25, BORREGA, 6, CORDERO, 4, CARNERO, 1));
         inicialFGEM.forEach((cFGEM, nFGEM) -> movFGEM(inicioFGEM, INVENTARIO_INICIAL, cFGEM, nFGEM, null, null, null));
 
-        // Vacunos: partos repartidos en el año, una muerte de ternero y venta de toretes.
         movFGEM(mesFGEM(inicioFGEM, 1, 8), NACIMIENTO, TERNERA, 2, null, null, null);
         movFGEM(mesFGEM(inicioFGEM, 3, 15), NACIMIENTO, TERNERO, 2, null, null, null);
         movFGEM(mesFGEM(inicioFGEM, 5, 4), NACIMIENTO, TERNERA, 2, null, null, null);
@@ -118,7 +111,6 @@ public class DatosDemoAgroServiceFGEM {
         movFGEM(mesFGEM(inicioFGEM, 4, 10), CAMBIO_CATEGORIA, TERNERA, 3, VAQUILLONA, null, null);
         movFGEM(mesFGEM(inicioFGEM, 6, 12), VENTA, TORETE, 2, null, null, "4800");
 
-        // Alpacas: parición de diciembre a marzo, mortalidad de crías por neumonía y heladas.
         movFGEM(mesFGEM(inicioFGEM, 1, 10), NACIMIENTO, ALPACA_CRIA, 12, null, null, null);
         movFGEM(mesFGEM(inicioFGEM, 2, 10), NACIMIENTO, ALPACA_CRIA, 16, null, null, null);
         movFGEM(mesFGEM(inicioFGEM, 3, 10), NACIMIENTO, ALPACA_CRIA, 10, null, null, null);
@@ -129,14 +121,12 @@ public class DatosDemoAgroServiceFGEM {
         movFGEM(mesFGEM(inicioFGEM, 8, 14), VENTA, ALPACA_CAPON, 6, null, null, "1680");
         movFGEM(mesFGEM(inicioFGEM, 10, 3), CONSUMO, ALPACA_CAPON, 2, null, null, null);
 
-        // Ovinos.
         movFGEM(mesFGEM(inicioFGEM, 2, 5), NACIMIENTO, CORDERO, 19, null, null, null);
         movFGEM(mesFGEM(inicioFGEM, 3, 1), MUERTE, CORDERO, 2, null, "Frío", null);
         movFGEM(mesFGEM(inicioFGEM, 7, 22), VENTA, CORDERO, 8, null, null, "1120");
         movFGEM(mesFGEM(inicioFGEM, 9, 9), CONSUMO, OVEJA, 1, null, null, null);
         movFGEM(mesFGEM(inicioFGEM, 4, 28), PERDIDA, BORREGA, 1, null, "Abigeato", null);
 
-        // Producción: leche de cada mes y una esquila de alpacas y ovinos.
         for (int iFGEM = 1; iFGEM <= 12; iFGEM++) {
             LocalDate finFGEM = mesFGEM(inicioFGEM, iFGEM, 1).minusDays(1);
             if (finFGEM.isAfter(hoyFGEM) || finFGEM.isBefore(inicioFGEM)) {
@@ -173,10 +163,6 @@ public class DatosDemoAgroServiceFGEM {
         return empresaFGEM;
     }
 
-    /**
-     * Los gastos del año salieron de la caja del fundo; su saldo inicial se fija para que hoy le queden
-     * S/ 3 500 (efectivo y cuenta de ahorros). Las ventas agropecuarias aún no se registran por cuenta.
-     */
     private void ajustarCajaFGEM() {
         SaldoCuentaFGEM cajaFGEM = tesoreriaFGEM.listarCuentasFGEM(false).get(0);
         BigDecimal movidoFGEM = cajaFGEM.saldoFGEM().subtract(cajaFGEM.cuentaFGEM().saldoInicialFGEM());
@@ -184,7 +170,6 @@ public class DatosDemoAgroServiceFGEM {
                 bdFGEM("3500").subtract(movidoFGEM)));
     }
 
-    /** Una supervisión hace 3 meses con compromisos y una de seguimiento reciente que los verifica. */
     private void registrarVisitasFGEM(LocalDate hoyFGEM) {
         String inspectorFGEM = "Ing. Rosa Quispe";
         Map<AspectoInspeccionFGEM, ResultadoAspectoFGEM> primeraFGEM = new EnumMap<>(AspectoInspeccionFGEM.class);
@@ -233,7 +218,6 @@ public class DatosDemoAgroServiceFGEM {
         }
     }
 
-    /** Gastos de cada mes del productor (pastor, sanidad animal, fletes, intereses del crédito...). */
     private void registrarGastosFGEM(LocalDate inicioFGEM, LocalDate hoyFGEM) {
         for (int iFGEM = 1; iFGEM <= 12; iFGEM++) {
             gastoFGEM(CategoriaFinancieraFGEM.SUELDOS, mesFGEM(inicioFGEM, iFGEM, 28), hoyFGEM, "Pastor (medio tiempo)", 600);
@@ -253,7 +237,6 @@ public class DatosDemoAgroServiceFGEM {
         }
     }
 
-    /** Tres parcelas y cinco campañas: papa, quinua y avena cosechadas, un maíz perdido por granizada y papa en curso. */
     private void registrarAgriculturaFGEM(LocalDate inicioFGEM) {
         ParcelaFGEM altaFGEM = agriculturaFGEM.registrarParcelaFGEM(new DatosParcelaFGEM("Parcela Alta", bdFGEM("1.5"), TenenciaFGEM.PROPIA, false,
                 "Ladera, 3 800 m s. n. m."));
@@ -262,7 +245,6 @@ public class DatosDemoAgroServiceFGEM {
         ParcelaFGEM comunalFGEM = agriculturaFGEM.registrarParcelaFGEM(new DatosParcelaFGEM("Terreno comunal", bdFGEM("2"), TenenciaFGEM.COMUNAL,
                 false, null));
 
-        // Papa: rendimiento algo bajo la referencia, pero rentable.
         CampaniaFGEM papaFGEM = campaniaFGEM(altaFGEM, CultivoFGEM.PAPA, "Yungay", mesFGEM(inicioFGEM, 0, 15), "1", "0.80");
         costosFGEM(papaFGEM, mesFGEM(inicioFGEM, 0, 5), new Object[][]{
                 {RubroCostoFGEM.PREPARACION, "Yunta y surcado", "600"}, {RubroCostoFGEM.SEMILLA, "Semilla 1 200 kg", "2400"},
@@ -275,7 +257,6 @@ public class DatosDemoAgroServiceFGEM {
         cosechaFGEM(papaFGEM, mesFGEM(inicioFGEM, 6, 5), "300", DestinoCosechaFGEM.MERMA, null);
         agriculturaFGEM.cerrarCampaniaFGEM(papaFGEM.idFGEM(), EstadoCampaniaFGEM.COSECHADA, mesFGEM(inicioFGEM, 6, 6), null);
 
-        // Quinua: por encima de la referencia.
         CampaniaFGEM quinuaFGEM = campaniaFGEM(comunalFGEM, CultivoFGEM.QUINUA, "Blanca de Juli", mesFGEM(inicioFGEM, 0, 20), "1.2", null);
         costosFGEM(quinuaFGEM, mesFGEM(inicioFGEM, 0, 10), new Object[][]{
                 {RubroCostoFGEM.PREPARACION, "Preparación del terreno", "500"}, {RubroCostoFGEM.SEMILLA, "Semilla 15 kg", "150"},
@@ -286,7 +267,6 @@ public class DatosDemoAgroServiceFGEM {
         cosechaFGEM(quinuaFGEM, mesFGEM(inicioFGEM, 6, 12), "260", DestinoCosechaFGEM.AUTOCONSUMO, null);
         agriculturaFGEM.cerrarCampaniaFGEM(quinuaFGEM.idFGEM(), EstadoCampaniaFGEM.COSECHADA, mesFGEM(inicioFGEM, 6, 12), null);
 
-        // Avena forrajera para el ganado.
         CampaniaFGEM avenaFGEM = campaniaFGEM(rioFGEM, CultivoFGEM.AVENA_FORRAJERA, null, mesFGEM(inicioFGEM, 1, 5), "0.8", "0.15");
         costosFGEM(avenaFGEM, mesFGEM(inicioFGEM, 1, 1), new Object[][]{
                 {RubroCostoFGEM.PREPARACION, "Arado con tractor", "450"}, {RubroCostoFGEM.SEMILLA, "Semilla 80 kg", "320"},
@@ -294,14 +274,12 @@ public class DatosDemoAgroServiceFGEM {
         cosechaFGEM(avenaFGEM, mesFGEM(inicioFGEM, 5, 10), "14000", DestinoCosechaFGEM.ANIMALES, null);
         agriculturaFGEM.cerrarCampaniaFGEM(avenaFGEM.idFGEM(), EstadoCampaniaFGEM.COSECHADA, mesFGEM(inicioFGEM, 5, 10), null);
 
-        // Maíz perdido por granizada.
         CampaniaFGEM maizFGEM = campaniaFGEM(altaFGEM, CultivoFGEM.MAIZ_AMILACEO, "Blanco Urubamba", mesFGEM(inicioFGEM, 1, 10), "0.5", "2.50");
         costosFGEM(maizFGEM, mesFGEM(inicioFGEM, 1, 2), new Object[][]{
                 {RubroCostoFGEM.PREPARACION, "Yunta", "250"}, {RubroCostoFGEM.SEMILLA, "Semilla 20 kg", "160"},
                 {RubroCostoFGEM.MANO_OBRA, "Siembra y deshierbo", "490"}});
         agriculturaFGEM.cerrarCampaniaFGEM(maizFGEM.idFGEM(), EstadoCampaniaFGEM.PERDIDA, mesFGEM(inicioFGEM, 4, 18), "Granizada");
 
-        // Nueva campaña de papa, recién sembrada.
         CampaniaFGEM nuevaFGEM = campaniaFGEM(altaFGEM, CultivoFGEM.PAPA, "Canchán", mesFGEM(inicioFGEM, 11, 10), "1", "0.80");
         costosFGEM(nuevaFGEM, mesFGEM(inicioFGEM, 11, 1), new Object[][]{
                 {RubroCostoFGEM.PREPARACION, "Yunta y surcado", "650"}, {RubroCostoFGEM.SEMILLA, "Semilla 1 200 kg", "2500"}});
@@ -327,7 +305,6 @@ public class DatosDemoAgroServiceFGEM {
         agriculturaFGEM.registrarCosechaFGEM(campaniaFGEM.idFGEM(), fechaFGEM, bdFGEM(kilosFGEM), destinoFGEM, precioFGEM == null ? null : bdFGEM(precioFGEM), null);
     }
 
-    /** Día {@code dia} del mes que está {@code meses} después de {@code inicio}. */
     private static LocalDate mesFGEM(LocalDate inicioFGEM, int mesesFGEM, int diaFGEM) {
         LocalDate baseFGEM = inicioFGEM.plusMonths(mesesFGEM);
         return baseFGEM.withDayOfMonth(Math.min(diaFGEM, baseFGEM.lengthOfMonth()));

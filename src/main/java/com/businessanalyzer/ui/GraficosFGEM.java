@@ -46,33 +46,20 @@ import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Gráficos de JFreeChart con el tema oscuro de la aplicación. Cada método devuelve un
- * {@link JFreeChart} listo para mostrarse con {@link #visorFGEM(JFreeChart)}; el visor incluye
- * un menú contextual (clic derecho) para exportar la imagen.
- */
 public final class GraficosFGEM {
 
-    /**
-     * Color principal de las series: el color de acento que eligió el usuario (se actualiza al cambiarlo,
-     * ver {@link EstilosFGEM#cambiarAcentoFGEM}). Conserva el nombre histórico.
-     */
-    public static volatile Color AZUL_FGEM = ColorAcentoFGEM.PREDETERMINADO_FGEM.awtFGEM();
-    /** Positivo, utilidad, saludable. */
-    public static final Color VERDE_FGEM = new Color(0x63, 0xd6, 0xa4);
-    /** Series secundarias y líneas de referencia (tendencias, escenarios pesimistas). */
-    public static final Color AMBAR_FGEM = new Color(0xd5, 0xde, 0xd9);
-    /** Alerta o pérdida. */
-    public static final Color ROJO_FGEM = new Color(0xff, 0x8f, 0x73);
-    /** Barras de contexto, sin protagonismo. */
-    public static final Color NEUTRO_FGEM = new Color(0x3a, 0x4d, 0x46);
+    public static final Color AZUL_FGEM = new Color(0x44, 0x72, 0xc4);
+    public static final Color VERDE_FGEM = new Color(0x70, 0xad, 0x47);
+    public static final Color AMBAR_FGEM = new Color(0xa5, 0xa5, 0xa5);
+    public static final Color ROJO_FGEM = new Color(0xc0, 0x00, 0x00);
+    public static final Color NEUTRO_FGEM = new Color(0xbf, 0xbf, 0xbf);
 
-    private static final Color FONDO_FGEM = new Color(0x15, 0x1e, 0x1b);
-    private static final Color GRILLA_FGEM = new Color(0x26, 0x33, 0x2f);
-    private static final Color TEXTO_FGEM = new Color(0x9d, 0xb0, 0xa8);
-    private static final Color TEXTO_FUERTE_FGEM = new Color(0xed, 0xf2, 0xee);
-    private static final Font FUENTE_FGEM = new Font("Inter", Font.PLAIN, 11);
-    private static final BasicStroke LINEA_GRUESA_FGEM = new BasicStroke(2.5f);
+    private static final Color FONDO_FGEM = Color.WHITE;
+    private static final Color GRILLA_FGEM = new Color(0xd9, 0xd9, 0xd9);
+    private static final Color TEXTO_FGEM = new Color(0x40, 0x40, 0x40);
+    private static final Color TEXTO_FUERTE_FGEM = new Color(0x1f, 0x1f, 0x1f);
+    private static final Font FUENTE_FGEM = new Font("Segoe UI", Font.PLAIN, 11);
+    private static final BasicStroke LINEA_GRUESA_FGEM = new BasicStroke(2f);
     private static final BasicStroke LINEA_PUNTEADA_FGEM = new BasicStroke(1.5f, BasicStroke.CAP_ROUND,
             BasicStroke.JOIN_ROUND, 1f, new float[]{6f, 5f}, 0f);
     private static final Locale ESPANOL_FGEM = Locale.forLanguageTag("es");
@@ -87,7 +74,6 @@ public final class GraficosFGEM {
         return visorFGEM;
     }
 
-    /** Barras de ventas netas y línea de utilidad neta de cada mes. */
     public static JFreeChart evolucionMensualFGEM(List<ResultadoMensualFGEM> mesesFGEM, MonedaFGEM monedaFGEM) {
         DefaultCategoryDataset ventasFGEM = new DefaultCategoryDataset();
         DefaultCategoryDataset utilidadFGEM = new DefaultCategoryDataset();
@@ -119,7 +105,6 @@ public final class GraficosFGEM {
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, true));
     }
 
-    /** Flujo de caja: barras de entradas y salidas de cada mes y línea con el dinero disponible al cierre. */
     public static JFreeChart flujoCajaFGEM(List<YearMonth> mesesFGEM, double[] entradasFGEM, double[] salidasFGEM, double[] saldoFGEM,
                                        MonedaFGEM monedaFGEM) {
         DefaultCategoryDataset barrasDatosFGEM = new DefaultCategoryDataset();
@@ -150,7 +135,6 @@ public final class GraficosFGEM {
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, true));
     }
 
-    /** Proyección de caja: escenario base y pesimista, con la línea de cero para ver cuándo falta dinero. */
     public static JFreeChart proyeccionCajaFGEM(List<YearMonth> mesesFGEM, double[] baseFGEM, double[] pesimistaFGEM, MonedaFGEM monedaFGEM) {
         DefaultCategoryDataset datosFGEM = new DefaultCategoryDataset();
         for (int iFGEM = 0; iFGEM < mesesFGEM.size(); iFGEM++) {
@@ -170,10 +154,6 @@ public final class GraficosFGEM {
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, true));
     }
 
-    /**
-     * Gráfico clásico de equilibrio: la recta de ingresos y la de costos totales
-     * (fijos + variables) se cruzan en el punto de equilibrio.
-     */
     public static JFreeChart puntoEquilibrioFGEM(PuntoEquilibrioFGEM peFGEM, MonedaFGEM monedaFGEM) {
         double fijosFGEM = peFGEM.costosFijosFGEM().doubleValue();
         double razonVariableFGEM = peFGEM.razonCostoVariableFGEM() == null ? 1 : peFGEM.razonCostoVariableFGEM().doubleValue();
@@ -214,7 +194,6 @@ public final class GraficosFGEM {
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, true));
     }
 
-    /** Barras horizontales con el margen bruto de los productos que más aportan (en rojo si es negativo). */
     public static JFreeChart rentabilidadProductosFGEM(List<RentabilidadProductoFGEM> productosFGEM, int maximoFGEM, MonedaFGEM monedaFGEM) {
         DefaultCategoryDataset datosFGEM = new DefaultCategoryDataset();
         productosFGEM.stream().limit(maximoFGEM).forEach(pFGEM -> datosFGEM.addValue(pFGEM.margenFGEM(), "Margen bruto", abreviarFGEM(pFGEM.nombreFGEM(), 26)));
@@ -237,9 +216,6 @@ public final class GraficosFGEM {
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, false));
     }
 
-    // ------------------------------------------------------------------ estadística (Fase 8)
-
-    /** Frecuencia de ventas por rango de monto. */
     public static JFreeChart histogramaFGEM(HistogramaFGEM histogramaFGEM, MonedaFGEM monedaFGEM) {
         DefaultCategoryDataset datosFGEM = new DefaultCategoryDataset();
         DecimalFormat enteroFGEM = new DecimalFormat("#,##0", DecimalFormatSymbols.getInstance(Locale.US));
@@ -257,7 +233,6 @@ public final class GraficosFGEM {
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, new CategoryPlot(datosFGEM, ejeRangosFGEM, ejeFrecuenciaFGEM, barrasFGEM), false));
     }
 
-    /** Ventas mensuales en barras y la recta de tendencia (regresión lineal). */
     public static JFreeChart tendenciaFGEM(List<AnalisisEstadisticoFGEM.PuntoMensualFGEM> serieFGEM, TendenciaFGEM tendenciaFGEM, MonedaFGEM monedaFGEM) {
         DefaultCategoryDataset ventasFGEM = new DefaultCategoryDataset();
         DefaultCategoryDataset rectaFGEM = new DefaultCategoryDataset();
@@ -279,7 +254,6 @@ public final class GraficosFGEM {
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, true));
     }
 
-    /** Venta promedio por día de la semana; el mejor día en verde. */
     public static JFreeChart diasDeLaSemanaFGEM(EstacionalidadSemanalFGEM estacionalidadFGEM, MonedaFGEM monedaFGEM) {
         DefaultCategoryDataset datosFGEM = new DefaultCategoryDataset();
         java.time.DayOfWeek mejorFGEM = estacionalidadFGEM.mejorDiaFGEM();
@@ -311,7 +285,6 @@ public final class GraficosFGEM {
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, false));
     }
 
-    /** Diagrama de Pareto: ventas por producto (color según clase ABC) y porcentaje acumulado. */
     public static JFreeChart paretoFGEM(AnalisisAbcFGEM abcFGEM, int maximoFGEM, MonedaFGEM monedaFGEM) {
         DefaultCategoryDataset ventasFGEM = new DefaultCategoryDataset();
         DefaultCategoryDataset acumuladoFGEM = new DefaultCategoryDataset();
@@ -357,12 +330,6 @@ public final class GraficosFGEM {
         return graficoFGEM;
     }
 
-    // ------------------------------------------------------------------ predicciones (Fase 9)
-
-    /**
-     * Historia (línea continua), pronóstico (discontinua) y su rango al 95 % (punteado).
-     * Se muestran como máximo los últimos {@code mesesHistoria} meses de historia.
-     */
     public static JFreeChart pronosticoFGEM(List<YearMonth> mesesFGEM, double[] historiaFGEM, PronosticoFGEM pronosticoFGEM,
                                         int mesesHistoriaFGEM, MonedaFGEM monedaFGEM) {
         DefaultCategoryDataset datosFGEM = new DefaultCategoryDataset();
@@ -401,14 +368,10 @@ public final class GraficosFGEM {
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, true));
     }
 
-    // ------------------------------------------------------------------ impresión (Fase 12)
-
-    /** Colores para varias series: el acento primero y luego colores que se distinguen sobre el fondo. */
     private static Color[] paletaFGEM() {
-        return new Color[]{AZUL_FGEM, VERDE_FGEM, AMBAR_FGEM, new Color(0xb4, 0xa7, 0xf5), ROJO_FGEM, new Color(0x6f, 0xc7, 0xc0)};
+        return new Color[]{AZUL_FGEM, VERDE_FGEM, AMBAR_FGEM, new Color(0xff, 0xc0, 0x00), ROJO_FGEM, new Color(0x5b, 0x9b, 0xd5)};
     }
 
-    /** Una línea por serie (por ejemplo, animales de cada especie al cierre de cada mes). */
     public static JFreeChart lineasMensualesFGEM(List<YearMonth> mesesFGEM, java.util.Map<String, double[]> seriesFGEM, String formatoFGEM) {
         DefaultCategoryDataset datosFGEM = new DefaultCategoryDataset();
         seriesFGEM.forEach((nombreFGEM, valoresFGEM) -> {
@@ -426,11 +389,6 @@ public final class GraficosFGEM {
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, seriesFGEM.size() > 1));
     }
 
-    /**
-     * Barras agrupadas por mes; si se indica una tendencia, se dibuja su recta sobre la primera serie.
-     *
-     * @param inicioTendenciaFGEM mes desde el que se calculó la tendencia (índice en {@code meses})
-     */
     public static JFreeChart barrasMensualesFGEM(List<YearMonth> mesesFGEM, java.util.Map<String, double[]> seriesFGEM, Color[] coloresFGEM,
                                              TendenciaFGEM tendenciaFGEM, int inicioTendenciaFGEM, String formatoFGEM) {
         DefaultCategoryDataset datosFGEM = new DefaultCategoryDataset();
@@ -464,7 +422,6 @@ public final class GraficosFGEM {
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, seriesFGEM.size() > 1 || tendenciaFGEM != null));
     }
 
-    /** Barras agrupadas por categoría (por ejemplo, rendimiento y referencia de cada campaña). */
     public static JFreeChart barrasCategoriasFGEM(List<String> categoriasFGEM, java.util.Map<String, double[]> seriesFGEM, String formatoFGEM) {
         DefaultCategoryDataset datosFGEM = new DefaultCategoryDataset();
         seriesFGEM.forEach((nombreFGEM, valoresFGEM) -> {
@@ -487,7 +444,6 @@ public final class GraficosFGEM {
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, seriesFGEM.size() > 1));
     }
 
-    /** Con más de 12 meses, cada etiqueta lleva el año para que no se repitan («feb 25», «feb 26»). */
     private static String etiquetaFGEM(List<YearMonth> mesesFGEM, int iFGEM) {
         YearMonth mesFGEM = mesesFGEM.get(iFGEM);
         if (mesesFGEM.size() <= 12) {
@@ -504,10 +460,6 @@ public final class GraficosFGEM {
         return ejeFGEM;
     }
 
-    /**
-     * Imagen del gráfico con fondo blanco para incluirla en un informe PDF. Se dibuja al doble de
-     * resolución para que se vea nítida al imprimir.
-     */
     public static java.awt.image.BufferedImage imagenParaImpresionFGEM(JFreeChart graficoFGEM, int anchoFGEM, int altoFGEM) {
         Color fondoFGEM = Color.WHITE;
         Color textoFGEM = new Color(0x47, 0x55, 0x69);
@@ -549,9 +501,6 @@ public final class GraficosFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ simulación (Fase 10)
-
-    /** Ventas, costos totales y utilidad neta de varios escenarios, agrupados. */
     public static JFreeChart comparacionEscenariosFGEM(List<String> nombresFGEM, List<ResultadoEscenarioFGEM> resultadosFGEM,
                                                    MonedaFGEM monedaFGEM) {
         DefaultCategoryDataset datosFGEM = new DefaultCategoryDataset();
@@ -566,7 +515,7 @@ public final class GraficosFGEM {
         barrasFGEM.setBarPainter(new StandardBarPainter());
         barrasFGEM.setShadowVisible(false);
         barrasFGEM.setItemMargin(0.05);
-        Color[] coloresFGEM = {TEXTO_FGEM, AZUL_FGEM, AMBAR_FGEM, VERDE_FGEM, new Color(0xb4, 0xa7, 0xf5), ROJO_FGEM};
+        Color[] coloresFGEM = {TEXTO_FGEM, AZUL_FGEM, AMBAR_FGEM, VERDE_FGEM, new Color(0xff, 0xc0, 0x00), ROJO_FGEM};
         for (int iFGEM = 0; iFGEM < nombresFGEM.size(); iFGEM++) {
             barrasFGEM.setSeriesPaint(iFGEM, coloresFGEM[iFGEM % coloresFGEM.length]);
         }
@@ -575,10 +524,6 @@ public final class GraficosFGEM {
         return aplicarTemaFGEM(new JFreeChart(null, FUENTE_FGEM, plotFGEM, true));
     }
 
-    /**
-     * Gráfico de tornado: cuánto cambia la utilidad neta si cada variable baja o sube.
-     * Las variables con barras más largas son las que más pesan.
-     */
     public static JFreeChart tornadoFGEM(List<SimuladorFGEM.SensibilidadFGEM> sensibilidadesFGEM, String variacionFGEM, MonedaFGEM monedaFGEM) {
         DefaultCategoryDataset datosFGEM = new DefaultCategoryDataset();
         for (SimuladorFGEM.SensibilidadFGEM sFGEM : sensibilidadesFGEM) {
@@ -614,8 +559,6 @@ public final class GraficosFGEM {
         barrasFGEM.setMaximumBarWidth(0.08);
         return barrasFGEM;
     }
-
-    // ------------------------------------------------------------------ estilo
 
     private static JFreeChart aplicarTemaFGEM(JFreeChart graficoFGEM) {
         graficoFGEM.setBackgroundPaint(FONDO_FGEM);
@@ -674,11 +617,6 @@ public final class GraficosFGEM {
         return marcadorFGEM;
     }
 
-    /** "ene", "feb"... (se añade el año solo en enero para no saturar el eje). */
-    /**
-     * Eje de meses con las etiquetas horizontales: si no caben se parten en dos líneas («ene» / «26»). Giradas a 45°
-     * una etiqueta larga como «ene 26» se encimaba con la del mes anterior.
-     */
     private static CategoryAxis nuevoEjeMesesFGEM() {
         CategoryAxis ejeFGEM = new CategoryAxis();
         ejeFGEM.setCategoryLabelPositions(CategoryLabelPositions.STANDARD);

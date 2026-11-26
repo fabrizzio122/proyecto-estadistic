@@ -27,7 +27,6 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,11 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Ventana principal: menu lateral (solo con los modulos permitidos al usuario), barra
- * superior con el selector de empresa activa y el menu de usuario, area de contenido y
- * barra de estado.
- */
 public class MainControllerFGEM {
 
     private static final Logger logFGEM = LoggerFactory.getLogger(MainControllerFGEM.class);
@@ -68,7 +62,6 @@ public class MainControllerFGEM {
     @FXML private HBox franjaFraseFGEM;
     @FXML private Label lblFraseFGEM;
 
-    /** Contador de alertas pendientes junto a «Diagnóstico empresarial». */
     private final Label contadorAlertasFGEM = new Label();
 
     public MainControllerFGEM(AppContextFGEM contextoFGEM, VentanaFGEM ventanaFGEM) {
@@ -95,7 +88,6 @@ public class MainControllerFGEM {
                 + "   ·   Esquema v" + contextoFGEM.versionEsquemaFGEM());
         estadoVersionFGEM.setText(BusinessAnalyzerAppFGEM.NOMBRE_FGEM + " " + BusinessAnalyzerAppFGEM.VERSION_FGEM);
 
-        // Evita que el menu quede sin opcion marcada al pulsar la opcion activa.
         grupoMenuFGEM.selectedToggleProperty().addListener((obsFGEM, anteriorFGEM, nuevoFGEM) -> {
             if (nuevoFGEM == null && anteriorFGEM != null) {
                 anteriorFGEM.setSelected(true);
@@ -111,8 +103,6 @@ public class MainControllerFGEM {
                 .ifPresent(this::abrirFGEM);
     }
 
-    // ------------------------------------------------------------------ menu lateral
-
     private void construirMenuFGEM() {
         ModuloFGEM.SeccionFGEM seccionActualFGEM = null;
         for (ModuloFGEM moduloFGEM : ModuloFGEM.values()) {
@@ -126,7 +116,7 @@ public class MainControllerFGEM {
                 encabezadosFGEM.put(seccionActualFGEM, encabezadoFGEM);
                 menuFGEM.getChildren().add(encabezadoFGEM);
             }
-            ToggleButton botonFGEM = new ToggleButton(moduloFGEM.tituloFGEM(), new FontIcon(moduloFGEM.iconoFGEM()));
+            ToggleButton botonFGEM = new ToggleButton(moduloFGEM.tituloFGEM());
             botonFGEM.setToggleGroup(grupoMenuFGEM);
             botonFGEM.getStyleClass().add("sidebar-item");
             botonFGEM.setMaxWidth(Double.MAX_VALUE);
@@ -138,7 +128,6 @@ public class MainControllerFGEM {
             botonFGEM.setOnAction(eFGEM -> abrirFGEM(moduloFGEM));
             botonesFGEM.put(moduloFGEM, botonFGEM);
             if (moduloFGEM == ModuloFGEM.DIAGNOSTICO) {
-                // El contador va encima del botón, a la derecha, y no intercepta los clics.
                 contadorAlertasFGEM.getStyleClass().add("contador-alertas");
                 contadorAlertasFGEM.setVisible(false);
                 contadorAlertasFGEM.setMouseTransparent(true);
@@ -181,7 +170,6 @@ public class MainControllerFGEM {
         try {
             navegadorFGEM.mostrarFGEM(moduloFGEM);
             moduloActualFGEM = moduloFGEM;
-            com.businessanalyzer.ui.EstilosFGEM.encabezadosTablaFGEM(contenidoFGEM);
         } catch (Exception eFGEM) {
             logFGEM.error("No se pudo abrir el modulo {}", moduloFGEM, eFGEM);
             NotificadorFGEM.errorFGEM("No se pudo abrir el módulo " + moduloFGEM.tituloFGEM());
@@ -190,30 +178,21 @@ public class MainControllerFGEM {
         recordarUltimoModuloFGEM(moduloFGEM);
     }
 
-    /**
-     * Encabezado de la pantalla. En el Dashboard: la empresa en una línea tenue, un saludo según la hora,
-     * el período del mes en curso y el botón «Registrar venta». En los demás módulos: título y descripción.
-     */
     private void mostrarEncabezadoFGEM(ModuloFGEM moduloFGEM) {
         boolean inicioFGEM = moduloFGEM == ModuloFGEM.DASHBOARD;
         Optional<EmpresaFGEM> empresaFGEM = contextoFGEM.sesionFGEM().empresaActivaFGEM();
-        visibleFGEM(kickerModuloFGEM, inicioFGEM && empresaFGEM.isPresent());
+        visibleFGEM(kickerModuloFGEM, false);
         visibleFGEM(chipPeriodoFGEM, inicioFGEM && empresaFGEM.isPresent());
-        visibleFGEM(descripcionModuloFGEM, !inicioFGEM);
+        visibleFGEM(descripcionModuloFGEM, true);
         boolean puedeVenderFGEM = inicioFGEM && empresaFGEM.isPresent()
                 && contextoFGEM.sesionFGEM().tienePermisoFGEM(com.businessanalyzer.model.PermisoFGEM.OPERACIONES_GESTIONAR)
                 && botonesFGEM.containsKey(ModuloFGEM.VENTAS_COMPRAS);
         visibleFGEM(btnAccionPrincipalFGEM, puedeVenderFGEM);
+        tituloModuloFGEM.setText(moduloFGEM.tituloFGEM());
+        descripcionModuloFGEM.setText(moduloFGEM.descripcionFGEM());
         if (!inicioFGEM) {
-            tituloModuloFGEM.setText(moduloFGEM.tituloFGEM());
-            descripcionModuloFGEM.setText(moduloFGEM.descripcionFGEM());
             return;
         }
-        String nombreFGEM = contextoFGEM.sesionFGEM().usuarioFGEM().nombreCompletoFGEM().strip().split("\\s+")[0];
-        int horaFGEM = java.time.LocalTime.now().getHour();
-        tituloModuloFGEM.setText((horaFGEM < 12 ? "Buenos días" : horaFGEM < 19 ? "Buenas tardes" : "Buenas noches") + ", " + nombreFGEM);
-        empresaFGEM.ifPresent(eFGEM -> kickerModuloFGEM.setText(eFGEM.nombreVisibleFGEM() + "  ·  " + eFGEM.tamanoFGEM().descripcionFGEM()
-                + "  ·  " + eFGEM.monedaFGEM().nombreFGEM() + " (" + eFGEM.monedaFGEM().simboloFGEM() + ")"));
         java.time.LocalDate hoyFGEM = java.time.LocalDate.now();
         chipPeriodoFGEM.setText("1 – " + hoyFGEM.getDayOfMonth() + " de "
                 + com.businessanalyzer.util.FechasFGEM.nombreMesFGEM(hoyFGEM.getMonthValue()).toLowerCase() + " " + hoyFGEM.getYear());
@@ -221,7 +200,6 @@ public class MainControllerFGEM {
         btnAccionPrincipalFGEM.setOnAction(eFGEM -> registrarVentaFGEM());
     }
 
-    /** Abre «Ventas y compras» con el formulario de nueva venta. */
     private void registrarVentaFGEM() {
         abrirFGEM(ModuloFGEM.VENTAS_COMPRAS);
         javafx.application.Platform.runLater(() -> {
@@ -236,8 +214,6 @@ public class MainControllerFGEM {
         nodoFGEM.setManaged(visibleFGEM);
     }
 
-    // ------------------------------------------------------------------ empresa activa
-
     private void prepararSelectorEmpresaFGEM() {
         try {
             contextoFGEM.empresasFGEM().restaurarEmpresaActivaFGEM();
@@ -246,7 +222,6 @@ public class MainControllerFGEM {
         }
         mostrarEmpresaFGEM(contextoFGEM.sesionFGEM().empresaActivaFGEM());
         contextoFGEM.sesionFGEM().alCambiarEmpresaFGEM(this::empresaCambiadaFGEM);
-        // La lista se arma cada vez que se abre, así siempre refleja los últimos cambios.
         selectorEmpresaFGEM.setOnShowing(eFGEM -> construirSelectorEmpresaFGEM());
         construirSelectorEmpresaFGEM();
     }
@@ -275,7 +250,7 @@ public class MainControllerFGEM {
             selectorEmpresaFGEM.getItems().add(vacioFGEM);
         }
         if (botonesFGEM.containsKey(ModuloFGEM.EMPRESAS)) {
-            MenuItem administrarFGEM = new MenuItem("Administrar empresas", new FontIcon("fth-settings"));
+            MenuItem administrarFGEM = new MenuItem("Administrar empresas");
             administrarFGEM.setOnAction(eFGEM -> abrirFGEM(ModuloFGEM.EMPRESAS));
             selectorEmpresaFGEM.getItems().addAll(new SeparatorMenuItem(), administrarFGEM);
         }
@@ -305,11 +280,6 @@ public class MainControllerFGEM {
         }
     }
 
-    /**
-     * Muestra la sección «Agropecuario» del menú solo si la empresa activa es de ese sector.
-     *
-     * @return {@code true} si el módulo abierto dejó de estar disponible y se abrió otro
-     */
     private boolean aplicarSectorFGEM(Optional<EmpresaFGEM> empresaFGEM) {
         boolean agroFGEM = empresaFGEM.map(eFGEM -> eFGEM.sectorFGEM() == SectorFGEM.AGROPECUARIO).orElse(false);
         botonesFGEM.forEach((moduloFGEM, botonFGEM) -> {
@@ -336,35 +306,17 @@ public class MainControllerFGEM {
                 javafx.css.PseudoClass.getPseudoClass("vacio"), empresaFGEM.isEmpty());
     }
 
-    // ------------------------------------------------------------------ menu de usuario
-
     private void construirMenuUsuarioFGEM(UsuarioFGEM usuarioFGEM) {
         menuUsuarioFGEM.setText(usuarioFGEM.nombreCompletoFGEM());
 
         MenuItem cuentaFGEM = new MenuItem(usuarioFGEM.nombreUsuarioFGEM() + "  ·  " + usuarioFGEM.rolFGEM().nombreFGEM());
         cuentaFGEM.setDisable(true);
-        MenuItem cambiarPasswordFGEM = new MenuItem("Cambiar contraseña", new FontIcon("fth-key"));
+        MenuItem cambiarPasswordFGEM = new MenuItem("Cambiar contraseña");
         cambiarPasswordFGEM.setOnAction(eFGEM -> cambiarPasswordFGEM());
-        MenuItem aparienciaFGEM = new MenuItem("Apariencia…", new FontIcon("fth-droplet"));
-        aparienciaFGEM.setOnAction(eFGEM -> mostrarAparienciaFGEM());
-        MenuItem cerrarSesionFGEM = new MenuItem("Cerrar sesión", new FontIcon("fth-log-out"));
+        MenuItem cerrarSesionFGEM = new MenuItem("Cerrar sesión");
         cerrarSesionFGEM.setOnAction(eFGEM -> cerrarSesionFGEM());
 
-        menuUsuarioFGEM.getItems().setAll(cuentaFGEM, new SeparatorMenuItem(), aparienciaFGEM, cambiarPasswordFGEM, cerrarSesionFGEM);
-    }
-
-    /** Color de acento y «Reducir animaciones», disponible para cualquier rol. */
-    private void mostrarAparienciaFGEM() {
-        javafx.scene.control.Dialog<Void> dialogoFGEM = new javafx.scene.control.Dialog<>();
-        dialogoFGEM.initOwner(ventanaFGEM.stageFGEM());
-        dialogoFGEM.setTitle("Apariencia");
-        dialogoFGEM.setHeaderText("Elige cómo se ve Business Analyzer para ti");
-        com.businessanalyzer.ui.PanelAparienciaFGEM panelFGEM = new com.businessanalyzer.ui.PanelAparienciaFGEM(contextoFGEM.preferenciasFGEM());
-        panelFGEM.setPrefWidth(400);
-        dialogoFGEM.getDialogPane().setContent(panelFGEM);
-        dialogoFGEM.getDialogPane().getButtonTypes().add(javafx.scene.control.ButtonType.CLOSE);
-        com.businessanalyzer.ui.EstilosFGEM.aplicarFGEM(dialogoFGEM.getDialogPane());
-        dialogoFGEM.showAndWait();
+        menuUsuarioFGEM.getItems().setAll(cuentaFGEM, new SeparatorMenuItem(), cambiarPasswordFGEM, cerrarSesionFGEM);
     }
 
     private void cambiarPasswordFGEM() {
@@ -385,12 +337,10 @@ public class MainControllerFGEM {
         try {
             contextoFGEM.configuracionFGEM().guardarFGEM(claveUltimoModuloFGEM(contextoFGEM.sesionFGEM().usuarioFGEM()), moduloFGEM.name());
         } catch (RuntimeException eFGEM) {
-            // No es critico: solo afecta a que modulo se abre al iniciar.
             logFGEM.warn("No se pudo guardar el ultimo modulo abierto", eFGEM);
         }
     }
 
-    /** Cada usuario recuerda su propio ultimo modulo. */
     private static String claveUltimoModuloFGEM(UsuarioFGEM usuarioFGEM) {
         return ConfiguracionServiceFGEM.CLAVE_ULTIMO_MODULO_FGEM + "." + usuarioFGEM.idFGEM();
     }

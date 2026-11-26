@@ -60,7 +60,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
-/** Módulo "Gestión financiera": ingresos y gastos no comerciales, fijos y variables. */
 public class FinanzasControllerFGEM implements VistaModuloFGEM {
 
     private static final String TODOS_FGEM = "Todos";
@@ -129,8 +128,6 @@ public class FinanzasControllerFGEM implements VistaModuloFGEM {
         cargarFGEM();
     }
 
-    // ------------------------------------------------------------------ carga
-
     @FXML
     private void esteMesFGEM() {
         LocalDate hoyFGEM = LocalDate.now();
@@ -176,7 +173,6 @@ public class FinanzasControllerFGEM implements VistaModuloFGEM {
         construirDesgloseFGEM(rFGEM);
     }
 
-    /** Barras con el peso de cada categoría sobre el total de gastos. */
     private void construirDesgloseFGEM(ResumenFinancieroFGEM rFGEM) {
         desgloseFGEM.getChildren().clear();
         List<Map.Entry<CategoriaFinancieraFGEM, BigDecimal>> gastosFGEM = rFGEM.porCategoriaFGEM().entrySet().stream()
@@ -223,8 +219,6 @@ public class FinanzasControllerFGEM implements VistaModuloFGEM {
             return coincideTipoFGEM && coincideTextoFGEM;
         });
     }
-
-    // ------------------------------------------------------------------ acciones
 
     @FXML
     private void nuevoGastoFGEM() {
@@ -315,8 +309,6 @@ public class FinanzasControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ tabla
-
     private void configurarTablaFGEM() {
         colFechaFGEM.setCellValueFactory(cFGEM -> new ReadOnlyObjectWrapper<>(cFGEM.getValue().fechaFGEM()));
         colFechaFGEM.setCellFactory(colFGEM -> new TableCell<>() {
@@ -378,13 +370,10 @@ public class FinanzasControllerFGEM implements VistaModuloFGEM {
 
     private void actualizarAccionesFGEM() {
         MovimientoFinancieroFGEM mFGEM = seleccionadoFGEM();
-        // Los intereses que generó el pago de una deuda se corrigen desde ese pago.
         boolean deshabilitarFGEM = mFGEM == null || mFGEM.anuladoFGEM() || mFGEM.dePagoDeudaFGEM();
         btnEditarFGEM.setDisable(deshabilitarFGEM);
         btnAnularFGEM.setDisable(deshabilitarFGEM);
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private void seleccionarFGEM(long idFGEM) {
         tablaFGEM.getItems().stream().filter(mFGEM -> mFGEM.idFGEM() == idFGEM).findFirst().ifPresent(mFGEM -> {
@@ -409,7 +398,6 @@ public class FinanzasControllerFGEM implements VistaModuloFGEM {
         return new ReadOnlyStringWrapper(valorFGEM);
     }
 
-    /** Formulario de ingreso o gasto. En gastos sugiere el tipo de costo según la categoría. */
     private final class FormularioMovimientoFGEM {
         private final TipoMovimientoFGEM tipoFGEM;
         private final ComboBox<CategoriaFinancieraFGEM> cmbCategoriaFGEM;
@@ -424,7 +412,6 @@ public class FinanzasControllerFGEM implements VistaModuloFGEM {
 
         FormularioMovimientoFGEM(TipoMovimientoFGEM tipoFGEM, MovimientoFinancieroFGEM mFGEM) {
             this.tipoFGEM = tipoFGEM;
-            // Los registros anteriores a la tesorería pueden quedarse sin cuenta al corregirlos.
             boolean antiguoFGEM = mFGEM != null && mFGEM.cuentaIdFGEM() == null;
             cmbCuentaFGEM = new SelectorCuentaFGEM(contextoFGEM.tesoreriaFGEM().cuentasActivasFGEM(),
                     antiguoFGEM ? "Sin cuenta (registro anterior a Tesorería)" : null, mFGEM == null ? null : mFGEM.cuentaIdFGEM());

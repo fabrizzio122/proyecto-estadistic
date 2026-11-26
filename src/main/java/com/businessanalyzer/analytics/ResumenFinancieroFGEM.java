@@ -13,14 +13,6 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
-/**
- * Totales de los ingresos y gastos no comerciales de un período (sin anulados).
- *
- * @param gastosFijosFGEM               gastos marcados como fijos
- * @param gastosVariablesFGEM           gastos marcados como variables (no incluye el costo de lo vendido)
- * @param costosFijosEquilibrioFGEM     gastos fijos sin el impuesto a la renta (para el punto de equilibrio)
- * @param costosVariablesEquilibrioFGEM gastos variables sin el impuesto a la renta (para el punto de equilibrio)
- */
 public record ResumenFinancieroFGEM(
         BigDecimal ingresosFGEM,
         BigDecimal gastosFGEM,
@@ -73,7 +65,6 @@ public record ResumenFinancieroFGEM(
                 variablesEquilibrioFGEM, porCategoriaFGEM, cantidadFGEM);
     }
 
-    /** Suma de las categorías de un grupo del estado de resultados. */
     public BigDecimal porGrupoFGEM(GrupoFinancieroFGEM grupoFGEM) {
         return porCategoriaFGEM.entrySet().stream()
                 .filter(eFGEM -> eFGEM.getKey().grupoFGEM() == grupoFGEM)
@@ -81,7 +72,6 @@ public record ResumenFinancieroFGEM(
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    /** Proporción de los gastos que son fijos; {@code null} si no hubo gastos. */
     public BigDecimal participacionFijosFGEM() {
         return gastosFGEM.signum() == 0 ? null : gastosFijosFGEM.divide(gastosFGEM, MargenesFGEM.ESCALA_RATIO_FGEM, RoundingMode.HALF_UP);
     }

@@ -3,13 +3,6 @@ package com.businessanalyzer.analytics.simulacion;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-/**
- * Supuestos de un escenario. Los cambios son fracciones (0.10 = +10 %, −0.05 = −5 %).
- *
- * @param costoFijoAdicionalFGEM monto mensual que se suma a los costos fijos (por ejemplo, un nuevo empleado);
- *                           puede ser negativo (un ahorro)
- * @param tasaImpuestoFGEM       fracción de la utilidad antes de impuestos que se paga de impuesto a la renta
- */
 public record SupuestosFGEM(BigDecimal precioFGEM, BigDecimal volumenFGEM, BigDecimal costoUnitarioFGEM, BigDecimal gastosVariablesFGEM,
                         BigDecimal costosFijosFGEM, BigDecimal costoFijoAdicionalFGEM, BigDecimal tasaImpuestoFGEM) {
 
@@ -23,7 +16,6 @@ public record SupuestosFGEM(BigDecimal precioFGEM, BigDecimal volumenFGEM, BigDe
         Objects.requireNonNull(tasaImpuestoFGEM, "tasaImpuesto");
     }
 
-    /** Sin cambios: el escenario reproduce la base. */
     public static SupuestosFGEM neutrosFGEM(BigDecimal tasaImpuestoFGEM) {
         BigDecimal ceroFGEM = BigDecimal.ZERO;
         return new SupuestosFGEM(ceroFGEM, ceroFGEM, ceroFGEM, ceroFGEM, ceroFGEM, ceroFGEM, tasaImpuestoFGEM);

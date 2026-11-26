@@ -15,12 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Acceso a roles y sus permisos.
- * <p>
- * Los repositorios desde la Fase 2 reciben la {@link Connection} como parámetro para que
- * el servicio pueda agrupar varias operaciones en una misma transacción.
- */
 public class RolRepositoryFGEM {
 
     private static final String CONSULTA_FGEM = """

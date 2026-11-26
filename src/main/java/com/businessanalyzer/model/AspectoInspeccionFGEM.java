@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Aspectos que el inspector verifica en campo, agrupados por área. */
 public enum AspectoInspeccionFGEM {
 
     SANIDAD_ANIMAL(AreaFGEM.GANADERIA, "Sanidad del ganado", "Animales sin signos de enfermedad, sin cojeras ni diarreas."),
@@ -16,7 +15,6 @@ public enum AspectoInspeccionFGEM {
     COMPROMISOS(AreaFGEM.GENERAL, "Cumplimiento de compromisos anteriores", "Recomendaciones de la visita anterior atendidas."),
     AMBIENTE(AreaFGEM.GENERAL, "Manejo ambiental", "Envases de agroquímicos, residuos y estiércol bien manejados.");
 
-    /** Área de la verificación. */
     public enum AreaFGEM {
         GANADERIA("Ganadería"),
         AGRICULTURA("Agricultura"),
@@ -51,7 +49,6 @@ public enum AspectoInspeccionFGEM {
         return descripcionFGEM;
     }
 
-    /** Qué mirar para evaluarlo. */
     public String guiaFGEM() {
         return guiaFGEM;
     }

@@ -33,7 +33,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OperacionServiceTestFGEM {
 
-    /** El reloj de pruebas está en 2026-01-15. */
     private static final LocalDate HOY_FGEM = LocalDate.of(2026, 1, 15);
     private static final LocalDate INICIO_MES_FGEM = LocalDate.of(2026, 1, 1);
 
@@ -86,7 +85,6 @@ class OperacionServiceTestFGEM {
         assertEquals(2, ventaFGEM.lineasFGEM().size());
         assertEquals("Arroz 5 kg", ventaFGEM.lineasFGEM().get(0).nombreFGEM());
 
-        // Si después sube el costo, la venta ya registrada conserva su margen
         entornoFGEM.catalogoFGEM.actualizarProductoFGEM(arrozFGEM.idFGEM(), new DatosProductoFGEM(TipoItemFGEM.PRODUCTO, arrozFGEM.codigoFGEM(),
                 arrozFGEM.nombreFGEM(), null, null, UnidadMedidaFGEM.UNIDAD, new BigDecimal("30"), new BigDecimal("40")));
         assertEquals(0, new BigDecimal("63.50").compareTo(servicioFGEM.obtenerFGEM(ventaFGEM.idFGEM()).costoTotalFGEM()));
@@ -145,7 +143,6 @@ class OperacionServiceTestFGEM {
         comprarFGEM(arrozFGEM, "10", "18.50");
         OperacionFGEM ventaFGEM = venderFGEM(arrozFGEM, "8", "25");
 
-        // Vender 10 solo es posible porque las 8 de la venta original vuelven al stock.
         OperacionFGEM corregidaFGEM = servicioFGEM.corregirFGEM(ventaFGEM.idFGEM(), datosFGEM(TipoOperacionFGEM.VENTA, lineaFGEM(arrozFGEM, "10", "24")), false);
 
         assertTrue(servicioFGEM.obtenerFGEM(ventaFGEM.idFGEM()).anuladaFGEM());
@@ -226,7 +223,6 @@ class OperacionServiceTestFGEM {
     @Test
     void laTransaccionNoDejaOperacionesAMediasFGEM() {
         comprarFGEM(arrozFGEM, "1", "18");
-        // La segunda línea falla (producto inexistente): no debe quedar nada de la operación
         assertThrows(ValidacionExceptionFGEM.class, () -> servicioFGEM.registrarFGEM(datosFGEM(TipoOperacionFGEM.COMPRA,
                 lineaFGEM(arrozFGEM, "5", "18"), new DatosLineaFGEM(9_999, BigDecimal.ONE, BigDecimal.ONE)), false));
 
@@ -258,8 +254,6 @@ class OperacionServiceTestFGEM {
         assertFalse(servicioFGEM.obtenerFGEM(servicioFGEM.listarFGEM(TipoOperacionFGEM.VENTA, INICIO_MES_FGEM, HOY_FGEM, false).get(0).idFGEM())
                 .anuladaFGEM());
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private OperacionFGEM comprarFGEM(ProductoFGEM productoFGEM, String cantidadFGEM, String precioFGEM) {
         return servicioFGEM.registrarFGEM(datosFGEM(TipoOperacionFGEM.COMPRA, lineaFGEM(productoFGEM, cantidadFGEM, precioFGEM)), false);

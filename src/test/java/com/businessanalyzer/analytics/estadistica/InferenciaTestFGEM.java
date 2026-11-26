@@ -13,14 +13,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Los valores esperados se pueden comprobar a mano o en Excel (DISTR.T.INV, PRUEBA.T, análisis de varianza). */
 class InferenciaTestFGEM {
 
     private static final double TOLERANCIA_FGEM = 1e-3;
 
     @Test
     void intervaloDeConfianzaConTDeStudentFGEM() {
-        // Media 6, s = √10 = 3.1623, n = 5, t(0.975; 4) = 2.7764 → margen = 2.7764 · 3.1623 / √5 = 3.9264.
         IntervaloConfianzaFGEM iFGEM = InferenciaFGEM.intervaloFGEM(new double[]{2, 4, 6, 8, 10});
 
         assertEquals(6, iFGEM.mediaFGEM(), TOLERANCIA_FGEM);
@@ -32,7 +30,6 @@ class InferenciaTestFGEM {
 
     @Test
     void anovaPorDiaDeLaSemanaFGEM() {
-        // Lunes 1, 2, 3 y martes 4, 5, 6: media general 3.5; SC entre = 13.5; SC dentro = 4; F(1, 4) = 13.5; p = 0.0213.
         Map<LocalDate, Double> ventasFGEM = new LinkedHashMap<>();
         LocalDate lunesFGEM = LocalDate.of(2026, 11, 2);
         double[] lunesValoresFGEM = {1, 2, 3};
@@ -64,7 +61,6 @@ class InferenciaTestFGEM {
 
     @Test
     void pruebaTDeWelchEntreDosPeriodosFGEM() {
-        // Medias 5 y 2, varianzas 1 y 1, n = 3: t = 3 / √(1/3 + 1/3) = 3.674; con n y varianzas iguales t² = F = 13.5 y p = 0.0213.
         ComparacionFGEM cFGEM = InferenciaFGEM.compararFGEM(new double[]{4, 5, 6}, new double[]{1, 2, 3});
 
         assertEquals(5, cFGEM.mediaActualFGEM(), TOLERANCIA_FGEM);

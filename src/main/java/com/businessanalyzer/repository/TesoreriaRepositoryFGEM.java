@@ -26,13 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Acceso a las tablas de tesorería ({@code cuenta_dinero}, {@code movimiento_tesoreria},
- * {@code pago_operacion}) y a los flujos de dinero de todos los registros de la empresa.
- */
 public class TesoreriaRepositoryFGEM {
-
-    // ------------------------------------------------------------------ cuentas
 
     private static final String CONSULTA_CUENTAS_FGEM = """
             SELECT id, empresa_id, nombre, tipo, numero, saldo_inicial, activa, registrado_por, registrado_en,
@@ -56,7 +50,6 @@ public class TesoreriaRepositoryFGEM {
         }
     }
 
-    /** La primera cuenta activa (la más antigua): se usa cuando un registro no indica cuenta. */
     public Optional<CuentaDineroFGEM> cuentaPrincipalFGEM(Connection cFGEM, long empresaIdFGEM) throws SQLException {
         List<CuentaDineroFGEM> activasFGEM = listarCuentasFGEM(cFGEM, empresaIdFGEM, false);
         return activasFGEM.isEmpty() ? Optional.empty() : Optional.of(activasFGEM.get(0));
@@ -140,8 +133,6 @@ public class TesoreriaRepositoryFGEM {
         }
         return cuentasFGEM;
     }
-
-    // ------------------------------------------------------------------ transferencias, aportes y retiros
 
     private static final String CONSULTA_MOVIMIENTOS_FGEM = """
             SELECT m.id, m.empresa_id, m.tipo, m.fecha, m.cuenta_origen_id, o.nombre AS origen, m.cuenta_destino_id,
@@ -229,8 +220,6 @@ public class TesoreriaRepositoryFGEM {
         return movimientosFGEM;
     }
 
-    // ------------------------------------------------------------------ cobros y pagos de operaciones al crédito
-
     private static final String CONSULTA_PAGOS_FGEM = """
             SELECT p.id, p.operacion_id, p.cuenta_id, cd.nombre AS cuenta, p.fecha, p.monto, p.nota, p.estado,
                    p.registrado_por, p.registrado_en, p.anulado_por, p.anulado_en
@@ -253,7 +242,6 @@ public class TesoreriaRepositoryFGEM {
         }
     }
 
-    /** Cantidad de cobros o pagos vigentes de la operación. */
     public int pagosVigentesFGEM(Connection cFGEM, long operacionIdFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement(
                 "SELECT COUNT(*) FROM pago_operacion WHERE operacion_id = ? AND estado = 'REGISTRADO'")) {
@@ -314,13 +302,6 @@ public class TesoreriaRepositoryFGEM {
         return pagosFGEM;
     }
 
-    // ------------------------------------------------------------------ flujos de dinero
-
-    /**
-     * Todas las entradas (+) y salidas (−) de dinero de las cuentas de la empresa, ordenadas por fecha.
-     * Solo cuentan los registros vigentes que indican una cuenta: los anteriores a la tesorería no mueven
-     * el saldo (su efecto ya está en el saldo inicial de la cuenta «Caja»).
-     */
     public List<FlujoDineroFGEM> flujosFGEM(Connection cFGEM, long empresaIdFGEM) throws SQLException {
         String sqlFGEM = """
                 SELECT fecha, cuenta_id, monto, rubro, concepto FROM (
@@ -397,8 +378,6 @@ public class TesoreriaRepositoryFGEM {
         }
         return flujosFGEM;
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private static long claveGeneradaFGEM(PreparedStatement psFGEM, String queFGEM) throws SQLException {
         try (ResultSet clavesFGEM = psFGEM.getGeneratedKeys()) {

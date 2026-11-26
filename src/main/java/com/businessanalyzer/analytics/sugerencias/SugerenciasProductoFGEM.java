@@ -16,46 +16,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Sugerencias concretas para mejorar el negocio, producto por producto, con los datos que ya tiene la
- * aplicación (catálogo, stock y ventas):
- * <ul>
- *     <li><b>Precios</b>: productos que se venden con pérdida o con un margen menor al objetivo, con el precio
- *         sugerido (redondeado a 10 céntimos) y cuánto más se ganaría al mes si se vende la misma cantidad. Los
- *         que no se venden o se venden poco se marcan: subirles el precio no es la prioridad.</li>
- *     <li><b>Reposición</b>: productos que se agotan pronto según lo que se vende por día, y cuánto comprar
- *         para cubrir {@value #DIAS_COBERTURA_FGEM} días ({@value #DIAS_COBERTURA_PERECIBLE_FGEM} si es perecible).
- *         Un producto agotado que no se vendió en el período reciente usa su historial largo: no se vendió
- *         porque no había.</li>
- *     <li><b>Sin movimiento</b>: perecibles que se vencerán antes de venderse, productos sin ventas en
- *         {@value #DIAS_HISTORIAL_FGEM} días y productos que tardarían más de ese tiempo en venderse.</li>
- * </ul>
- * Es cálculo puro (sin base de datos ni interfaz).
- */
 public final class SugerenciasProductoFGEM {
 
-    /** Margen bruto sobre el precio que se busca si el usuario no indica otro. */
     public static final BigDecimal MARGEN_OBJETIVO_PREDETERMINADO_FGEM = new BigDecimal("0.20");
-    /** Días de ventas recientes: el ritmo actual (precios y reposición). */
     public static final int DIAS_ANALISIS_FGEM = 60;
-    /** Días de historial para la venta lenta y los productos agotados sin ventas recientes. */
     public static final int DIAS_HISTORIAL_FGEM = 180;
-    /** Con menos días de ventas las cantidades sugeridas son poco confiables. */
     public static final int DIAS_MINIMOS_FGEM = 14;
-    /** La reposición sugerida alcanza para este número de días. */
     public static final int DIAS_COBERTURA_FGEM = 14;
-    /** Por debajo de esta cobertura, el producto se agota esta semana. */
     public static final int DIAS_URGENTE_FGEM = 7;
-    /** Un perecible se repone para pocos días. */
     public static final int DIAS_COBERTURA_PERECIBLE_FGEM = 3;
-    /** Un perecible que tardaría más que esto en venderse probablemente se vencerá antes. */
     public static final int DIAS_VIDA_PERECIBLE_FGEM = 15;
 
     private static final BigDecimal REDONDEO_PRECIO_FGEM = new BigDecimal("0.10");
     private static final BigDecimal DIAS_MES_FGEM = BigDecimal.valueOf(30);
     private static final int ESCALA_FGEM = 6;
 
-    /** Por qué se sugiere cambiar el precio. */
     public enum MotivoPrecioFGEM {
         PERDIDA("Se vende con pérdida"),
         MARGEN_BAJO("Margen bajo");
@@ -71,7 +46,6 @@ public final class SugerenciasProductoFGEM {
         }
     }
 
-    /** Aviso sobre una sugerencia de precio que no es prioritaria. */
     public enum NotaPrecioFGEM {
         SIN_VENTAS("Sin ventas recientes: revisa por qué no se vende."),
         VENTA_LENTA("Tiene stock para más de 6 meses: primero véndelo; subirle el precio puede frenarlo más.");
@@ -87,7 +61,6 @@ public final class SugerenciasProductoFGEM {
         }
     }
 
-    /** Qué tan pronto hay que reponer. */
     public enum UrgenciaFGEM {
         AGOTADO("Agotado"),
         URGENTE("Se agota esta semana"),
@@ -104,7 +77,6 @@ public final class SugerenciasProductoFGEM {
         }
     }
 
-    /** Por qué un producto tiene dinero parado, de lo más urgente a lo menos. */
     public enum SituacionFGEM {
         PERECIBLE_EN_RIESGO("Perecible: se vencerá antes de venderse", "Ofrécelo ya en promoción y compra menos la próxima vez."),
         SIN_VENTAS("Sin ventas", "No vuelvas a comprarlo; ofrécelo en promoción o en combo."),
@@ -127,46 +99,23 @@ public final class SugerenciasProductoFGEM {
         }
     }
 
-    /**
-     * @param margenActualFGEM     (precio − costo) ÷ precio; {@code null} si el precio es cero
-     * @param unidadesMesFGEM      unidades vendidas por mes en el período reciente
-     * @param gananciaExtraMesFGEM (precio sugerido − precio actual) × unidades por mes, si se vende la misma cantidad
-     * @param notaFGEM             {@code null} si la sugerencia es prioritaria
-     */
     public record PrecioFGEM(ProductoFGEM productoFGEM, MotivoPrecioFGEM motivoFGEM, BigDecimal margenActualFGEM, BigDecimal precioSugeridoFGEM,
                              BigDecimal margenSugeridoFGEM, BigDecimal unidadesMesFGEM, BigDecimal gananciaExtraMesFGEM, NotaPrecioFGEM notaFGEM) {
     }
 
-    /**
-     * @param vendidoFGEM          unidades vendidas en los {@code diasBaseFGEM} días usados para el ritmo
-     * @param diasBaseFGEM         días del período usado: los recientes o, si estaba agotado, los del historial hasta su última venta
-     * @param segunHistorialFGEM   se usó el historial largo porque no hubo ventas recientes (estaba agotado)
-     * @param diasCoberturaFGEM    días que alcanza el stock al ritmo actual; cero si está agotado
-     * @param cantidadFGEM         cantidad sugerida a comprar
-     * @param costoFGEM            cantidad × costo unitario
-     */
     public record ReposicionFGEM(ProductoFGEM productoFGEM, UrgenciaFGEM urgenciaFGEM, BigDecimal stockFGEM, BigDecimal vendidoFGEM, int diasBaseFGEM,
                                  BigDecimal ventaDiariaFGEM, BigDecimal diasCoberturaFGEM, BigDecimal cantidadFGEM, BigDecimal costoFGEM,
                                  boolean segunHistorialFGEM) {
     }
 
-    /**
-     * @param diasCoberturaFGEM días que tardaría en venderse el stock; {@code null} si no se vendió en el historial
-     */
     public record SinMovimientoFGEM(ProductoFGEM productoFGEM, SituacionFGEM situacionFGEM, BigDecimal stockFGEM, BigDecimal valorFGEM,
                                     BigDecimal diasCoberturaFGEM) {
     }
 
-    /**
-     * @param diasAnalizadosFGEM  días de ventas recientes usados (los del período o desde la primera venta)
-     * @param valorInventarioFGEM stock × costo de todos los productos con stock
-     * @param utilidadMensualFGEM utilidad neta mensual del negocio (la del diagnóstico); {@code null} si no se conoce
-     */
     public record ResultadoFGEM(int diasAnalizadosFGEM, BigDecimal margenObjetivoFGEM, List<PrecioFGEM> preciosFGEM,
                                 List<ReposicionFGEM> reposicionFGEM, List<SinMovimientoFGEM> sinMovimientoFGEM, BigDecimal valorInventarioFGEM,
                                 BigDecimal utilidadMensualFGEM) {
 
-        /** Solo las sugerencias prioritarias (sin nota). */
         public BigDecimal gananciaExtraMesFGEM() {
             return preciosFGEM.stream().filter(pFGEM -> pFGEM.notaFGEM() == null).map(PrecioFGEM::gananciaExtraMesFGEM)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -193,13 +142,11 @@ public final class SugerenciasProductoFGEM {
             return sinMovimientoFGEM.stream().filter(sFGEM -> sFGEM.situacionFGEM() == situacionFGEM).count();
         }
 
-        /** Dinero inmovilizado ÷ valor del inventario; {@code null} sin inventario. */
         public BigDecimal porcentajeInmovilizadoFGEM() {
             return valorInventarioFGEM.signum() <= 0 ? null
                     : valorInmovilizadoFGEM().divide(valorInventarioFGEM, MargenesFGEM.ESCALA_RATIO_FGEM, RoundingMode.HALF_UP);
         }
 
-        /** Pocos días de ventas: las cantidades son orientativas. */
         public boolean pocosDatosFGEM() {
             return diasAnalizadosFGEM < DIAS_MINIMOS_FGEM;
         }
@@ -210,23 +157,12 @@ public final class SugerenciasProductoFGEM {
         }
     }
 
-    /**
-     * Ventas de un período.
-     *
-     * @param diasFGEM          días que cubre el período (al menos 1)
-     * @param desdeFGEM         primer día del período; {@code null} si no se conoce
-     * @param ultimaVentaFGEM   fecha de la última venta de cada producto en el período
-     */
     public record PeriodoVentasFGEM(List<VentaFGEM> ventasFGEM, int diasFGEM, LocalDate desdeFGEM, Map<Long, LocalDate> ultimaVentaFGEM) {
 
         public PeriodoVentasFGEM(List<VentaFGEM> ventasFGEM, int diasFGEM) {
             this(ventasFGEM, diasFGEM, null, Map.of());
         }
 
-        /**
-         * Días en que el producto pudo venderse: desde el inicio del período hasta su última venta. Si se agotó
-         * a mitad del período, los días sin stock no cuentan (si no, el ritmo saldría más bajo que el real).
-         */
         int diasHastaUltimaVentaFGEM(long productoIdFGEM) {
             LocalDate ultimaFGEM = ultimaVentaFGEM.get(productoIdFGEM);
             if (desdeFGEM == null || ultimaFGEM == null) {
@@ -240,10 +176,6 @@ public final class SugerenciasProductoFGEM {
     private SugerenciasProductoFGEM() {
     }
 
-    /**
-     * Líneas de una compra con la reposición sugerida: cada producto con la cantidad a comprar y su costo unitario
-     * registrado como precio. Primero los agotados y los urgentes, para revisarlos antes.
-     */
     public static List<DatosLineaFGEM> lineasCompraFGEM(List<ReposicionFGEM> reposicionFGEM) {
         return reposicionFGEM.stream()
                 .filter(rFGEM -> rFGEM.cantidadFGEM().signum() > 0)
@@ -253,12 +185,6 @@ public final class SugerenciasProductoFGEM {
                 .toList();
     }
 
-    /**
-     * @param productosFGEM      productos y servicios activos, con su stock
-     * @param recientesFGEM      ventas de los últimos {@value #DIAS_ANALISIS_FGEM} días (el ritmo actual)
-     * @param historialFGEM      ventas de los últimos {@value #DIAS_HISTORIAL_FGEM} días (venta lenta y agotados)
-     * @param margenObjetivoFGEM margen bruto buscado sobre el precio (0.20 = 20 %)
-     */
     public static ResultadoFGEM calcularFGEM(List<ProductoFGEM> productosFGEM, PeriodoVentasFGEM recientesFGEM, PeriodoVentasFGEM historialFGEM,
                                             BigDecimal margenObjetivoFGEM) {
         int diasRecientesFGEM = Math.max(1, recientesFGEM.diasFGEM());
@@ -295,7 +221,6 @@ public final class SugerenciasProductoFGEM {
             precioFGEM(pFGEM, ritmoRecienteFGEM, margenObjetivoFGEM, notaFGEM).ifPresent(preciosFGEM::add);
         }
 
-        // Primero lo prioritario y lo que más dinero suma o libera.
         preciosFGEM.sort(Comparator.comparing((PrecioFGEM pFGEM) -> pFGEM.notaFGEM() != null)
                 .thenComparing(PrecioFGEM::gananciaExtraMesFGEM, Comparator.reverseOrder())
                 .thenComparing(PrecioFGEM::motivoFGEM).thenComparing(pFGEM -> pFGEM.productoFGEM().nombreFGEM()));
@@ -324,7 +249,7 @@ public final class SugerenciasProductoFGEM {
         BigDecimal costoFGEM = pFGEM.costoUnitarioFGEM();
         BigDecimal precioFGEM = pFGEM.precioVentaFGEM();
         if (costoFGEM == null || costoFGEM.signum() <= 0 || precioFGEM == null) {
-            return Optional.empty();   // sin costo registrado no se puede juzgar el margen
+            return Optional.empty();
         }
         BigDecimal margenFGEM = precioFGEM.signum() == 0 ? null
                 : precioFGEM.subtract(costoFGEM).divide(precioFGEM, MargenesFGEM.ESCALA_RATIO_FGEM, RoundingMode.HALF_UP);
@@ -346,7 +271,6 @@ public final class SugerenciasProductoFGEM {
         return Optional.of(new PrecioFGEM(pFGEM, motivoFGEM, margenFGEM, sugeridoFGEM, margenSugeridoFGEM, unidadesMesFGEM, extraFGEM, notaFGEM));
     }
 
-    /** Precio que deja el margen buscado, redondeado hacia arriba a 10 céntimos (como se cobra en una tienda). */
     static BigDecimal precioParaMargenFGEM(BigDecimal costoFGEM, BigDecimal objetivoFGEM) {
         BigDecimal exactoFGEM = costoFGEM.divide(BigDecimal.ONE.subtract(objetivoFGEM), ESCALA_FGEM, RoundingMode.HALF_UP);
         return exactoFGEM.divide(REDONDEO_PRECIO_FGEM, 0, RoundingMode.CEILING).multiply(REDONDEO_PRECIO_FGEM).setScale(2, RoundingMode.UNNECESSARY);
@@ -354,8 +278,6 @@ public final class SugerenciasProductoFGEM {
 
     private static Optional<ReposicionFGEM> reposicionFGEM(ProductoFGEM pFGEM, BigDecimal stockFGEM, BigDecimal vendidoRecienteFGEM,
                                                           int diasRecientesFGEM, BigDecimal vendidoLargoFGEM, int diasConStockFGEM) {
-        // Agotado y sin ventas recientes: no se vendió porque no había. Se usa el ritmo del historial largo,
-        // contando solo los días hasta su última venta (los días agotado no cuentan).
         boolean usarHistorialFGEM = vendidoRecienteFGEM.signum() == 0 && stockFGEM.signum() <= 0 && vendidoLargoFGEM.signum() > 0;
         BigDecimal vendidoFGEM = usarHistorialFGEM ? vendidoLargoFGEM : vendidoRecienteFGEM;
         int diasBaseFGEM = usarHistorialFGEM ? diasConStockFGEM : diasRecientesFGEM;
@@ -376,7 +298,6 @@ public final class SugerenciasProductoFGEM {
         } else {
             return Optional.empty();
         }
-        // Se compran unidades enteras; si el stock es negativo (faltan compras registradas) se cuenta como cero.
         BigDecimal cantidadFGEM = ventaDiariaFGEM.multiply(BigDecimal.valueOf(coberturaObjetivoFGEM)).subtract(stockFGEM.max(BigDecimal.ZERO))
                 .setScale(0, RoundingMode.CEILING);
         if (cantidadFGEM.signum() <= 0) {
@@ -394,7 +315,6 @@ public final class SugerenciasProductoFGEM {
         }
         BigDecimal valorFGEM = stockFGEM.multiply(pFGEM.costoUnitarioFGEM()).setScale(2, RoundingMode.HALF_UP);
         if (pFGEM.perecibleFGEM()) {
-            // Para un perecible importa el ritmo actual: si tardará más que su vida útil, se perderá.
             BigDecimal coberturaFGEM = ritmoRecienteFGEM.signum() == 0 ? null : stockFGEM.divide(ritmoRecienteFGEM, 0, RoundingMode.HALF_UP);
             return coberturaFGEM == null || coberturaFGEM.compareTo(BigDecimal.valueOf(DIAS_VIDA_PERECIBLE_FGEM)) > 0
                     ? Optional.of(new SinMovimientoFGEM(pFGEM, SituacionFGEM.PERECIBLE_EN_RIESGO, stockFGEM, valorFGEM, coberturaFGEM))
@@ -403,7 +323,6 @@ public final class SugerenciasProductoFGEM {
         if (ritmoLargoFGEM.signum() == 0) {
             return Optional.of(new SinMovimientoFGEM(pFGEM, SituacionFGEM.SIN_VENTAS, stockFGEM, valorFGEM, null));
         }
-        // Venta lenta: con el ritmo del historial largo (en una bodega muchos productos se venden pocas veces al mes).
         BigDecimal coberturaFGEM = stockFGEM.divide(ritmoLargoFGEM, 0, RoundingMode.HALF_UP);
         return coberturaFGEM.compareTo(BigDecimal.valueOf(diasHistorialFGEM)) > 0
                 ? Optional.of(new SinMovimientoFGEM(pFGEM, SituacionFGEM.VENTA_LENTA, stockFGEM, valorFGEM, coberturaFGEM))

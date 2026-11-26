@@ -33,7 +33,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -44,12 +43,10 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Locale;
 
-/** Módulo "Informes y reportes": genera PDF y Excel y muestra el historial. */
 public class InformesControllerFGEM implements VistaModuloFGEM {
 
     private static final String CLAVE_CARPETA_FGEM = "informes.carpeta";
 
-    /** Atajos de período. Los meses "completos" no incluyen el mes en curso. */
     private enum AtajoFGEM {
         MES_ANTERIOR("Mes anterior"),
         TRIMESTRE("Últimos 3 meses completos"),
@@ -122,7 +119,7 @@ public class InformesControllerFGEM implements VistaModuloFGEM {
         }
         grupoTiposFGEM.selectedToggleProperty().addListener((oFGEM, anteriorFGEM, nuevoFGEM) -> {
             if (nuevoFGEM == null && anteriorFGEM != null) {
-                anteriorFGEM.setSelected(true); // siempre hay un informe elegido
+                anteriorFGEM.setSelected(true);
             }
             actualizarResumenFGEM();
         });
@@ -165,16 +162,12 @@ public class InformesControllerFGEM implements VistaModuloFGEM {
         actualizarResumenFGEM();
     }
 
-    // ------------------------------------------------------------------ elección del informe y del período
-
     private ToggleButton tarjetaFGEM(TipoInformeFGEM tipoFGEM) {
-        FontIcon iconoFGEM = new FontIcon(tipoFGEM.iconoFGEM());
-        iconoFGEM.getStyleClass().add("tarjeta-informe-icono");
         Label formatoFGEM = new Label(tipoFGEM.formatoFGEM().nombreFGEM());
         formatoFGEM.getStyleClass().addAll("chip", tipoFGEM.formatoFGEM() == TipoInformeFGEM.FormatoFGEM.PDF ? "chip-pdf" : "chip-excel");
         Region espacioFGEM = new Region();
         HBox.setHgrow(espacioFGEM, Priority.ALWAYS);
-        HBox cabeceraFGEM = new HBox(8, iconoFGEM, espacioFGEM, formatoFGEM);
+        HBox cabeceraFGEM = new HBox(8, espacioFGEM, formatoFGEM);
         cabeceraFGEM.setAlignment(Pos.CENTER_LEFT);
         Label tituloFGEM = new Label(tipoFGEM.tituloFGEM());
         tituloFGEM.getStyleClass().add("info-value");
@@ -250,8 +243,6 @@ public class InformesControllerFGEM implements VistaModuloFGEM {
         lblResumenFGEM.setText(textoFGEM);
     }
 
-    // ------------------------------------------------------------------ generación
-
     @FXML
     private void generarFGEM() {
         EmpresaFGEM empresaFGEM = contextoFGEM.sesionFGEM().empresaActivaFGEM().orElse(null);
@@ -326,11 +317,8 @@ public class InformesControllerFGEM implements VistaModuloFGEM {
         try {
             contextoFGEM.configuracionFGEM().guardarFGEM(CLAVE_CARPETA_FGEM, carpetaFGEM.toString());
         } catch (RuntimeException eFGEM) {
-            // No poder recordar la carpeta no impide seguir trabajando.
         }
     }
-
-    // ------------------------------------------------------------------ historial
 
     private void cargarHistorialFGEM() {
         if (contextoFGEM.sesionFGEM().empresaActivaFGEM().isEmpty()) {
@@ -363,13 +351,11 @@ public class InformesControllerFGEM implements VistaModuloFGEM {
                 new ProcessBuilder("explorer.exe", "/select,", archivoFGEM.toString()).start();
                 return;
             } catch (IOException eFGEM) {
-                // Se intenta abrir solo la carpeta.
             }
         }
         abrirArchivoFGEM(archivoFGEM.getParent());
     }
 
-    /** Abre el archivo o la carpeta con el programa predeterminado del sistema. */
     private void abrirArchivoFGEM(Path rutaFGEM) {
         if (rutaFGEM == null || !Files.exists(rutaFGEM)) {
             NotificadorFGEM.advertenciaFGEM("El archivo ya no existe en esa ubicación (pudo moverse o eliminarse).");

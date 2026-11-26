@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Acceso a la tabla {@code informe_generado}. */
 public class InformeRepositoryFGEM {
 
     public void registrarFGEM(Connection cFGEM, long empresaIdFGEM, TipoInformeFGEM tipoFGEM, LocalDate desdeFGEM, LocalDate hastaFGEM,
@@ -33,7 +32,6 @@ public class InformeRepositoryFGEM {
         }
     }
 
-    /** Últimos informes de la empresa, del más reciente al más antiguo. */
     public List<InformeGeneradoFGEM> listarFGEM(Connection cFGEM, long empresaIdFGEM, int limiteFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement("""
                 SELECT id, empresa_id, tipo, desde, hasta, archivo, generado_por, generado_en
@@ -50,7 +48,7 @@ public class InformeRepositoryFGEM {
                     try {
                         tipoFGEM = TipoInformeFGEM.valueOf(rsFGEM.getString("tipo"));
                     } catch (IllegalArgumentException eFGEM) {
-                        continue; // tipo de una versión futura o eliminado: no se muestra
+                        continue;
                     }
                     informesFGEM.add(new InformeGeneradoFGEM(rsFGEM.getLong("id"), rsFGEM.getLong("empresa_id"), tipoFGEM,
                             FechasFGEM.fechaDesdeTextoFGEM(rsFGEM.getString("desde")), FechasFGEM.fechaDesdeTextoFGEM(rsFGEM.getString("hasta")),

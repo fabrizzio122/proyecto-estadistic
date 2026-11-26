@@ -8,19 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Elige el mejor método para una serie y genera el pronóstico.
- * <ol>
- *     <li><b>Validación histórica</b>: cada método pronostica cada mes pasado usando solo los meses
- *         anteriores a él (desde el 4.º mes) y se mide su error.</li>
- *     <li>Se elige el de menor error absoluto medio (MAE). En empate, el más simple.</li>
- *     <li>El intervalo al 95 % se aproxima como pronóstico ± 1.96 · RMSE · √h: crece con la
- *         distancia al presente y con el error real que tuvo el método.</li>
- * </ol>
- */
 public final class PronosticadorFGEM {
 
-    /** Con 4 meses hay al menos un mes para validar. */
     public static final int MINIMO_DATOS_FGEM = MetodoPronosticoFGEM.MINIMO_DATOS_FGEM + 1;
     private static final double Z_95_FGEM = 1.96;
 
@@ -71,7 +60,6 @@ public final class PronosticadorFGEM {
                 confiabilidadFGEM(errorRelativoFGEM, mejorFGEM.mesesEvaluadosFGEM()), errorRelativoFGEM);
     }
 
-    /** Pronóstico a un mes de cada mes pasado, usando solo los datos anteriores. */
     static EvaluacionFGEM evaluarFGEM(MetodoPronosticoFGEM metodoFGEM, double[] yFGEM) {
         double sumaAbsolutaFGEM = 0;
         double sumaCuadradosFGEM = 0;
@@ -86,7 +74,6 @@ public final class PronosticadorFGEM {
         return new EvaluacionFGEM(metodoFGEM, sumaAbsolutaFGEM / puntosFGEM, Math.sqrt(sumaCuadradosFGEM / puntosFGEM), puntosFGEM);
     }
 
-    /** Alta si el error es menor al 10 % del valor típico; media hasta 25 %; con menos de 3 meses validados, baja. */
     static ConfiabilidadFGEM confiabilidadFGEM(double errorRelativoFGEM, int mesesEvaluadosFGEM) {
         if (mesesEvaluadosFGEM < 3 || Double.isNaN(errorRelativoFGEM)) {
             return ConfiabilidadFGEM.BAJA;

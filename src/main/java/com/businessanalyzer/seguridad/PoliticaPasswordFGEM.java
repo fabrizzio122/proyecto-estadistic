@@ -2,7 +2,6 @@ package com.businessanalyzer.seguridad;
 
 import com.businessanalyzer.exception.ValidacionExceptionFGEM;
 
-/** Reglas que debe cumplir toda contraseña nueva. */
 public final class PoliticaPasswordFGEM {
 
     public static final int LONGITUD_MINIMA_FGEM = 8;
@@ -13,10 +12,6 @@ public final class PoliticaPasswordFGEM {
     private PoliticaPasswordFGEM() {
     }
 
-    /**
-     * @param confirmacionFGEM la contraseña escrita por segunda vez
-     * @param nombreUsuarioFGEM para impedir que la contraseña sea igual al usuario
-     */
     public static void validarFGEM(String passwordFGEM, String confirmacionFGEM, String nombreUsuarioFGEM) {
         if (passwordFGEM == null || passwordFGEM.isEmpty()) {
             throw new ValidacionExceptionFGEM("Ingresa la nueva contraseña.");

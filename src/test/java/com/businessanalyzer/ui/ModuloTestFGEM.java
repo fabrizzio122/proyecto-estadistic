@@ -54,10 +54,6 @@ class ModuloTestFGEM {
         }
     }
 
-    /**
-     * En FXML un texto que empieza con "%" se interpreta como clave de traducción y la vista
-     * no carga ("No resources specified"). Debe escribirse "\%".
-     */
     @Test
     void ningunTextoDeLasVistasEmpiezaConPorcentajeSinEscaparFGEM() throws Exception {
         java.nio.file.Path carpetaFGEM = java.nio.file.Path.of(ModuloFGEM.class.getResource("/fxml").toURI());

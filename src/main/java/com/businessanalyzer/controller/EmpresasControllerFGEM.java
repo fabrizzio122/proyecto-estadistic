@@ -53,7 +53,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/** Módulo "Empresas": registro, edición, archivo, acceso de usuarios y empresa activa. */
 public class EmpresasControllerFGEM implements VistaModuloFGEM {
 
     private final AppContextFGEM contextoFGEM;
@@ -155,8 +154,6 @@ public class EmpresasControllerFGEM implements VistaModuloFGEM {
         tablaFGEM.refresh();
         actualizarAccionesFGEM();
     }
-
-    // ------------------------------------------------------------------ acciones
 
     @FXML
     private void nuevaFGEM() {
@@ -328,8 +325,6 @@ public class EmpresasControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ utilidades
-
     private void actualizarAccionesFGEM() {
         EmpresaFGEM empresaFGEM = seleccionadaFGEM();
         boolean sinSeleccionFGEM = empresaFGEM == null;
@@ -380,7 +375,6 @@ public class EmpresasControllerFGEM implements VistaModuloFGEM {
         return new ReadOnlyStringWrapper(valorFGEM);
     }
 
-    /** Estado: Activa / Archivada, más una marca si es la empresa con la que se trabaja. */
     private final class CeldaEstadoFGEM extends TableCell<EmpresaFGEM, EmpresaFGEM> {
         @Override
         protected void updateItem(EmpresaFGEM empresaFGEM, boolean vacioFGEM) {
@@ -404,7 +398,6 @@ public class EmpresasControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /** Campos del formulario de empresa (alta y edición). */
     private final class FormularioEmpresaFGEM {
         private final TextField txtRazonFGEM = new TextField();
         private final TextField txtNombreFGEM = new TextField();

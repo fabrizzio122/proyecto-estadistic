@@ -37,11 +37,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Reloj de pruebas en 2026-01-15: el último mes completo es diciembre de 2025.
- * Diciembre: ventas 1000 (costo 600), alquiler 200 (fijo), flete 50 (variable),
- * intereses ganados 10, impuesto a la renta 30 -> UAI 160.
- */
 class SimulacionServiceTestFGEM {
 
     @TempDir
@@ -94,7 +89,6 @@ class SimulacionServiceTestFGEM {
 
         assertEquals(3, baseFGEM.mesesFGEM());
         assertEquals(LocalDate.of(2025, 10, 1), baseFGEM.periodoFGEM().desdeFGEM());
-        // 1000 ÷ 3 se guarda con precisión completa (333.3333…) y se redondea solo al mostrar.
         assertMontoFGEM("333.33", baseFGEM.ventasFGEM().setScale(2, java.math.RoundingMode.HALF_UP));
         assertTrue(baseFGEM.ventasFGEM().scale() > 2);
     }

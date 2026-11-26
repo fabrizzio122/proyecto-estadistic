@@ -77,7 +77,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/** Módulo "Visitas de inspección": verificación en campo, compromisos, fotos e informe técnico. */
 public class VisitasControllerFGEM implements VistaModuloFGEM {
 
     private static final PseudoClass ARCHIVADO_FGEM = PseudoClass.getPseudoClass("archivado");
@@ -144,8 +143,6 @@ public class VisitasControllerFGEM implements VistaModuloFGEM {
     public void alMostrarFGEM() {
         cargarFGEM();
     }
-
-    // ------------------------------------------------------------------ carga
 
     @FXML
     private void cargarFGEM() {
@@ -260,8 +257,6 @@ public class VisitasControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ visitas
-
     @FXML
     private void nuevaVisitaFGEM() {
         abrirFormularioFGEM(null);
@@ -323,8 +318,6 @@ public class VisitasControllerFGEM implements VistaModuloFGEM {
             NotificadorFGEM.exitoFGEM("Visita anulada.");
         }
     }
-
-    // ------------------------------------------------------------------ fotos
 
     @FXML
     private void verFotosFGEM() {
@@ -424,8 +417,6 @@ public class VisitasControllerFGEM implements VistaModuloFGEM {
                         + "6 primeras.", contenidoFGEM);
     }
 
-    // ------------------------------------------------------------------ informe técnico
-
     @FXML
     private void generarInformeFGEM() {
         VisitaFGEM vFGEM = seleccionadaFGEM();
@@ -458,7 +449,6 @@ public class VisitasControllerFGEM implements VistaModuloFGEM {
                     try {
                         contextoFGEM.configuracionFGEM().guardarFGEM(CLAVE_CARPETA_FGEM, generadoFGEM.getParent().toString());
                     } catch (RuntimeException eFGEM) {
-                        // No poder recordar la carpeta no impide seguir.
                     }
                     if (DialogosFGEM.confirmarFGEM(ventanaFGEM(), "Informe generado",
                             "Se guardó «" + generadoFGEM.getFileName() + "».\n\n¿Quieres abrirlo ahora?")) {
@@ -483,8 +473,6 @@ public class VisitasControllerFGEM implements VistaModuloFGEM {
         }, okFGEM -> {
         }, errorFGEM -> NotificadorFGEM.errorFGEM("No se pudo abrir el archivo: " + ErroresFGEM.mensajeFGEM(errorFGEM)));
     }
-
-    // ------------------------------------------------------------------ compromisos
 
     @FXML
     private void filtrarCompromisosFGEM() {
@@ -537,8 +525,6 @@ public class VisitasControllerFGEM implements VistaModuloFGEM {
             NotificadorFGEM.exitoFGEM("Compromiso actualizado.");
         }
     }
-
-    // ------------------------------------------------------------------ tablas
 
     private void configurarTablaVisitasFGEM() {
         colFechaFGEM.setCellValueFactory(cFGEM -> new ReadOnlyObjectWrapper<>(cFGEM.getValue().fechaFGEM()));
@@ -643,8 +629,6 @@ public class VisitasControllerFGEM implements VistaModuloFGEM {
         btnPendienteFGEM.setDisable(kFGEM == null || kFGEM.estadoFGEM() == EstadoCompromisoFGEM.PENDIENTE);
     }
 
-    // ------------------------------------------------------------------ utilidades
-
     private VisitaFGEM seleccionadaFGEM() {
         return tablaVisitasFGEM.getSelectionModel().getSelectedItem();
     }
@@ -686,10 +670,6 @@ public class VisitasControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /**
-     * Formulario de la visita: datos generales, verificación de cada aspecto, compromisos pendientes
-     * de visitas anteriores y nuevos compromisos. Propone la conclusión según el cumplimiento.
-     */
     private final class FormularioVisitaFGEM {
         private final DatePicker dpFechaFGEM = CamposFechaFGEM.nuevoFGEM(LocalDate.now());
         private final ComboBox<TipoVisitaFGEM> cmbTipoFGEM = new ComboBox<>(FXCollections.observableArrayList(TipoVisitaFGEM.values()));
@@ -890,7 +870,6 @@ public class VisitasControllerFGEM implements VistaModuloFGEM {
                     compromisosNuevosFGEM);
         }
 
-        /** Compromisos previos a los que se les cambió el estado. */
         Map<CompromisoFGEM, EstadoCompromisoFGEM> verificacionesFGEM() {
             Map<CompromisoFGEM, EstadoCompromisoFGEM> cambiosFGEM = new LinkedHashMap<>();
             pendientesFGEM.forEach((kFGEM, comboFGEM) -> {

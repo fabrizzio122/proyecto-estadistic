@@ -44,7 +44,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
 
-/** Módulo "Usuarios y permisos": cuentas, matriz de roles y registro de accesos. */
 public class UsuariosControllerFGEM implements VistaModuloFGEM {
 
     private static final DateTimeFormatter FORMATO_FECHA_ACCESO_FGEM = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -95,8 +94,6 @@ public class UsuariosControllerFGEM implements VistaModuloFGEM {
         cargarTodoFGEM();
     }
 
-    // ------------------------------------------------------------------ carga de datos
-
     private void cargarTodoFGEM() {
         try {
             rolesFGEM = servicioFGEM().listarRolesFGEM();
@@ -125,8 +122,6 @@ public class UsuariosControllerFGEM implements VistaModuloFGEM {
             NotificadorFGEM.errorFGEM(ErroresFGEM.mensajeFGEM(eFGEM));
         }
     }
-
-    // ------------------------------------------------------------------ acciones
 
     @FXML
     private void nuevoFGEM() {
@@ -248,8 +243,6 @@ public class UsuariosControllerFGEM implements VistaModuloFGEM {
         NotificadorFGEM.exitoFGEM(mensajeFGEM);
     }
 
-    // ------------------------------------------------------------------ tablas
-
     private void configurarTablaUsuariosFGEM() {
         colUsuarioFGEM.setCellValueFactory(cFGEM -> textoFGEM(cFGEM.getValue().nombreUsuarioFGEM()));
         colNombreFGEM.setCellValueFactory(cFGEM -> textoFGEM(cFGEM.getValue().nombreCompletoFGEM()));
@@ -332,8 +325,6 @@ public class UsuariosControllerFGEM implements VistaModuloFGEM {
         tablaPermisosFGEM.getItems().setAll(PermisoFGEM.values());
     }
 
-    // ------------------------------------------------------------------ utilidades
-
     private void filtrarFGEM(String textoFGEM) {
         String buscadoFGEM = textoFGEM == null ? "" : textoFGEM.strip().toLowerCase(Locale.ROOT);
         usuariosFiltradosFGEM.setPredicate(uFGEM -> buscadoFGEM.isEmpty()
@@ -383,7 +374,6 @@ public class UsuariosControllerFGEM implements VistaModuloFGEM {
         return new ReadOnlyStringWrapper(valorFGEM);
     }
 
-    /** Muestra el estado como una insignia de color. */
     private static final class CeldaEstadoFGEM extends TableCell<UsuarioFGEM, UsuarioFGEM> {
         @Override
         protected void updateItem(UsuarioFGEM usuarioFGEM, boolean vacioFGEM) {

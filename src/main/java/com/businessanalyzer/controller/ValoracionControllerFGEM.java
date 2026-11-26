@@ -40,7 +40,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Módulo "Valoración del negocio": cuánto vale por patrimonio, por capitalización y por flujos descontados. */
 public class ValoracionControllerFGEM implements VistaModuloFGEM {
 
     private static final String CLAVE_CARPETA_FGEM = "informes.carpeta";
@@ -103,8 +102,6 @@ public class ValoracionControllerFGEM implements VistaModuloFGEM {
             limpiarFGEM(ErroresFGEM.mensajeFGEM(eFGEM));
         }
     }
-
-    // ------------------------------------------------------------------ acciones
 
     @FXML
     private void calcularFGEM() {
@@ -186,7 +183,6 @@ public class ValoracionControllerFGEM implements VistaModuloFGEM {
                     try {
                         contextoFGEM.configuracionFGEM().guardarFGEM(CLAVE_CARPETA_FGEM, generadoFGEM.getParent().toString());
                     } catch (RuntimeException eFGEM) {
-                        // No poder recordar la carpeta no impide seguir.
                     }
                     if (DialogosFGEM.confirmarFGEM(btnExportarFGEM.getScene().getWindow(), "Informe generado",
                             "Se guardó «" + generadoFGEM.getFileName() + "».\n\n¿Quieres abrirlo ahora?")) {
@@ -211,8 +207,6 @@ public class ValoracionControllerFGEM implements VistaModuloFGEM {
         }, okFGEM -> {
         }, errorFGEM -> NotificadorFGEM.errorFGEM("No se pudo abrir el archivo: " + ErroresFGEM.mensajeFGEM(errorFGEM)));
     }
-
-    // ------------------------------------------------------------------ presentación
 
     private void mostrarSupuestosFGEM(SupuestosValoracionFGEM sFGEM) {
         txtTasaFGEM.setText(numeroFGEM(sFGEM.tasaDescuentoFGEM()));
@@ -338,7 +332,6 @@ public class ValoracionControllerFGEM implements VistaModuloFGEM {
         return lFGEM;
     }
 
-    /** "20" → 0.20; acepta coma decimal. */
     private static BigDecimal porcentajeFGEM(String textoFGEM, String campoFGEM) {
         if (textoFGEM == null || textoFGEM.isBlank()) {
             throw new ValidacionExceptionFGEM("Indica el campo \"" + campoFGEM + "\".");
@@ -354,10 +347,6 @@ public class ValoracionControllerFGEM implements VistaModuloFGEM {
         return fraccionFGEM.movePointRight(2).setScale(1, RoundingMode.HALF_UP).stripTrailingZeros().toPlainString();
     }
 
-    /**
-     * «Utilidad anualizada»: la de los meses con ventas llevada a 12, para que no se compare con la suma real
-     * del año. Si no son 12 meses, indica cuántos se usaron.
-     */
     private String utilidadAnualizadaFGEM(ValoracionNegocioFGEM vFGEM) {
         String montoFGEM = MontosFGEM.formatearFGEM(vFGEM.utilidadAnualFGEM(), monedaFGEM);
         int mesesFGEM = vFGEM.mesesResultadosFGEM();

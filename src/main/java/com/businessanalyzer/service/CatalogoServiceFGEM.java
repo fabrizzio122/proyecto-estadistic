@@ -19,19 +19,6 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Catálogo de productos, servicios y categorías de la empresa activa.
- * <p>
- * Reglas:
- * <ul>
- *     <li>Todo se registra sobre la empresa de trabajo y nunca se puede leer o modificar
- *         un ítem de otra empresa.</li>
- *     <li>El código es único por empresa. Si se deja vacío, se asigna P-0001 / S-0001...</li>
- *     <li>Cada cambio de costo o precio queda en el historial de precios.</li>
- *     <li>Los productos no se eliminan, se archivan (las ventas de la Fase 5 los referencian).
- *         Una categoría solo se elimina si ningún producto la usa.</li>
- * </ul>
- */
 public class CatalogoServiceFGEM {
 
     private final DatabaseFGEM databaseFGEM;
@@ -50,8 +37,6 @@ public class CatalogoServiceFGEM {
         this.sesionFGEM = sesionFGEM;
         this.relojFGEM = relojFGEM;
     }
-
-    // ------------------------------------------------------------------ productos y servicios
 
     public List<ProductoFGEM> listarProductosFGEM(boolean incluirArchivadosFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.PRODUCTOS_VER);
@@ -100,7 +85,6 @@ public class CatalogoServiceFGEM {
         });
     }
 
-    /** Archiva ({@code false}) o reactiva ({@code true}) un producto o servicio. */
     public ProductoFGEM cambiarEstadoProductoFGEM(long idFGEM, boolean activoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.PRODUCTOS_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -120,8 +104,6 @@ public class CatalogoServiceFGEM {
             return productosFGEM.historialFGEM(cFGEM, idFGEM);
         });
     }
-
-    // ------------------------------------------------------------------ categorías
 
     public List<CategoriaFGEM> listarCategoriasFGEM() {
         sesionFGEM.requerirFGEM(PermisoFGEM.PRODUCTOS_VER);
@@ -168,8 +150,6 @@ public class CatalogoServiceFGEM {
             return null;
         });
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private ProductoFGEM exigirProductoFGEM(Connection cFGEM, long idFGEM, long empresaIdFGEM) throws SQLException {
         return productosFGEM.buscarPorIdFGEM(cFGEM, idFGEM)

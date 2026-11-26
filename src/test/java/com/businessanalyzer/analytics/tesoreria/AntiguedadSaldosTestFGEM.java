@@ -23,12 +23,12 @@ class AntiguedadSaldosTestFGEM {
     @Test
     void reparteLoPendienteEnTramosSegunLosDiasDeAtrasoFGEM() {
         ResultadoFGEM rFGEM = AntiguedadSaldosFGEM.calcularFGEM(List.of(
-                ventaFGEM(1, "Juana", "100", "0", HOY_FGEM.plusDays(5)),          // al día
-                ventaFGEM(2, "Pedro", "50", "0", null),                            // sin fecha límite: al día
-                ventaFGEM(3, "Juana", "200", "50", HOY_FGEM.minusDays(30)),        // 150 vencido, 30 días
-                ventaFGEM(4, "Luis", "80", "0", HOY_FGEM.minusDays(31)),           // 31 días
-                ventaFGEM(5, " juana  ", "70", "0", HOY_FGEM.minusDays(90)),       // la misma Juana, 90 días
-                ventaFGEM(6, "Rosa", "40", "40", HOY_FGEM.minusDays(100))),        // pagada: no cuenta
+                ventaFGEM(1, "Juana", "100", "0", HOY_FGEM.plusDays(5)),
+                ventaFGEM(2, "Pedro", "50", "0", null),
+                ventaFGEM(3, "Juana", "200", "50", HOY_FGEM.minusDays(30)),
+                ventaFGEM(4, "Luis", "80", "0", HOY_FGEM.minusDays(31)),
+                ventaFGEM(5, " juana  ", "70", "0", HOY_FGEM.minusDays(90)),
+                ventaFGEM(6, "Rosa", "40", "40", HOY_FGEM.minusDays(100))),
                 HOY_FGEM);
 
         assertEquals(0, new BigDecimal("450").compareTo(rFGEM.totalFGEM()));
@@ -41,7 +41,6 @@ class AntiguedadSaldosTestFGEM {
         assertEquals(0, new BigDecimal("0.3333").compareTo(rFGEM.tramosFGEM().get(0).porcentajeFGEM()));
         assertEquals(0, new BigDecimal("0.6667").compareTo(rFGEM.porcentajeVencidoFGEM()));
 
-        // Juana (sin importar mayúsculas ni espacios) debe más dinero vencido: va primero.
         SaldoContraparteFGEM juanaFGEM = rFGEM.contrapartesFGEM().get(0);
         assertEquals("Juana", juanaFGEM.contraparteFGEM());
         assertEquals(3, juanaFGEM.operacionesFGEM());

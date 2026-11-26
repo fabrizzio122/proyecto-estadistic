@@ -8,7 +8,6 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Explica en lenguaje sencillo la situación patrimonial de la empresa. */
 public final class LecturaPatrimonioFGEM {
 
     private LecturaPatrimonioFGEM() {
@@ -30,7 +29,6 @@ public final class LecturaPatrimonioFGEM {
 
         BigDecimal patrimonioFGEM = bFGEM.patrimonioFGEM();
         if (bFGEM.efectivoFGEM() != null && bFGEM.efectivoFGEM().signum() < 0) {
-            // Lo más frecuente: se registraron compras y gastos pero no el dinero con el que empezó el negocio.
             frasesFGEM.add("La caja está en rojo (" + MontosFGEM.formatearFGEM(bFGEM.efectivoFGEM(), monedaFGEM) + ")"
                     + (bFGEM.totalActivoFGEM().signum() < 0 ? " y por eso los activos son negativos" : "")
                     + ": registra el saldo inicial o el aporte del dueño en «Tesorería».");

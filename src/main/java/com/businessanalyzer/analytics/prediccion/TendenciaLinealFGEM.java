@@ -2,7 +2,6 @@ package com.businessanalyzer.analytics.prediccion;
 
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 
-/** Prolonga la recta de regresión (mínimos cuadrados) de toda la historia. */
 public final class TendenciaLinealFGEM implements MetodoPronosticoFGEM {
 
     @Override

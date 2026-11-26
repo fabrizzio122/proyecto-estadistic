@@ -2,11 +2,6 @@ package com.businessanalyzer.model;
 
 import java.math.BigDecimal;
 
-/**
- * Cultivos frecuentes en la agricultura familiar y mediana del Perú, con un rendimiento de
- * referencia aproximado (promedio nacional, kg por hectárea). En cada campaña se puede ajustar
- * la referencia a la de la zona.
- */
 public enum CultivoFGEM {
 
     PAPA("Papa", 15_000),
@@ -37,12 +32,10 @@ public enum CultivoFGEM {
         return descripcionFGEM;
     }
 
-    /** Rendimiento de referencia en kg/ha; {@code null} si no hay referencia (otro cultivo). */
     public BigDecimal rendimientoReferenciaFGEM() {
         return rendimientoReferenciaFGEM == 0 ? null : BigDecimal.valueOf(rendimientoReferenciaFGEM);
     }
 
-    /** Forrajes: se cosechan para alimentar al ganado. */
     public boolean forrajeFGEM() {
         return this == AVENA_FORRAJERA || this == ALFALFA;
     }

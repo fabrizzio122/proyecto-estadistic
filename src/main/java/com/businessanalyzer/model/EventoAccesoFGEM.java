@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Eventos de seguridad que se guardan en la tabla {@code registro_acceso}. */
 public enum EventoAccesoFGEM {
 
     INICIO_SESION("Inicio de sesión"),

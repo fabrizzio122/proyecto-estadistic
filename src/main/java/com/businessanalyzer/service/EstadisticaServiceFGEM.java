@@ -34,15 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-/**
- * Análisis estadístico de las ventas de la empresa activa: descriptiva, distribución,
- * tendencia, estacionalidad semanal, clasificación ABC, correlaciones e inferencia (intervalo de confianza,
- * ANOVA por día de la semana y comparación con el período anterior).
- * Requiere el permiso {@link PermisoFGEM#ANALISIS_VER}.
- */
 public class EstadisticaServiceFGEM {
 
-    /** Meses completos que se usan para la tendencia y las correlaciones. */
     public static final int MESES_SERIE_FGEM = 12;
     private static final int MAXIMO_CLASES_HISTOGRAMA_FGEM = 10;
 
@@ -75,8 +68,6 @@ public class EstadisticaServiceFGEM {
             Map<LocalDate, Double> porDiaFGEM = ventasPorDiaFGEM(ventasFGEM, desdeFGEM, hastaFGEM.isAfter(hoyFGEM) ? hoyFGEM : hastaFGEM);
             double[] diariasFGEM = porDiaFGEM.values().stream().mapToDouble(Double::doubleValue).toArray();
 
-            // Período anterior para la prueba t. Los días antes de la primera venta no cuentan: el negocio aún no
-            // operaba en el sistema y bajarían el promedio anterior.
             PeriodoFGEM anteriorFGEM = periodoFGEM.anteriorFGEM();
             List<OperacionFGEM> ventasAnterioresFGEM = operacionesFGEM.listarFGEM(cFGEM, empresaFGEM.idFGEM(), TipoOperacionFGEM.VENTA,
                     anteriorFGEM.desdeFGEM(), anteriorFGEM.hastaFGEM(), false);
@@ -114,13 +105,11 @@ public class EstadisticaServiceFGEM {
         });
     }
 
-    /** Ventas de los días desde {@code primera} (todos si es {@code null}). */
     private static double[] desdeFGEM(Map<LocalDate, Double> porDiaFGEM, LocalDate primeraFGEM) {
         return porDiaFGEM.entrySet().stream().filter(eFGEM -> primeraFGEM == null || !eFGEM.getKey().isBefore(primeraFGEM))
                 .mapToDouble(Map.Entry::getValue).toArray();
     }
 
-    /** Total vendido cada día del rango, incluidos los días sin ventas (con cero). */
     private static Map<LocalDate, Double> ventasPorDiaFGEM(List<OperacionFGEM> ventasFGEM, LocalDate desdeFGEM, LocalDate hastaFGEM) {
         Map<LocalDate, Double> porDiaFGEM = new TreeMap<>();
         for (LocalDate diaFGEM = desdeFGEM; !diaFGEM.isAfter(hastaFGEM); diaFGEM = diaFGEM.plusDays(1)) {
@@ -132,10 +121,6 @@ public class EstadisticaServiceFGEM {
         return porDiaFGEM;
     }
 
-    /**
-     * Últimos {@value #MESES_SERIE} meses completos hasta {@code ultimo}, sin los meses iniciales
-     * en que todavía no había ventas (el negocio aún no operaba en el sistema).
-     */
     private List<PuntoMensualFGEM> serieMensualFGEM(Connection cFGEM, long empresaIdFGEM, YearMonth ultimoFGEM) throws SQLException {
         YearMonth primeroFGEM = ultimoFGEM.minusMonths(MESES_SERIE_FGEM - 1L);
         List<PuntoMensualFGEM> puntosFGEM = new ArrayList<>();

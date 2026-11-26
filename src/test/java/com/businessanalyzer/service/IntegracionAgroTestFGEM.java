@@ -47,7 +47,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** La producción agropecuaria llega al estado de resultados, a la estadística, a la comparación y al diagnóstico. */
 class IntegracionAgroTestFGEM {
 
     @TempDir
@@ -68,7 +67,6 @@ class IntegracionAgroTestFGEM {
         entornoFGEM.ganaderiaFGEM.registrarProduccionFGEM(new DatosProduccionFGEM(EspecieFGEM.VACUNO, ProductoGanaderoFGEM.LECHE,
                 LocalDate.of(2025, 12, 31), 31, new BigDecimal("1000"), 8, new BigDecimal("1.20"), null));
 
-        // Papa: costo 3 000; 10 000 kg cosechados: 8 000 vendidos a 0.80, 1 000 para la familia y 1 000 de semilla.
         ParcelaFGEM parcelaFGEM = entornoFGEM.agriculturaFGEM.registrarParcelaFGEM(new DatosParcelaFGEM("Alta", BigDecimal.ONE, TenenciaFGEM.PROPIA, false, null));
         CampaniaFGEM papaFGEM = entornoFGEM.agriculturaFGEM.registrarCampaniaFGEM(new DatosCampaniaFGEM(parcelaFGEM.idFGEM(), CultivoFGEM.PAPA, null,
                 LocalDate.of(2025, 9, 1), BigDecimal.ONE, null, null, null));
@@ -84,10 +82,10 @@ class IntegracionAgroTestFGEM {
         OperacionRepositoryFGEM operacionesFGEM = new OperacionRepositoryFGEM();
         ResumenOperacionesFGEM rFGEM = entornoFGEM.databaseFGEM.conConexionFGEM(cFGEM -> operacionesFGEM.resumenFGEM(cFGEM, fundoFGEM.idFGEM(), desdeFGEM, hastaFGEM));
 
-        igualFGEM("12600", rFGEM.ventasNetasFGEM());     // 5 000 + 1 200 + 6 400
-        igualFGEM("2700", rFGEM.costoVentasFGEM());      // 90 % del costo: lo de la familia no es costo del negocio
+        igualFGEM("12600", rFGEM.ventasNetasFGEM());
+        igualFGEM("2700", rFGEM.costoVentasFGEM());
         assertEquals(3, rFGEM.cantidadVentasFGEM());
-        igualFGEM("0", entornoFGEM.operacionesFGEM.resumenFGEM(desdeFGEM, hastaFGEM).ventasNetasFGEM());   // «Ventas y compras» no cambia
+        igualFGEM("0", entornoFGEM.operacionesFGEM.resumenFGEM(desdeFGEM, hastaFGEM).ventasNetasFGEM());
         igualFGEM("12600", entornoFGEM.operacionesFGEM.resumenConAgroFGEM(desdeFGEM, hastaFGEM).ventasNetasFGEM());
 
         List<RentabilidadProductoFGEM> productosFGEM = RentabilidadProductoFGEM.agruparFGEM(
@@ -98,7 +96,7 @@ class IntegracionAgroTestFGEM {
         igualFGEM("6400", papaVendidaFGEM.ventasFGEM());
 
         assertEquals(1, entornoFGEM.databaseFGEM.conConexionFGEM(cFGEM -> operacionesFGEM.resumenMensualFGEM(cFGEM, fundoFGEM.idFGEM(),
-                LocalDate.of(2025, 9, 1), hastaFGEM)).size());   // solo diciembre tiene movimiento
+                LocalDate.of(2025, 9, 1), hastaFGEM)).size());
     }
 
     @Test
@@ -127,8 +125,8 @@ class IntegracionAgroTestFGEM {
         assertTrue(eFGEM.lecturaFGEM().size() >= 3, eFGEM.lecturaFGEM().toString());
 
         List<ComparacionCultivosFGEM> comparacionFGEM = ComparacionCultivosFGEM.deFGEM(entornoFGEM.agriculturaFGEM.listarCampaniasFGEM(false));
-        assertEquals(4, comparacionFGEM.size());            // papa, quinua, avena y maíz (la papa en curso no cuenta)
-        assertEquals(CultivoFGEM.QUINUA, comparacionFGEM.get(0).cultivoFGEM());   // mayor margen por hectárea
+        assertEquals(4, comparacionFGEM.size());
+        assertEquals(CultivoFGEM.QUINUA, comparacionFGEM.get(0).cultivoFGEM());
         ComparacionCultivosFGEM maizFGEM = comparacionFGEM.stream().filter(xFGEM -> xFGEM.cultivoFGEM() == CultivoFGEM.MAIZ_AMILACEO).findFirst().orElseThrow();
         assertEquals(1, maizFGEM.perdidasFGEM());
         igualFGEM("0", maizFGEM.rendimientoFGEM());

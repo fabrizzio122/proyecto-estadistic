@@ -21,19 +21,6 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Administración de cuentas de usuario. Todas las operaciones exigen el permiso
- * {@link PermisoFGEM#USUARIOS_GESTIONAR}.
- * <p>
- * Reglas que protegen el acceso al sistema:
- * <ul>
- *     <li>Siempre debe quedar al menos un administrador activo.</li>
- *     <li>Un administrador no puede desactivarse ni quitarse el rol a sí mismo.</li>
- *     <li>Las cuentas nuevas y las contraseñas restablecidas obligan a cambiar la contraseña
- *         en el siguiente inicio de sesión.</li>
- * </ul>
- * Los usuarios no se eliminan, se desactivan, para conservar el historial.
- */
 public class UsuarioServiceFGEM {
 
     public static final int LIMITE_REGISTRO_ACCESOS_FGEM = 200;
@@ -135,7 +122,6 @@ public class UsuarioServiceFGEM {
         });
     }
 
-    /** Asigna una contraseña temporal; el usuario deberá cambiarla al ingresar. También lo desbloquea. */
     public void restablecerPasswordFGEM(long idFGEM, String nuevaFGEM, String confirmacionFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.USUARIOS_GESTIONAR);
         UsuarioFGEM responsableFGEM = sesionFGEM.usuarioFGEM();
@@ -184,7 +170,6 @@ public class UsuarioServiceFGEM {
         }
     }
 
-    /** Impide dejar el sistema sin administradores activos. */
     private void exigirOtroAdministradorFGEM(Connection cFGEM, UsuarioFGEM afectadoFGEM) throws SQLException {
         if (afectadoFGEM.activoFGEM() && usuariosFGEM.contarAdministradoresActivosFGEM(cFGEM) <= 1) {
             throw new ValidacionExceptionFGEM("Debe existir al menos un administrador activo. "

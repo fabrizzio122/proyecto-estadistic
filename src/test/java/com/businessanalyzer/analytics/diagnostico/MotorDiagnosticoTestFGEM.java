@@ -31,10 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Negocio sano (3 meses): ventas 30 000, costo 21 000 (margen bruto 30 %), alquiler 4 500,
- * fletes 600, intereses 150, impuesto 900 -> utilidad neta 2 850 (9.5 %), margen de seguridad 44.6 %.
- */
 class MotorDiagnosticoTestFGEM {
 
     private static final PeriodoFGEM PERIODO_FGEM = new PeriodoFGEM(YearMonth.of(2025, 10).atDay(1), YearMonth.of(2025, 12).atEndOfMonth());
@@ -56,7 +52,6 @@ class MotorDiagnosticoTestFGEM {
 
     @Test
     void conPerdidaLaCalificacionSeLimitaYSeRecomiendaSubirPreciosFGEM() {
-        // Costo 27 000: margen bruto 10 % y pérdida.
         DiagnosticoFGEM dFGEM = MotorDiagnosticoFGEM.evaluarFGEM(datosFGEM("27000", "30000", crecientesFGEM(12), productosSanosFGEM()));
 
         HallazgoFGEM netoFGEM = hallazgoFGEM(dFGEM, TipoIndicadorFGEM.MARGEN_NETO);
@@ -77,7 +72,6 @@ class MotorDiagnosticoTestFGEM {
 
     @Test
     void evaluaLiquidezYEndeudamientoConElBalanceFGEM() {
-        // Holgado: caja 9 000 y local 20 000 frente a 3 000 de deuda de corto plazo.
         DiagnosticoFGEM sanoFGEM = MotorDiagnosticoFGEM.evaluarFGEM(conBalanceFGEM(List.of(
                 activoFGEM(CategoriaActivoFGEM.CAJA_BANCOS, "9000"), activoFGEM(CategoriaActivoFGEM.EDIFICIOS, "20000")), "3000"));
         assertEquals(SemaforoFGEM.VERDE, hallazgoFGEM(sanoFGEM, TipoIndicadorFGEM.LIQUIDEZ).semaforoFGEM());
@@ -85,7 +79,6 @@ class MotorDiagnosticoTestFGEM {
         assertEquals(SemaforoFGEM.VERDE, hallazgoFGEM(sanoFGEM, TipoIndicadorFGEM.ENDEUDAMIENTO).semaforoFGEM());
         assertEquals(100, sanoFGEM.puntajeFGEM());
 
-        // Apretado: caja 2 000 frente a 2 500 que vencen en el año (liquidez 0.80); deudas = 62.5 % de los activos.
         DiagnosticoFGEM apretadoFGEM = MotorDiagnosticoFGEM.evaluarFGEM(conBalanceFGEM(List.of(
                 activoFGEM(CategoriaActivoFGEM.CAJA_BANCOS, "2000"), activoFGEM(CategoriaActivoFGEM.EDIFICIOS, "2000")), "2500"));
         HallazgoFGEM liquidezFGEM = hallazgoFGEM(apretadoFGEM, TipoIndicadorFGEM.LIQUIDEZ);
@@ -120,10 +113,8 @@ class MotorDiagnosticoTestFGEM {
         DatosDiagnosticoFGEM baseFGEM = datosFGEM("21000", "30000", crecientesFGEM(12), productosSanosFGEM());
         LocalDate hoyFGEM = LocalDate.of(2026, 1, 31);
 
-        // Sin historia en tesorería no se evalúa.
         assertEquals(SemaforoFGEM.SIN_DATOS, hallazgoFGEM(MotorDiagnosticoFGEM.evaluarFGEM(baseFGEM), TipoIndicadorFGEM.CAJA_PROYECTADA).semaforoFGEM());
 
-        // La operación pierde 400 al mes y hay 1 000 en las cuentas: falta dinero en abril.
         ProyeccionCajaFGEM pierdeFGEM = ProyeccionCajaFGEM.calcularFGEM(hoyFGEM, bdFGEM("1000"),
                 new double[]{-400, -400, -400, -400, -400, -400}, List.of());
         HallazgoFGEM rojoFGEM = hallazgoFGEM(MotorDiagnosticoFGEM.evaluarFGEM(conCajaFGEM(baseFGEM, pierdeFGEM)), TipoIndicadorFGEM.CAJA_PROYECTADA);
@@ -131,7 +122,6 @@ class MotorDiagnosticoTestFGEM {
         assertTrue(rojoFGEM.valorFGEM().contains("abril 2026"), rojoFGEM.valorFGEM());
         assertTrue(rojoFGEM.recomendacionFGEM().contains("adicionales"), rojoFGEM.recomendacionFGEM());
 
-        // Flujos positivos y estables: alcanza incluso en el escenario pesimista.
         ProyeccionCajaFGEM ganaFGEM = ProyeccionCajaFGEM.calcularFGEM(hoyFGEM, bdFGEM("1000"),
                 new double[]{800, 810, 790, 805, 800, 795}, List.of());
         assertEquals(SemaforoFGEM.VERDE,
@@ -151,7 +141,6 @@ class MotorDiagnosticoTestFGEM {
 
     @Test
     void indicadorClaveEnRojoLimitaLaCalificacionFGEM() {
-        // Margen de seguridad bajo (costos fijos altos) con el resto en verde.
         DatosDiagnosticoFGEM baseFGEM = datosFGEM("21000", "30000", crecientesFGEM(12), productosSanosFGEM());
         ResumenFinancieroFGEM fijosAltosFGEM = finanzasFGEM("8200", "600", "150", "0");
         DatosDiagnosticoFGEM dFGEM = new DatosDiagnosticoFGEM(baseFGEM.sectorFGEM(), baseFGEM.monedaFGEM(), baseFGEM.periodoFGEM(), 3, baseFGEM.operacionesFGEM(),
@@ -225,8 +214,6 @@ class MotorDiagnosticoTestFGEM {
         assertEquals(NivelSaludFGEM.EN_RIESGO, NivelSaludFGEM.deFGEM(35));
         assertEquals(NivelSaludFGEM.CRITICO, NivelSaludFGEM.deFGEM(34));
     }
-
-    // ------------------------------------------------------------------ datos de prueba
 
     private static DatosDiagnosticoFGEM datosFGEM(String costoVentasFGEM, String ventasFGEM, double[] serieFGEM,
                                           List<RentabilidadProductoFGEM> productosFGEM) {

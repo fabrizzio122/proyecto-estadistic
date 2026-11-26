@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-/** Productos que se obtienen del ganado sin venderlo: leche, fibra y lana. */
 public enum ProductoGanaderoFGEM {
 
     LECHE("Leche", "litros", "l", "vacas en ordeño", Set.of(EspecieFGEM.VACUNO)),
@@ -29,7 +28,6 @@ public enum ProductoGanaderoFGEM {
         return descripcionFGEM;
     }
 
-    /** Unidad en plural ("litros", "kilos"). */
     public String unidadFGEM() {
         return unidadFGEM;
     }
@@ -38,7 +36,6 @@ public enum ProductoGanaderoFGEM {
         return abreviaturaFGEM;
     }
 
-    /** Qué animales se cuentan para el promedio ("vacas en ordeño"). */
     public String animalesFGEM() {
         return animalesFGEM;
     }
@@ -47,7 +44,6 @@ public enum ProductoGanaderoFGEM {
         return especiesFGEM.contains(especieFGEM);
     }
 
-    /** La leche se promedia por animal y por día; la fibra y la lana, por animal esquilado. */
     public boolean porDiaFGEM() {
         return this == LECHE;
     }

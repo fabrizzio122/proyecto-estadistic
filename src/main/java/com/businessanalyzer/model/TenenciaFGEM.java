@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Forma de tenencia de una parcela. */
 public enum TenenciaFGEM {
 
     PROPIA("Propia"),

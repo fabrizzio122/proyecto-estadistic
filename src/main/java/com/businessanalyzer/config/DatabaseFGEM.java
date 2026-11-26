@@ -9,21 +9,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Objects;
 
-/**
- * Punto unico de acceso a la base de datos SQLite mediante JDBC.
- * <p>
- * Cada operacion abre su propia conexion y la cierra al terminar (en SQLite abrir una
- * conexion es barato). Todas las conexiones tienen activadas las claves foraneas.
- * <p>
- * Uso tipico desde un repositorio:
- * <pre>{@code
- * database.conConexion(c -> { ... consulta parametrizada ... });
- * database.enTransaccion(c -> { ... varias escrituras: todas o ninguna ... });
- * }</pre>
- */
 public final class DatabaseFGEM {
 
-    /** Operacion JDBC que recibe una conexion abierta. */
     @FunctionalInterface
     public interface OperacionSqlFGEM<T> {
         T ejecutarFGEM(Connection conexionFGEM) throws SQLException;
@@ -49,20 +36,12 @@ public final class DatabaseFGEM {
         return archivoFGEM;
     }
 
-    /** Abre una conexion nueva. Quien la llama es responsable de cerrarla. */
     public Connection abrirConexionFGEM() throws SQLException {
         return dataSourceFGEM.getConnection();
     }
 
-    /**
-     * Conexión de la transacción abierta en este hilo, si la hay. Mientras exista, las llamadas
-     * anidadas a {@link #conConexionFGEM} y {@link #enTransaccionFGEM} la reutilizan: así una operación
-     * grande (como la importación desde Excel) puede llamar a los servicios normales y que todo se
-     * confirme o se revierta junto.
-     */
     private final ThreadLocal<Connection> transaccionActualFGEM = new ThreadLocal<>();
 
-    /** Ejecuta una operacion de lectura o una escritura simple (autocommit). */
     public <T> T conConexionFGEM(OperacionSqlFGEM<T> operacionFGEM) {
         Connection compartidaFGEM = transaccionActualFGEM.get();
         if (compartidaFGEM != null) {
@@ -75,14 +54,9 @@ public final class DatabaseFGEM {
         }
     }
 
-    /**
-     * Ejecuta la operacion dentro de una transaccion: si algo falla se revierten
-     * todos los cambios. Usar siempre que se escriba en mas de una tabla.
-     */
     public <T> T enTransaccionFGEM(OperacionSqlFGEM<T> operacionFGEM) {
         Connection compartidaFGEM = transaccionActualFGEM.get();
         if (compartidaFGEM != null) {
-            // Transacción anidada: forma parte de la exterior, que es la que confirma o revierte.
             return enCompartidaFGEM(compartidaFGEM, operacionFGEM, "La operación falló: ");
         }
         try (Connection conexionFGEM = abrirConexionFGEM()) {

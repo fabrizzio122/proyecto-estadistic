@@ -28,13 +28,8 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
-/**
- * Arma la situación patrimonial de una empresa (balance general + indicadores). La comparten el
- * módulo de Patrimonio y el diagnóstico empresarial.
- */
 final class ConsultaPatrimonioFGEM {
 
-    /** Meses completos de resultados usados para la rentabilidad y la capacidad de pago. */
     static final int MESES_RESULTADOS_FGEM = 12;
 
     private final ActivoRepositoryFGEM activosFGEM;
@@ -70,7 +65,6 @@ final class ConsultaPatrimonioFGEM {
                 valorInventarioFGEM(productosFGEM.listarFGEM(cFGEM, empresaIdFGEM, true)), ganadoFGEM, cultivosFGEM, deudasFGEM.listarFGEM(cFGEM, empresaIdFGEM, false),
                 efectivoFGEM, porCobrarFGEM, porPagarFGEM);
 
-        // Resultados de los últimos 12 meses completos, desde el primero con ventas.
         YearMonth ultimoFGEM = YearMonth.from(hoyFGEM).minusMonths(1);
         List<ConsultaMensualFGEM.MesFGEM> historiaFGEM = ConsultaMensualFGEM.porMesFGEM(cFGEM, operacionesFGEM, movimientosFGEM, empresaIdFGEM,
                 ultimoFGEM.minusMonths(MESES_RESULTADOS_FGEM - 1L), ultimoFGEM);
@@ -90,7 +84,6 @@ final class ConsultaPatrimonioFGEM {
         return new SituacionPatrimonialFGEM(balanceFGEM, IndicadoresPatrimonioFGEM.deFGEM(balanceFGEM, resultadosFGEM, mesesFGEM), periodoFGEM);
     }
 
-    /** Costos acumulados de las campañas agrícolas en curso (aún no cosechadas). */
     private BigDecimal cultivosEnProcesoFGEM(Connection cFGEM, long empresaIdFGEM) throws SQLException {
         java.util.Set<Long> enCursoFGEM = agriculturaFGEM.listarCampaniasFGEM(cFGEM, empresaIdFGEM, false).stream()
                 .filter(kFGEM -> kFGEM.estadoFGEM() == com.businessanalyzer.model.EstadoCampaniaFGEM.EN_CURSO)
@@ -105,7 +98,6 @@ final class ConsultaPatrimonioFGEM {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    /** Stock positivo de cada producto (incluso archivado) por su costo unitario. */
     static BigDecimal valorInventarioFGEM(List<ProductoFGEM> itemsFGEM) {
         return itemsFGEM.stream()
                 .filter(pFGEM -> pFGEM.tipoFGEM() == TipoItemFGEM.PRODUCTO && pFGEM.stockFGEM() != null && pFGEM.stockFGEM().signum() > 0)

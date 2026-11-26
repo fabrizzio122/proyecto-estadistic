@@ -36,7 +36,6 @@ class SugerenciasServiceTestFGEM {
                 entornoFGEM.relojFGEM);
         assertEquals(0, SugerenciasProductoFGEM.MARGEN_OBJETIVO_PREDETERMINADO_FGEM.compareTo(servicioFGEM.margenObjetivoFGEM()));
 
-        // Con 25 % de margen objetivo, varios productos de la bodega (márgenes de 15 % a 25 %) quedan cortos.
         ResultadoFGEM resultadoFGEM = servicioFGEM.sugerenciasFGEM(new BigDecimal("0.25"));
 
         assertEquals(SugerenciasProductoFGEM.DIAS_ANALISIS_FGEM, resultadoFGEM.diasAnalizadosFGEM());
@@ -44,14 +43,11 @@ class SugerenciasServiceTestFGEM {
         assertTrue(resultadoFGEM.gananciaExtraMesFGEM().signum() > 0);
         assertTrue(resultadoFGEM.preciosFGEM().stream().allMatch(pFGEM -> pFGEM.margenSugeridoFGEM().compareTo(new BigDecimal("0.25")) >= 0));
         assertEquals(0, new BigDecimal("0.25").compareTo(servicioFGEM.margenObjetivoFGEM()), "Se recuerda el margen elegido");
-        // La utilidad mensual es la del diagnóstico (promedio de octubre a diciembre).
         assertTrue(resultadoFGEM.utilidadMensualFGEM() != null);
-        // El pan del ejemplo viene marcado como perecible en la plantilla.
         assertTrue(entornoFGEM.catalogoFGEM.listarProductosFGEM(false).stream()
                 .anyMatch(pFGEM -> pFGEM.nombreFGEM().equals("Pan francés") && pFGEM.perecibleFGEM()));
         assertThrows(ValidacionExceptionFGEM.class, () -> servicioFGEM.sugerenciasFGEM(new BigDecimal("0.95")));
 
-        // La lista de compras se guarda en PDF o en Excel según la extensión (sin extensión: PDF).
         Path pdfFGEM = servicioFGEM.exportarListaComprasFGEM(new BigDecimal("0.25"), carpetaFGEM.resolve("lista"));
         Path excelFGEM = servicioFGEM.exportarListaComprasFGEM(new BigDecimal("0.25"), carpetaFGEM.resolve("lista.xlsx"));
         assertEquals("lista.pdf", pdfFGEM.getFileName().toString());

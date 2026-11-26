@@ -23,18 +23,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-/**
- * Inicio y cierre de sesión, creación del primer administrador y cambio de la propia contraseña.
- * <p>
- * Medidas de seguridad:
- * <ul>
- *     <li>Mensaje genérico ante usuario inexistente o contraseña errónea (no revela qué falló).</li>
- *     <li>Si el usuario no existe se calcula igualmente un hash, para que el tiempo de respuesta
- *         no delate qué usuarios existen.</li>
- *     <li>Bloqueo temporal tras {@value #MAXIMO_INTENTOS} intentos fallidos.</li>
- *     <li>Todos los eventos quedan en el registro de accesos.</li>
- * </ul>
- */
 public class AutenticacionServiceFGEM {
 
     public static final int MAXIMO_INTENTOS_FGEM = 5;
@@ -64,12 +52,10 @@ public class AutenticacionServiceFGEM {
         this.relojFGEM = relojFGEM;
     }
 
-    /** {@code true} en el primer arranque, cuando todavía no existe ningún usuario. */
     public boolean requiereConfiguracionInicialFGEM() {
         return databaseFGEM.conConexionFGEM(usuariosFGEM::contarFGEM) == 0;
     }
 
-    /** Crea la primera cuenta, siempre con rol Administrador. Solo funciona si no hay usuarios. */
     public UsuarioFGEM crearAdministradorInicialFGEM(DatosUsuarioFGEM datosFGEM, String passwordFGEM, String confirmacionFGEM) {
         DatosUsuarioFGEM limpiosFGEM = ValidadorUsuarioFGEM.normalizarFGEM(datosFGEM);
         PoliticaPasswordFGEM.validarFGEM(passwordFGEM, confirmacionFGEM, limpiosFGEM.nombreUsuarioFGEM());
@@ -88,11 +74,6 @@ public class AutenticacionServiceFGEM {
         });
     }
 
-    /**
-     * Verifica las credenciales y abre la sesión.
-     *
-     * @throws AutenticacionException con un mensaje apto para mostrar si no se puede ingresar
-     */
     public UsuarioFGEM iniciarSesionFGEM(String nombreUsuarioFGEM, String passwordFGEM) {
         if (nombreUsuarioFGEM == null || nombreUsuarioFGEM.isBlank() || passwordFGEM == null || passwordFGEM.isEmpty()) {
             throw new AutenticacionExceptionFGEM("Ingresa tu usuario y tu contraseña.");
@@ -151,7 +132,6 @@ public class AutenticacionServiceFGEM {
         sesionFGEM.cerrarFGEM();
     }
 
-    /** Cambio de contraseña del propio usuario conectado. Exige la contraseña actual. */
     public void cambiarPasswordPropiaFGEM(String actualFGEM, String nuevaFGEM, String confirmacionFGEM) {
         UsuarioFGEM usuarioFGEM = sesionFGEM.usuarioFGEM();
         if (actualFGEM == null || actualFGEM.isEmpty()) {
@@ -178,7 +158,6 @@ public class AutenticacionServiceFGEM {
     }
 
     private void registrarFalloFGEM(UsuarioFGEM usuarioFGEM, LocalDateTime ahoraFGEM) {
-        // Si hubo un bloqueo que ya venció, el conteo empieza de nuevo.
         int previosFGEM = usuarioFGEM.bloqueadoHastaFGEM() != null ? 0 : usuarioFGEM.intentosFallidosFGEM();
         int intentosFGEM = previosFGEM + 1;
         boolean bloquearFGEM = intentosFGEM >= MAXIMO_INTENTOS_FGEM;

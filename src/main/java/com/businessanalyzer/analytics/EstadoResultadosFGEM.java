@@ -5,20 +5,6 @@ import com.businessanalyzer.model.GrupoFinancieroFGEM;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-/**
- * Estado de resultados (estado de pérdidas y ganancias) de un período. Todos los montos sin impuestos.
- * <pre>
- *   Ventas netas
- * − Costo de ventas                 (costo de la mercadería vendida, Fase 5)
- * = Utilidad bruta
- * − Gastos operativos               (alquiler, sueldos, servicios..., Fase 6)
- * = Utilidad operativa
- * + Ingresos financieros − Gastos financieros + Otros ingresos
- * = Utilidad antes de impuestos
- * − Impuesto a la renta              (registrado por el usuario en Gestión financiera)
- * = Utilidad neta
- * </pre>
- */
 public record EstadoResultadosFGEM(
         BigDecimal ventasNetasFGEM,
         BigDecimal costoVentasFGEM,
@@ -47,22 +33,18 @@ public record EstadoResultadosFGEM(
                 gastosFinancierosFGEM, otrosFGEM, antesImpuestosFGEM, impuestoFGEM, antesImpuestosFGEM.subtract(impuestoFGEM));
     }
 
-    /** Utilidad bruta ÷ ventas netas. */
     public BigDecimal margenBrutoFGEM() {
         return sobreVentasFGEM(utilidadBrutaFGEM);
     }
 
-    /** Utilidad operativa ÷ ventas netas. */
     public BigDecimal margenOperativoFGEM() {
         return sobreVentasFGEM(utilidadOperativaFGEM);
     }
 
-    /** Utilidad neta ÷ ventas netas (rentabilidad sobre ventas). */
     public BigDecimal margenNetoFGEM() {
         return sobreVentasFGEM(utilidadNetaFGEM);
     }
 
-    /** Proporción de un monto sobre las ventas netas; {@code null} si no hubo ventas. */
     public BigDecimal sobreVentasFGEM(BigDecimal montoFGEM) {
         return ventasNetasFGEM.signum() == 0
                 ? null

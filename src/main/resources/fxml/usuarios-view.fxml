@@ -12,13 +12,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <TabPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
          fx:controller="com.businessanalyzer.controller.UsuariosControllerFGEM"
          tabClosingPolicy="UNAVAILABLE">
 
-    <!-- Pestaña 1: cuentas de usuario -->
     <Tab text="Usuarios">
         <VBox spacing="14" styleClass="page">
             <HBox spacing="10" alignment="CENTER_LEFT">
@@ -27,7 +25,6 @@
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button fx:id="btnEditarFGEM" text="Editar" styleClass="button-secondary" minWidth="-Infinity"
                         onAction="#editarFGEM">
-                    <graphic><FontIcon iconLiteral="fth-edit-2"/></graphic>
                 </Button>
                 <MenuButton fx:id="menuAccionesFGEM" text="Acciones" styleClass="button-secondary" minWidth="-Infinity">
                     <items>
@@ -37,7 +34,6 @@
                     </items>
                 </MenuButton>
                 <Button text="Nuevo usuario" styleClass="button-primary" minWidth="-Infinity" onAction="#nuevoFGEM">
-                    <graphic><FontIcon iconLiteral="fth-plus"/></graphic>
                 </Button>
             </HBox>
 
@@ -57,7 +53,6 @@
         </VBox>
     </Tab>
 
-    <!-- Pestaña 2: matriz de roles y permisos -->
     <Tab text="Roles y permisos">
         <VBox spacing="14" styleClass="page">
             <VBox fx:id="listaRolesFGEM" spacing="6"/>
@@ -69,14 +64,12 @@
         </VBox>
     </Tab>
 
-    <!-- Pestaña 3: bitácora de seguridad -->
     <Tab text="Registro de accesos">
         <VBox spacing="14" styleClass="page">
             <HBox spacing="10" alignment="CENTER_LEFT">
                 <Label fx:id="lblAccesosFGEM" styleClass="muted"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button text="Actualizar" styleClass="button-secondary" onAction="#cargarAccesosFGEM">
-                    <graphic><FontIcon iconLiteral="fth-refresh-cw"/></graphic>
                 </Button>
             </HBox>
             <TableView fx:id="tablaAccesosFGEM" VBox.vgrow="ALWAYS">

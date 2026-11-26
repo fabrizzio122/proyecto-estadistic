@@ -34,11 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Reloj de pruebas en 2026-01-15. Ventas de julio a diciembre de 2025: 1000, 1200 ... 2000
- * (crecen 200 por mes) con un costo del 60 % -> utilidad 400, 480 ... 800.
- * En enero (mes en curso) hay una venta que no debe usarse como historia.
- */
 class PrediccionServiceTestFGEM {
 
     private static final double TOLERANCIA_FGEM = 1e-6;

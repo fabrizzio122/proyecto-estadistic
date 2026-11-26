@@ -9,10 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-/**
- * Los informes se escriben primero en un archivo temporal y luego reemplazan al destino, para no
- * dejar un archivo a medias si algo falla.
- */
 final class EscrituraFGEM {
 
     private EscrituraFGEM() {
@@ -39,7 +35,6 @@ final class EscrituraFGEM {
         try {
             Files.deleteIfExists(archivoFGEM);
         } catch (IOException ignoradoFGEM) {
-            // El temporal quedará en la carpeta; no impide continuar.
         }
     }
 }

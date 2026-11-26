@@ -7,10 +7,6 @@ import com.businessanalyzer.exception.ValidacionExceptionFGEM;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Convierte una excepción en un mensaje para el usuario. Los errores de negocio se muestran
- * tal cual; los técnicos se registran en el log y se muestran con un texto genérico.
- */
 public final class ErroresFGEM {
 
     private static final Logger logFGEM = LoggerFactory.getLogger(ErroresFGEM.class);

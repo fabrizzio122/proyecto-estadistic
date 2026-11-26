@@ -1,6 +1,5 @@
 package com.businessanalyzer.analytics.diagnostico;
 
-/** Estado de un indicador del diagnóstico. */
 public enum SemaforoFGEM {
 
     VERDE("Bien", 100),
@@ -20,7 +19,6 @@ public enum SemaforoFGEM {
         return descripcionFGEM;
     }
 
-    /** Puntaje del indicador (0 a 100); −1 si no se pudo evaluar. */
     public int puntajeFGEM() {
         return puntajeFGEM;
     }

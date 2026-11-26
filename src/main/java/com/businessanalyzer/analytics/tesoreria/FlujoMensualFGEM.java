@@ -8,12 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Entradas, salidas y saldo de efectivo al cierre de un mes (sin contar las transferencias entre
- * cuentas, que no cambian el total).
- *
- * @param operacionFGEM flujo neto de las actividades de operación del mes
- */
 public record FlujoMensualFGEM(YearMonth mesFGEM, BigDecimal entradasFGEM, BigDecimal salidasFGEM, BigDecimal operacionFGEM,
                            BigDecimal saldoCierreFGEM) {
 
@@ -21,7 +15,6 @@ public record FlujoMensualFGEM(YearMonth mesFGEM, BigDecimal entradasFGEM, BigDe
         return entradasFGEM.subtract(salidasFGEM);
     }
 
-    /** Un registro por mes, desde {@code desde} hasta {@code hasta} (inclusive), aunque no tenga movimientos. */
     public static List<FlujoMensualFGEM> serieFGEM(YearMonth desdeFGEM, YearMonth hastaFGEM, Collection<CuentaDineroFGEM> cuentasFGEM,
                                            Collection<FlujoDineroFGEM> flujosFGEM) {
         BigDecimal saldoFGEM = cuentasFGEM.stream().map(CuentaDineroFGEM::saldoInicialFGEM).reduce(BigDecimal.ZERO, BigDecimal::add);

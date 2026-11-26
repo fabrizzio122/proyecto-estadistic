@@ -3,13 +3,8 @@ package com.businessanalyzer.analytics.estadistica;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Distribución de frecuencias en intervalos de igual ancho. El número de intervalos sigue
- * la regla de Sturges (1 + log2 n), con un máximo indicado.
- */
 public record HistogramaFGEM(List<ClaseFGEM> clasesFGEM) {
 
-    /** Intervalo [desde, hasta) — el último incluye el máximo. */
     public record ClaseFGEM(double desdeFGEM, double hastaFGEM, int frecuenciaFGEM) {
     }
 

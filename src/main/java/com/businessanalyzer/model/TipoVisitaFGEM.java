@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Motivo de la visita al productor. */
 public enum TipoVisitaFGEM {
 
     EVALUACION_INICIAL("Evaluación inicial"),

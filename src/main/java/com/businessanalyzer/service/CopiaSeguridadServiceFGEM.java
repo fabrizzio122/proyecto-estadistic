@@ -40,18 +40,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-/**
- * Copias de seguridad de la base de datos local.
- * <ul>
- *     <li>Las copias se crean con {@code VACUUM INTO}: SQLite escribe una copia consistente y compacta
- *         aunque la aplicación esté en uso. Después se verifica que la copia se pueda abrir y esté íntegra.</li>
- *     <li>La copia automática se hace al iniciar la aplicación, como máximo una vez al día, y solo se
- *         conservan las últimas N automáticas (las manuales nunca se borran solas).</li>
- *     <li>Restaurar valida el archivo, guarda primero una copia del estado actual y deja la copia
- *         lista para aplicarse al reiniciar (ver {@link RestauracionPendienteFGEM}).</li>
- * </ul>
- * Requiere {@link PermisoFGEM#CONFIGURACION_GESTIONAR}, salvo la copia automática del inicio.
- */
 public class CopiaSeguridadServiceFGEM {
 
     public static final String CLAVE_CARPETA_FGEM = "copias.carpeta";
@@ -85,9 +73,6 @@ public class CopiaSeguridadServiceFGEM {
         this.relojFGEM = relojFGEM;
     }
 
-    // ------------------------------------------------------------------ configuración
-
-    /** Carpeta donde se guardan las copias (la elegida por el usuario o la predeterminada). */
     public Path carpetaFGEM() {
         String elegidaFGEM = configuracionFGEM.obtenerFGEM(CLAVE_CARPETA_FGEM, "");
         return elegidaFGEM.isBlank() ? carpetaPredeterminadaFGEM : Path.of(elegidaFGEM);
@@ -126,17 +111,11 @@ public class CopiaSeguridadServiceFGEM {
         configuracionFGEM.guardarFGEM(CLAVE_CONSERVAR_FGEM, String.valueOf(conservarFGEM));
     }
 
-    // ------------------------------------------------------------------ creación
-
     public CopiaSeguridadFGEM crearManualFGEM() {
         sesionFGEM.requerirFGEM(PermisoFGEM.CONFIGURACION_GESTIONAR);
         return crearFGEM(TipoFGEM.MANUAL);
     }
 
-    /**
-     * Copia previa a una importación desde Excel, para poder volver atrás si se importó el archivo
-     * equivocado. Basta con poder registrar datos; como las manuales, nunca se borra sola.
-     */
     public CopiaSeguridadFGEM crearAntesDeImportarFGEM() {
         if (!sesionFGEM.tienePermisoFGEM(PermisoFGEM.PRODUCTOS_GESTIONAR) && !sesionFGEM.tienePermisoFGEM(PermisoFGEM.OPERACIONES_GESTIONAR)
                 && !sesionFGEM.tienePermisoFGEM(PermisoFGEM.FINANZAS_GESTIONAR)) {
@@ -145,10 +124,6 @@ public class CopiaSeguridadServiceFGEM {
         return crearFGEM(TipoFGEM.PREVIA_IMPORTACION);
     }
 
-    /**
-     * Copia automática del inicio: se crea si está activada y si la última tiene más de 20 horas.
-     * Nunca lanza excepciones (un fallo aquí no debe impedir abrir la aplicación).
-     */
     public Optional<CopiaSeguridadFGEM> crearAutomaticaSiCorrespondeFGEM() {
         try {
             if (!automaticaActivaFGEM()) {
@@ -159,14 +134,12 @@ public class CopiaSeguridadServiceFGEM {
             if (!ultimaFGEM.isBlank() && LocalDateTime.parse(ultimaFGEM).plus(INTERVALO_AUTOMATICA_FGEM).isAfter(ahoraFGEM)) {
                 return Optional.empty();
             }
-            // La fecha se registra ANTES de copiar para que la propia copia la incluya: así, si más tarde
-            // se restaura esta copia, el inicio siguiente no crea otra automática el mismo día.
             configuracionFGEM.guardarFGEM(CLAVE_ULTIMA_AUTOMATICA_FGEM, ahoraFGEM.withNano(0).toString());
             CopiaSeguridadFGEM copiaFGEM;
             try {
                 copiaFGEM = crearFGEM(TipoFGEM.AUTOMATICA);
             } catch (RuntimeException eFGEM) {
-                configuracionFGEM.guardarFGEM(CLAVE_ULTIMA_AUTOMATICA_FGEM, ultimaFGEM); // se reintentará en el próximo inicio
+                configuracionFGEM.guardarFGEM(CLAVE_ULTIMA_AUTOMATICA_FGEM, ultimaFGEM);
                 throw eFGEM;
             }
             aplicarRetencionFGEM();
@@ -220,12 +193,10 @@ public class CopiaSeguridadServiceFGEM {
         return describirFGEM(archivoFGEM).orElseThrow();
     }
 
-    /** Carpeta de las fotos de las visitas, junto a la base de datos. */
     private Path carpetaFotosFGEM() {
         return databaseFGEM.archivoFGEM().toAbsolutePath().resolveSibling(com.businessanalyzer.config.AppConfigFGEM.CARPETA_FOTOS_FGEM);
     }
 
-    /** Borra las copias automáticas más antiguas que excedan la cantidad a conservar. */
     void aplicarRetencionFGEM() {
         List<CopiaSeguridadFGEM> automaticasFGEM = listarSinPermisoFGEM().stream()
                 .filter(cFGEM -> cFGEM.tipoFGEM() == TipoFGEM.AUTOMATICA)
@@ -237,9 +208,6 @@ public class CopiaSeguridadServiceFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ consulta y eliminación
-
-    /** Copias de la carpeta, de la más reciente a la más antigua. */
     public List<CopiaSeguridadFGEM> listarFGEM() {
         sesionFGEM.requerirFGEM(PermisoFGEM.CONFIGURACION_GESTIONAR);
         return listarSinPermisoFGEM();
@@ -293,12 +261,6 @@ public class CopiaSeguridadServiceFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ validación y restauración
-
-    /**
-     * Comprueba que el archivo sea una copia íntegra de Business Analyzer y de una versión que esta
-     * aplicación pueda abrir. Devuelve un resumen de su contenido.
-     */
     public ContenidoFGEM validarFGEM(Path archivoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.CONFIGURACION_GESTIONAR);
         ContenidoFGEM contenidoFGEM = leerContenidoFGEM(archivoFGEM);
@@ -309,10 +271,6 @@ public class CopiaSeguridadServiceFGEM {
         return contenidoFGEM;
     }
 
-    /**
-     * Deja la copia lista para aplicarse al reiniciar. Antes guarda una copia del estado actual,
-     * para poder volver atrás. Después de llamar a este método la aplicación debe cerrarse.
-     */
     public ContenidoFGEM programarRestauracionFGEM(Path origenFGEM) {
         ContenidoFGEM contenidoFGEM = validarFGEM(origenFGEM);
         crearFGEM(TipoFGEM.PREVIA_RESTAURACION);
@@ -322,11 +280,9 @@ public class CopiaSeguridadServiceFGEM {
         try {
             RestauracionPendienteFGEM.borrarFGEM(fotosPendientesFGEM);
             if (ArchivoCopiaFGEM.esZipFGEM(origenFGEM)) {
-                // Copia nueva: base de datos y fotos. La carpeta de fotos se reemplaza al reiniciar.
                 Files.createDirectories(fotosPendientesFGEM);
                 ArchivoCopiaFGEM.extraerFGEM(origenFGEM, temporalFGEM, fotosPendientesFGEM);
             } else {
-                // Copia antigua (solo la base de datos): las fotos actuales se conservan.
                 Files.copy(origenFGEM, temporalFGEM, StandardCopyOption.REPLACE_EXISTING);
             }
             Files.move(temporalFGEM, pendienteFGEM, StandardCopyOption.REPLACE_EXISTING);
@@ -335,7 +291,6 @@ public class CopiaSeguridadServiceFGEM {
             try {
                 RestauracionPendienteFGEM.borrarFGEM(fotosPendientesFGEM);
             } catch (IOException ignoradoFGEM) {
-                // Se limpiará en la próxima restauración.
             }
             throw new DataAccessExceptionFGEM("No se pudo preparar la restauración.", eFGEM);
         }
@@ -343,7 +298,6 @@ public class CopiaSeguridadServiceFGEM {
         return contenidoFGEM;
     }
 
-    /** Ejecuta {@code PRAGMA integrity_check} sobre la base de datos en uso. */
     public List<String> verificarIntegridadFGEM() {
         sesionFGEM.requerirFGEM(PermisoFGEM.CONFIGURACION_GESTIONAR);
         return databaseFGEM.conConexionFGEM(cFGEM -> {
@@ -357,7 +311,6 @@ public class CopiaSeguridadServiceFGEM {
         });
     }
 
-    /** Lee una copia nueva (ZIP con base de datos y fotos) o antigua (solo la base de datos). */
     private static ContenidoFGEM leerContenidoFGEM(Path archivoFGEM) {
         if (archivoFGEM == null || !Files.isRegularFile(archivoFGEM)) {
             throw new ValidacionExceptionFGEM("El archivo de copia no existe.");
@@ -414,7 +367,7 @@ public class CopiaSeguridadServiceFGEM {
         try (ResultSet rsFGEM = stFGEM.executeQuery("SELECT COUNT(*) FROM " + tablaFGEM)) {
             return rsFGEM.next() ? rsFGEM.getInt(1) : 0;
         } catch (SQLException eFGEM) {
-            return 0; // la tabla no existe en copias de versiones anteriores
+            return 0;
         }
     }
 
@@ -422,7 +375,6 @@ public class CopiaSeguridadServiceFGEM {
         try {
             Files.deleteIfExists(archivoFGEM);
         } catch (IOException ignoradoFGEM) {
-            // Se intentará de nuevo en la próxima limpieza.
         }
     }
 }

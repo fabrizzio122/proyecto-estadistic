@@ -12,7 +12,6 @@ class CalculadoraOperacionTestFGEM {
 
     @Test
     void calculaSubtotalImpuestoTotalYCostoFGEM() {
-        // 3 x 24.90 = 74.70 ; 2.5 x 4.50 = 11.25 ; subtotal 85.95 ; IGV 18 % = 15.471 -> 15.47
         CalculadoraOperacionFGEM.TotalesFGEM tFGEM = CalculadoraOperacionFGEM.calcularFGEM(List.of(
                 lineaFGEM("3", "24.90", "18.50"),
                 lineaFGEM("2.5", "4.50", "3.20")), new BigDecimal("18"));

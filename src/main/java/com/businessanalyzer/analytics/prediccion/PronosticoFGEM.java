@@ -2,27 +2,12 @@ package com.businessanalyzer.analytics.prediccion;
 
 import java.util.List;
 
-/**
- * Pronóstico de una serie con el método elegido y la comparación de todos los métodos.
- *
- * @param elegidaFGEM       evaluación del método elegido; {@code null} si no hay datos suficientes
- * @param errorRelativoFGEM error medio del método elegido ÷ valor medio de la serie
- */
 public record PronosticoFGEM(String serieFGEM, int datosFGEM, EvaluacionFGEM elegidaFGEM, List<EvaluacionFGEM> evaluacionesFGEM,
                          List<PuntoFGEM> puntosFGEM, ConfiabilidadFGEM confiabilidadFGEM, double errorRelativoFGEM) {
 
-    /**
-     * Valor proyectado para el período {@code h} (1 = el siguiente) con su intervalo aproximado al 95 %.
-     */
     public record PuntoFGEM(int hFGEM, double valorFGEM, double inferiorFGEM, double superiorFGEM) {
     }
 
-    /**
-     * Error histórico de un método al pronosticar cada mes con los datos anteriores a él.
-     *
-     * @param maeFGEM  error absoluto medio (en dinero)
-     * @param rmseFGEM raíz del error cuadrático medio (penaliza más los errores grandes)
-     */
     public record EvaluacionFGEM(MetodoPronosticoFGEM metodoFGEM, double maeFGEM, double rmseFGEM, int mesesEvaluadosFGEM) {
     }
 

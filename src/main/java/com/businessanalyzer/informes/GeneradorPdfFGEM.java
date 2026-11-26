@@ -21,10 +21,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Genera archivos PDF con JasperReports a partir de la plantilla {@code /informes/informe.jrxml}.
- * La plantilla se compila una sola vez (la primera vez que se usa) y se reutiliza.
- */
 public final class GeneradorPdfFGEM {
 
     private static final String PLANTILLA_FGEM = "/informes/informe.jrxml";
@@ -33,7 +29,6 @@ public final class GeneradorPdfFGEM {
     private GeneradorPdfFGEM() {
     }
 
-    /** Datos de la portada y del pie de página. */
     public record EncabezadoFGEM(String empresaFGEM, String detalleEmpresaFGEM, String tituloFGEM, String subtituloFGEM, String generadoFGEM) {
     }
 

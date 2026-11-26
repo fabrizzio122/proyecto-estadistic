@@ -6,7 +6,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import org.kordamp.ikonli.javafx.FontIcon;
 
-/** Pantalla de los modulos que aun no se implementan: indica en que fase se construyen. */
 public class ModuloPendienteControllerFGEM implements VistaModuloFGEM {
 
     @FXML private FontIcon iconoFGEM;

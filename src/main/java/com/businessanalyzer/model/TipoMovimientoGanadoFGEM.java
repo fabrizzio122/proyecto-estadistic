@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Hechos que cambian las existencias del hato. */
 public enum TipoMovimientoGanadoFGEM {
 
     INVENTARIO_INICIAL("Inventario inicial", 1, "Animales que ya tenía al empezar a usar el sistema."),
@@ -26,7 +25,6 @@ public enum TipoMovimientoGanadoFGEM {
         return descripcionFGEM;
     }
 
-    /** +1 si suma animales, −1 si los resta, 0 si los mueve de categoría. */
     public int signoFGEM() {
         return signoFGEM;
     }
@@ -39,12 +37,10 @@ public enum TipoMovimientoGanadoFGEM {
         return signoFGEM < 0;
     }
 
-    /** Ventas y compras pueden indicar su valor total. */
     public boolean llevaMontoFGEM() {
         return this == VENTA || this == COMPRA;
     }
 
-    /** Muertes y pérdidas pueden indicar la causa. */
     public boolean llevaCausaFGEM() {
         return this == MUERTE || this == PERDIDA;
     }

@@ -3,13 +3,6 @@ package com.businessanalyzer.config;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Divide un script SQL en sentencias individuales para ejecutarlas con JDBC.
- * <p>
- * Reglas: las lineas que empiezan con {@code --} son comentarios y se ignoran; cada
- * sentencia termina en {@code ;}. No usar {@code ;} dentro de textos ni triggers con
- * bloques BEGIN...END en los scripts de migracion.
- */
 final class SqlScriptFGEM {
 
     private SqlScriptFGEM() {

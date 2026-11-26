@@ -1,9 +1,5 @@
 package com.businessanalyzer.model;
 
-/**
- * Acciones que el sistema controla. Cada rol tiene un conjunto de permisos
- * (tabla {@code rol_permiso}). Los codigos deben coincidir con la tabla {@code permiso}.
- */
 public enum PermisoFGEM {
 
     DASHBOARD_VER("Ver el dashboard"),

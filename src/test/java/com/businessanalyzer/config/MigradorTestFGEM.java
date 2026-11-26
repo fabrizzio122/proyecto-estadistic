@@ -79,7 +79,6 @@ class MigradorTestFGEM {
 
     @Test
     void laTesoreriaConvierteCajaYBancosEnLaCuentaCajaFGEM() {
-        // Base de la versión 1.1 (esquema V12) con una empresa que tenía su efectivo como activo.
         new MigradorFGEM(databaseFGEM, MigradorFGEM.MIGRACIONES_FGEM.subList(0, 12)).migrarFGEM();
         databaseFGEM.enTransaccionFGEM(cFGEM -> {
             try (Statement stFGEM = cFGEM.createStatement()) {

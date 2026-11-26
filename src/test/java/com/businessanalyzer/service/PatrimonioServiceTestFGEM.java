@@ -42,7 +42,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PatrimonioServiceTestFGEM {
 
-    /** El reloj de pruebas está en 2026-01-15. */
     private static final LocalDate HOY_FGEM = LocalDate.of(2026, 1, 15);
 
     @TempDir
@@ -62,7 +61,6 @@ class PatrimonioServiceTestFGEM {
 
     @Test
     void elBalanceIncluyeActivosInventarioYDeudasFGEM() {
-        // La caja empieza con 8 540; la compra de 3 540 (con IGV) sale de ella y quedan 5 000.
         CuentaDineroFGEM cajaFGEM = entornoFGEM.tesoreriaFGEM.cuentasActivasFGEM().get(0);
         entornoFGEM.tesoreriaFGEM.actualizarCuentaFGEM(cajaFGEM.idFGEM(), new DatosCuentaFGEM("Caja", TipoCuentaFGEM.CAJA, null, new BigDecimal("8540")));
         activoFGEM(CategoriaActivoFGEM.MAQUINARIA, "Cortadora", LocalDate.of(2025, 1, 15), "12000", 10, null);
@@ -76,9 +74,9 @@ class PatrimonioServiceTestFGEM {
         SituacionPatrimonialFGEM sFGEM = servicioFGEM.situacionFGEM();
         BalanceGeneralFGEM bFGEM = sFGEM.balanceFGEM();
 
-        igualFGEM("3000", bFGEM.inventarioFGEM());              // 500 × 6
+        igualFGEM("3000", bFGEM.inventarioFGEM());
         igualFGEM("8000", bFGEM.totalActivoCorrienteFGEM());
-        igualFGEM("10800", bFGEM.totalActivoNoCorrienteFGEM()); // 12 meses de depreciación
+        igualFGEM("10800", bFGEM.totalActivoNoCorrienteFGEM());
         igualFGEM("2000", bFGEM.totalPasivoFGEM());
         igualFGEM("16800", bFGEM.patrimonioFGEM());
         igualFGEM("4", sFGEM.indicadoresFGEM().liquidezCorrienteFGEM());
@@ -94,9 +92,7 @@ class PatrimonioServiceTestFGEM {
         assertInvalidoFGEM(() -> activoFGEM(CategoriaActivoFGEM.VEHICULOS, "Moto", HOY_FGEM, "5000", 5, "6000"));
         assertInvalidoFGEM(() -> activoFGEM(null, "Moto", HOY_FGEM, "5000", 5, null));
 
-        // En los activos corrientes y terrenos se ignoran la vida útil y el valor residual.
         ActivoFGEM cajaFGEM = activoFGEM(CategoriaActivoFGEM.CUENTAS_POR_COBRAR, "Préstamo a un tercero", HOY_FGEM, "0", 5, "10");
-        // El efectivo ya no es un activo escrito a mano: se registra en «Tesorería».
         assertInvalidoFGEM(() -> activoFGEM(CategoriaActivoFGEM.CAJA_BANCOS, "Caja", HOY_FGEM, "100", null, null));
         assertNull(cajaFGEM.vidaUtilAniosFGEM());
         igualFGEM("0", cajaFGEM.valorResidualFGEM());
@@ -129,25 +125,23 @@ class PatrimonioServiceTestFGEM {
         igualFGEM("1000", conPagoFGEM.pagadoFGEM());
         igualFGEM("2000", conPagoFGEM.saldoFGEM());
 
-        assertInvalidoFGEM(() -> servicioFGEM.registrarPagoFGEM(prestamoFGEM.idFGEM(), HOY_FGEM, new BigDecimal("2500"), null));      // supera el saldo
-        assertInvalidoFGEM(() -> servicioFGEM.registrarPagoFGEM(prestamoFGEM.idFGEM(), LocalDate.of(2025, 9, 1), BigDecimal.ONE, null)); // antes del inicio
-        assertInvalidoFGEM(() -> servicioFGEM.registrarPagoFGEM(prestamoFGEM.idFGEM(), HOY_FGEM.plusDays(1), BigDecimal.ONE, null));  // futuro
+        assertInvalidoFGEM(() -> servicioFGEM.registrarPagoFGEM(prestamoFGEM.idFGEM(), HOY_FGEM, new BigDecimal("2500"), null));
+        assertInvalidoFGEM(() -> servicioFGEM.registrarPagoFGEM(prestamoFGEM.idFGEM(), LocalDate.of(2025, 9, 1), BigDecimal.ONE, null));
+        assertInvalidoFGEM(() -> servicioFGEM.registrarPagoFGEM(prestamoFGEM.idFGEM(), HOY_FGEM.plusDays(1), BigDecimal.ONE, null));
         assertInvalidoFGEM(() -> servicioFGEM.actualizarDeudaFGEM(prestamoFGEM.idFGEM(), deudaFGEM(CategoriaDeudaFGEM.PRESTAMO_BANCARIO,
-                "Caja Huancayo", LocalDate.of(2025, 10, 1), "900", null, null)));                             // menor que lo pagado
+                "Caja Huancayo", LocalDate.of(2025, 10, 1), "900", null, null)));
         assertInvalidoFGEM(() -> servicioFGEM.actualizarDeudaFGEM(prestamoFGEM.idFGEM(), deudaFGEM(CategoriaDeudaFGEM.PRESTAMO_BANCARIO,
-                "Caja Huancayo", LocalDate.of(2025, 12, 1), "3000", null, null)));                            // inicio después del pago
+                "Caja Huancayo", LocalDate.of(2025, 12, 1), "3000", null, null)));
 
         DeudaFGEM canceladaFGEM = servicioFGEM.registrarPagoFGEM(prestamoFGEM.idFGEM(), HOY_FGEM, new BigDecimal("2000"), null);
         assertTrue(canceladaFGEM.canceladaFGEM());
         assertEquals("Cancelada", canceladaFGEM.estadoTextoFGEM());
         assertInvalidoFGEM(() -> servicioFGEM.registrarPagoFGEM(prestamoFGEM.idFGEM(), HOY_FGEM, BigDecimal.ONE, null));
-        // Sin deudas ni activos registrados, pero los pagos salieron de la caja de tesorería: el balance lo refleja.
         var balanceFGEM = servicioFGEM.situacionFGEM().balanceFGEM();
         assertEquals(0, balanceFGEM.deudasPendientesFGEM());
         igualFGEM("-3000", balanceFGEM.efectivoFGEM());
         assertFalse(balanceFGEM.sinRegistrosFGEM());
 
-        // Anular un pago devuelve el saldo.
         PagoDeudaFGEM ultimoFGEM = servicioFGEM.listarPagosFGEM(prestamoFGEM.idFGEM()).get(0);
         DeudaFGEM reabiertaFGEM = servicioFGEM.anularPagoFGEM(ultimoFGEM.idFGEM());
         igualFGEM("2000", reabiertaFGEM.saldoFGEM());
@@ -216,8 +210,6 @@ class PatrimonioServiceTestFGEM {
         assertThrows(AccesoDenegadoExceptionFGEM.class,
                 () -> servicioFGEM.registrarDeudaFGEM(deudaFGEM(CategoriaDeudaFGEM.OTRAS, "Banco", HOY_FGEM, "100", null, null)));
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private ActivoFGEM activoFGEM(CategoriaActivoFGEM categoriaFGEM, String descripcionFGEM, LocalDate fechaFGEM, String valorFGEM, Integer vidaFGEM,
                           String residualFGEM) {

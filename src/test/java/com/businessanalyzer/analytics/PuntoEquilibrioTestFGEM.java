@@ -15,7 +15,6 @@ class PuntoEquilibrioTestFGEM {
 
     @Test
     void casoClasicoDeLibroFGEM() {
-        // Ventas 1000, costos variables 600 -> razón de contribución 40 %; fijos 300 -> equilibrio 750
         PuntoEquilibrioFGEM peFGEM = PuntoEquilibrioFGEM.calcularFGEM(bdFGEM("1000"), bdFGEM("600"), bdFGEM("300"));
 
         assertEquals(0, bdFGEM("400").compareTo(peFGEM.margenContribucionFGEM()));
@@ -67,7 +66,6 @@ class PuntoEquilibrioTestFGEM {
         assertEquals("enero – marzo 2026", primerTrimestreFGEM.descripcionFGEM());
 
         PeriodoFGEM parcialFGEM = new PeriodoFGEM(LocalDate.of(2026, 11, 1), LocalDate.of(2026, 11, 13));
-        // Mes en curso: los mismos días del mes anterior, no medio mes contra un mes entero.
         assertEquals(new PeriodoFGEM(LocalDate.of(2026, 10, 1), LocalDate.of(2026, 10, 13)), parcialFGEM.anteriorFGEM());
         assertEquals("del 1 al 13 de noviembre 2026", parcialFGEM.descripcionFGEM());
 

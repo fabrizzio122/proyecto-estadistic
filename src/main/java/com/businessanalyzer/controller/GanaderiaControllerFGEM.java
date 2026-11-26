@@ -69,7 +69,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-/** Módulo "Ganadería": hato, movimientos, producción e indicadores técnicos (empresas agropecuarias). */
 public class GanaderiaControllerFGEM implements VistaModuloFGEM {
 
     private static final String TODAS_FGEM = "Todas las especies";
@@ -77,7 +76,6 @@ public class GanaderiaControllerFGEM implements VistaModuloFGEM {
     private static final PseudoClass RESULTADO_FGEM = PseudoClass.getPseudoClass("resultado");
     private static final PseudoClass ARCHIVADO_FGEM = PseudoClass.getPseudoClass("archivado");
 
-    /** Fila de la tabla del hato: una categoría, el subtotal de una especie o el total. */
     private record FilaHatoFGEM(String conceptoFGEM, int cabezasFGEM, BigDecimal precioFGEM, BigDecimal valorFGEM, int nivelFGEM) {
     }
 
@@ -197,8 +195,6 @@ public class GanaderiaControllerFGEM implements VistaModuloFGEM {
         cargarFGEM();
     }
 
-    // ------------------------------------------------------------------ período
-
     @FXML
     private void ultimos12MesesFGEM() {
         fijarUltimos12MesesFGEM();
@@ -216,8 +212,6 @@ public class GanaderiaControllerFGEM implements VistaModuloFGEM {
         dpHastaFGEM.setValue(hoyFGEM);
         dpDesdeFGEM.setValue(hoyFGEM.withDayOfYear(1));
     }
-
-    // ------------------------------------------------------------------ carga
 
     @FXML
     private void cargarFGEM() {
@@ -353,8 +347,6 @@ public class GanaderiaControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ evolución
-
     private void mostrarEvolucionFGEM() {
         EmpresaFGEM empresaFGEM = contextoFGEM.sesionFGEM().empresaActivaFGEM().orElse(null);
         if (empresaFGEM == null || empresaFGEM.sectorFGEM() != SectorFGEM.AGROPECUARIO || cmbMesesEvolucionFGEM.getValue() == null) {
@@ -489,8 +481,6 @@ public class GanaderiaControllerFGEM implements VistaModuloFGEM {
                 || mFGEM.especieFGEM().descripcionFGEM().equals(especieFGEM));
     }
 
-    // ------------------------------------------------------------------ acciones
-
     @FXML
     private void nuevoMovimientoFGEM() {
         abrirFormularioMovimientoFGEM(null);
@@ -614,7 +604,6 @@ public class GanaderiaControllerFGEM implements VistaModuloFGEM {
             NotificadorFGEM.errorFGEM(ErroresFGEM.mensajeFGEM(eFGEM));
             return;
         }
-        // Solo las especies que tienen animales; si aún no hay ninguno, todas.
         List<EspecieFGEM> especiesFGEM = hatoActualFGEM.stream().map(eFGEM -> eFGEM.categoriaFGEM().especieFGEM()).distinct().toList();
         if (especiesFGEM.isEmpty()) {
             especiesFGEM = List.of(EspecieFGEM.values());
@@ -650,8 +639,6 @@ public class GanaderiaControllerFGEM implements VistaModuloFGEM {
             NotificadorFGEM.exitoFGEM("Precios guardados.");
         }
     }
-
-    // ------------------------------------------------------------------ tablas
 
     private void configurarTablaHatoFGEM() {
         colHatoCategoriaFGEM.setCellValueFactory(cFGEM -> new ReadOnlyObjectWrapper<>(cFGEM.getValue()));
@@ -775,8 +762,6 @@ public class GanaderiaControllerFGEM implements VistaModuloFGEM {
         };
     }
 
-    // ------------------------------------------------------------------ utilidades
-
     private GanaderiaServiceFGEM servicioFGEM() {
         return contextoFGEM.ganaderiaFGEM();
     }
@@ -804,7 +789,6 @@ public class GanaderiaControllerFGEM implements VistaModuloFGEM {
         return hatoActualFGEM.stream().filter(eFGEM -> eFGEM.categoriaFGEM() == cFGEM).mapToInt(ExistenciaValorizadaFGEM::cabezasFGEM).sum();
     }
 
-    /** Formulario de movimiento: los campos se activan según el tipo (valor en compras y ventas, causa en muertes...). */
     private final class FormularioMovimientoFGEM {
         private final ComboBox<TipoMovimientoGanadoFGEM> cmbTipoFGEM =
                 new ComboBox<>(FXCollections.observableArrayList(TipoMovimientoGanadoFGEM.values()));
@@ -842,7 +826,6 @@ public class GanaderiaControllerFGEM implements VistaModuloFGEM {
                 actualizarDestinoFGEM();
             });
             if (cmbEspecieFGEM.getItems().size() > 0) {
-                // Propone la especie con más animales.
                 hatoActualFGEM.stream().max(java.util.Comparator.comparingInt(ExistenciaValorizadaFGEM::cabezasFGEM))
                         .ifPresent(eFGEM -> cmbEspecieFGEM.setValue(eFGEM.categoriaFGEM().especieFGEM()));
             }
@@ -920,7 +903,6 @@ public class GanaderiaControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    /** Formulario de producción de leche, fibra o lana. */
     private final class FormularioProduccionFGEM {
         private final ComboBox<EspecieFGEM> cmbEspecieFGEM = new ComboBox<>(FXCollections.observableArrayList(EspecieFGEM.values()));
         private final ComboBox<ProductoGanaderoFGEM> cmbProductoFGEM = new ComboBox<>();

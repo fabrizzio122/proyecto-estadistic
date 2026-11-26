@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Situación de una campaña agrícola. */
 public enum EstadoCampaniaFGEM {
 
     EN_CURSO("En curso"),
@@ -18,7 +17,6 @@ public enum EstadoCampaniaFGEM {
         return descripcionFGEM;
     }
 
-    /** Terminó (cosechada o perdida); sus resultados ya son definitivos. */
     public boolean cerradaFGEM() {
         return this == COSECHADA || this == PERDIDA;
     }

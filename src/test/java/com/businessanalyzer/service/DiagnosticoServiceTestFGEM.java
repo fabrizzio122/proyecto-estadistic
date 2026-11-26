@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/** Reloj de pruebas en 2026-01-15: se evalúan octubre a diciembre de 2025. */
 class DiagnosticoServiceTestFGEM {
 
     @TempDir
@@ -61,7 +60,6 @@ class DiagnosticoServiceTestFGEM {
         assertTrue(dFGEM.evaluadoFGEM());
         assertEquals(java.util.Arrays.stream(TipoIndicadorFGEM.values()).filter(tFGEM -> !tFGEM.soloAgropecuarioFGEM()).count(), (long) dFGEM.hallazgosFGEM().size());
         assertTrue(dFGEM.hallazgosFGEM().stream().allMatch(hFGEM -> hFGEM.semaforoFGEM().evaluadoFGEM()), dFGEM.hallazgosFGEM().toString());
-        // La demo vende el agua mineral por debajo de su costo.
         assertTrue(dFGEM.hallazgosFGEM().stream().anyMatch(hFGEM -> hFGEM.tipoFGEM() == TipoIndicadorFGEM.PRODUCTOS_CON_PERDIDA
                 && hFGEM.semaforoFGEM() != SemaforoFGEM.VERDE && hFGEM.lecturaFGEM().contains("Agua mineral")));
         assertFalse(dFGEM.recomendacionesFGEM().isEmpty());

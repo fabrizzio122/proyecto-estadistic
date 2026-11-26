@@ -1,5 +1,3 @@
--- V3: empresas y acceso de usuarios a cada empresa.
-
 CREATE TABLE empresa (
     id                       INTEGER PRIMARY KEY AUTOINCREMENT,
     razon_social             TEXT    NOT NULL,
@@ -18,8 +16,6 @@ CREATE TABLE empresa (
     actualizado_en           TEXT    NOT NULL
 );
 
--- Usuarios (no administradores) que pueden trabajar con cada empresa.
--- Los administradores acceden a todas las empresas sin necesidad de asignación.
 CREATE TABLE usuario_empresa (
     usuario_id INTEGER NOT NULL REFERENCES usuario (id) ON DELETE CASCADE,
     empresa_id INTEGER NOT NULL REFERENCES empresa (id) ON DELETE CASCADE,

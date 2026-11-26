@@ -9,28 +9,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Calcula escenarios "¿qué pasaría si...?" a partir de la base (montos mensuales).
- * <pre>
- * ventas          = base × (1 + precio) × (1 + volumen)
- * costo de ventas = base × (1 + volumen) × (1 + costo unitario)
- * gastos variables= base × (1 + volumen) × (1 + gastos variables)
- * costos fijos    = base × (1 + costos fijos) + costo fijo adicional
- * UAI             = ventas − costo de ventas − gastos variables − costos fijos + otros ingresos
- * impuesto        = UAI × tasa (solo si UAI &gt; 0)
- * </pre>
- * Los cambios de precio y de volumen son independientes: si subir precios hará que se venda
- * menos, hay que indicarlo también en el volumen.
- */
 public final class SimuladorFGEM {
 
     private static final BigDecimal UNO_FGEM = BigDecimal.ONE;
     private static final int ESCALA_FGEM = MargenesFGEM.ESCALA_RATIO_FGEM;
 
-    /** Variación que se aplica a cada variable en el análisis de sensibilidad. */
     public static final BigDecimal VARIACION_SENSIBILIDAD_FGEM = new BigDecimal("0.10");
 
-    /** Efecto de mover una variable hacia arriba y hacia abajo. */
     public record SensibilidadFGEM(VariableFGEM variableFGEM, BigDecimal utilidadSiBajaFGEM, BigDecimal utilidadSiSubeFGEM,
                                BigDecimal utilidadEscenarioFGEM) {
 
@@ -55,10 +40,6 @@ public final class SimuladorFGEM {
                 dineroFGEM(bFGEM.otrosIngresosFGEM()), dineroFGEM(uaiFGEM), dineroFGEM(impuestoFGEM), dineroFGEM(uaiFGEM.subtract(impuestoFGEM)));
     }
 
-    /**
-     * Utilidad neta si cada variable sube o baja {@value #VARIACION_SENSIBILIDAD_TEXTO} sobre el escenario,
-     * ordenada de mayor a menor impacto.
-     */
     public static List<SensibilidadFGEM> sensibilidadFGEM(BaseSimulacionFGEM bFGEM, SupuestosFGEM sFGEM) {
         BigDecimal actualFGEM = simularFGEM(bFGEM, sFGEM).utilidadNetaFGEM();
         List<SensibilidadFGEM> resultadoFGEM = new ArrayList<>();
@@ -72,13 +53,8 @@ public final class SimuladorFGEM {
         return resultadoFGEM;
     }
 
-    /** Texto de la variación de sensibilidad, para documentación. */
     public static final String VARIACION_SENSIBILIDAD_TEXTO_FGEM = "10 %";
 
-    /**
-     * Cambio de precio necesario (con el resto de supuestos igual) para alcanzar una utilidad neta mensual.
-     * Vacío si no hay ventas.
-     */
     public static Optional<BigDecimal> cambioPrecioParaMetaFGEM(BaseSimulacionFGEM bFGEM, SupuestosFGEM sFGEM, BigDecimal metaUtilidadNetaFGEM) {
         BigDecimal ventasSinPrecioFGEM = bFGEM.ventasFGEM().multiply(UNO_FGEM.add(sFGEM.volumenFGEM()));
         if (ventasSinPrecioFGEM.signum() <= 0) {
@@ -93,10 +69,6 @@ public final class SimuladorFGEM {
         return Optional.of(uaiMetaFGEM.add(restoFGEM).divide(ventasSinPrecioFGEM, ESCALA_FGEM, RoundingMode.HALF_UP).subtract(UNO_FGEM));
     }
 
-    /**
-     * Cambio de volumen necesario (con el resto de supuestos igual) para alcanzar una utilidad neta mensual.
-     * Vacío si cada venta no deja margen de contribución o si haría falta vender menos que cero.
-     */
     public static Optional<BigDecimal> cambioVolumenParaMetaFGEM(BaseSimulacionFGEM bFGEM, SupuestosFGEM sFGEM, BigDecimal metaUtilidadNetaFGEM) {
         BigDecimal contribucionPorUnidadDeVolumenFGEM = bFGEM.ventasFGEM().multiply(UNO_FGEM.add(sFGEM.precioFGEM()))
                 .subtract(bFGEM.costoVentasFGEM().multiply(UNO_FGEM.add(sFGEM.costoUnitarioFGEM())))
@@ -111,7 +83,6 @@ public final class SimuladorFGEM {
         return cambioFGEM.compareTo(UNO_FGEM.negate()) < 0 ? Optional.empty() : Optional.of(cambioFGEM);
     }
 
-    /** UAI que deja la utilidad neta pedida después de impuestos. */
     private static BigDecimal uaiNecesariaFGEM(BigDecimal metaUtilidadNetaFGEM, BigDecimal tasaFGEM) {
         if (metaUtilidadNetaFGEM.signum() <= 0) {
             return metaUtilidadNetaFGEM;
@@ -120,7 +91,6 @@ public final class SimuladorFGEM {
         return retenidoFGEM.signum() <= 0 ? null : metaUtilidadNetaFGEM.divide(retenidoFGEM, ESCALA_FGEM, RoundingMode.HALF_UP);
     }
 
-    /** Montos del escenario con precisión completa: se redondean a céntimos solo al mostrarlos. */
     private static BigDecimal dineroFGEM(BigDecimal valorFGEM) {
         return valorFGEM.setScale(BaseSimulacionFGEM.ESCALA_INTERNA_FGEM, RoundingMode.HALF_UP);
     }

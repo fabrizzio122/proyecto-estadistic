@@ -33,10 +33,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
-/**
- * Módulo «Importar desde Excel»: descarga de la plantilla, revisión del archivo (sin guardar nada) e
- * importación a la empresa activa. Las reglas están en {@link com.businessanalyzer.service.ImportacionServiceFGEM}.
- */
 public class ImportacionControllerFGEM implements VistaModuloFGEM {
 
     private static final String CLAVE_CARPETA_FGEM = "importacion.carpeta";
@@ -60,7 +56,6 @@ public class ImportacionControllerFGEM implements VistaModuloFGEM {
     @FXML private TableColumn<ErrorFilaFGEM, String> colFilaFGEM;
     @FXML private TableColumn<ErrorFilaFGEM, String> colProblemaFGEM;
 
-    /** Archivo elegido y la empresa sobre la que se revisó; la importación exige que no hayan cambiado. */
     private Path archivoFGEM;
     private Long empresaRevisadaFGEM;
     private boolean listoParaImportarFGEM;
@@ -88,7 +83,6 @@ public class ImportacionControllerFGEM implements VistaModuloFGEM {
         lblEmpresaFGEM.setText(empresaFGEM.map(eFGEM -> "Los datos se cargarán en: " + eFGEM.nombreVisibleFGEM())
                 .orElse("Elige primero una empresa activa en la barra superior."));
         btnElegirFGEM.setDisable(empresaFGEM.isEmpty());
-        // Si se cambió de empresa después de revisar, hay que revisar de nuevo.
         if (empresaRevisadaFGEM != null && empresaFGEM.map(EmpresaFGEM::idFGEM).filter(empresaRevisadaFGEM::equals).isEmpty()) {
             listoParaImportarFGEM = false;
             mostrarEstadoFGEM("Cambiaste de empresa activa. Pulsa «Revisar otra vez» para revisar el archivo con la empresa nueva.",
@@ -96,8 +90,6 @@ public class ImportacionControllerFGEM implements VistaModuloFGEM {
         }
         actualizarBotonesFGEM(false);
     }
-
-    // ------------------------------------------------------------------ plantilla
 
     @FXML
     private void guardarPlantillaVaciaFGEM() {
@@ -126,8 +118,6 @@ public class ImportacionControllerFGEM implements VistaModuloFGEM {
             abrirFGEM(guardadaFGEM);
         });
     }
-
-    // ------------------------------------------------------------------ revisión
 
     @FXML
     private void elegirArchivoFGEM() {
@@ -163,8 +153,6 @@ public class ImportacionControllerFGEM implements VistaModuloFGEM {
         });
     }
 
-    // ------------------------------------------------------------------ importación
-
     @FXML
     private void importarFGEM() {
         if (!listoParaImportarFGEM || archivoFGEM == null) {
@@ -185,7 +173,6 @@ public class ImportacionControllerFGEM implements VistaModuloFGEM {
         }, resultadoFGEM -> {
             mostrarResultadoFGEM(resultadoFGEM);
             if (resultadoFGEM.aplicadoFGEM()) {
-                // Para no importar dos veces el mismo archivo por accidente.
                 archivoFGEM = null;
                 empresaRevisadaFGEM = null;
                 listoParaImportarFGEM = false;
@@ -197,8 +184,6 @@ public class ImportacionControllerFGEM implements VistaModuloFGEM {
             actualizarBotonesFGEM(false);
         });
     }
-
-    // ------------------------------------------------------------------ presentación
 
     private void mostrarResultadoFGEM(ResultadoFGEM rFGEM) {
         limpiarResultadoFGEM();
@@ -277,7 +262,6 @@ public class ImportacionControllerFGEM implements VistaModuloFGEM {
         mostrarErroresFGEM(List.of());
     }
 
-    /** @param estiloFGEM una de {@link #ESTILOS_AVISO_FGEM}, o {@code null} para un mensaje neutro */
     private void mostrarEstadoFGEM(String textoFGEM, String estiloFGEM) {
         lblEstadoFGEM.setText(textoFGEM);
         lblEstadoFGEM.getStyleClass().removeAll(ESTILOS_AVISO_FGEM);
@@ -295,8 +279,6 @@ public class ImportacionControllerFGEM implements VistaModuloFGEM {
         btnRevisarFGEM.setDisable(ocupadoFGEM || sinEmpresaFGEM);
         btnImportarFGEM.setDisable(ocupadoFGEM || !listoParaImportarFGEM);
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private <T> void ejecutarFGEM(Callable<T> trabajoFGEM, java.util.function.Consumer<T> alTerminarFGEM) {
         actualizarBotonesFGEM(true);
@@ -329,7 +311,6 @@ public class ImportacionControllerFGEM implements VistaModuloFGEM {
             try {
                 contextoFGEM.configuracionFGEM().guardarFGEM(CLAVE_CARPETA_FGEM, carpetaFGEM.toString());
             } catch (RuntimeException eFGEM) {
-                // Recordar la carpeta es solo una comodidad.
             }
         }
     }
@@ -354,7 +335,6 @@ public class ImportacionControllerFGEM implements VistaModuloFGEM {
         return tablaErroresFGEM.getScene().getWindow();
     }
 
-    /** Celda que muestra el texto completo en varias líneas. */
     private final class CeldaAjustadaFGEM extends TableCell<ErrorFilaFGEM, String> {
         private final Label textoFGEM = new Label();
 

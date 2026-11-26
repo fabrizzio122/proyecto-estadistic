@@ -42,7 +42,6 @@ class PreferenciasServiceTestFGEM {
         assertEquals(Optional.of("LIMA"), servicioFGEM.colorDelUsuarioFGEM());
         assertEquals(Optional.of("LIMA"), servicioFGEM.ultimoColorFGEM());
 
-        // Otro usuario tiene su propio color.
         entornoFGEM.crearUsuarioFGEM("ana", "ANALISTA");
         entornoFGEM.entrarComoFGEM("ana", "Temporal123");
         assertEquals(Optional.empty(), servicioFGEM.colorDelUsuarioFGEM());

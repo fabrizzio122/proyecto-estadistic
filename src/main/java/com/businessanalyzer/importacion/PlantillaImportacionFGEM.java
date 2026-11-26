@@ -34,25 +34,15 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
-/**
- * Formato del libro de Excel para importar datos: hojas, columnas y nombres aceptados en los
- * encabezados. También genera la plantilla vacía y una plantilla con un ejemplo de bodega.
- * <p>
- * Las columnas se reconocen por su encabezado (sin importar mayúsculas, tildes ni el orden), así el
- * usuario puede pegar sus propios datos aunque sus columnas tengan otro orden.
- */
 public final class PlantillaImportacionFGEM {
 
-    /** Filas de datos con lista desplegable en la plantilla. */
     private static final int FILAS_CON_LISTA_FGEM = 5_000;
 
     private PlantillaImportacionFGEM() {
     }
 
-    /** Una columna: título en la plantilla, si es obligatoria, ayuda y otros encabezados aceptados. */
     public record ColumnaFGEM(String tituloFGEM, boolean obligatoriaFGEM, int anchoFGEM, String ayudaFGEM, List<String> aliasFGEM) {
 
-        /** El título y los alias, como claves de encabezado (ver {@link #claveEncabezadoFGEM}). */
         public List<String> nombresAceptadosFGEM() {
             List<String> nombresFGEM = new ArrayList<>();
             nombresFGEM.add(claveEncabezadoFGEM(tituloFGEM));
@@ -61,10 +51,8 @@ public final class PlantillaImportacionFGEM {
         }
     }
 
-    /** Palabras que no cambian el sentido de un encabezado: «N° de boleta» = «Número de boleta» = «Boleta». */
     private static final java.util.Set<String> RELLENO_ENCABEZADO_FGEM = java.util.Set.of("n", "no", "nro", "num", "numero", "de", "del", "la", "el");
 
-    /** Encabezado normalizado y sin palabras de relleno, para comparar columnas. */
     public static String claveEncabezadoFGEM(String textoFGEM) {
         String[] palabrasFGEM = normalizarFGEM(textoFGEM).split(" ");
         String claveFGEM = Arrays.stream(palabrasFGEM).filter(pFGEM -> !RELLENO_ENCABEZADO_FGEM.contains(pFGEM))
@@ -76,7 +64,6 @@ public final class PlantillaImportacionFGEM {
         return new ColumnaFGEM(tituloFGEM, obligatoriaFGEM, anchoFGEM, ayudaFGEM, List.of(aliasFGEM));
     }
 
-    /** Hojas del libro de importación, en el orden en que se procesan. */
     public enum HojaFGEM {
         PRODUCTOS("Productos", "Catálogo: lo que vendes, cuánto te cuesta y a cuánto lo vendes.", List.of(
                 colFGEM("Código", false, 14, "Opcional. Vacío = el sistema asigna P-0001, P-0002…", "cod", "codigo del producto", "sku"),
@@ -140,7 +127,6 @@ public final class PlantillaImportacionFGEM {
         }
     }
 
-    /** Minúsculas, sin tildes ni signos y con un solo espacio entre palabras: «N° de Boleta» → «n de boleta». */
     public static String normalizarFGEM(String textoFGEM) {
         if (textoFGEM == null) {
             return "";
@@ -149,13 +135,6 @@ public final class PlantillaImportacionFGEM {
         return sinTildesFGEM.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", " ").trim();
     }
 
-    // ------------------------------------------------------------------ generación de la plantilla
-
-    /**
-     * Crea la plantilla en {@code destinoFGEM}.
-     *
-     * @param conEjemploFGEM incluir los datos de ejemplo de una bodega (tres meses anteriores a {@code hoyFGEM})
-     */
     public static void crearFGEM(Path destinoFGEM, boolean conEjemploFGEM, LocalDate hoyFGEM) throws IOException {
         try (XSSFWorkbook libroFGEM = new XSSFWorkbook()) {
             EstilosFGEM estilosFGEM = new EstilosFGEM(libroFGEM);
@@ -233,7 +212,6 @@ public final class PlantillaImportacionFGEM {
         return hojaFGEM;
     }
 
-    /** Hoja oculta con las opciones de las listas desplegables. */
     private static void crearListasFGEM(Workbook libroFGEM, Map<HojaFGEM, Sheet> hojasFGEM) {
         Sheet listasFGEM = libroFGEM.createSheet("Listas");
         List<List<String>> columnasFGEM = List.of(
@@ -258,7 +236,6 @@ public final class PlantillaImportacionFGEM {
         listaFGEM(hojasFGEM.get(HojaFGEM.GASTOS), 4, "Listas!$D$1:$D$" + columnasFGEM.get(3).size());
     }
 
-    /** Lista desplegable como sugerencia: también se puede escribir otro valor (por ejemplo, «luz»). */
     private static void listaFGEM(Sheet hojaFGEM, int columnaFGEM, String rangoFGEM) {
         DataValidationHelper ayudanteFGEM = hojaFGEM.getDataValidationHelper();
         DataValidation validacionFGEM = ayudanteFGEM.createValidation(ayudanteFGEM.createFormulaListConstraint(rangoFGEM),
@@ -267,7 +244,6 @@ public final class PlantillaImportacionFGEM {
         hojaFGEM.addValidationData(validacionFGEM);
     }
 
-    /** Estilos de la plantilla. */
     static final class EstilosFGEM {
         final CellStyle tituloFGEM;
         final CellStyle subtituloFGEM;
@@ -310,11 +286,6 @@ public final class PlantillaImportacionFGEM {
         }
     }
 
-    /**
-     * Tres meses de una bodega de barrio en el Nuevo RUS (sin IGV): catálogo, ventas por boleta,
-     * reposición semanal al distribuidor, pan diario y gastos del mes. Los datos son siempre los mismos
-     * (semilla fija) y el stock nunca queda en negativo.
-     */
     static final class EjemploBodegaFGEM {
 
         private record ProductoEjemploFGEM(String codigoFGEM, String nombreFGEM, String categoriaFGEM, UnidadMedidaFGEM unidadFGEM,
@@ -384,7 +355,6 @@ public final class PlantillaImportacionFGEM {
             int facturaFGEM = 3100;
 
             for (LocalDate diaFGEM = desdeFGEM; !diaFGEM.isAfter(hastaFGEM); diaFGEM = diaFGEM.plusDays(1)) {
-                // Reposición: el primer día (inventario inicial) y cada lunes, hasta el stock objetivo.
                 if (diaFGEM.equals(desdeFGEM) || diaFGEM.getDayOfWeek() == DayOfWeek.MONDAY) {
                     String comprobanteFGEM = "F001-" + (facturaFGEM++);
                     for (ProductoEjemploFGEM pFGEM : PRODUCTOS_FGEM) {
@@ -396,7 +366,6 @@ public final class PlantillaImportacionFGEM {
                         }
                     }
                 }
-                // Pan del día: se completa hasta tener 120 panes.
                 ProductoEjemploFGEM panFGEM = PRODUCTOS_FGEM.get(PRODUCTOS_FGEM.size() - 1);
                 BigDecimal panesFGEM = BigDecimal.valueOf(PANES_DIARIOS_FGEM).subtract(stockFGEM.get(panFGEM.codigoFGEM()));
                 if (panesFGEM.signum() > 0) {
@@ -405,7 +374,6 @@ public final class PlantillaImportacionFGEM {
                     stockFGEM.merge(panFGEM.codigoFGEM(), panesFGEM, BigDecimal::add);
                 }
 
-                // Ventas del día: más los fines de semana.
                 boolean finDeSemanaFGEM = diaFGEM.getDayOfWeek().getValue() >= 6;
                 int boletasFGEM = (finDeSemanaFGEM ? 7 : 4) + azarFGEM.nextInt(4);
                 for (int bFGEM = 0; bFGEM < boletasFGEM; bFGEM++) {
@@ -420,7 +388,7 @@ public final class PlantillaImportacionFGEM {
                     }
                     for (ProductoEjemploFGEM pFGEM : elegidosFGEM) {
                         BigDecimal cantidadFGEM = pFGEM.unidadFGEM() == UnidadMedidaFGEM.KILOGRAMO
-                                ? BigDecimal.valueOf(25 + azarFGEM.nextInt(4) * 25L, 2)                 // 0.25 a 1.00 kg
+                                ? BigDecimal.valueOf(25 + azarFGEM.nextInt(4) * 25L, 2)
                                 : BigDecimal.valueOf(1 + azarFGEM.nextInt(pFGEM.maximoPorVentaFGEM()));
                         BigDecimal disponibleFGEM = stockFGEM.get(pFGEM.codigoFGEM());
                         if (disponibleFGEM.compareTo(cantidadFGEM) < 0) {
@@ -455,7 +423,6 @@ public final class PlantillaImportacionFGEM {
             return filaFGEM + 1;
         }
 
-        /** Producto al azar, con más probabilidad para los más populares. */
         private ProductoEjemploFGEM elegirFGEM() {
             int totalFGEM = PRODUCTOS_FGEM.stream().mapToInt(ProductoEjemploFGEM::popularidadFGEM).sum();
             int puntoFGEM = azarFGEM.nextInt(totalFGEM);

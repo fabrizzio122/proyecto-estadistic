@@ -83,7 +83,6 @@ class EmpresaServiceTestFGEM {
         assertThrows(ValidacionExceptionFGEM.class, () -> servicioFGEM.crearFGEM(datosFGEM("Copia", "AB-12345")),
                 "La comparación no distingue mayúsculas");
         assertEquals("AB-12345", segundaFGEM.identificacionFiscalFGEM(), "Se guarda en mayúsculas");
-        // Sin RUC se pueden registrar varias empresas
         servicioFGEM.crearFGEM(datosFGEM("Sin RUC uno", null));
         servicioFGEM.crearFGEM(datosFGEM("Sin RUC dos", null));
     }

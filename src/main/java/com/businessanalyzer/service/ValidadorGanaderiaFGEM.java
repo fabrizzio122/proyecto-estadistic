@@ -9,7 +9,6 @@ import com.businessanalyzer.util.ValidacionesFGEM;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/** Valida y normaliza los movimientos del hato y los registros de producción. */
 final class ValidadorGanaderiaFGEM {
 
     private static final LocalDate FECHA_MINIMA_FGEM = LocalDate.of(1990, 1, 1);

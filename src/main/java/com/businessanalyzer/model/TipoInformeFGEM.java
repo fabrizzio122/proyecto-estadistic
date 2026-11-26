@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Informes que puede generar el sistema y su formato de archivo. */
 public enum TipoInformeFGEM {
 
     INFORME_EJECUTIVO("Informe ejecutivo", FormatoFGEM.PDF, "fth-award",
@@ -27,7 +26,6 @@ public enum TipoInformeFGEM {
             "Productos por reponer con la cantidad y el costo como fórmula, para ajustar antes de comprar. "
                     + "Se genera desde «Sugerencias».");
 
-    /** Formato del archivo generado. */
     public enum FormatoFGEM {
         PDF("PDF", "pdf", "Documento PDF"),
         EXCEL("Excel", "xlsx", "Libro de Excel");
@@ -67,7 +65,6 @@ public enum TipoInformeFGEM {
         this.descripcionFGEM = descripcionFGEM;
     }
 
-    /** Se genera desde su propio módulo (visitas, valoración, sugerencias), no desde el módulo de informes. */
     public boolean desdeOtroModuloFGEM() {
         return this == INFORME_TECNICO || this == VALORACION || this == LISTA_COMPRAS || this == LISTA_COMPRAS_EXCEL;
     }
@@ -80,7 +77,6 @@ public enum TipoInformeFGEM {
         return formatoFGEM;
     }
 
-    /** Código del icono Feather (Ikonli). */
     public String iconoFGEM() {
         return iconoFGEM;
     }

@@ -4,17 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 
-/**
- * Totales de una venta o compra.
- * <ul>
- *     <li>Subtotal de línea = cantidad × precio unitario, redondeado a 2 decimales.</li>
- *     <li>Subtotal = suma de los subtotales de línea (sin impuestos).</li>
- *     <li>Impuesto = subtotal × tasa ÷ 100, redondeado a 2 decimales.</li>
- *     <li>Total = subtotal + impuesto.</li>
- *     <li>Costo total = suma de cantidad × costo unitario (para el margen bruto de las ventas).</li>
- * </ul>
- * Redondeo comercial (mitad hacia arriba).
- */
 public final class CalculadoraOperacionFGEM {
 
     private static final int DECIMALES_MONEDA_FGEM = 2;

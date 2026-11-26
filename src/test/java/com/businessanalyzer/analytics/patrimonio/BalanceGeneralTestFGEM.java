@@ -21,25 +21,20 @@ class BalanceGeneralTestFGEM {
 
     private static final LocalDate CORTE_FGEM = LocalDate.of(2026, 1, 15);
 
-    // ------------------------------------------------------------------ depreciación
-
     @Test
     void depreciaEnLineaRectaPorMesesCompletosFGEM() {
-        // 12 000 a 10 años = 100 al mes; 12 meses completos -> 1 200.
         DepreciacionFGEM dFGEM = DepreciacionFGEM.deFGEM(activoFGEM(CategoriaActivoFGEM.MAQUINARIA, "12000", LocalDate.of(2025, 1, 15), 10, "0"), CORTE_FGEM);
         assertEquals(12, dFGEM.mesesTranscurridosFGEM());
         igualFGEM("1200", dFGEM.acumuladaFGEM());
         igualFGEM("100", dFGEM.mensualFGEM());
         igualFGEM("10800", dFGEM.valorEnLibrosFGEM());
 
-        // Un día antes de cumplir el mes 12 solo cuentan 11 meses.
         DepreciacionFGEM antesFGEM = DepreciacionFGEM.deFGEM(activoFGEM(CategoriaActivoFGEM.MAQUINARIA, "12000", LocalDate.of(2025, 1, 16), 10, "0"), CORTE_FGEM);
         igualFGEM("1100", antesFGEM.acumuladaFGEM());
     }
 
     @Test
     void elValorResidualNoSeDepreciaFGEM() {
-        // (5 500 − 800) / 60 meses = 78.3333 al mes.
         DepreciacionFGEM dFGEM = DepreciacionFGEM.deFGEM(activoFGEM(CategoriaActivoFGEM.VEHICULOS, "5500", LocalDate.of(2025, 1, 15), 5, "800"), CORTE_FGEM);
         igualFGEM("78.33", dFGEM.mensualFGEM());
         igualFGEM("940", dFGEM.acumuladaFGEM());
@@ -62,8 +57,6 @@ class BalanceGeneralTestFGEM {
         assertNull(DepreciacionFGEM.avanceFGEM(activoFGEM(CategoriaActivoFGEM.TERRENOS, "1", CORTE_FGEM, null, "0"), CORTE_FGEM));
     }
 
-    // ------------------------------------------------------------------ balance
-
     @Test
     void armaElBalanceConCortoYLargoPlazoFGEM() {
         List<ActivoFGEM> activosFGEM = List.of(
@@ -71,10 +64,9 @@ class BalanceGeneralTestFGEM {
                 activoFGEM(CategoriaActivoFGEM.MAQUINARIA, "12000", LocalDate.of(2025, 1, 15), 10, "0"));
         List<DeudaFGEM> deudasFGEM = List.of(
                 deudaFGEM(CategoriaDeudaFGEM.PROVEEDORES, "2000", "0", null, null, false),
-                // Vence en 48 meses: 12/48 del saldo es de corto plazo.
                 deudaFGEM(CategoriaDeudaFGEM.PRESTAMO_BANCARIO, "30000", "6000", "900", CORTE_FGEM.plusMonths(48), false),
-                deudaFGEM(CategoriaDeudaFGEM.OTRAS, "999", "0", null, null, true),     // anulada
-                deudaFGEM(CategoriaDeudaFGEM.OTRAS, "500", "500", null, null, false)); // cancelada
+                deudaFGEM(CategoriaDeudaFGEM.OTRAS, "999", "0", null, null, true),
+                deudaFGEM(CategoriaDeudaFGEM.OTRAS, "500", "500", null, null, false));
 
         BalanceGeneralFGEM bFGEM = BalanceGeneralFGEM.deFGEM(CORTE_FGEM, activosFGEM, new BigDecimal("3000"), deudasFGEM);
 
@@ -83,7 +75,7 @@ class BalanceGeneralTestFGEM {
         igualFGEM("8000", bFGEM.totalActivoCorrienteFGEM());
         igualFGEM("10800", bFGEM.totalActivoNoCorrienteFGEM());
         igualFGEM("18800", bFGEM.totalActivoFGEM());
-        igualFGEM("8000", bFGEM.totalPasivoCorrienteFGEM());      // 2 000 + 24 000 × 12/48
+        igualFGEM("8000", bFGEM.totalPasivoCorrienteFGEM());
         igualFGEM("18000", bFGEM.totalPasivoNoCorrienteFGEM());
         igualFGEM("26000", bFGEM.totalPasivoFGEM());
         igualFGEM("-7200", bFGEM.patrimonioFGEM());
@@ -114,8 +106,6 @@ class BalanceGeneralTestFGEM {
         assertTrue(bFGEM.sinRegistrosFGEM());
     }
 
-    // ------------------------------------------------------------------ indicadores
-
     @Test
     void calculaLiquidezEndeudamientoYRentabilidadFGEM() {
         List<ActivoFGEM> activosFGEM = List.of(
@@ -123,21 +113,20 @@ class BalanceGeneralTestFGEM {
                 activoFGEM(CategoriaActivoFGEM.EDIFICIOS, "40000", CORTE_FGEM, 20, "0"));
         List<DeudaFGEM> deudasFGEM = List.of(deudaFGEM(CategoriaDeudaFGEM.PRESTAMO_BANCARIO, "4000", "0", "1000", null, false));
         BalanceGeneralFGEM bFGEM = BalanceGeneralFGEM.deFGEM(CORTE_FGEM, activosFGEM, new BigDecimal("2000"), deudasFGEM);
-        // 6 meses con utilidad neta 3 000 y utilidad operativa 4 800.
         EstadoResultadosFGEM rFGEM = resultadosFGEM("4800", "3000");
 
         IndicadoresPatrimonioFGEM iFGEM = IndicadoresPatrimonioFGEM.deFGEM(bFGEM, rFGEM, 6);
 
-        igualFGEM("2", iFGEM.liquidezCorrienteFGEM());               // 8 000 / 4 000
-        igualFGEM("1.5", iFGEM.pruebaAcidaFGEM());                   // 6 000 / 4 000
+        igualFGEM("2", iFGEM.liquidezCorrienteFGEM());
+        igualFGEM("1.5", iFGEM.pruebaAcidaFGEM());
         igualFGEM("4000", iFGEM.capitalTrabajoFGEM());
-        igualFGEM("0.083333", iFGEM.endeudamientoFGEM());            // 4 000 / 48 000
-        igualFGEM("0.090909", iFGEM.apalancamientoFGEM());           // 4 000 / 44 000
+        igualFGEM("0.083333", iFGEM.endeudamientoFGEM());
+        igualFGEM("0.090909", iFGEM.apalancamientoFGEM());
         igualFGEM("6000", iFGEM.utilidadAnualFGEM());
-        igualFGEM("0.125", iFGEM.rentabilidadActivosFGEM());         // 6 000 / 48 000
-        igualFGEM("0.136364", iFGEM.rentabilidadPatrimonioFGEM());   // 6 000 / 44 000
+        igualFGEM("0.125", iFGEM.rentabilidadActivosFGEM());
+        igualFGEM("0.136364", iFGEM.rentabilidadPatrimonioFGEM());
         igualFGEM("800", iFGEM.utilidadOperativaMensualFGEM());
-        igualFGEM("0.8", iFGEM.coberturaCuotasFGEM());               // 800 / 1 000
+        igualFGEM("0.8", iFGEM.coberturaCuotasFGEM());
         assertEquals("2.00", IndicadoresPatrimonioFGEM.vecesFGEM(iFGEM.liquidezCorrienteFGEM()));
     }
 
@@ -153,10 +142,6 @@ class BalanceGeneralTestFGEM {
         assertEquals(0, iFGEM.mesesResultadosFGEM());
     }
 
-    /**
-     * Caso real: caja muy negativa porque no se registró el aporte inicial y el negocio pierde dinero.
-     * Pérdida ÷ activos negativos daría una «rentabilidad» positiva (97 %): no debe calcularse.
-     */
     @Test
     void conActivosNegativosNoSeCalculanLaRentabilidadNiElEndeudamientoFGEM() {
         BalanceGeneralFGEM bFGEM = BalanceGeneralFGEM.deFGEM(CORTE_FGEM, List.of(), new BigDecimal("10441.40"), BigDecimal.ZERO, BigDecimal.ZERO,
@@ -184,8 +169,6 @@ class BalanceGeneralTestFGEM {
         assertTrue(LecturaPatrimonioFGEM.generarFGEM(new SituacionPatrimonialFGEM(vacioFGEM, IndicadoresPatrimonioFGEM.deFGEM(vacioFGEM, null, 0), null),
                 MonedaFGEM.PEN).get(0).startsWith("Aún no hay activos"));
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     static ActivoFGEM activoFGEM(CategoriaActivoFGEM categoriaFGEM, String valorFGEM, LocalDate fechaFGEM, Integer vidaFGEM, String residualFGEM) {
         return new ActivoFGEM(1, 1, categoriaFGEM, categoriaFGEM.descripcionFGEM(), fechaFGEM, new BigDecimal(valorFGEM), vidaFGEM,

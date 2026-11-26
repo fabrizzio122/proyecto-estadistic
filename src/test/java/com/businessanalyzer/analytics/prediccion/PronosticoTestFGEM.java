@@ -38,7 +38,6 @@ class PronosticoTestFGEM {
 
     @Test
     void laValidacionHistoricaMideElErrorDeCadaMetodoFGEM() {
-        // Con [1, 2, 3] se pronostica el 4.º mes (real 10): promedio móvil 2 (error 8), tendencia 4 (error 6)
         double[] yFGEM = {1, 2, 3, 10};
         PronosticoFGEM.EvaluacionFGEM movilFGEM = PronosticadorFGEM.evaluarFGEM(new PromedioMovilFGEM(3), yFGEM);
         PronosticoFGEM.EvaluacionFGEM linealFGEM = PronosticadorFGEM.evaluarFGEM(new TendenciaLinealFGEM(), yFGEM);
@@ -65,7 +64,6 @@ class PronosticoTestFGEM {
 
     @Test
     void elIntervaloCreceConLaDistanciaFGEM() {
-        // Sin recortar en cero, para medir el ancho completo del intervalo
         PronosticoFGEM pFGEM = PronosticadorFGEM.pronosticarFGEM("Ventas", new double[]{100, 140, 90, 150, 95, 160, 105, 150}, 4, false);
         double ancho1FGEM = pFGEM.puntosFGEM().get(0).superiorFGEM() - pFGEM.puntosFGEM().get(0).inferiorFGEM();
         double ancho4FGEM = pFGEM.puntosFGEM().get(3).superiorFGEM() - pFGEM.puntosFGEM().get(3).inferiorFGEM();

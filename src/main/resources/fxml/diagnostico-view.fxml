@@ -7,7 +7,6 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.businessanalyzer.controller.DiagnosticoControllerFGEM"
@@ -18,12 +17,10 @@
         <ProgressIndicator fx:id="progresoFGEM" prefWidth="22" prefHeight="22" visible="false"/>
         <Region HBox.hgrow="ALWAYS"/>
         <Button text="Actualizar" styleClass="button-secondary" minWidth="-Infinity" onAction="#actualizarFGEM">
-            <graphic><FontIcon iconLiteral="fth-refresh-cw"/></graphic>
         </Button>
     </HBox>
 
     <HBox spacing="16">
-        <!-- Calificación global -->
         <VBox styleClass="card" spacing="8" prefWidth="320" minWidth="250">
             <Label text="Salud del negocio" styleClass="card-title"/>
             <HBox spacing="14" alignment="CENTER_LEFT">
@@ -35,7 +32,6 @@
             </HBox>
             <VBox fx:id="resumenFGEM" spacing="4"/>
         </VBox>
-        <!-- Puntaje por área -->
         <HBox fx:id="areasFGEM" spacing="12" HBox.hgrow="ALWAYS"/>
     </HBox>
 

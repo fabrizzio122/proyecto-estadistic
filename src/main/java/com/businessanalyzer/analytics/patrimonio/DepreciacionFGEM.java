@@ -7,19 +7,9 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-/**
- * Depreciación en línea recta, por meses completos: el bien pierde cada mes la misma parte de
- * (valor − valor residual) hasta completar su vida útil.
- *
- * @param mesesTranscurridosFGEM meses completos desde la adquisición hasta la fecha de corte
- * @param acumuladaFGEM          depreciación acumulada a la fecha de corte
- * @param mensualFGEM            depreciación de un mes mientras dure la vida útil (0 si ya terminó)
- * @param valorEnLibrosFGEM      valor − depreciación acumulada
- */
 public record DepreciacionFGEM(long mesesTranscurridosFGEM, BigDecimal acumuladaFGEM, BigDecimal mensualFGEM,
                            BigDecimal valorEnLibrosFGEM) {
 
-    /** Montos en céntimos: la depreciación se redondea a 2 decimales. */
     private static final int ESCALA_FGEM = 2;
 
     public static DepreciacionFGEM deFGEM(ActivoFGEM activoFGEM, LocalDate corteFGEM) {
@@ -39,7 +29,6 @@ public record DepreciacionFGEM(long mesesTranscurridosFGEM, BigDecimal acumulada
                 valorFGEM.subtract(acumuladaFGEM));
     }
 
-    /** Parte de la vida útil ya consumida (0 a 1); {@code null} si no se deprecia. */
     public static BigDecimal avanceFGEM(ActivoFGEM activoFGEM, LocalDate corteFGEM) {
         if (!activoFGEM.seDepreciaFGEM()) {
             return null;

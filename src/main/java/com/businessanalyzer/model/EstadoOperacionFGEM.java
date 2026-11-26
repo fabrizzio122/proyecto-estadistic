@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Las operaciones no se eliminan: se anulan y dejan de contar en stock y análisis. */
 public enum EstadoOperacionFGEM {
 
     REGISTRADA("Registrada"),

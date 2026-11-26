@@ -50,31 +50,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
-/**
- * Importación de productos, ventas, compras y gastos desde un libro de Excel a la empresa activa.
- * <p>
- * Reglas:
- * <ul>
- *     <li>Cada fila pasa por los mismos servicios que el registro manual: mismas validaciones, permisos,
- *         numeración (V-000001, C-000001…), cálculo de impuestos, historial de precios y tesorería.</li>
- *     <li>Todo ocurre en una sola transacción. Si alguna fila tiene un error no se guarda nada y se
- *         informan todos los errores, con su hoja y fila, para corregirlos de una vez.</li>
- *     <li>{@link #revisarFGEM} hace exactamente lo mismo pero siempre deshace los cambios: es la vista
- *         previa que se muestra antes de confirmar.</li>
- *     <li>Las ventas y compras se registran por orden de fecha (las compras antes que las ventas del mismo
- *         día) para que el stock y los costos evolucionen como en la realidad.</li>
- *     <li>Si una venta deja el stock en negativo se registra igual y se avisa: lo normal es que falte la
- *         compra del inventario inicial.</li>
- *     <li>Los productos que ya existen (mismo código o nombre) no se modifican: solo se usan.</li>
- * </ul>
- */
 public class ImportacionServiceFGEM {
 
     private static final Logger logFGEM = LoggerFactory.getLogger(ImportacionServiceFGEM.class);
     private static final int MAXIMO_PRODUCTOS_EN_AVISO_FGEM = 8;
-    /** Observación de las ventas y compras importadas; sirve para reconocerlas después. */
     static final String OBSERVACION_IMPORTADA_FGEM = "Importado desde Excel";
-    /** Fecha mínima que aceptan las operaciones: se busca lo ya registrado desde aquí. */
     private static final LocalDate INICIO_HISTORIAL_FGEM = LocalDate.of(2000, 1, 1);
     private static final java.time.format.DateTimeFormatter FECHA_FGEM = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -97,7 +77,6 @@ public class ImportacionServiceFGEM {
         this.relojFGEM = relojFGEM;
     }
 
-    /** Guarda la plantilla vacía o con el ejemplo de una bodega. */
     public void crearPlantillaFGEM(Path destinoFGEM, boolean conEjemploFGEM) {
         try {
             PlantillaImportacionFGEM.crearFGEM(destinoFGEM, conEjemploFGEM, LocalDate.now(relojFGEM));
@@ -107,12 +86,10 @@ public class ImportacionServiceFGEM {
         }
     }
 
-    /** Vista previa: procesa todo el archivo y deshace los cambios. */
     public ResultadoFGEM revisarFGEM(Path archivoFGEM) {
         return procesarFGEM(archivoFGEM, false);
     }
 
-    /** Importa el archivo. Si hay algún error no guarda nada y devuelve los errores. */
     public ResultadoFGEM importarFGEM(Path archivoFGEM) {
         ResultadoFGEM resultadoFGEM = procesarFGEM(archivoFGEM, true);
         if (resultadoFGEM.aplicadoFGEM()) {
@@ -156,7 +133,6 @@ public class ImportacionServiceFGEM {
         }
     }
 
-    /** Sale de la transacción para revertirla, llevando el resultado de la revisión. */
     private static final class DeshacerFGEM extends RuntimeException {
         private final transient ResultadoFGEM resultadoFGEM;
 
@@ -166,7 +142,6 @@ public class ImportacionServiceFGEM {
         }
     }
 
-    /** Una venta o compra armada con las líneas que comparten fecha y documento. */
     private static final class GrupoFGEM {
         final TipoOperacionFGEM tipoFGEM;
         final LocalDate fechaFGEM;
@@ -186,11 +161,9 @@ public class ImportacionServiceFGEM {
         }
     }
 
-    /** Un registro a crear en orden cronológico. */
     private record EventoFGEM(LocalDate fechaFGEM, int ordenFGEM, int filaFGEM, Runnable accionFGEM) {
     }
 
-    /** Estado de una importación (o revisión) dentro de su transacción. */
     private final class ProcesoFGEM {
         private final Connection cFGEM;
         private final ContenidoFGEM contenidoFGEM;
@@ -201,11 +174,8 @@ public class ImportacionServiceFGEM {
         private final Map<String, ProductoFGEM> porNombreFGEM = new HashMap<>();
         private final Map<String, Long> categoriasFGEM = new HashMap<>();
         private final Set<String> sinStockFGEM = new LinkedHashSet<>();
-        /** Ventas y compras ya registradas, por tipo, fecha y documento → su número (V-000123). */
         private final Map<String, String> documentosExistentesFGEM = new HashMap<>();
-        /** Gastos e ingresos ya registrados, por fecha, categoría, descripción y monto. */
         private final Set<String> movimientosExistentesFGEM = new HashSet<>();
-        /** Número de la compra de inventario inicial ya registrada, si la hay. */
         private String inventarioInicialFGEM;
         private int ventasSinStockFGEM;
         private int existentesFGEM;
@@ -263,8 +233,6 @@ public class ImportacionServiceFGEM {
                     desdeFGEM, hastaFGEM, ordenadosFGEM, List.copyOf(advertenciasFGEM));
         }
 
-        // ------------------------------------------------------------------ catálogo
-
         private void cargarCatalogoFGEM() {
             for (ProductoFGEM pFGEM : catalogoFGEM.listarProductosFGEM(true)) {
                 recordarFGEM(pFGEM);
@@ -274,10 +242,6 @@ public class ImportacionServiceFGEM {
             }
         }
 
-        /**
-         * Lo ya registrado en la empresa, para no duplicarlo si se vuelve a importar un archivo (o una versión
-         * más completa del mismo).
-         */
         private void cargarRegistrosExistentesFGEM() {
             LocalDate hoyFGEM = LocalDate.now(relojFGEM);
             if (!contenidoFGEM.operacionesFGEM().isEmpty()) {
@@ -339,8 +303,6 @@ public class ImportacionServiceFGEM {
                         continue;
                     }
                 }
-                // Ya existe si coincide el código o, aunque el código sea otro, el nombre (por ejemplo, si la primera
-                // importación no traía códigos y el sistema asignó P-0001…).
                 ProductoFGEM existenteFGEM = fFGEM.codigoFGEM() != null ? porCodigoFGEM.get(PlantillaImportacionFGEM.normalizarFGEM(fFGEM.codigoFGEM())) : null;
                 if (existenteFGEM == null) {
                     existenteFGEM = porNombreFGEM.get(PlantillaImportacionFGEM.normalizarFGEM(fFGEM.nombreFGEM()));
@@ -349,12 +311,10 @@ public class ImportacionServiceFGEM {
                     existentesFGEM++;
                     porNombreFGEM.putIfAbsent(PlantillaImportacionFGEM.normalizarFGEM(fFGEM.nombreFGEM()), existenteFGEM);
                     if (fFGEM.codigoFGEM() != null) {
-                        // Las ventas y compras del archivo pueden usar el código del archivo.
                         porCodigoFGEM.putIfAbsent(PlantillaImportacionFGEM.normalizarFGEM(fFGEM.codigoFGEM()), existenteFGEM);
                     }
                     continue;
                 }
-                // La categoría va en su propio paso: si el producto falla, la categoría ya creada se conserva.
                 Long categoriaIdFGEM = null;
                 if (fFGEM.categoriaFGEM() != null) {
                     categoriaIdFGEM = intentarFGEM(hojaFGEM, fFGEM.filaFGEM(), () -> categoriaFGEM(fFGEM.categoriaFGEM()));
@@ -385,12 +345,9 @@ public class ImportacionServiceFGEM {
             return idFGEM;
         }
 
-        // ------------------------------------------------------------------ ventas y compras
-
         private List<GrupoFGEM> agruparFGEM() {
             Map<String, GrupoFGEM> gruposFGEM = new LinkedHashMap<>();
             for (FilaOperacionFGEM fFGEM : contenidoFGEM.operacionesFGEM()) {
-                // Sin documento, cada fila es una operación propia.
                 String claveFGEM = fFGEM.documentoFGEM() == null
                         ? fFGEM.tipoFGEM() + "#fila" + fFGEM.filaFGEM()
                         : fFGEM.tipoFGEM() + "|" + fFGEM.fechaFGEM() + "|" + PlantillaImportacionFGEM.normalizarFGEM(fFGEM.documentoFGEM());
@@ -437,7 +394,6 @@ public class ImportacionServiceFGEM {
                 if (anteriorFGEM == null) {
                     lineasGrupoFGEM.put(productoFGEM.idFGEM(), new DatosLineaFGEM(productoFGEM.idFGEM(), fFGEM.cantidadFGEM(), precioFGEM));
                 } else if (anteriorFGEM.precioUnitarioFGEM().compareTo(precioFGEM) == 0) {
-                    // El mismo producto dos veces en la misma boleta y al mismo precio: se suman las cantidades.
                     lineasGrupoFGEM.put(productoFGEM.idFGEM(), new DatosLineaFGEM(productoFGEM.idFGEM(),
                             anteriorFGEM.cantidadFGEM().add(fFGEM.cantidadFGEM()), precioFGEM));
                 } else {
@@ -481,13 +437,10 @@ public class ImportacionServiceFGEM {
             }
         }
 
-        /** «Arroz (disponible 2, se venden 3)» → «Arroz». */
         private static String nombreDeFaltanteFGEM(String faltanteFGEM) {
             int parentesisFGEM = faltanteFGEM.lastIndexOf(" (disponible");
             return parentesisFGEM > 0 ? faltanteFGEM.substring(0, parentesisFGEM) : faltanteFGEM;
         }
-
-        // ------------------------------------------------------------------ gastos
 
         private void registrarMovimientoFGEM(FilaMovimientoFGEM mFGEM) {
             String claveFGEM = claveMovimientoFGEM(mFGEM.fechaFGEM(), mFGEM.categoriaFGEM(), mFGEM.descripcionFGEM(), mFGEM.montoFGEM());
@@ -502,20 +455,11 @@ public class ImportacionServiceFGEM {
                 return Boolean.TRUE;
             });
             if (Boolean.TRUE.equals(registradoFGEM)) {
-                // No se agrega a los existentes: dos gastos iguales en el mismo archivo pueden ser reales.
                 gastosFGEM++;
                 ampliarPeriodoFGEM(mFGEM.fechaFGEM());
             }
         }
 
-        // ------------------------------------------------------------------ utilidades
-
-        /**
-         * Ejecuta un registro con un punto de retorno: si falla una validación se deshacen solo sus cambios,
-         * se anota el error con la fila y se sigue con las demás para mostrar todos los errores juntos.
-         *
-         * @return lo que devuelva el trabajo, o {@code null} si falló
-         */
         private <T> T intentarFGEM(String hojaFGEM, int filaFGEM, Supplier<T> trabajoFGEM) {
             Savepoint puntoFGEM;
             try {
@@ -560,7 +504,6 @@ public class ImportacionServiceFGEM {
                     + montoFGEM.stripTrailingZeros().toPlainString();
         }
 
-        /** «Inventario inicial», «Stock inicial» o «Saldo inicial» como proveedor o comprobante. */
         private static boolean esInventarioInicialFGEM(String... textosFGEM) {
             for (String textoFGEM : textosFGEM) {
                 String nFGEM = PlantillaImportacionFGEM.normalizarFGEM(textoFGEM);

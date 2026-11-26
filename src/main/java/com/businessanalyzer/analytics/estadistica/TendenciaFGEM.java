@@ -2,16 +2,6 @@ package com.businessanalyzer.analytics.estadistica;
 
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 
-/**
- * Tendencia lineal de una serie mensual por mínimos cuadrados: y = intercepto + pendiente · t
- * (t = 0, 1, 2... para cada mes).
- * <ul>
- *     <li><b>Pendiente</b>: cuánto cambia el valor, en promedio, de un mes al siguiente.</li>
- *     <li><b>R²</b>: qué parte de la variación explica la recta (0 = nada, 1 = todo).</li>
- *     <li><b>Significancia (valor p)</b>: probabilidad de ver esa pendiente por azar si en realidad
- *         no hubiera tendencia. Con p &lt; 0.05 la tendencia se considera real.</li>
- * </ul>
- */
 public record TendenciaFGEM(int nFGEM, double pendienteFGEM, double interceptoFGEM, double r2FGEM, double significanciaFGEM, double mediaFGEM) {
 
     public static final int MINIMO_PUNTOS_FGEM = 3;
@@ -61,12 +51,10 @@ public record TendenciaFGEM(int nFGEM, double pendienteFGEM, double interceptoFG
         return pendienteFGEM > 0 ? DireccionFGEM.CRECIENTE : DireccionFGEM.DECRECIENTE;
     }
 
-    /** Pendiente ÷ media: crecimiento mensual relativo (0.05 = +5 % al mes). */
     public double crecimientoMensualFGEM() {
         return Double.isNaN(pendienteFGEM) || mediaFGEM == 0 ? Double.NaN : pendienteFGEM / mediaFGEM;
     }
 
-    /** Valor de la recta en el mes {@code t}. */
     public double valorAjustadoFGEM(int tFGEM) {
         return interceptoFGEM + pendienteFGEM * tFGEM;
     }

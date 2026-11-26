@@ -10,7 +10,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 
-/** Valida y normaliza un ingreso o gasto. */
 final class ValidadorMovimientoFGEM {
 
     private static final LocalDate FECHA_MINIMA_FGEM = LocalDate.of(2000, 1, 1);
@@ -18,10 +17,6 @@ final class ValidadorMovimientoFGEM {
     private ValidadorMovimientoFGEM() {
     }
 
-    /**
-     * @param hoyFGEM se aceptan fechas hasta el último día del mes en curso, para poder registrar
-     *            por adelantado los gastos fijos del mes (alquiler, sueldos).
-     */
     static DatosMovimientoFGEM normalizarFGEM(DatosMovimientoFGEM dFGEM, LocalDate hoyFGEM) {
         if (dFGEM == null || dFGEM.tipoFGEM() == null) {
             throw new ValidacionExceptionFGEM("Indica si es un ingreso o un gasto.");

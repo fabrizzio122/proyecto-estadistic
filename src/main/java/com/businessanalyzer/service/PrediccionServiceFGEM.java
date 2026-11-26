@@ -17,14 +17,8 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Proyección de ventas y utilidad neta de la empresa activa a partir de su historia mensual.
- * Usa solo meses completos: el mes en curso es el primero que se proyecta.
- * Requiere el permiso {@link PermisoFGEM#ANALISIS_VER}.
- */
 public class PrediccionServiceFGEM {
 
-    /** Meses de historia que se consideran como máximo. */
     public static final int MESES_HISTORIA_FGEM = 24;
     public static final int HORIZONTE_MAXIMO_FGEM = 12;
 
@@ -57,7 +51,6 @@ public class PrediccionServiceFGEM {
         List<ConsultaMensualFGEM.MesFGEM> historiaFGEM = databaseFGEM.conConexionFGEM(cFGEM ->
                 ConsultaMensualFGEM.porMesFGEM(cFGEM, operacionesFGEM, movimientosFGEM, empresaFGEM.idFGEM(), primeroFGEM, ultimoCompletoFGEM));
 
-        // Se omiten los meses iniciales sin ventas (el negocio aún no operaba en el sistema).
         int inicioFGEM = 0;
         while (inicioFGEM < historiaFGEM.size() && historiaFGEM.get(inicioFGEM).operacionesFGEM().ventasNetasFGEM().signum() == 0) {
             inicioFGEM++;

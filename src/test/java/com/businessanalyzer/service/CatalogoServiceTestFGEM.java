@@ -180,7 +180,6 @@ class CatalogoServiceTestFGEM {
         entornoFGEM.entrarComoFGEM("gerente", "Temporal123");
         entornoFGEM.empresaServiceFGEM.restaurarEmpresaActivaFGEM();
 
-        // Otro administrador quita el acceso mientras la sesión sigue abierta
         entornoFGEM.databaseFGEM.conConexionFGEM(cFGEM -> {
             try (var psFGEM = cFGEM.prepareStatement("DELETE FROM usuario_empresa")) {
                 return psFGEM.executeUpdate();

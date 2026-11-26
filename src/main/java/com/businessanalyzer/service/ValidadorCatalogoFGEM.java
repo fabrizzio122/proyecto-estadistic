@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-/** Valida y normaliza productos, servicios y categorías. */
 final class ValidadorCatalogoFGEM {
 
     static final BigDecimal MONTO_MAXIMO_FGEM = new BigDecimal("999999999");
@@ -55,7 +54,6 @@ final class ValidadorCatalogoFGEM {
                 ValidacionesFGEM.opcionalFGEM(dFGEM.descripcionFGEM(), "Descripción", 200));
     }
 
-    /** Monto obligatorio, no negativo, con un máximo de {@value Montos#ESCALA} decimales. */
     static BigDecimal montoFGEM(BigDecimal valorFGEM, String campoFGEM) {
         if (valorFGEM == null) {
             throw new ValidacionExceptionFGEM("El campo \"" + campoFGEM + "\" es obligatorio.");

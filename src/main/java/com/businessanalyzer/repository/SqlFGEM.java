@@ -5,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-/** Ayudantes para columnas opcionales (que admiten NULL). */
 final class SqlFGEM {
 
     private SqlFGEM() {

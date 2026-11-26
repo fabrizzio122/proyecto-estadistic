@@ -41,15 +41,9 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Diagnóstico empresarial de la empresa activa: reúne los datos de los últimos meses completos y
- * los entrega a {@link MotorDiagnosticoFGEM}. Requiere el permiso {@link PermisoFGEM#ANALISIS_VER}.
- */
 public class DiagnosticoServiceFGEM {
 
-    /** Meses completos que se evalúan (y que se comparan con los mismos meses previos). */
     public static final int MESES_EVALUADOS_FGEM = 3;
-    /** Historia mensual usada para la tendencia, la regularidad y la proyección. */
     public static final int MESES_HISTORIA_FGEM = 24;
 
     private final DatabaseFGEM databaseFGEM;
@@ -92,7 +86,6 @@ public class DiagnosticoServiceFGEM {
             List<ConsultaMensualFGEM.MesFGEM> historiaFGEM = ConsultaMensualFGEM.porMesFGEM(cFGEM, operacionesFGEM, movimientosFGEM, empresaFGEM.idFGEM(),
                     ultimoFGEM.minusMonths(MESES_HISTORIA_FGEM - 1L), ultimoFGEM);
 
-            // Se omiten los meses iniciales sin ventas (el negocio aún no operaba en el sistema).
             int inicioFGEM = 0;
             while (inicioFGEM < historiaFGEM.size() && historiaFGEM.get(inicioFGEM).operacionesFGEM().ventasNetasFGEM().signum() == 0) {
                 inicioFGEM++;
@@ -117,7 +110,6 @@ public class DiagnosticoServiceFGEM {
         return MotorDiagnosticoFGEM.evaluarFGEM(datosFGEM);
     }
 
-    /** Hato, campañas cerradas y compromisos de inspección de los últimos 12 meses. */
     private DatosAgroFGEM datosAgroFGEM(Connection cFGEM, long empresaIdFGEM) throws SQLException {
         LocalDate hoyFGEM = LocalDate.now(relojFGEM);
         PeriodoFGEM anioFGEM = new PeriodoFGEM(hoyFGEM.minusYears(1).plusDays(1), hoyFGEM);

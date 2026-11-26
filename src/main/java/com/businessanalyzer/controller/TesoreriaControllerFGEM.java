@@ -74,10 +74,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Function;
 
-/**
- * Módulo "Tesorería": cuentas de dinero con su saldo, transferencias, aportes y retiros, cuentas por
- * cobrar y por pagar, estado de flujo de efectivo y proyección de caja.
- */
 public class TesoreriaControllerFGEM implements VistaModuloFGEM {
 
     private enum TipoFilaFGEM { TITULO, DETALLE, SUBTOTAL, RESULTADO }
@@ -145,7 +141,6 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
     @FXML private Label lblContrapartesFGEM;
     @FXML private TableView<SaldoContraparteFGEM> tablaContrapartesFGEM;
     @FXML private Button btnQuitarFiltroFGEM;
-    /** Todas las operaciones pendientes del tipo elegido (la tabla puede mostrar solo las de un cliente). */
     private List<OperacionFGEM> pendientesFGEM = List.of();
     @FXML private Label lblPendientesFGEM;
 
@@ -221,8 +216,6 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
     public void alMostrarFGEM() {
         cargarFGEM();
     }
-
-    // ------------------------------------------------------------------ carga
 
     @FXML
     private void cargarFGEM() {
@@ -320,7 +313,6 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
         actualizarAccionesFGEM();
     }
 
-    /** Muestra las operaciones pendientes: todas o solo las de un cliente o proveedor. */
     private void mostrarPendientesFGEM(SaldoContraparteFGEM filtroFGEM) {
         LocalDate hoyFGEM = LocalDate.now();
         List<OperacionFGEM> visiblesFGEM = filtroFGEM == null ? pendientesFGEM : pendientesFGEM.stream()
@@ -343,12 +335,10 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
         tablaContrapartesFGEM.getSelectionModel().clearSelection();
     }
 
-    /** Misma regla que la antigüedad de saldos: sin distinguir mayúsculas ni espacios repetidos. */
     private static String claveContraparteFGEM(String nombreFGEM) {
         return nombreFGEM == null || nombreFGEM.isBlank() ? "" : nombreFGEM.strip().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
     }
 
-    /** Cuatro recuadros: al día y los tres tramos de atraso, con el monto y su parte del total. */
     private void mostrarTramosFGEM(AntiguedadSaldosFGEM.ResultadoFGEM aFGEM, boolean ventaFGEM) {
         tramosFGEM.getChildren().clear();
         for (SaldoTramoFGEM sFGEM : aFGEM.tramosFGEM()) {
@@ -494,7 +484,6 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
 
     @FXML
     private void ultimosTresMesesFGEM() {
-        // Meses completos: con el mes en curso a medias, las compras del mes ya pagadas pesan más que las ventas.
         LocalDate hoyFGEM = LocalDate.now();
         dpFlujoHastaFGEM.setValue(hoyFGEM.withDayOfMonth(1).minusDays(1));
         dpFlujoDesdeFGEM.setValue(hoyFGEM.withDayOfMonth(1).minusMonths(3));
@@ -506,8 +495,6 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
         dpFlujoHastaFGEM.setValue(hoyFGEM);
         dpFlujoDesdeFGEM.setValue(hoyFGEM.withDayOfYear(1));
     }
-
-    // ------------------------------------------------------------------ cuentas
 
     @FXML
     private void nuevaCuentaFGEM() {
@@ -559,8 +546,6 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
             NotificadorFGEM.errorFGEM(ErroresFGEM.mensajeFGEM(eFGEM));
         }
     }
-
-    // ------------------------------------------------------------------ transferencias, aportes y retiros
 
     @FXML
     private void nuevoMovimientoFGEM() {
@@ -634,8 +619,6 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
             NotificadorFGEM.exitoFGEM("Movimiento anulado.");
         }
     }
-
-    // ------------------------------------------------------------------ cobros y pagos
 
     @FXML
     private void registrarPagoFGEM() {
@@ -748,8 +731,6 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
             cargarFGEM();
         }
     }
-
-    // ------------------------------------------------------------------ tablas
 
     private void configurarTablaCuentasFGEM() {
         colCtaNombreFGEM.setCellValueFactory(cFGEM -> textoFGEM(cFGEM.getValue().cuentaFGEM().nombreFGEM()
@@ -957,9 +938,6 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
         btnRegistrarPagoFGEM.setDisable(oFGEM == null || oFGEM.pendienteFGEM().signum() == 0);
     }
 
-    // ------------------------------------------------------------------ utilidades
-
-    /** Celda de monto; con {@code colorear}, los negativos en rojo. */
     private <T> TableCell<T, BigDecimal> celdaMontoFGEM(boolean colorearFGEM) {
         return new TableCell<>() {
             @Override
@@ -1012,7 +990,6 @@ public class TesoreriaControllerFGEM implements VistaModuloFGEM {
         return tablaCuentasFGEM.getScene().getWindow();
     }
 
-    /** Formulario de cuenta de dinero. */
     private final class FormularioCuentaFGEM {
         private final TextField txtNombreFGEM = new TextField();
         private final ComboBox<TipoCuentaFGEM> cmbTipoFGEM = new ComboBox<>(FXCollections.observableArrayList(TipoCuentaFGEM.values()));

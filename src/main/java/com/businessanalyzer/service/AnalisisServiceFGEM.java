@@ -22,17 +22,10 @@ import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Análisis financiero de la empresa activa: combina las ventas y compras (Fase 5) con los
- * ingresos y gastos (Fase 6) para obtener el estado de resultados, los márgenes, el punto de
- * equilibrio y la rentabilidad por producto. Requiere el permiso {@link PermisoFGEM#ANALISIS_VER}.
- */
 public class AnalisisServiceFGEM {
 
-    /** Meses que muestra el gráfico de evolución. */
     public static final int MESES_EVOLUCION_FGEM = 12;
 
-    /** Estado de resultados y punto de equilibrio de un período (versión ligera para el dashboard). */
     public record ResumenPeriodoFGEM(PeriodoFGEM periodoFGEM, EstadoResultadosFGEM estadoFGEM, PuntoEquilibrioFGEM equilibrioFGEM) {
     }
 
@@ -86,7 +79,6 @@ public class AnalisisServiceFGEM {
         });
     }
 
-    /** Estado de resultados de cada uno de los últimos meses, terminando en {@code ultimo}. */
     private List<ResultadoMensualFGEM> evolucionFGEM(Connection cFGEM, long empresaIdFGEM, YearMonth ultimoFGEM) throws SQLException {
         YearMonth primeroFGEM = ultimoFGEM.minusMonths(MESES_EVOLUCION_FGEM - 1L);
         List<ResultadoMensualFGEM> mesesFGEM = new ArrayList<>();

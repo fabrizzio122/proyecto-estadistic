@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Tipos de deuda (pasivos) de una empresa. */
 public enum CategoriaDeudaFGEM {
 
     PRESTAMO_BANCARIO("Préstamo de banco o financiera"),

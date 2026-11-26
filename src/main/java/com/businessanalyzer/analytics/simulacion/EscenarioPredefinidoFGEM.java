@@ -2,7 +2,6 @@ package com.businessanalyzer.analytics.simulacion;
 
 import java.math.BigDecimal;
 
-/** Escenarios de partida que el usuario puede aplicar con un clic y luego ajustar. */
 public enum EscenarioPredefinidoFGEM {
 
     PESIMISTA("Pesimista", "Se vende 15 % menos y los productos cuestan 5 % más.") {

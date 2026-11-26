@@ -10,13 +10,11 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.businessanalyzer.controller.ValoracionControllerFGEM"
       spacing="14" styleClass="page">
 
-    <!-- Supuestos -->
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="Tasa de descuento" styleClass="form-label" minWidth="-Infinity"/>
         <TextField fx:id="txtTasaFGEM" prefWidth="70" promptText="20"/>
@@ -25,19 +23,16 @@
         <TextField fx:id="txtCrecimientoFGEM" prefWidth="70" promptText="0"/>
         <Label text="\%" styleClass="muted"/>
         <Button text="Calcular" styleClass="button-primary" minWidth="-Infinity" onAction="#calcularFGEM">
-            <graphic><FontIcon iconLiteral="fth-refresh-cw"/></graphic>
         </Button>
         <Button text="Valores sugeridos" styleClass="button-secondary" minWidth="-Infinity" onAction="#usarSugeridosFGEM"/>
         <ProgressIndicator fx:id="progresoFGEM" prefWidth="22" prefHeight="22" visible="false"/>
         <Region HBox.hgrow="ALWAYS"/>
         <Button fx:id="btnExportarFGEM" text="Informe PDF" styleClass="button-secondary" minWidth="-Infinity"
                 onAction="#exportarFGEM">
-            <graphic><FontIcon iconLiteral="fth-file-text"/></graphic>
         </Button>
     </HBox>
     <Label fx:id="lblSupuestosFGEM" styleClass="hint" wrapText="true" minHeight="-Infinity"/>
 
-    <!-- Indicadores principales -->
     <HBox fx:id="indicadoresFGEM" spacing="16"/>
 
     <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="dialog-scroll" VBox.vgrow="ALWAYS">

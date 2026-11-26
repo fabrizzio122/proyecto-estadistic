@@ -33,16 +33,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Visitas de inspección a productores agropecuarios: verificación en campo, compromisos y fotos.
- * <p>
- * Ver visitas y compromisos requiere {@link PermisoFGEM#AGRO_VER}; registrarlas, {@link PermisoFGEM#VISITAS_REGISTRAR}
- * (administrador, gerente y analista, que es el rol del inspector). Las fotos se copian a la carpeta
- * de datos, en {@code fotos-visitas/<visita>/}.
- */
 public class VisitaServiceFGEM {
 
-    /** Carpeta de las fotos dentro de la carpeta de datos. */
     public static final String CARPETA_FOTOS_FGEM = com.businessanalyzer.config.AppConfigFGEM.CARPETA_FOTOS_FGEM;
     static final long TAMANO_MAXIMO_FOTO_FGEM = 15L * 1024 * 1024;
     private static final LocalDate FECHA_MINIMA_FGEM = LocalDate.of(2000, 1, 1);
@@ -64,8 +56,6 @@ public class VisitaServiceFGEM {
         this.carpetaDatosFGEM = carpetaDatosFGEM;
     }
 
-    // ------------------------------------------------------------------ visitas
-
     public List<VisitaFGEM> listarFGEM(boolean incluirAnuladasFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_VER);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -78,7 +68,6 @@ public class VisitaServiceFGEM {
         return databaseFGEM.conConexionFGEM(cFGEM -> exigirVisitaFGEM(cFGEM, idFGEM, empresaFGEM.idFGEM()));
     }
 
-    /** Registra la visita con su verificación en campo y los compromisos acordados. */
     public VisitaFGEM registrarFGEM(DatosVisitaFGEM datosFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.VISITAS_REGISTRAR);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -94,7 +83,6 @@ public class VisitaServiceFGEM {
         });
     }
 
-    /** Corrige la visita. Los compromisos nuevos se agregan a los que ya tenía. */
     public VisitaFGEM actualizarFGEM(long idFGEM, DatosVisitaFGEM datosFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.VISITAS_REGISTRAR);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -128,20 +116,12 @@ public class VisitaServiceFGEM {
         });
     }
 
-    // ------------------------------------------------------------------ compromisos
-
-    /** Compromisos de las visitas vigentes, de la visita más reciente a la más antigua. */
     public List<CompromisoFGEM> compromisosFGEM() {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_VER);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
         return databaseFGEM.conConexionFGEM(cFGEM -> repositorioFGEM.listarCompromisosFGEM(cFGEM, empresaFGEM.idFGEM()));
     }
 
-    /**
-     * Registra si el compromiso se cumplió. {@link EstadoCompromisoFGEM#PENDIENTE} lo vuelve a dejar pendiente.
-     *
-     * @param visitaIdFGEM visita en que se verificó (opcional)
-     */
     public CompromisoFGEM verificarCompromisoFGEM(long idFGEM, EstadoCompromisoFGEM estadoFGEM, LocalDate fechaFGEM, Long visitaIdFGEM,
                                           String observacionFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.VISITAS_REGISTRAR);
@@ -171,8 +151,6 @@ public class VisitaServiceFGEM {
         });
     }
 
-    // ------------------------------------------------------------------ fotos
-
     public List<FotoVisitaFGEM> fotosFGEM(long visitaIdFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.AGRO_VER);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -182,12 +160,10 @@ public class VisitaServiceFGEM {
         });
     }
 
-    /** Ruta del archivo de la foto en la carpeta de datos. */
     public Path archivoFGEM(FotoVisitaFGEM fotoFGEM) {
         return carpetaDatosFGEM.resolve(fotoFGEM.archivoFGEM());
     }
 
-    /** Copia la imagen (JPG o PNG, hasta 15 MB) a la carpeta de datos y la asocia a la visita. */
     public FotoVisitaFGEM agregarFotoFGEM(long visitaIdFGEM, Path origenFGEM, String descripcionFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.VISITAS_REGISTRAR);
         EmpresaFGEM empresaFGEM = empresaAgropecuariaFGEM();
@@ -235,11 +211,8 @@ public class VisitaServiceFGEM {
         try {
             Files.deleteIfExists(archivoFGEM(fotoFGEM));
         } catch (IOException eFGEM) {
-            // El registro ya se eliminó; el archivo huérfano no afecta al sistema.
         }
     }
-
-    // ------------------------------------------------------------------ validación
 
     private DatosVisitaFGEM validarFGEM(DatosVisitaFGEM dFGEM) {
         if (dFGEM == null) {

@@ -33,23 +33,10 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
 
-/**
- * Tesorería: dónde está el dinero de la empresa y cómo se mueve.
- * <ul>
- *   <li>Cuentas de dinero (caja, bancos, billeteras) con su saldo calculado.</li>
- *   <li>Transferencias entre cuentas y aportes o retiros del dueño.</li>
- *   <li>Cuentas por cobrar y por pagar: ventas y compras al crédito con sus cobros y pagos.</li>
- *   <li>Estado de flujo de efectivo, evolución mensual y proyección de caja.</li>
- * </ul>
- * Lectura con {@code FINANZAS_VER}; cuentas y movimientos con {@code FINANZAS_GESTIONAR}; cobros y pagos
- * de ventas o compras con {@code OPERACIONES_GESTIONAR}.
- */
 public class TesoreriaServiceFGEM {
 
-    /** Meses completos que se usan para pronosticar el flujo de operación. */
     static final int MESES_HISTORIA_FGEM = 24;
 
-    /** Resumen para el dashboard. */
     public record ResumenFGEM(BigDecimal disponibleFGEM, BigDecimal porCobrarFGEM, BigDecimal porCobrarVencidoFGEM,
                           BigDecimal porPagarFGEM, BigDecimal porPagarVencidoFGEM, int cuentasNegativasFGEM) {
     }
@@ -75,9 +62,6 @@ public class TesoreriaServiceFGEM {
         this.relojFGEM = relojFGEM;
     }
 
-    // ------------------------------------------------------------------ cuentas
-
-    /** Cuentas con su saldo a hoy. */
     public List<SaldoCuentaFGEM> listarCuentasFGEM(boolean incluirInactivasFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_VER);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -86,7 +70,6 @@ public class TesoreriaServiceFGEM {
                 tesoreriaFGEM.flujosFGEM(cFGEM, empresaFGEM.idFGEM()), hoyFGEM));
     }
 
-    /** Cuentas activas, para elegir en los formularios (sin calcular saldos). */
     public List<CuentaDineroFGEM> cuentasActivasFGEM() {
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
         return databaseFGEM.conConexionFGEM(cFGEM -> tesoreriaFGEM.listarCuentasFGEM(cFGEM, empresaFGEM.idFGEM(), false));
@@ -119,10 +102,6 @@ public class TesoreriaServiceFGEM {
         });
     }
 
-    /**
-     * Activa o desactiva una cuenta. Para desactivarla debe tener saldo cero (primero se transfiere su
-     * dinero) y no puede ser la única cuenta activa.
-     */
     public CuentaDineroFGEM cambiarCuentaActivaFGEM(long idFGEM, boolean activaFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -147,8 +126,6 @@ public class TesoreriaServiceFGEM {
             return tesoreriaFGEM.buscarCuentaFGEM(cFGEM, idFGEM).orElseThrow();
         });
     }
-
-    // ------------------------------------------------------------------ transferencias, aportes y retiros
 
     public List<MovimientoTesoreriaFGEM> listarMovimientosFGEM(LocalDate desdeFGEM, LocalDate hastaFGEM, boolean incluirAnuladosFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_VER);
@@ -198,9 +175,6 @@ public class TesoreriaServiceFGEM {
         });
     }
 
-    // ------------------------------------------------------------------ cuentas por cobrar y por pagar
-
-    /** Ventas (por cobrar) o compras (por pagar) al crédito con saldo pendiente. */
     public List<OperacionFGEM> pendientesFGEM(TipoOperacionFGEM tipoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_VER);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -216,7 +190,6 @@ public class TesoreriaServiceFGEM {
         });
     }
 
-    /** Registra el cobro de una venta al crédito o el pago de una compra al crédito. */
     public OperacionFGEM registrarPagoFGEM(long operacionIdFGEM, long cuentaIdFGEM, LocalDate fechaFGEM, BigDecimal montoFGEM, String notaFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.OPERACIONES_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -268,8 +241,6 @@ public class TesoreriaServiceFGEM {
         });
     }
 
-    // ------------------------------------------------------------------ análisis
-
     public FlujoEfectivoFGEM flujoEfectivoFGEM(LocalDate desdeFGEM, LocalDate hastaFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_VER);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -278,7 +249,6 @@ public class TesoreriaServiceFGEM {
                 tesoreriaFGEM.flujosFGEM(cFGEM, empresaFGEM.idFGEM())));
     }
 
-    /** Entradas, salidas y saldo de los últimos {@code meses} meses, incluido el mes en curso. */
     public List<FlujoMensualFGEM> evolucionFGEM(int mesesFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_VER);
         if (mesesFGEM < 1 || mesesFGEM > 60) {
@@ -297,7 +267,6 @@ public class TesoreriaServiceFGEM {
         return databaseFGEM.conConexionFGEM(cFGEM -> proyeccionFGEM(tesoreriaFGEM, deudasFGEM, cFGEM, empresaFGEM.idFGEM(), hoyFGEM));
     }
 
-    /** También la usa el diagnóstico empresarial. */
     static ProyeccionCajaFGEM proyeccionFGEM(TesoreriaRepositoryFGEM tesoreriaFGEM, DeudaRepositoryFGEM deudasFGEM, Connection cFGEM,
                                      long empresaIdFGEM, LocalDate hoyFGEM) throws SQLException {
         List<CuentaDineroFGEM> todasFGEM = tesoreriaFGEM.listarCuentasFGEM(cFGEM, empresaIdFGEM, true);
@@ -307,10 +276,6 @@ public class TesoreriaServiceFGEM {
                 deudasFGEM.listarFGEM(cFGEM, empresaIdFGEM, false));
     }
 
-    /**
-     * Flujo de operación de cada mes completo, desde el primer mes con movimientos en las cuentas (como
-     * máximo {@value #MESES_HISTORIA} meses).
-     */
     static double[] historiaOperacionFGEM(List<CuentaDineroFGEM> cuentasFGEM, List<FlujoDineroFGEM> flujosFGEM, LocalDate hoyFGEM) {
         YearMonth ultimoFGEM = YearMonth.from(hoyFGEM).minusMonths(1);
         YearMonth primeroFGEM = flujosFGEM.stream().map(fFGEM -> YearMonth.from(fFGEM.fechaFGEM())).min(YearMonth::compareTo).orElse(null);
@@ -340,9 +305,6 @@ public class TesoreriaServiceFGEM {
         });
     }
 
-    // ------------------------------------------------------------------ utilidades
-
-    /** Suma de lo pendiente; con {@code hoy}, solo lo vencido. */
     static BigDecimal pendienteFGEM(List<OperacionFGEM> operacionesFGEM, LocalDate hoyFGEM) {
         return operacionesFGEM.stream()
                 .filter(oFGEM -> hoyFGEM == null || oFGEM.vencidaEnFGEM(hoyFGEM))

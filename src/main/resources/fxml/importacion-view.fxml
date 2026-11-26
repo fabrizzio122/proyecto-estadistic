@@ -9,13 +9,11 @@
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.businessanalyzer.controller.ImportacionControllerFGEM"
       spacing="16" styleClass="page">
 
-    <!-- Pasos -->
     <ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="dialog-scroll" prefWidth="440" minWidth="380">
         <VBox spacing="14">
             <VBox styleClass="card" spacing="10">
@@ -24,10 +22,8 @@
                        text="Un libro de Excel con las hojas Productos, Ventas, Compras y Gastos, con instrucciones y listas desplegables. Llena solo las hojas que necesites; también puedes pegar tus propias columnas si tienen encabezados parecidos."/>
                 <FlowPane hgap="8" vgap="8">
                     <Button text="Plantilla vacía…" styleClass="button-secondary" minWidth="-Infinity" onAction="#guardarPlantillaVaciaFGEM">
-                        <graphic><FontIcon iconLiteral="fth-download"/></graphic>
                     </Button>
                     <Button text="Con ejemplo de bodega…" styleClass="button-secondary" minWidth="-Infinity" onAction="#guardarPlantillaEjemploFGEM">
-                        <graphic><FontIcon iconLiteral="fth-shopping-bag"/></graphic>
                     </Button>
                 </FlowPane>
                 <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
@@ -40,11 +36,9 @@
                 <FlowPane hgap="8" vgap="8" alignment="CENTER_LEFT">
                     <Button fx:id="btnElegirFGEM" text="Elegir archivo de Excel…" styleClass="button-primary"
                             minWidth="-Infinity" onAction="#elegirArchivoFGEM">
-                        <graphic><FontIcon iconLiteral="fth-file"/></graphic>
                     </Button>
                     <Button fx:id="btnRevisarFGEM" text="Revisar otra vez" styleClass="button-secondary"
                             minWidth="-Infinity" onAction="#revisarOtraVezFGEM">
-                        <graphic><FontIcon iconLiteral="fth-refresh-cw"/></graphic>
                     </Button>
                     <ProgressIndicator fx:id="progresoFGEM" prefWidth="22" prefHeight="22" visible="false"/>
                 </FlowPane>
@@ -57,7 +51,6 @@
                 <Label text="3. Importa" styleClass="card-title"/>
                 <Button fx:id="btnImportarFGEM" text="Importar a la empresa activa" styleClass="button-primary"
                         minWidth="-Infinity" onAction="#importarFGEM">
-                    <graphic><FontIcon iconLiteral="fth-upload"/></graphic>
                 </Button>
                 <Label styleClass="hint" wrapText="true" minHeight="-Infinity"
                        text="Se habilita cuando la revisión no tiene errores. Antes de importar se guarda una copia de seguridad («Antes de importar») por si necesitas volver atrás desde Configuración."/>
@@ -65,7 +58,6 @@
         </VBox>
     </ScrollPane>
 
-    <!-- Resultado -->
     <VBox styleClass="card" spacing="12" HBox.hgrow="ALWAYS">
         <Label text="Revisión del archivo" styleClass="card-title"/>
         <Label fx:id="lblEstadoFGEM" wrapText="true" minHeight="-Infinity" maxWidth="Infinity"

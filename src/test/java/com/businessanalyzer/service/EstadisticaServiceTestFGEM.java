@@ -36,15 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Escenario (reloj de pruebas en 2026-01-15):
- * <pre>
- * Ago–Dic 2025: una venta mensual de P1 de 1000, 1200, 1400, 1600 y 1800 (crecimiento lineal de 200)
- *               y publicidad de 100, 120, 140, 160 y 180 (proporcional a las ventas).
- * Ene 2026 (mes en curso, incompleto): ventas de P2 por 500 y de P3 por 250.
- * Total del período: 7750 -> P1 90.3 % (A), P2 6.5 % (B), P3 3.2 % (C).
- * </pre>
- */
 class EstadisticaServiceTestFGEM {
 
     private static final LocalDate DESDE_FGEM = LocalDate.of(2025, 8, 1);
@@ -129,14 +120,11 @@ class EstadisticaServiceTestFGEM {
     void laInferenciaUsaLasVentasDiariasYElPeriodoAnteriorFGEM() {
         AnalisisEstadisticoFGEM aFGEM = servicioFGEM.analizarFGEM(DESDE_FGEM, HASTA_FGEM);
 
-        // Intervalo de confianza con los 168 días; contiene la media diaria.
         assertEquals(168, aFGEM.intervaloDiarioFGEM().nFGEM());
         assertTrue(aFGEM.intervaloDiarioFGEM().inferiorFGEM() < aFGEM.ventasDiariasFGEM().mediaFGEM()
                 && aFGEM.ventasDiariasFGEM().mediaFGEM() < aFGEM.intervaloDiarioFGEM().superiorFGEM());
-        // ANOVA con los siete días de la semana (24 semanas).
         assertEquals(7, aFGEM.anovaDiasFGEM().gruposFGEM());
         assertTrue(aFGEM.anovaDiasFGEM().calculadoFGEM());
-        // Feb–jul 2025 es el período anterior, pero el negocio empezó a vender en agosto: no hay con qué comparar.
         assertEquals(LocalDate.of(2025, 2, 1), aFGEM.periodoAnteriorFGEM().desdeFGEM());
         assertTrue(!aFGEM.comparacionFGEM().calculadoFGEM());
         assertTrue(LecturaEstadisticaFGEM.comparacionFGEM(aFGEM, MonedaFGEM.PEN).get(0).startsWith("No hay ventas suficientes"));

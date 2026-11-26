@@ -2,10 +2,6 @@ package com.businessanalyzer.model;
 
 import java.time.LocalDateTime;
 
-/**
- * Usuario del sistema. No incluye el hash de la contraseña: este nunca sale de la capa
- * de datos y servicios (ver {@code UsuarioRepository.Credenciales}).
- */
 public record UsuarioFGEM(
         long idFGEM,
         String nombreUsuarioFGEM,
@@ -27,7 +23,6 @@ public record UsuarioFGEM(
         return rolFGEM.tieneFGEM(permisoFGEM);
     }
 
-    /** Estado legible: Activo, Inactivo o Bloqueado. */
     public String estadoFGEM(LocalDateTime momentoFGEM) {
         if (!activoFGEM) {
             return "Inactivo";

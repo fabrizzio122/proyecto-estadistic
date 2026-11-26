@@ -1,6 +1,5 @@
 package com.businessanalyzer.model;
 
-/** Lugar que ocupa cada categoría en el estado de resultados (Fase 7). */
 public enum GrupoFinancieroFGEM {
 
     GASTO_OPERATIVO("Gastos operativos"),

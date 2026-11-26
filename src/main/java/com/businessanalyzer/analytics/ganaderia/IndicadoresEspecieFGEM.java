@@ -18,20 +18,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Indicadores técnicos de una especie en un período:
- * <ul>
- *   <li><b>Natalidad</b> = nacimientos ÷ hembras reproductoras al inicio.</li>
- *   <li><b>Mortalidad</b> = muertes ÷ (existencia inicial + nacimientos + compras).</li>
- *   <li><b>Mortalidad de crías</b> = muertes de crías ÷ nacimientos.</li>
- *   <li><b>Extracción</b> = (ventas + consumo familiar) ÷ existencia inicial.</li>
- *   <li><b>Crecimiento del hato</b> = (existencia final − inicial) ÷ inicial.</li>
- * </ul>
- * Un inventario inicial registrado dentro del período cuenta como existencia inicial, no como compra.
- *
- * @param hembrasPorMachoFGEM hembras reproductoras por cada macho reproductor al final; {@code null} sin machos
- * @param historiaCompletaFGEM  ya había animales registrados antes de empezar el período (sus cifras son comparables)
- */
 public record IndicadoresEspecieFGEM(EspecieFGEM especieFGEM, PeriodoFGEM periodoFGEM,
                                  int existenciaInicialFGEM, int existenciaFinalFGEM, int hembrasInicioFGEM, int hembrasFinalFGEM,
                                  int machosFinalFGEM, int nacimientosFGEM, int comprasFGEM, int ventasFGEM, int muertesFGEM,
@@ -42,11 +28,9 @@ public record IndicadoresEspecieFGEM(EspecieFGEM especieFGEM, PeriodoFGEM period
 
     private static final int ESCALA_FGEM = 6;
 
-    /** Producción de leche, fibra o lana de la especie en el período. */
     public record ResumenProduccionFGEM(ProductoGanaderoFGEM productoFGEM, BigDecimal cantidadFGEM, BigDecimal promedioFGEM,
                                     BigDecimal valorFGEM) {
 
-        /** "6.4 l por vaca al día" o "2.3 kg por animal esquilado". */
         public String promedioTextoFGEM() {
             if (promedioFGEM == null) {
                 return "—";
@@ -114,7 +98,6 @@ public record IndicadoresEspecieFGEM(EspecieFGEM especieFGEM, PeriodoFGEM period
 
     private static ResumenProduccionFGEM resumirFGEM(ProductoGanaderoFGEM productoFGEM, List<ProduccionGanaderaFGEM> registrosFGEM) {
         BigDecimal cantidadFGEM = registrosFGEM.stream().map(ProduccionGanaderaFGEM::cantidadFGEM).reduce(BigDecimal.ZERO, BigDecimal::add);
-        // El promedio usa solo los registros que indican cuántos animales produjeron.
         BigDecimal conAnimalesFGEM = BigDecimal.ZERO;
         long baseAnimalesFGEM = 0;
         for (ProduccionGanaderaFGEM pFGEM : registrosFGEM) {
@@ -130,14 +113,10 @@ public record IndicadoresEspecieFGEM(EspecieFGEM especieFGEM, PeriodoFGEM period
         return new ResumenProduccionFGEM(productoFGEM, cantidadFGEM, promedioFGEM, valorFGEM);
     }
 
-    /** Hay datos de esta especie en el período (existencias o movimientos). */
     public boolean tieneDatosFGEM() {
         return existenciaInicialFGEM > 0 || existenciaFinalFGEM > 0 || nacimientosFGEM > 0 || comprasFGEM > 0;
     }
 
-    // ------------------------------------------------------------------ evaluación
-
-    /** Indicadores con semáforo y lectura, en el orden en que se muestran. */
     public List<IndicadorGanaderoFGEM> evaluarFGEM(MonedaFGEM monedaFGEM) {
         List<IndicadorGanaderoFGEM> listaFGEM = new ArrayList<>();
         String hembrasFGEM = especieFGEM.hembrasFGEM();
@@ -232,7 +211,6 @@ public record IndicadoresEspecieFGEM(EspecieFGEM especieFGEM, PeriodoFGEM period
         return valorFGEM.compareTo(amarilloFGEM) <= 0 ? SemaforoFGEM.AMARILLO : SemaforoFGEM.ROJO;
     }
 
-    /** El semáforo compara el porcentaje tal como se muestra (con un decimal), para que coincida con el criterio. */
     private static BigDecimal mostradoFGEM(BigDecimal fraccionFGEM) {
         return fraccionFGEM.setScale(3, RoundingMode.HALF_UP);
     }

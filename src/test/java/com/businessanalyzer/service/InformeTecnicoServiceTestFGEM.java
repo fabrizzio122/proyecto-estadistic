@@ -38,8 +38,8 @@ class InformeTecnicoServiceTestFGEM {
 
         String contenidoFGEM = entornoFGEM.informeTecnicoFGEM.redactarFGEM(fundoFGEM, recienteFGEM).textoPlanoFGEM();
         assertTrue(contenidoFGEM.contains("Verificación en campo"), contenidoFGEM);
-        assertTrue(contenidoFGEM.contains("Dosificar a todas las alpacas contra parásitos"), contenidoFGEM);   // verificado
-        assertTrue(contenidoFGEM.contains("Terminar el cobertizo de crías"), contenidoFGEM);                  // nuevo
+        assertTrue(contenidoFGEM.contains("Dosificar a todas las alpacas contra parásitos"), contenidoFGEM);
+        assertTrue(contenidoFGEM.contains("Terminar el cobertizo de crías"), contenidoFGEM);
         assertTrue(contenidoFGEM.contains("Natalidad"), contenidoFGEM);
         assertTrue(contenidoFGEM.contains("Quinua"), contenidoFGEM);
         assertTrue(contenidoFGEM.contains("Patrimonio"), contenidoFGEM);

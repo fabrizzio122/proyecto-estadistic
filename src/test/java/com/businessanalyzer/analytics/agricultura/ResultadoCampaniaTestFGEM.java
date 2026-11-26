@@ -19,10 +19,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-/**
- * Papa en 1 ha (referencia 15 000 kg/ha, precio en chacra 0.80): costos 8 000; cosecha 9 000 kg vendidos a
- * 0.90, 2 000 de consumo, 1 000 de semilla y 500 de merma.
- */
 class ResultadoCampaniaTestFGEM {
 
     private static final LocalDate SIEMBRA_FGEM = LocalDate.of(2025, 10, 1);
@@ -40,17 +36,17 @@ class ResultadoCampaniaTestFGEM {
         igualFGEM("12500", rFGEM.rendimientoFGEM());
         igualFGEM("0.833333", rFGEM.avanceReferenciaFGEM());
         igualFGEM("8100", rFGEM.ingresoVentasFGEM());
-        igualFGEM("10500", rFGEM.valorProduccionFGEM());           // 8 100 + (2 000 + 1 000) × 0.80; la merma no vale
+        igualFGEM("10500", rFGEM.valorProduccionFGEM());
         igualFGEM("2500", rFGEM.margenFGEM());
         igualFGEM("0.3125", rFGEM.rentabilidadFGEM());
         igualFGEM("0.64", rFGEM.costoPorKiloFGEM());
-        igualFGEM("10000", rFGEM.rendimientoEquilibrioFGEM());     // 8 000 / 0.80
+        igualFGEM("10000", rFGEM.rendimientoEquilibrioFGEM());
         igualFGEM("0.72", rFGEM.parteVendidaFGEM());
 
         List<IndicadorGanaderoFGEM> indFGEM = rFGEM.evaluarFGEM(MonedaFGEM.PEN);
-        assertEquals(SemaforoFGEM.AMARILLO, buscarFGEM(indFGEM, "Rendimiento").semaforoFGEM());   // 83 % de la referencia
+        assertEquals(SemaforoFGEM.AMARILLO, buscarFGEM(indFGEM, "Rendimiento").semaforoFGEM());
         assertEquals(SemaforoFGEM.VERDE, buscarFGEM(indFGEM, "Rendimiento para no perder").semaforoFGEM());
-        assertEquals(SemaforoFGEM.VERDE, buscarFGEM(indFGEM, "Margen").semaforoFGEM());           // 31 % sobre el costo
+        assertEquals(SemaforoFGEM.VERDE, buscarFGEM(indFGEM, "Margen").semaforoFGEM());
     }
 
     @Test
@@ -59,7 +55,7 @@ class ResultadoCampaniaTestFGEM {
                 List.of(cosechaFGEM("1000", DestinoCosechaFGEM.VENTA, "1.00"), cosechaFGEM("1000", DestinoCosechaFGEM.VENTA, "0.50"),
                         cosechaFGEM("500", DestinoCosechaFGEM.ANIMALES, null)));
         igualFGEM("0.75", rFGEM.precioValorizacionFGEM());
-        igualFGEM("1875", rFGEM.valorProduccionFGEM());            // 1 500 + 500 × 0.75
+        igualFGEM("1875", rFGEM.valorProduccionFGEM());
     }
 
     @Test
@@ -82,8 +78,6 @@ class ResultadoCampaniaTestFGEM {
         assertNull(rFGEM.rendimientoEquilibrioFGEM());
         assertEquals(SemaforoFGEM.SIN_DATOS, buscarFGEM(rFGEM.evaluarFGEM(MonedaFGEM.PEN), "Rendimiento").semaforoFGEM());
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private static CampaniaFGEM papaFGEM(EstadoCampaniaFGEM estadoFGEM, String precioChacraFGEM) {
         return new CampaniaFGEM(1, 1, 1, "Parcela Alta", CultivoFGEM.PAPA, "Yungay", SIEMBRA_FGEM, BigDecimal.ONE,

@@ -37,20 +37,10 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
-/**
- * Crea una empresa de demostración (una bodega) con 12 meses de compras, ventas, gastos e ingresos,
- * para conocer el sistema sin tener que registrar datos reales. La empresa queda como empresa activa.
- * Todo se registra a través de los servicios normales, con sus validaciones y permisos.
- * <p>
- * El dinero recorre tres cuentas, como en una bodega real: las ventas entran a la caja (y algunas por
- * Yape), las compras y los gastos fijos se pagan desde el banco, y a fin de mes el efectivo se deposita
- * en el banco dejando un fondo para el vuelto.
- */
 public class DatosDemoServiceFGEM {
 
     public static final String NOMBRE_DEMO_FGEM = "Bodega Demo";
     private static final BigDecimal IGV_FGEM = new BigDecimal("18");
-    /** Efectivo que se deja en caja al depositar a fin de mes. */
     private static final BigDecimal FONDO_CAJA_FGEM = new BigDecimal("1000");
 
     private final EmpresaServiceFGEM empresasFGEM;
@@ -75,14 +65,12 @@ public class DatosDemoServiceFGEM {
         this.relojFGEM = relojFGEM;
     }
 
-    /** Cuentas de la bodega y el efectivo acumulado en caja y Yape desde el último depósito. */
     private static final class CuentasFGEM {
         long cajaFGEM;
         long bancoFGEM;
         long yapeFGEM;
         BigDecimal enCajaFGEM = BigDecimal.ZERO;
         BigDecimal enYapeFGEM = BigDecimal.ZERO;
-        /** Ventas en efectivo del día 16 en adelante del mes que se está generando. */
         BigDecimal segundaQuincenaFGEM = BigDecimal.ZERO;
     }
 
@@ -113,16 +101,13 @@ public class DatosDemoServiceFGEM {
         LocalDate hoyFGEM = LocalDate.now(relojFGEM);
         YearMonth actualFGEM = YearMonth.from(hoyFGEM);
         registrarPrestamoYEquiposFGEM(hoyFGEM, cuentasFGEM);
-        // Volumen mensual creciente, con un pico en diciembre y un febrero flojo (el mes malo del año).
         int[] estacionalFGEM = {92, 80, 97, 98, 100, 99, 103, 104, 101, 106, 112, 125};
         ProductoFGEM[] productosFGEM = {arrozFGEM, azucarFGEM, aceiteFGEM, gaseosaFGEM, detergenteFGEM, aguaFGEM, deliveryFGEM};
         String[] preciosFGEM = {"24.90", "4.50", "11.80", "10.50", "19.90", "15.00", "5.00"};
-        // Semilla fija: los datos de demostración salen siempre iguales.
         java.util.Random azarFGEM = new java.util.Random(20_26L);
         for (int iFGEM = 12; iFGEM >= 0; iFGEM--) {
             YearMonth mesFGEM = actualFGEM.minusMonths(iFGEM);
             int vFGEM = (int) Math.round(3.2 * (100 + (12 - iFGEM) * 3) * estacionalFGEM[mesFGEM.getMonthValue() - 1] / 100.0);
-            // Se repone lo que se vende cada mes, con un pequeño colchón de stock (se paga desde el banco).
             compraFGEM(mesFGEM.atDay(1), hoyFGEM, cuentasFGEM.bancoFGEM, lFGEM(arrozFGEM, vFGEM + 30, "18.50"), lFGEM(azucarFGEM, vFGEM * 3 + 35, "3.20"),
                     lFGEM(aceiteFGEM, vFGEM + 12, "8.90"), lFGEM(gaseosaFGEM, vFGEM + 20, "7.40"), lFGEM(detergenteFGEM, vFGEM / 2 + 8, "14.20"),
                     lFGEM(aguaFGEM, 14, "16.00"));
@@ -158,7 +143,6 @@ public class DatosDemoServiceFGEM {
         return empresaFGEM;
     }
 
-    /** La caja se crea con la empresa; se le pone el saldo de apertura y se agregan el banco y Yape. */
     private CuentasFGEM crearCuentasFGEM() {
         CuentasFGEM cuentasFGEM = new CuentasFGEM();
         CuentaDineroFGEM cajaFGEM = tesoreriaFGEM.cuentasActivasFGEM().get(0);
@@ -172,16 +156,10 @@ public class DatosDemoServiceFGEM {
         return cuentasFGEM;
     }
 
-    /**
-     * Una venta por día (el cierre de caja de la bodega). Las cantidades del mes se reparten entre los
-     * días según el día de la semana (sábado fuerte, domingo y lunes flojos) con algo de variación, y se
-     * redondean acumulando el resto para que el total del mes se mantenga. Uno de cada cuatro días los
-     * clientes pagan sobre todo con Yape.
-     */
     private void ventasDelMesFGEM(YearMonth mesFGEM, LocalDate hoyFGEM, java.util.Random azarFGEM, ProductoFGEM[] productosFGEM,
                               String[] preciosFGEM, int[] totalesMesFGEM, CuentasFGEM cuentasFGEM) {
         cuentasFGEM.segundaQuincenaFGEM = BigDecimal.ZERO;
-        double[] pesoDiaFGEM = {0.9, 0.95, 1.0, 1.0, 1.15, 1.35, 0.65}; // lunes … domingo
+        double[] pesoDiaFGEM = {0.9, 0.95, 1.0, 1.0, 1.15, 1.35, 0.65};
         double[] pesosFGEM = new double[mesFGEM.lengthOfMonth()];
         double sumaFGEM = 0;
         for (int dFGEM = 0; dFGEM < pesosFGEM.length; dFGEM++) {
@@ -217,13 +195,8 @@ public class DatosDemoServiceFGEM {
         }
     }
 
-    /**
-     * El día 15 se deposita lo vendido en efectivo en la primera quincena (menos fletes y el retiro del dueño),
-     * dejando el fondo para el vuelto.
-     */
     private void depositarQuincenaFGEM(YearMonth mesFGEM, LocalDate hoyFGEM, CuentasFGEM cuentasFGEM) {
         LocalDate quincenaFGEM = mesFGEM.atDay(15);
-        // Efectivo en caja al cierre del día 15: lo acumulado ese día menos lo que se vendió en la segunda quincena.
         BigDecimal alQuinceFGEM = cuentasFGEM.enCajaFGEM.subtract(cuentasFGEM.segundaQuincenaFGEM);
         BigDecimal depositoFGEM = alQuinceFGEM.subtract(FONDO_CAJA_FGEM);
         if (depositoFGEM.signum() > 0 && tesoreriaFGEM(TipoMovimientoTesoreriaFGEM.TRANSFERENCIA, quincenaFGEM, hoyFGEM, cuentasFGEM.cajaFGEM,
@@ -232,7 +205,6 @@ public class DatosDemoServiceFGEM {
         }
     }
 
-    /** El último día del mes se deposita el efectivo en el banco (dejando el fondo de caja) y se pasa lo de Yape. */
     private void depositarFinDeMesFGEM(YearMonth mesFGEM, LocalDate hoyFGEM, CuentasFGEM cuentasFGEM) {
         LocalDate finFGEM = mesFGEM.atEndOfMonth();
         BigDecimal depositoFGEM = cuentasFGEM.enCajaFGEM.subtract(FONDO_CAJA_FGEM);
@@ -246,10 +218,6 @@ public class DatosDemoServiceFGEM {
         }
     }
 
-    /**
-     * Préstamo de la caja municipal: el dinero entra al banco, con él se compra la motocicleta del delivery
-     * y luego se paga una cuota al mes (capital + intereses) desde el banco. Los demás equipos ya se tenían.
-     */
     private void registrarPrestamoYEquiposFGEM(LocalDate hoyFGEM, CuentasFGEM cuentasFGEM) {
         activoFGEM(CategoriaActivoFGEM.MOBILIARIO, "Anaqueles y mostrador", hoyFGEM.minusYears(3), "4500", 10, null, null);
         activoFGEM(CategoriaActivoFGEM.MOBILIARIO, "Refrigeradora exhibidora", hoyFGEM.minusMonths(14), "3200", 10, "300", null);
@@ -271,10 +239,6 @@ public class DatosDemoServiceFGEM {
         }
     }
 
-    /**
-     * Ventas y compras al crédito del último mes y medio: un restaurante que paga en partes (con una
-     * deuda vencida), una venta reciente por cobrar y mercadería del distribuidor a 30 días.
-     */
     private void registrarCreditosFGEM(LocalDate hoyFGEM, CuentasFGEM cuentasFGEM, ProductoFGEM arrozFGEM, ProductoFGEM aceiteFGEM,
                                    ProductoFGEM detergenteFGEM, ProductoFGEM gaseosaFGEM) {
         OperacionFGEM vencidaFGEM = operacionesFGEM.registrarFGEM(new DatosOperacionFGEM(TipoOperacionFGEM.VENTA, hoyFGEM.minusDays(40),
@@ -319,7 +283,6 @@ public class DatosDemoServiceFGEM {
         return movimientoFGEM(TipoMovimientoFGEM.GASTO, categoriaFGEM, fechaFGEM, hoyFGEM, descripcionFGEM, montoFGEM, cuentaFGEM);
     }
 
-    /** Registra el ingreso o gasto si la fecha ya pasó; devuelve si se registró. */
     private boolean movimientoFGEM(TipoMovimientoFGEM tipoFGEM, CategoriaFinancieraFGEM categoriaFGEM, LocalDate fechaFGEM, LocalDate hoyFGEM,
                                String descripcionFGEM, int montoFGEM, long cuentaFGEM) {
         if (fechaFGEM.isAfter(hoyFGEM)) {
@@ -330,7 +293,6 @@ public class DatosDemoServiceFGEM {
         return true;
     }
 
-    /** Registra la transferencia, aporte o retiro si la fecha ya pasó; devuelve si se registró. */
     private boolean tesoreriaFGEM(TipoMovimientoTesoreriaFGEM tipoFGEM, LocalDate fechaFGEM, LocalDate hoyFGEM, Long origenFGEM, Long destinoFGEM,
                               BigDecimal montoFGEM, String descripcionFGEM) {
         if (fechaFGEM.isAfter(hoyFGEM)) {

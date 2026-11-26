@@ -1,5 +1,3 @@
--- V2: usuarios, roles, permisos y registro de accesos.
-
 CREATE TABLE rol (
     id          INTEGER PRIMARY KEY,
     codigo      TEXT NOT NULL UNIQUE,
@@ -47,14 +45,12 @@ CREATE TABLE registro_acceso (
 
 CREATE INDEX idx_registro_acceso_fecha ON registro_acceso (fecha);
 
--- Roles predefinidos
 INSERT INTO rol (id, codigo, nombre, descripcion) VALUES
     (1, 'ADMINISTRADOR', 'Administrador', 'Acceso total, incluida la gestión de usuarios y la configuración'),
     (2, 'GERENTE', 'Gerente', 'Registra información y consulta todos los análisis e informes'),
     (3, 'ANALISTA', 'Analista', 'Consulta información, análisis e informes sin modificar datos'),
     (4, 'OPERADOR', 'Operador', 'Registra productos, ventas, compras y movimientos financieros');
 
--- Permisos (deben coincidir con el enum com.businessanalyzer.model.Permiso)
 INSERT INTO permiso (codigo, descripcion) VALUES
     ('DASHBOARD_VER', 'Ver el dashboard'),
     ('EMPRESAS_VER', 'Ver empresas'),
@@ -70,22 +66,18 @@ INSERT INTO permiso (codigo, descripcion) VALUES
     ('USUARIOS_GESTIONAR', 'Administrar usuarios y revisar accesos'),
     ('CONFIGURACION_GESTIONAR', 'Configuración y copias de seguridad');
 
--- Administrador: todos los permisos
 INSERT INTO rol_permiso (rol_id, permiso_codigo)
 SELECT 1, codigo FROM permiso;
 
--- Gerente: todo excepto usuarios y configuración
 INSERT INTO rol_permiso (rol_id, permiso_codigo)
 SELECT 2, codigo FROM permiso
 WHERE codigo NOT IN ('USUARIOS_GESTIONAR', 'CONFIGURACION_GESTIONAR');
 
--- Analista: solo lectura, análisis e informes
 INSERT INTO rol_permiso (rol_id, permiso_codigo)
 SELECT 3, codigo FROM permiso
 WHERE codigo IN ('DASHBOARD_VER', 'EMPRESAS_VER', 'PRODUCTOS_VER', 'OPERACIONES_VER',
                  'FINANZAS_VER', 'ANALISIS_VER', 'INFORMES_GENERAR');
 
--- Operador: registro de datos, sin análisis
 INSERT INTO rol_permiso (rol_id, permiso_codigo)
 SELECT 4, codigo FROM permiso
 WHERE codigo IN ('DASHBOARD_VER', 'EMPRESAS_VER', 'PRODUCTOS_VER', 'PRODUCTOS_GESTIONAR',

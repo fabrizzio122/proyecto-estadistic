@@ -45,33 +45,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-/** Módulo "Análisis financiero": estado de resultados, márgenes, punto de equilibrio y rentabilidad. */
 public class AnalisisFinancieroControllerFGEM implements VistaModuloFGEM {
 
-    /** Tipo de fila del estado de resultados (define el estilo). */
     private enum TipoFilaFGEM { DETALLE, SUBTOTAL, RESULTADO }
 
-    /**
-     * Fila del estado de resultados.
-     *
-     * @param esCostoFGEM            si sube, empeora el resultado (se pinta en rojo)
-     * @param anteriorSobreVentasFGEM el monto del período anterior como fracción de sus ventas
-     * @param proporcionalFGEM       se mueve con las ventas (costo de ventas): se juzga por su % sobre las ventas y no
-     *                               por el monto, porque si se vende menos el costo baja sin que sea una mejora
-     */
     private record FilaEstadoFGEM(String conceptoFGEM, BigDecimal actualFGEM, BigDecimal anteriorFGEM, BigDecimal sobreVentasFGEM,
                               BigDecimal anteriorSobreVentasFGEM, TipoFilaFGEM tipoFGEM, boolean esCostoFGEM, boolean proporcionalFGEM) {
         VariacionFGEM variacionFGEM() {
             return new VariacionFGEM(actualFGEM, anteriorFGEM);
         }
 
-        /** +1 mejora, −1 empeora, 0 sin cambio (o sin base para comparar). */
         int tendenciaFGEM() {
             if (proporcionalFGEM) {
                 if (sobreVentasFGEM == null || anteriorSobreVentasFGEM == null) {
                     return 0;
                 }
-                // Menos de 0,05 puntos porcentuales se considera sin cambio.
                 BigDecimal puntosFGEM = sobreVentasFGEM.subtract(anteriorSobreVentasFGEM);
                 return puntosFGEM.abs().compareTo(new BigDecimal("0.0005")) < 0 ? 0 : -puntosFGEM.signum();
             }
@@ -127,7 +115,6 @@ public class AnalisisFinancieroControllerFGEM implements VistaModuloFGEM {
         indicadoresFGEM.getChildren().addAll(kpiUtilidadFGEM, kpiMargenFGEM, kpiEquilibrioFGEM, kpiSeguridadFGEM);
         CamposFechaFGEM.configurarFGEM(dpDesdeFGEM);
         CamposFechaFGEM.configurarFGEM(dpHastaFGEM);
-        // Mes en curso hasta hoy: se compara con los mismos días del mes anterior.
         dpDesdeFGEM.setValue(LocalDate.now().withDayOfMonth(1));
         dpHastaFGEM.setValue(LocalDate.now());
         dpDesdeFGEM.valueProperty().addListener((oFGEM, aFGEM, nFGEM) -> cargarFGEM());
@@ -147,8 +134,6 @@ public class AnalisisFinancieroControllerFGEM implements VistaModuloFGEM {
         cargarFGEM();
     }
 
-    // ------------------------------------------------------------------ período
-
     @FXML
     private void esteMesFGEM() {
         fijarPeriodoFGEM(LocalDate.now().withDayOfMonth(1), LocalDate.now());
@@ -166,7 +151,6 @@ public class AnalisisFinancieroControllerFGEM implements VistaModuloFGEM {
         fijarPeriodoFGEM(hoyFGEM.withDayOfYear(1), hoyFGEM);
     }
 
-    /** Cambia ambas fechas y carga una sola vez. */
     private void fijarPeriodoFGEM(LocalDate desdeFGEM, LocalDate hastaFGEM) {
         if (desdeFGEM.isAfter(dpHastaFGEM.getValue())) {
             dpHastaFGEM.setValue(hastaFGEM);
@@ -176,8 +160,6 @@ public class AnalisisFinancieroControllerFGEM implements VistaModuloFGEM {
             dpHastaFGEM.setValue(hastaFGEM);
         }
     }
-
-    // ------------------------------------------------------------------ carga
 
     private void cargarFGEM() {
         EmpresaFGEM empresaFGEM = contextoFGEM.sesionFGEM().empresaActivaFGEM().orElse(null);
@@ -192,7 +174,6 @@ public class AnalisisFinancieroControllerFGEM implements VistaModuloFGEM {
         }
         monedaFGEM = empresaFGEM.monedaFGEM();
         progresoFGEM.setVisible(true);
-        // Si el usuario cambia el período antes de que termine el cálculo, se descarta el resultado viejo.
         long numeroFGEM = ++solicitudActualFGEM;
         TareasFGEM.ejecutarFGEM(() -> contextoFGEM.analisisFGEM().analizarFGEM(desdeFGEM, hastaFGEM),
                 analisisFGEM -> {
@@ -257,8 +238,6 @@ public class AnalisisFinancieroControllerFGEM implements VistaModuloFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ estado de resultados
-
     private void mostrarEstadoFGEM(AnalisisFinancieroFGEM aFGEM) {
         EstadoResultadosFGEM eFGEM = aFGEM.actualFGEM();
         EstadoResultadosFGEM pFGEM = aFGEM.anteriorFGEM();
@@ -308,7 +287,6 @@ public class AnalisisFinancieroControllerFGEM implements VistaModuloFGEM {
                 anteriorFGEM.sobreVentasFGEM(montoAnteriorFGEM), tipoFGEM, esCostoFGEM, proporcionalFGEM);
     }
 
-    /** "Margen bruto 33.3 % (+2.1 pp)": pp = puntos porcentuales respecto al período anterior. */
     private static Label chipMargenFGEM(String nombreFGEM, BigDecimal actualFGEM, BigDecimal anteriorFGEM) {
         String textoFGEM = "Margen " + nombreFGEM.toLowerCase() + "  " + MontosFGEM.porcentajeFGEM(actualFGEM);
         if (actualFGEM != null && anteriorFGEM != null) {
@@ -370,8 +348,6 @@ public class AnalisisFinancieroControllerFGEM implements VistaModuloFGEM {
         });
     }
 
-    // ------------------------------------------------------------------ punto de equilibrio
-
     private void mostrarEquilibrioFGEM(AnalisisFinancieroFGEM aFGEM) {
         PuntoEquilibrioFGEM peFGEM = aFGEM.equilibrioFGEM();
         BigDecimal costoVentasFGEM = aFGEM.actualFGEM().costoVentasFGEM();
@@ -406,8 +382,6 @@ public class AnalisisFinancieroControllerFGEM implements VistaModuloFGEM {
         gridEquilibrioFGEM.add(datoFGEM, 1, filaFGEM);
         return filaFGEM + 1;
     }
-
-    // ------------------------------------------------------------------ rentabilidad por producto
 
     private void mostrarProductosFGEM(AnalisisFinancieroFGEM aFGEM) {
         margenTotalProductosFGEM = aFGEM.margenTotalProductosFGEM();

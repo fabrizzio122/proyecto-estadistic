@@ -50,7 +50,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TesoreriaServiceTestFGEM {
 
-    /** El reloj de pruebas está en 2026-01-15. */
     private static final LocalDate HOY_FGEM = LocalDate.of(2026, 1, 15);
 
     @TempDir
@@ -85,7 +84,6 @@ class TesoreriaServiceTestFGEM {
 
     @Test
     void lasVentasYComprasAlContadoMuevenSusCuentasFGEM() {
-        // Compra de 10 × 20 = 200 + IGV 36 desde el banco; venta de 4 × 25 = 100 + IGV 18 a la caja.
         compraFGEM(CondicionPagoFGEM.CONTADO, bancoFGEM.idFGEM(), "10", null);
         OperacionFGEM ventaFGEM = ventaFGEM(CondicionPagoFGEM.CONTADO, null, "4", null);
 
@@ -113,13 +111,11 @@ class TesoreriaServiceTestFGEM {
         igualFGEM("68", parcialFGEM.pendienteFGEM());
         igualFGEM("1050", saldoFGEM(cajaFGEM));
 
-        // Con cobros registrados la venta no se anula ni se corrige directamente.
         assertInvalidoFGEM(() -> entornoFGEM.operacionesFGEM.anularFGEM(ventaFGEM.idFGEM(), "Error de registro"));
         OperacionFGEM completaFGEM = servicioFGEM.registrarPagoFGEM(ventaFGEM.idFGEM(), bancoFGEM.idFGEM(), HOY_FGEM, new BigDecimal("68"), null);
         igualFGEM("0", completaFGEM.pendienteFGEM());
         assertTrue(servicioFGEM.pendientesFGEM(TipoOperacionFGEM.VENTA).isEmpty());
 
-        // Al anular un cobro, lo pendiente vuelve.
         long cobroFGEM = servicioFGEM.listarPagosFGEM(ventaFGEM.idFGEM()).get(0).idFGEM();
         igualFGEM("68", servicioFGEM.anularPagoFGEM(cobroFGEM).pendienteFGEM());
     }
@@ -169,11 +165,9 @@ class TesoreriaServiceTestFGEM {
         servicioFGEM.registrarMovimientoFGEM(new DatosMovimientoTesoreriaFGEM(TipoMovimientoTesoreriaFGEM.TRANSFERENCIA, HOY_FGEM,
                 bancoFGEM.idFGEM(), cajaFGEM.idFGEM(), new BigDecimal("5000"), null));
         assertFalse(servicioFGEM.cambiarCuentaActivaFGEM(bancoFGEM.idFGEM(), false).activaFGEM());
-        // La caja queda como única cuenta activa y no se puede desactivar.
         servicioFGEM.registrarMovimientoFGEM(new DatosMovimientoTesoreriaFGEM(TipoMovimientoTesoreriaFGEM.RETIRO, HOY_FGEM,
                 cajaFGEM.idFGEM(), null, new BigDecimal("6000"), null));
         assertInvalidoFGEM(() -> servicioFGEM.cambiarCuentaActivaFGEM(cajaFGEM.idFGEM(), false));
-        // No se registran movimientos en una cuenta desactivada.
         assertInvalidoFGEM(() -> entornoFGEM.finanzasFGEM.registrarFGEM(gastoFGEM("100", bancoFGEM.idFGEM())));
     }
 
@@ -183,14 +177,13 @@ class TesoreriaServiceTestFGEM {
                 "Capital de trabajo", HOY_FGEM.minusDays(10), new BigDecimal("3000"), new BigDecimal("24"),
                 new BigDecimal("300"), null, bancoFGEM.idFGEM()));
         igualFGEM("8000", saldoFGEM(bancoFGEM));
-        igualFGEM("60", PatrimonioServiceFGEM.interesSugeridoFGEM(prestamoFGEM));   // 3 000 × 24 % / 12
+        igualFGEM("60", PatrimonioServiceFGEM.interesSugeridoFGEM(prestamoFGEM));
 
         DeudaFGEM despuesFGEM = entornoFGEM.patrimonioFGEM.registrarPagoFGEM(prestamoFGEM.idFGEM(), HOY_FGEM, new BigDecimal("240"),
                 new BigDecimal("60"), bancoFGEM.idFGEM(), "Cuota 1");
         igualFGEM("2760", despuesFGEM.saldoFGEM());
         igualFGEM("7700", saldoFGEM(bancoFGEM));
 
-        // El interés quedó como gasto financiero (entra en el estado de resultados) y no se edita aparte.
         MovimientoFinancieroFGEM interesFGEM = entornoFGEM.finanzasFGEM.listarFGEM(HOY_FGEM, HOY_FGEM, false).get(0);
         assertEquals(CategoriaFinancieraFGEM.INTERESES_PRESTAMOS, interesFGEM.categoriaFGEM());
         assertTrue(interesFGEM.dePagoDeudaFGEM());
@@ -202,7 +195,6 @@ class TesoreriaServiceTestFGEM {
         igualFGEM("-240", eneroFGEM.rubroFGEM(RubroFlujoFGEM.PAGO_DEUDAS));
         igualFGEM("-60", eneroFGEM.rubroFGEM(RubroFlujoFGEM.INTERESES));
 
-        // Al anular el pago se anula también su interés y el dinero vuelve a la cuenta.
         PagoDeudaFGEM pagoFGEM = entornoFGEM.patrimonioFGEM.listarPagosFGEM(prestamoFGEM.idFGEM()).get(0);
         igualFGEM("300", pagoFGEM.totalFGEM());
         entornoFGEM.patrimonioFGEM.anularPagoFGEM(pagoFGEM.idFGEM());
@@ -247,10 +239,8 @@ class TesoreriaServiceTestFGEM {
     void conPocosMesesNoHayProyeccionFGEM() {
         ventaFGEM(CondicionPagoFGEM.CONTADO, cajaFGEM.idFGEM(), "1", null);
         assertFalse(servicioFGEM.proyeccionFGEM().suficienteFGEM());
-        igualFGEM("6029.50", servicioFGEM.proyeccionFGEM().saldoActualFGEM());   // caja 1 029,50 + banco 5 000
+        igualFGEM("6029.50", servicioFGEM.proyeccionFGEM().saldoActualFGEM());
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private OperacionFGEM ventaFGEM(CondicionPagoFGEM condicionFGEM, Long cuentaFGEM, String cantidadFGEM, LocalDate venceFGEM) {
         return entornoFGEM.operacionesFGEM.registrarFGEM(new DatosOperacionFGEM(TipoOperacionFGEM.VENTA, HOY_FGEM, "Restaurante Sol", null, null,

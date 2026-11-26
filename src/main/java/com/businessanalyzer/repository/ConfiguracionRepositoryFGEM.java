@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Optional;
 
-/** Acceso a la tabla {@code configuracion} (pares clave/valor). */
 public class ConfiguracionRepositoryFGEM {
 
     private final DatabaseFGEM databaseFGEM;
@@ -27,7 +26,6 @@ public class ConfiguracionRepositoryFGEM {
         });
     }
 
-    /** Inserta la clave o actualiza su valor si ya existe. */
     public void guardarFGEM(String claveFGEM, String valorFGEM) {
         databaseFGEM.conConexionFGEM(cFGEM -> {
             try (PreparedStatement psFGEM = cFGEM.prepareStatement("""

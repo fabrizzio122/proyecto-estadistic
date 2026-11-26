@@ -7,10 +7,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-/**
- * Ejecuta trabajo lento (hash de contraseñas, consultas pesadas, cálculos) fuera del hilo
- * gráfico para que la ventana no se congele. Los callbacks se ejecutan en el hilo gráfico.
- */
 public final class TareasFGEM {
 
     private static final ExecutorService EJECUTOR_FGEM = Executors.newCachedThreadPool(trabajoFGEM -> {

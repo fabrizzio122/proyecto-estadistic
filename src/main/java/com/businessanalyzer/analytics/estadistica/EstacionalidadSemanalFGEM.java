@@ -5,12 +5,6 @@ import java.time.LocalDate;
 import java.util.EnumMap;
 import java.util.Map;
 
-/**
- * Venta promedio de cada día de la semana. Se cuentan también los días sin ventas, para que
- * un día en que el negocio no vende (o cierra) aparezca con un promedio bajo.
- * <p>
- * Índice estacional = promedio del día ÷ promedio general (1.20 = se vende 20 % más que un día típico).
- */
 public record EstacionalidadSemanalFGEM(Map<DayOfWeek, Double> promedioPorDiaFGEM, Map<DayOfWeek, Integer> diasObservadosFGEM,
                                     double promedioGeneralFGEM) {
 
@@ -30,7 +24,6 @@ public record EstacionalidadSemanalFGEM(Map<DayOfWeek, Double> promedioPorDiaFGE
         return new EstacionalidadSemanalFGEM(promediosFGEM, diasFGEM, generalFGEM);
     }
 
-    /** {@code NaN} si el día no aparece o no hubo ventas en el período. */
     public double indiceFGEM(DayOfWeek diaFGEM) {
         Double promedioFGEM = promedioPorDiaFGEM.get(diaFGEM);
         return promedioFGEM == null || Double.isNaN(promedioGeneralFGEM) || promedioGeneralFGEM == 0

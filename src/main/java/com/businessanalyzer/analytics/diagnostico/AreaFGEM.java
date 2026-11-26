@@ -1,6 +1,5 @@
 package com.businessanalyzer.analytics.diagnostico;
 
-/** Áreas en las que se agrupan los indicadores del diagnóstico. */
 public enum AreaFGEM {
 
     RENTABILIDAD("Rentabilidad", "la", "¿El negocio gana dinero?"),
@@ -23,7 +22,6 @@ public enum AreaFGEM {
         return descripcionFGEM;
     }
 
-    /** Nombre en minúsculas con su artículo: "la rentabilidad", "el crecimiento". */
     public String conArticuloFGEM() {
         return articuloFGEM + " " + descripcionFGEM.toLowerCase();
     }

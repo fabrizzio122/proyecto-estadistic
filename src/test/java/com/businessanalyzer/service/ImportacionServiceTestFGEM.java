@@ -34,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ImportacionServiceTestFGEM {
 
-    /** El reloj del entorno de prueba marca el 15/01/2026. */
     private static final LocalDate DESDE_FGEM = LocalDate.of(2025, 1, 1);
     private static final LocalDate HASTA_FGEM = LocalDate.of(2026, 1, 31);
 
@@ -70,7 +69,6 @@ class ImportacionServiceTestFGEM {
         assertEquals(revisionFGEM.registrosFGEM(), resultadoFGEM.registrosFGEM(), "La revisión anticipa exactamente lo que se importa");
         assertEquals(6, resultadoFGEM.categoriasFGEM());
         assertTrue(resultadoFGEM.advertenciasFGEM().isEmpty(), () -> "Advertencias: " + resultadoFGEM.advertenciasFGEM());
-        // Tres meses completos anteriores al mes en curso: octubre a diciembre de 2025.
         assertEquals(LocalDate.of(2025, 10, 1), resultadoFGEM.desdeFGEM());
         assertEquals(LocalDate.of(2025, 12, 31), resultadoFGEM.hastaFGEM());
         assertEquals(21, resultadoFGEM.gastosFGEM());
@@ -142,7 +140,6 @@ class ImportacionServiceTestFGEM {
         assertEquals(UnidadMedidaFGEM.KILOGRAMO, quesoFGEM.unidadFGEM());
         assertEquals("Lácteos", quesoFGEM.categoriaNombreFGEM());
 
-        // Las tres filas de la boleta B-1 forman una sola venta y el pan repetido se suma.
         List<OperacionFGEM> ventasFGEM = entornoFGEM.operacionesFGEM.listarFGEM(TipoOperacionFGEM.VENTA, DESDE_FGEM, HASTA_FGEM, false);
         assertEquals(1, ventasFGEM.size());
         OperacionFGEM ventaFGEM = entornoFGEM.operacionesFGEM.obtenerFGEM(ventasFGEM.get(0).idFGEM());
@@ -180,7 +177,6 @@ class ImportacionServiceTestFGEM {
         ProductoFGEM gaseosaFGEM = entornoFGEM.catalogoFGEM.listarProductosFGEM(false).get(0);
         assertEquals(0, new BigDecimal("9").compareTo(gaseosaFGEM.stockFGEM()));
         assertEquals(0, new BigDecimal("2.1").compareTo(gaseosaFGEM.costoUnitarioFGEM()), "El costo queda en el de la última compra");
-        // Cada venta usa el costo vigente ese día: 10 × 2.00 + 5 × 2.10
         var resumenFGEM = entornoFGEM.operacionesFGEM.resumenFGEM(DESDE_FGEM, HASTA_FGEM);
         assertEquals(0, new BigDecimal("30.5").compareTo(resumenFGEM.costoVentasFGEM()));
     }
@@ -233,8 +229,6 @@ class ImportacionServiceTestFGEM {
         assertTrue(resultadoFGEM.erroresFGEM().get(0).mensajeFGEM().contains("Categoría"));
     }
 
-    // ------------------------------------------------------------------ importar dos veces
-
     @Test
     void volverAImportarElMismoArchivoNoDuplicaNadaFGEM() {
         Path archivoFGEM = carpetaFGEM.resolve("ejemplo.xlsx");
@@ -245,7 +239,6 @@ class ImportacionServiceTestFGEM {
         ResultadoFGEM segundaFGEM = importacionFGEM.importarFGEM(archivoFGEM);
 
         assertFalse(segundaFGEM.aplicadoFGEM());
-        // Cada boleta, factura y gasto repetido es un error; los productos repetidos solo se reutilizan.
         assertEquals(primeraFGEM.ventasFGEM() + primeraFGEM.comprasFGEM() + primeraFGEM.gastosFGEM(), segundaFGEM.erroresFGEM().size());
         assertTrue(segundaFGEM.erroresFGEM().stream().noneMatch(eFGEM -> eFGEM.hojaFGEM().equals("Productos")));
         assertTrue(segundaFGEM.advertenciasFGEM().stream().anyMatch(aFGEM -> aFGEM.contains("ya tiene")), segundaFGEM.advertenciasFGEM()::toString);
@@ -253,7 +246,6 @@ class ImportacionServiceTestFGEM {
                 entornoFGEM.operacionesFGEM.listarFGEM(TipoOperacionFGEM.VENTA, DESDE_FGEM, HASTA_FGEM, false).size());
     }
 
-    /** El caso real: primero un archivo incompleto y después uno completo, cada uno con su inventario inicial. */
     @Test
     void unSegundoInventarioInicialSeRechazaAunqueTengaOtraFechaFGEM() throws Exception {
         Path incompletoFGEM = libroFGEM(libroFGEM -> {
@@ -264,7 +256,6 @@ class ImportacionServiceTestFGEM {
         });
         assertTrue(importacionFGEM.importarFGEM(incompletoFGEM).aplicadoFGEM());
 
-        // El archivo completo trae códigos (el primero no) y otro inventario inicial con otra fecha.
         Path completoFGEM = libroFGEM(libroFGEM -> {
             hojaFGEM(libroFGEM, "Productos", new Object[]{"Código", "Nombre", "Costo unitario", "Precio de venta"},
                     new Object[]{"ARR-1K", "Arroz", 3.2, 4.0},
@@ -283,8 +274,6 @@ class ImportacionServiceTestFGEM {
         ErrorFilaFGEM errorFGEM = resultadoFGEM.erroresFGEM().get(0);
         assertEquals("Compras, fila 2", errorFGEM.ubicacionFGEM());
         assertTrue(errorFGEM.mensajeFGEM().contains("inventario inicial (C-000001)"), errorFGEM.mensajeFGEM());
-        // «Arroz» con el código nuevo se reconoce como el mismo producto: solo el azúcar es nuevo,
-        // y la venta que usa el código ARR-1K lo encuentra.
         assertEquals(1, resultadoFGEM.productosFGEM());
         assertEquals(1, resultadoFGEM.ventasFGEM());
     }
@@ -302,8 +291,6 @@ class ImportacionServiceTestFGEM {
         assertEquals(2, resultadoFGEM.gastosFGEM());
         assertFalse(importacionFGEM.revisarFGEM(archivoFGEM).sinErroresFGEM(), "Pero volver a importarlos sí se detecta");
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private interface LlenadoFGEM {
         void llenarFGEM(XSSFWorkbook libroFGEM);

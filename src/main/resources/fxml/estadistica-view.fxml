@@ -36,7 +36,6 @@
 
     <TabPane fx:id="pestanasFGEM" VBox.vgrow="ALWAYS" tabClosingPolicy="UNAVAILABLE" styleClass="tabs-internas">
 
-        <!-- 1. Estadística descriptiva -->
         <Tab text="Resumen descriptivo">
             <HBox spacing="16" styleClass="tab-contenido">
                 <VBox styleClass="card" spacing="10" prefWidth="290" minWidth="270">
@@ -57,7 +56,6 @@
             </HBox>
         </Tab>
 
-        <!-- 2. Tendencia -->
         <Tab text="Tendencia">
             <HBox spacing="16" styleClass="tab-contenido">
                 <VBox styleClass="card" spacing="6" HBox.hgrow="ALWAYS">
@@ -72,7 +70,6 @@
             </HBox>
         </Tab>
 
-        <!-- 3. Estacionalidad semanal -->
         <Tab text="Días de la semana">
             <HBox spacing="16" styleClass="tab-contenido">
                 <VBox styleClass="card" spacing="6" HBox.hgrow="ALWAYS">
@@ -87,7 +84,6 @@
             </HBox>
         </Tab>
 
-        <!-- 4. Análisis ABC -->
         <Tab text="Análisis ABC">
             <HBox spacing="16" styleClass="tab-contenido">
                 <VBox spacing="10" HBox.hgrow="ALWAYS">
@@ -113,7 +109,6 @@
             </HBox>
         </Tab>
 
-        <!-- 5. Correlaciones -->
         <Tab text="Correlaciones">
             <HBox spacing="16" styleClass="tab-contenido">
                 <VBox styleClass="card" spacing="12" HBox.hgrow="ALWAYS">

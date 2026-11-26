@@ -50,7 +50,6 @@ class ListaComprasTestFGEM {
         assertTrue(textoFGEM.contains("Subtotal Lácteos"), textoFGEM);
         assertTrue(textoFGEM.contains("Yogur (perecible)"), textoFGEM);
         assertTrue(textoFGEM.contains("12 und"), textoFGEM);
-        // 42 + 24 + 76 + 5 = 147
         assertTrue(textoFGEM.contains("Total de la compra") && textoFGEM.contains("147.00"), textoFGEM);
     }
 
@@ -67,7 +66,6 @@ class ListaComprasTestFGEM {
         }
         try (InputStream entradaFGEM = Files.newInputStream(archivoFGEM); XSSFWorkbook libroFGEM = new XSSFWorkbook(entradaFGEM)) {
             Sheet hojaFGEM = libroFGEM.getSheet("Lista de compras");
-            // Título, detalle, fila en blanco, encabezados (fila 4) y datos desde la fila 5: primero Abarrotes.
             assertEquals("Arroz", hojaFGEM.getRow(4).getCell(1).getStringCellValue());
             assertEquals("ROUND(G5*H5,2)", hojaFGEM.getRow(4).getCell(8).getCellFormula());
             assertEquals("SUM(I5:I6)", hojaFGEM.getRow(6).getCell(8).getCellFormula());

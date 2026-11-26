@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** Acceso a las tablas {@code deuda} y {@code pago_deuda}. El monto pagado se calcula con los pagos vigentes. */
 public class DeudaRepositoryFGEM {
 
     private static final String CONSULTA_FGEM = """
@@ -100,8 +99,6 @@ public class DeudaRepositoryFGEM {
         }
     }
 
-    // ------------------------------------------------------------------ pagos
-
     public List<PagoDeudaFGEM> listarPagosFGEM(Connection cFGEM, long deudaIdFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement(CONSULTA_PAGOS_FGEM
                 + " WHERE deuda_id = ? ORDER BY fecha DESC, id DESC")) {
@@ -118,7 +115,6 @@ public class DeudaRepositoryFGEM {
         }
     }
 
-    /** Fecha del primer pago vigente; vacío si no hay pagos. */
     public Optional<LocalDate> primerPagoFGEM(Connection cFGEM, long deudaIdFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement(
                 "SELECT MIN(fecha) FROM pago_deuda WHERE deuda_id = ? AND estado = 'REGISTRADO'")) {
@@ -129,12 +125,6 @@ public class DeudaRepositoryFGEM {
         }
     }
 
-    /**
-     * @param capitalFGEM      lo que baja el saldo de la deuda
-     * @param interesFGEM      intereses de la cuota (cero si no hay)
-     * @param cuentaIdFGEM     cuenta de la que salió el pago
-     * @param movimientoIdFGEM gasto financiero con el que se registraron los intereses; {@code null} si no hay
-     */
     public long insertarPagoFGEM(Connection cFGEM, long deudaIdFGEM, LocalDate fechaFGEM, BigDecimal capitalFGEM, BigDecimal interesFGEM,
                              Long cuentaIdFGEM, Long movimientoIdFGEM, String notaFGEM, String usuarioFGEM, LocalDateTime ahoraFGEM)
             throws SQLException {
@@ -156,7 +146,6 @@ public class DeudaRepositoryFGEM {
         }
     }
 
-    /** Gasto financiero (intereses) que se generó con el pago; vacío si el pago no tuvo intereses. */
     public Optional<Long> movimientoDelPagoFGEM(Connection cFGEM, long pagoIdFGEM) throws SQLException {
         try (PreparedStatement psFGEM = cFGEM.prepareStatement("SELECT movimiento_id FROM pago_deuda WHERE id = ?")) {
             psFGEM.setLong(1, pagoIdFGEM);
@@ -166,7 +155,6 @@ public class DeudaRepositoryFGEM {
         }
     }
 
-    /** Gastos financieros (intereses) de los pagos vigentes de la deuda. */
     public List<Long> movimientosDeLaDeudaFGEM(Connection cFGEM, long deudaIdFGEM) throws SQLException {
         List<Long> idsFGEM = new ArrayList<>();
         try (PreparedStatement psFGEM = cFGEM.prepareStatement("""
@@ -192,8 +180,6 @@ public class DeudaRepositoryFGEM {
             exigirUnaFilaFGEM(psFGEM.executeUpdate(), "El pago ya no existe o está anulado. Actualiza la lista.");
         }
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private static void asignarDatosFGEM(PreparedStatement psFGEM, DatosDeudaFGEM dFGEM) throws SQLException {
         psFGEM.setString(1, dFGEM.categoriaFGEM().name());

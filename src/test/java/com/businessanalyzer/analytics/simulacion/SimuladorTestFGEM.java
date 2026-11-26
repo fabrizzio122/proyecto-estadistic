@@ -10,10 +10,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Base mensual: ventas 10 000, costo de ventas 6 000, gastos variables 1 000, costos fijos 2 000,
- * impuesto 30 % -> UAI 1 000, utilidad neta 700, punto de equilibrio 6 666.67.
- */
 class SimuladorTestFGEM {
 
     private static final BigDecimal TASA_FGEM = new BigDecimal("0.30");
@@ -113,14 +109,8 @@ class SimuladorTestFGEM {
                 .compareTo(bdFGEM("700")) > 0);
     }
 
-    /**
-     * Con un margen de contribución pequeño (como una bodega que pierde dinero), redondear los promedios mensuales
-     * a céntimos movía el punto de equilibrio varios soles. El simulador debe coincidir con el cálculo directo
-     * sobre los totales del período.
-     */
     @Test
     void conMargenPequenoCoincideAlCentimoConElCalculoDirectoFGEM() {
-        // Totales de 3 meses: el promedio mensual tiene decimales infinitos (÷ 3).
         BigDecimal ventasFGEM = bdFGEM("7362.01");
         BigDecimal variablesFGEM = bdFGEM("7110.43");
         BigDecimal fijosFGEM = bdFGEM("2728.07");
@@ -132,7 +122,6 @@ class SimuladorTestFGEM {
 
         ResultadoEscenarioFGEM rFGEM = SimuladorFGEM.simularFGEM(baseFGEM, SupuestosFGEM.neutrosFGEM(BigDecimal.ZERO));
 
-        // Directo: (ventas − variables − fijos) ÷ 3 y punto de equilibrio mensual = fijos × ventas ÷ margen ÷ 3.
         BigDecimal utilidadFGEM = ventasFGEM.subtract(variablesFGEM).subtract(fijosFGEM).divide(tresFGEM, 2, java.math.RoundingMode.HALF_UP);
         BigDecimal equilibrioFGEM = fijosFGEM.multiply(ventasFGEM).divide(ventasFGEM.subtract(variablesFGEM), mcFGEM)
                 .divide(tresFGEM, 2, java.math.RoundingMode.HALF_UP);

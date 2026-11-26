@@ -1,19 +1,7 @@
 package com.businessanalyzer.analytics.prediccion;
 
-/**
- * Suavizado exponencial doble de Holt: estima un <b>nivel</b> y una <b>tendencia</b> que se
- * actualizan cada mes dando más peso a los datos recientes.
- * <pre>
- * nivel_t     = α · y_t + (1 − α) · (nivel_{t−1} + tendencia_{t−1})
- * tendencia_t = β · (nivel_t − nivel_{t−1}) + (1 − β) · tendencia_{t−1}
- * pronóstico_{t+h} = nivel_t + h · tendencia_t
- * </pre>
- * α y β se eligen automáticamente (entre 0.1 y 0.9) minimizando el error de pronóstico a un mes
- * sobre la propia historia.
- */
 public final class SuavizadoHoltFGEM implements MetodoPronosticoFGEM {
 
-    /** Parámetros de suavizado elegidos. */
     public record ParametrosFGEM(double alfaFGEM, double betaFGEM) {
     }
 
@@ -39,7 +27,6 @@ public final class SuavizadoHoltFGEM implements MetodoPronosticoFGEM {
         return pronosticoFGEM;
     }
 
-    /** Busca en una grilla los α y β con menor suma de errores al cuadrado. */
     public ParametrosFGEM ajustarFGEM(double[] historiaFGEM) {
         ParametrosFGEM mejorFGEM = new ParametrosFGEM(0.5, 0.5);
         double menorErrorFGEM = Double.POSITIVE_INFINITY;
@@ -58,10 +45,6 @@ public final class SuavizadoHoltFGEM implements MetodoPronosticoFGEM {
         return mejorFGEM;
     }
 
-    /**
-     * Aplica el suavizado y devuelve {nivel, tendencia} finales. Si {@code error} no es nulo,
-     * acumula en error[0] la suma de errores al cuadrado de los pronósticos a un mes.
-     */
     private static double[] suavizarFGEM(double[] yFGEM, double alfaFGEM, double betaFGEM, double[] errorFGEM) {
         double nivelFGEM = yFGEM[0];
         double tendenciaFGEM = yFGEM.length > 1 ? yFGEM[1] - yFGEM[0] : 0;

@@ -32,14 +32,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Activos, deudas y balance general de la empresa activa. Usa los permisos de Gestión
- * financiera: {@link PermisoFGEM#FINANZAS_VER} para consultar y {@link PermisoFGEM#FINANZAS_GESTIONAR}
- * para registrar.
- * <p>
- * Nada se elimina: los activos se dan de baja (venta, pérdida o error) y las deudas y pagos se
- * anulan, conservando quién lo hizo y cuándo.
- */
 public class PatrimonioServiceFGEM {
 
     private final DatabaseFGEM databaseFGEM;
@@ -65,15 +57,12 @@ public class PatrimonioServiceFGEM {
         this.relojFGEM = relojFGEM;
     }
 
-    /** Balance general a hoy con sus indicadores. */
     public SituacionPatrimonialFGEM situacionFGEM() {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_VER);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
         LocalDate hoyFGEM = LocalDate.now(relojFGEM);
         return databaseFGEM.conConexionFGEM(cFGEM -> consultaFGEM.situacionFGEM(cFGEM, empresaFGEM.idFGEM(), hoyFGEM));
     }
-
-    // ------------------------------------------------------------------ activos
 
     public List<ActivoFGEM> listarActivosFGEM(boolean incluirBajasFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_VER);
@@ -95,7 +84,6 @@ public class PatrimonioServiceFGEM {
         });
     }
 
-    /** El dinero se registra en «Tesorería» (cuentas con saldo calculado), ya no como un activo escrito a mano. */
     private static void exigirNoEsEfectivoFGEM(DatosActivoFGEM dFGEM, ActivoFGEM actualFGEM) {
         if (dFGEM.categoriaFGEM() == CategoriaActivoFGEM.CAJA_BANCOS
                 && (actualFGEM == null || actualFGEM.categoriaFGEM() != CategoriaActivoFGEM.CAJA_BANCOS)) {
@@ -122,7 +110,6 @@ public class PatrimonioServiceFGEM {
         });
     }
 
-    /** Retira el activo del balance desde la fecha indicada (venta, pérdida, desuso o registro erróneo). */
     public ActivoFGEM darDeBajaFGEM(long idFGEM, LocalDate fechaFGEM, String motivoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -143,8 +130,6 @@ public class PatrimonioServiceFGEM {
             return activosFGEM.buscarPorIdFGEM(cFGEM, idFGEM).orElseThrow();
         });
     }
-
-    // ------------------------------------------------------------------ deudas
 
     public List<DeudaFGEM> listarDeudasFGEM(boolean incluirAnuladasFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_VER);
@@ -190,10 +175,6 @@ public class PatrimonioServiceFGEM {
         });
     }
 
-    /**
-     * Quita la deuda del balance (por ejemplo, si se registró por error). Sus pagos se conservan como
-     * historial, pero dejan de mover las cuentas, y los intereses que generaron se anulan.
-     */
     public DeudaFGEM anularDeudaFGEM(long idFGEM, String motivoFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -213,8 +194,6 @@ public class PatrimonioServiceFGEM {
         });
     }
 
-    // ------------------------------------------------------------------ pagos
-
     public List<PagoDeudaFGEM> listarPagosFGEM(long deudaIdFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_VER);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -224,19 +203,10 @@ public class PatrimonioServiceFGEM {
         });
     }
 
-    /** Registra un pago de capital (sin intereses) desde la cuenta principal. */
     public DeudaFGEM registrarPagoFGEM(long deudaIdFGEM, LocalDate fechaFGEM, BigDecimal montoFGEM, String notaFGEM) {
         return registrarPagoFGEM(deudaIdFGEM, fechaFGEM, montoFGEM, BigDecimal.ZERO, null, notaFGEM);
     }
 
-    /**
-     * Registra el pago de una cuota y devuelve la deuda con su nuevo saldo.
-     *
-     * @param capitalFGEM  lo que baja el saldo de la deuda
-     * @param interesFGEM  intereses de la cuota (opcional): se registran también como gasto financiero, para
-     *                 que entren en el estado de resultados
-     * @param cuentaIdFGEM cuenta de la que sale el dinero; {@code null} = la cuenta principal
-     */
     public DeudaFGEM registrarPagoFGEM(long deudaIdFGEM, LocalDate fechaFGEM, BigDecimal capitalFGEM, BigDecimal interesFGEM, Long cuentaIdFGEM,
                                String notaFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_GESTIONAR);
@@ -272,7 +242,6 @@ public class PatrimonioServiceFGEM {
         });
     }
 
-    /** Interés sugerido para la próxima cuota: saldo × tasa anual / 12; cero si no se indicó la tasa. */
     public static BigDecimal interesSugeridoFGEM(DeudaFGEM deudaFGEM) {
         if (deudaFGEM.tasaAnualFGEM() == null || !deudaFGEM.pendienteFGEM()) {
             return BigDecimal.ZERO;
@@ -281,7 +250,6 @@ public class PatrimonioServiceFGEM {
                 .divide(BigDecimal.valueOf(1200), 2, java.math.RoundingMode.HALF_UP);
     }
 
-    /** Anula un pago registrado por error: el saldo de la deuda vuelve a subir. */
     public DeudaFGEM anularPagoFGEM(long pagoIdFGEM) {
         sesionFGEM.requerirFGEM(PermisoFGEM.FINANZAS_GESTIONAR);
         EmpresaFGEM empresaFGEM = empresasFGEM.empresaDeTrabajoFGEM();
@@ -305,8 +273,6 @@ public class PatrimonioServiceFGEM {
             return deudasFGEM.buscarPorIdFGEM(cFGEM, deudaFGEM.idFGEM()).orElseThrow();
         });
     }
-
-    // ------------------------------------------------------------------ utilidades
 
     private void anularInteresFGEM(Connection cFGEM, long movimientoIdFGEM, String motivoFGEM, String usuarioFGEM, LocalDateTime ahoraFGEM)
             throws SQLException {
